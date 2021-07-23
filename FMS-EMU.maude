@@ -1,0 +1,6 @@
+in SYS-EMULATOR
+in VsysFMS 
+
+mod FMS-EMU is
+ including SYS-EMULATOR{SysFMS} .
+endm

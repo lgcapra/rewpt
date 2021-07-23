@@ -1,0 +1,34 @@
+fmod BAG{X :: TRIV} is
+ protecting INT .
+ sorts Bag{X} NeBag{X} .
+ subsorts NeBag{X} < Bag{X} .
+
+ op nil : -> Bag{X} [ctor] .
+ op _._  : Nat X$Elt ->  Bag{X} [prec 35 ctor] .
+ op _._  : NzNat X$Elt ->  NeBag{X} [ctor ditto] .
+ op _`[_`] : Bag{X} X$Elt -> Nat [prec 23] .
+ op _+_  : Bag{X} Bag{X} -> Bag{X} [prec 39 ctor assoc comm id: nil] .
+ op _+_  : NeBag{X} Bag{X} -> NeBag{X} [ctor ditto] .
+ op _-_  : Bag{X} Bag{X} -> Bag{X} [prec 41 gather (E e)] .
+ op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
+ op _>'_ : Bag{X} Bag{X} -> Bool [prec 43] .
+ op set  : Bag{X} X$Elt Nat -> Bag{X} . 
+ 
+ vars X Y : X$Elt .
+ vars N M : NzNat .
+ var K : Nat .
+ var B B' : Bag{X} .
+ 
+ eq (N . X + B)[X] = N .
+ eq B[X] = 0 [owise] .
+ eq 0 . X = nil .
+ eq N . X + M . X = (N + M) . X .
+ eq nil - B = nil .
+ eq N . X + B - B' = max(N - B'[X], 0) . X + (B - B') . 
+ ceq N . X + B <= B' = false if N > B'[X] .
+ eq B <= B' = true [owise] . 
+ ceq N . X + B >' B' = false if N <= B'[X] .
+ eq B >' B' = true [owise] .
+ eq set(B + N . X, X, K) = B + K . X . 
+ eq set(B, X, K)  =  B + K . X  [owise] .
+endfm

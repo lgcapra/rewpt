@@ -1,0 +1,8 @@
+fmod PLACE is
+ protecting NAT .
+ sort Place .
+ op p : Nat -> Place [ctor] .
+ op subscript : Place -> Nat .
+ vars N : Nat .
+ eq subscript (p(N)) = N .
+endfm

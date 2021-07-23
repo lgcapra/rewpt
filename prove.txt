@@ -1,0 +1,58 @@
+Ricerca di (non esistenza di) stati finali (deadlock) del sistema complessivo
+
+Maude> search net m0 =>! X:System .
+search in FMS-EMU : net m0 =>! X:System .
+
+No solution.
+
+M=3
+states: 550  rewrites: 93196 in 100ms cpu (93ms real) (931960 rewrites/second)
+
+M=5
+states: 1876  rewrites: 343317 in 420ms cpu (414ms real) (817421 rewrites/second)
+
+M=10
+states: 12716  rewrites: 2576602 in 2990ms cpu (2995ms real) (861739 rewrites/second)
+
+M=50
+states: 2545036  rewrites: 613495782 in 2352560ms cpu (2352577ms real) (260777 rewrites/second)
+
+
+Ricerca di (esistenza) di deadlock del PT System
+
+search net m0 =>* X:System such that dead(X:System) .
+search in FMS-EMU : net m0 =>* X:System such that dead(X:System) = true .
+
+6 soluzioni per ogni M (2 per il modello nominale e 2 * 2 per il modello
+faulty)
+
+M=5
+states: 1876  rewrites: 387037 in 390ms cpu (390ms real) (992402 rewrites/second)
+
+M=10
+states: 12716  rewrites: 2829607 in 5840ms cpu (5843ms real) (484521 rewrites/second)
+
+
+Corretta evoluzione da deadlock
+ad es. (M = 10)
+
+search net  1 . p(8) + 10 . p(3) + 10 . p(4) =>1 X:System .
+
+Solution 1 (state 1)
+states: 2  rewrites: 23 in 0ms cpu (0ms real) (~ rewrites/second)
+X:System --> (t(0) |-> [1 . p(1),1 . p(2),emptyBagP], t(1) |-> [1 . p(2),1 . p(4),1 . p(7)], t(2) |-> [1 . p(3),1 . p(
+    5),1 . p(8)], t(3) |-> [2 . p(4),1 . p(6),emptyBagP], t(4) |-> [1 . p(6),2 . p(1),emptyBagP], t(5) |-> [1 . p(0),1
+    . p(7),emptyBagP]) 1 . p(0) + 10 . p(2) + 10 . p(4)
+
+
+
+search in FMS-EMU : (t(0) |-> [1 . p(1),1 . p(2),emptyBagP], t(1) |-> [1 . p(2),1 . p(4),1 . p(7)], t(2) |-> [1 . p(3),
+    1 . p(5),1 . p(8)], t(3) |-> [2 . p(4),1 . p(6),emptyBagP], t(4) |-> [1 . p(6),2 . p(1),emptyBagP], t(5) |-> [1 .
+    p(0),1 . p(7),emptyBagP]) 1 . p(4) + 1 . p(7) + 19 . p(2) =>1 X:System .
+
+Solution 1 (state 1)
+states: 2  rewrites: 179 in 0ms cpu (0ms real) (~ rewrites/second)
+X:System --> (t(0) |-> [2 . p(1),1 . p(2) + 1 . p(3),emptyBagP], t(1) |-> [1 . p(2),1 . p(4),1 . p(7)], t(2) |-> [1 .
+    p(3),1 . p(5),1 . p(8)], t(3) |-> [1 . p(4) + 1 . p(5),1 . p(6),emptyBagP], t(4) |-> [1 . p(6),2 . p(1),emptyBagP],
+    t(5) |-> [1 . p(0),1 . p(7),emptyBagP], t(6) |-> [1 . p(0),1 . p(8),emptyBagP]) 1 . p(0) + 1 . p(4) + 9 . p(2) + 10
+    . p(3)

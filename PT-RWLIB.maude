@@ -1,0 +1,28 @@
+in PT-SYS2
+
+fmod PT-RWLIB is
+ protecting PT-SYS .
+ sort Atype . *** arc type
+ ops i o h : -> Atype [ctor] .
+ op w : Net Tran Place Atype -> [Nat] . ***get an arc's weight
+ op setw : Net Tran Place Atype Nat  -> Net . ***set an arc
+ ops remove : Place Net -> Net .
+ var N N' : Net .
+ var T : Tran .
+ var P : Place .
+ var I O H M : BagP .
+ var Q : Imatrix .
+ var K K' : NzNat .
+ var Y : Nat .
+ eq w(N, T, P, i) =  In(N,T)[P] .
+ eq w(N, T, P, o) = Out(N,T)[P] .
+ eq w(N, T, P, h) = Inh(N,T)[P] .
+ ceq setw(N, T, P, i, Y) =  N, T |-> [Y . P, emptyBagP, emptyBagP] if N[T] = undefined .
+ eq setw((N, T |-> [I,O,H]), T, P, i, Y) =  N, T |-> [set(I, P, Y), O, H]  .
+ceq setw(N, T, P, o, Y) =  N, T |-> [emptyBagP, Y . P, emptyBagP] if N[T] = undefined .
+ eq setw((N, T |-> [I,O,H]), T, P, o, Y) =  N, T |-> [I, set(O, P, Y), H]  .
+ceq setw(N, T, P, h, Y) =  N if N[T] = undefined .
+ eq setw((N, T |-> [I,O,H]), T, P, h, Y) =  N, T |-> [I, O, set(H, P, Y)]  .
+ eq remove(P, (T |-> Q, N) ) = T |-> remove(Q, P), remove(P, N) .
+ eq remove(P, emptyNet) = emptyNet .
+endfm

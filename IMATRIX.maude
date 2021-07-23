@@ -1,0 +1,15 @@
+in Vplace.maude
+in BAG.maude
+
+fmod IMATRIX is
+ pr BAG{Place} * (sort Bag{Place} to BagP, sort NeBag{Place} to NeBagP, op nil to emptyBagP) .
+ pr EXT-BOOL .
+ sort Imatrix .
+ op [_,_,_] : BagP BagP BagP -> Imatrix [ctor] .
+ op remove : Imatrix Place -> Imatrix .
+ op in : Imatrix Place -> Bool .
+ vars X Y Z : BagP .
+ var P : Place .
+ eq remove([X,Y,Z], P) = [set(X,P,0),set(Y,P,0),set(Z,P,0)] .
+ eq in([X,Y,Z], P) = X[P] =/= 0 or-else Y[P] =/= 0 or-else Z[P] =/= 0 . 
+endfm

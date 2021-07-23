@@ -1,0 +1,18 @@
+in PT-NET
+
+fmod PT-SYS is 
+ protecting PT-NET .
+ sort System .
+ op __ : Net BagP -> System .
+ op enabled : System Tran -> [Bool] .
+ op dead : System -> Bool .
+ var T : Tran .
+ var I O H M : BagP .
+ var Q : Imatrix .
+ var N N' : Net .
+ var P : Place .
+ var K : NzNat .
+ eq enabled( (T |-> [I,O,H], N) M, T) = I <= M and-then H >' M .
+ ceq dead((T |-> Q, N) M) = false if enabled( (T |-> Q, N) M, T) .
+ eq dead(N M) = true [owise] .
+endfm

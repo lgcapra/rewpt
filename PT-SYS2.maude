@@ -1,0 +1,30 @@
+in MAP+.maude 
+in Vimatrix.maude
+in Vtran.maude
+
+fmod PT-SYS is
+ pr MAP+{Tran, Imatrix} * (sort Map{Tran, Imatrix} to Net, op empty to emptyNet) .
+ sort System .
+ op __ : Net BagP -> System [ctor] .
+ ops In Out Inh : Net Tran  -> [BagP] .
+ op enabled : System Tran -> [Bool] .
+ op dead : System -> Bool .
+ op in : Place Net -> Bool .
+ var N  : Net .
+ var T : Tran .
+ var P : Place .
+ var I O H S : BagP .
+ var Q : Imatrix .
+ var K K' : NzNat .
+ eq In((T |-> [I,O,H], N), T) = I .
+ eq Out((T |-> [I,O,H], N), T) = O .
+ eq Inh((T |-> [I,O,H], N), T) = H .
+ eq in(P, (T |-> Q, N) ) = in(Q, P) or-else in(P, N). 
+ eq in(P, emptyNet) = false .
+ eq T |-> [I,I,H] = emptyNet [metadata "null t"] .  
+ceq T |-> [K . P + I, O, K' . P + H] = emptyNet if K >= K' [metadata "dead t"] .
+*** ceq N K . P + S = N S if in(P, N) = false [metadata "isolated p"] .
+eq enabled( (T |-> [I,O,H], N) S, T) = I <= S and-then H >' S .
+ceq dead((T |-> Q, N) S) = false if enabled( (T |-> Q, N) S, T) .
+ eq dead(N S) = true [owise] .
+endfm

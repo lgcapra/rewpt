@@ -1,0 +1,8 @@
+in SYSTH 
+
+mod SYS-EMULATOR{X :: SYSTH} is
+ var T : Tran .
+ var I O H S : BagP .
+ var N N' : Net .
+ crl [firing] : N S => N S + O - I if T |-> [I,O,H], N' := N /\ enabled(N S, T) .
+endm

@@ -1,0 +1,3 @@
+view Bag{X :: TRIV} from TRIV to BAG{X} is 
+ sort Elt to Bag{X} . 
+endv
