@@ -12,11 +12,9 @@ fmod MAP+{X :: TRIV, Y :: TRIV} is
   op _`[_`] : [Map{X,Y}] X$Elt -> [Y$Elt] [prec 23] .
   op $hasMapping : [Map{X,Y}] X$Elt -> Bool .
   op hasduplicate : [Map{X,Y}] -> Bool .
-  
   var D : X$Elt .
   vars R R' : Y$Elt .
   var M : [Map{X,Y}] .
-  
   eq $hasMapping ((M, D |-> R), D) = true .
   eq $hasMapping (M, D) = false [owise] .
   eq insert (D, R, (M, D |-> R')) = if $hasMapping (M, D) then insert (D, R, M) else (M, D |-> R) fi .
