@@ -27,4 +27,5 @@ ceq T |-> [K . P + I, O, K' . P + H] = emptyNet if K >= K' [metadata "dead t"] .
  eq enabled( (T |-> [I,O,H], N) S, T) = I <= S and-then H >' S .
 ceq dead((T |-> Q, N) S) = false if enabled( (T |-> Q, N) S, T) .
  eq dead(N S) = true [owise] .
+cmb N : Net if N =/= emptyNet . *** en empty net is not a PT net
 endfm
