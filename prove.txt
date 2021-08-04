@@ -6,16 +6,26 @@ search in FMS-EMU : net m0 =>! X:System .
 No solution.
 
 M=3
-states: 550  rewrites: 93196 in 100ms cpu (93ms real) (931960 rewrites/second)
+states: 350  rewrites: 35730 in 50ms cpu (44ms real) (714600 rewrites/second)
 
 M=5
-states: 1876  rewrites: 343317 in 420ms cpu (414ms real) (817421 rewrites/second)
+states: 1232  rewrites: 130539 in 150ms cpu (153ms real) (870260 rewrites/second)
 
 M=10
-states: 12716  rewrites: 2576602 in 2990ms cpu (2995ms real) (861739 rewrites/second)
+states: 8932  rewrites: 995724 in 1190ms cpu (1192ms real) (836742 rewrites/second)
+
+M=20
+states: 84007  rewrites: 9737494 in 36090ms cpu (36090ms real) (269811 rewrites/second)
 
 M=50
-states: 2545036  rewrites: 613495782 in 2352560ms cpu (2352577ms real) (260777 rewrites/second)
+states: 2186132  rewrites: 261564504 in 862530ms cpu (862536ms real) (303252 rewrites/second)
+states: 2186132  rewrites: 261564504 in 962250ms cpu (962267ms real) (271825 rewrites/second)
+
+
+M=20 (comparison between alternative firing rules)
+
+states: 84007  rewrites: 9737494 in 38860ms cpu (38858ms real) (250578 rewrites/second)
+states: 84007  rewrites: 10433602 in 43560ms cpu (43567ms real) (239522 rewrites/second)
 
 
 Ricerca di (esistenza) di deadlock del PT System
@@ -26,11 +36,42 @@ search in FMS-EMU : net m0 =>* X:System such that dead(X:System) = true .
 6 soluzioni per ogni M (2 per il modello nominale e 2 * 2 per il modello
 faulty)
 
-M=5
-states: 1876  rewrites: 387037 in 390ms cpu (390ms real) (992402 rewrites/second)
+ES.
 
-M=10
-states: 12716  rewrites: 2829607 in 5840ms cpu (5843ms real) (484521 rewrites/second)
+M=50
+states: 2186132  rewrites: 297436719 in 1643310ms cpu (1643309ms real) (180998 rewrites/second)
+
+Solution 1 (state 133541)
+states: 133542  rewrites: 16647633 in 65130ms cpu (65135ms real) (255606 rewrites/second)
+X:System --> (t(0) |-> [1 . p(1),1 . p(3),nilP], t(2) |-> [1 . p(3),1 . p(5),1 . p(8)], t(3) |-> [2 . p(5),1 . p(6),
+    nilP], t(4) |-> [1 . p(6),2 . p(1),nilP], t(6) |-> [1 . p(0),1 . p(8),nilP]) 1 . p(8) + 100 . p(3)
+
+Solution 2 (state 133542)
+states: 133543  rewrites: 16647811 in 65140ms cpu (65137ms real) (255569 rewrites/second)
+X:System --> (t(0) |-> [1 . p(1),1 . p(2),nilP], t(1) |-> [1 . p(2),1 . p(4),1 . p(7)], t(3) |-> [2 . p(4),1 . p(6),
+    nilP], t(4) |-> [1 . p(6),2 . p(1),nilP], t(5) |-> [1 . p(0),1 . p(7),nilP]) 1 . p(7) + 100 . p(2)
+
+Solution 3 (state 142860)
+states: 142861  rewrites: 17841539 in 68140ms cpu (68142ms real) (261836 rewrites/second)
+X:System --> (t(0) |-> [1 . p(1),1 . p(2),nilP], t(1) |-> [1 . p(2),1 . p(4),1 . p(7)], t(3) |-> [2 . p(4),1 . p(6),
+    nilP], t(4) |-> [1 . p(6),2 . p(1),nilP], t(5) |-> [1 . p(0),1 . p(7),nilP]) 1 . p(4) + 1 . p(7) + 99 . p(2)
+
+Solution 4 (state 142865)
+states: 142866  rewrites: 17842109 in 68140ms cpu (68144ms real) (261844 rewrites/second)
+X:System --> (t(0) |-> [1 . p(1),1 . p(3),nilP], t(2) |-> [1 . p(3),1 . p(5),1 . p(8)], t(3) |-> [2 . p(5),1 . p(6),
+    nilP], t(4) |-> [1 . p(6),2 . p(1),nilP], t(6) |-> [1 . p(0),1 . p(8),nilP]) 1 . p(5) + 1 . p(8) + 99 . p(3)
+
+Solution 5 (state 1083022)
+states: 1083023  rewrites: 143322169 in 781220ms cpu (781224ms real) (183459 rewrites/second)
+X:System --> (t(0) |-> [2 . p(1),1 . p(2) + 1 . p(3),nilP], t(1) |-> [1 . p(2),1 . p(4),1 . p(7)], t(2) |-> [1 . p(3),1
+    . p(5),1 . p(8)], t(3) |-> [1 . p(4) + 1 . p(5),1 . p(6),nilP], t(4) |-> [1 . p(6),2 . p(1),nilP], t(5) |-> [1 . p(
+    0),1 . p(7),nilP], t(6) |-> [1 . p(0),1 . p(8),nilP]) 1 . p(8) + 50 . p(3) + 50 . p(4)
+
+Solution 6 (state 1084477)
+states: 1084478  rewrites: 143524908 in 782130ms cpu (782132ms real) (183505 rewrites/second)
+X:System --> (t(0) |-> [2 . p(1),1 . p(2) + 1 . p(3),nilP], t(1) |-> [1 . p(2),1 . p(4),1 . p(7)], t(2) |-> [1 . p(3),1
+    . p(5),1 . p(8)], t(3) |-> [1 . p(4) + 1 . p(5),1 . p(6),nilP], t(4) |-> [1 . p(6),2 . p(1),nilP], t(5) |-> [1 . p(
+    0),1 . p(7),nilP], t(6) |-> [1 . p(0),1 . p(8),nilP]) 1 . p(7) + 50 . p(2) + 50 . p(5)
 
 
 Corretta evoluzione da deadlock
@@ -56,3 +97,8 @@ X:System --> (t(0) |-> [2 . p(1),1 . p(2) + 1 . p(3),emptyBagP], t(1) |-> [1 . p
     p(3),1 . p(5),1 . p(8)], t(3) |-> [1 . p(4) + 1 . p(5),1 . p(6),emptyBagP], t(4) |-> [1 . p(6),2 . p(1),emptyBagP],
     t(5) |-> [1 . p(0),1 . p(7),emptyBagP], t(6) |-> [1 . p(0),1 . p(8),emptyBagP]) 1 . p(0) + 1 . p(4) + 9 . p(2) + 10
     . p(3)
+
+
+6519711 in 6950ms
+4319871 in 4870ms
+4119871 in 4570ms
