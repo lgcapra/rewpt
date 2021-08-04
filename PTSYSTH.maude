@@ -1,0 +1,7 @@
+in PT-SYS2
+
+fth PTSYSTH  is 
+ protecting PT-SYS .
+ op m0  : -> BagP .
+ op net : -> Net .
+endfth 

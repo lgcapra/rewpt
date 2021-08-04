@@ -2,7 +2,7 @@ in Vplace.maude
 in BAG.maude
 
 fmod IMATRIX is
- pr BAG{Place} * (sort Bag{Place} to BagP, sort NeBag{Place} to NeBagP, op nil to emptyBagP) .
+ pr BAG{Place} * (sort Bag{Place} to BagP, sort NeBag{Place} to NeBagP, op nil to nilP) .
  pr EXT-BOOL .
  sort Imatrix .
  op [_,_,_] : BagP BagP BagP -> Imatrix [ctor] .

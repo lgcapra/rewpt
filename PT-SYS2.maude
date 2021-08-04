@@ -3,13 +3,13 @@ in Vimatrix.maude
 in Vtran.maude
 
 fmod PT-SYS is
- pr MAP+{Tran, Imatrix} * (sort Map{Tran, Imatrix} to Net, op empty to emptyNet) .
+ pr MAP+{Tran, Imatrix} * (sort Map{Tran, Imatrix} to Net, op empty to emptyN) .
  sort System .
- op __ : Net BagP -> System [ctor] .
+ op __ : Net BagP -> [System] [ctor] .
  ops In Out Inh : Net Tran  -> [BagP] .
  op enabled : System Tran -> [Bool] .
  op dead : System -> Bool .
- op in : Net Place -> Bool .
+ op in : Net Place -> Bool . *** test the existence of a place
  var N  : Net .
  var T : Tran .
  var P : Place .
@@ -20,12 +20,12 @@ fmod PT-SYS is
  eq Out((T |-> [I,O,H], N), T) = O .
  eq Inh((T |-> [I,O,H], N), T) = H .
  eq in((T |-> Q, N), P) = in(Q, P) or-else in(N, P). 
- eq in(emptyNet, P) = false .
- eq T |-> [I,I,H] = emptyNet [metadata "null t"] .  
-ceq T |-> [K . P + I, O, K' . P + H] = emptyNet if K >= K' [metadata "dead t"] .
+ eq in(emptyN, P) = false .
+ eq T |-> [I,I,H] = emptyN [metadata "null t"] .  
+ceq T |-> [K . P + I, O, K' . P + H] = emptyN if K >= K' [metadata "dead t"] .
 *** ceq N K . P + S = N S if in(N, P) = false [metadata "isolated p"] .
  eq enabled( (T |-> [I,O,H], N) S, T) = I <= S and-then H >' S .
 ceq dead((T |-> Q, N) S) = false if enabled( (T |-> Q, N) S, T) .
  eq dead(N S) = true [owise] .
-cmb N : Net if N =/= emptyNet . *** en empty net is not a PT net
+cmb N S : System if N =/= emptyN . *** a PT system cannot be "empty"
 endfm

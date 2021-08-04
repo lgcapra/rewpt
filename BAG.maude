@@ -13,22 +13,27 @@ fmod BAG{X :: TRIV} is
  op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
  op _>'_ : Bag{X} Bag{X} -> Bool [prec 43] .
  op set  : Bag{X} X$Elt Nat -> Bag{X} . 
- 
  vars X Y : X$Elt .
  vars N M : NzNat .
  var K : Nat .
  var B B' : Bag{X} .
- 
+
  eq (N . X + B)[X] = N .
  eq B[X] = 0 [owise] .
+ 
  eq 0 . X = nil .
  eq N . X + M . X = (N + M) . X .
- eq nil - B = nil .
- eq N . X + B - B' = max(N - B'[X], 0) . X + (B - B') . 
+ 
+ eq B - nil = B .
+ eq N . X + B - M . X + B' = if N > M then N - M . X + (B - B') else B - B' fi  .
+ eq B - M . X + B' = B - B' [owise] .
+ 
  ceq N . X + B <= B' = false if N > B'[X] .
  eq B <= B' = true [owise] . 
+ 
  ceq N . X + B >' B' = false if N <= B'[X] .
  eq B >' B' = true [owise] .
+ 
  eq set(B + N . X, X, K) = B + K . X . 
  eq set(B, X, K)  =  B + K . X  [owise] .
 endfm
