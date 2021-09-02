@@ -8,17 +8,18 @@ mod RW-FMS is
  op m0  : -> BagP .  
  op M   : -> Nat . *** model's parameter
  vars N N' : Net .
- vars TL TF : Tran .
- vars P2 P3 P4 P5 PF : Place .
- var S : BagP .
+ vars TL TF T T' : Tran .
+ vars P2 P3 P4 P5 PF P : Place .
+ var S I O : BagP .
  var K : NzNat .
  eq M = 10 . 
- eq net = t(0) |-> [2 . p(1), 1 . p(2) + 1 . p(3), emptyBagP], t(1) |-> [1 . p(2) , 1 . p(4), 1 . p(7)], t(2) |-> [1 . p(3) , 1 . p(5), 1 . p(8)], t(3) |-> [1 . p(4) + 1 . p(5) , 1 . p(6), emptyBagP],
-          t(4) |-> [1 . p(6) , 2 . p(1), emptyBagP], t(5) |-> [1 . p(0) , 1 . p(7), emptyBagP], t(6) |-> [1 . p(0) , 1 . p(8), emptyBagP].
+ eq net = t(0) |-> [2 . p(1), 1 . p(2) + 1 . p(3), nilP], t(1) |-> [1 . p(2) , 1 . p(4), 1 . p(7)], t(2) |-> [1 . p(3) , 1 . p(5), 1 . p(8)], t(3) |-> [1 . p(4) + 1 . p(5) , 1 . p(6), nilP],
+          t(4) |-> [1 . p(6) , 2 . p(1), nilP], t(5) |-> [1 . p(0) , 1 . p(7), nilP], t(6) |-> [1 . p(0) , 1 . p(8), nilP].
  eq m0  = 2 * M . p(1) +  1 . p(0) .
- crl [r1] : (N, t(0) |-> [2 . p(1), 1 . P2 + 1 . P3, emptyBagP] , t(3) |-> [1 . P4 + 1 . P5, 1 . p(6), emptyBagP], TF |-> [1 . p(0), 1 . PF, emptyBagP], TL |-> [1 . P3, 1 . P5, 1 . PF]) S + 1 . PF => 
-            (N, t(0) |-> [1 . p(1), 1 . P2, emptyBagP],  t(3) |-> [2 . P4, 1 . p(6), emptyBagP]) set(S, P3, 0) + S[P3] . P2 + 1 . p(0) if S[P5] = 0 .
+ crl [r1] : (N, t(0) |-> [2 . p(1), 1 . P2 + 1 . P3, nilP] , t(3) |-> [1 . P4 + 1 . P5, 1 . p(6), nilP], TF |-> [1 . p(0), 1 . PF, nilP], TL |-> [1 . P3, 1 . P5, 1 . PF]) S + 1 . PF => 
+            (N, t(0) |-> [1 . p(1), 1 . P2, nilP],  t(3) |-> [2 . P4, 1 . p(6), nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . p(0) if S[P5] = 0 .
  crl [r2] : N S   => net S + 1 . p(0) + M . P3 - M . P2 - 1 . p(7) - 1 . p(8)  if 1 . P2 := Out(N, t(0)) /\  1 . P2 + 1 . P3 := Out(net, t(0))  /\ dead(N S) .
  *** crl [r3] : N S  => setw(N, t(0), p(9), i, 1) S if S[p(0)] = 0 /\ S[p(9)] = 0 /\ K . p(1) := In(N,t(0)) . 
+ crl [aggl] : (N, T |-> [I, 1 . P, nilP], T' |-> [1 . P, O, nilP]) S => (N, T |-> [I, O, nilP]) S if I[P] = 0 /\ O[P] = 0 /\ S[P] = 0 .   
 endm
 

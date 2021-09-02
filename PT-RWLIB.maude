@@ -6,6 +6,7 @@ fmod PT-RWLIB is
  ops i o h : -> Atype [ctor] .
  op w : Net Tran Place Atype -> [Nat] . ***get an arc's weight
  op setw : Net Tran Place Atype Nat  -> Net . ***set an arc
+ op setwS : Net Tran Place Atype Nat  -> Net . ***set an arc in a safe way
  ops remove : Place Net -> Net .
  var N N' : Net .
  var T : Tran .
@@ -14,6 +15,7 @@ fmod PT-RWLIB is
  var Q : Imatrix .
  var K K' : NzNat .
  var Y : Nat .
+ var A : Atype .
  eq w(N, T, P, i) =  In(N,T)[P] .
  eq w(N, T, P, o) = Out(N,T)[P] .
  eq w(N, T, P, h) = Inh(N,T)[P] .
@@ -25,4 +27,6 @@ ceq setw(N, T, P, h, Y) =  N if N[T] = undefined .
  eq setw((N, T |-> [I,O,H]), T, P, h, Y) =  N, T |-> [I, O, set(H, P, Y)]  .
  eq remove(P, (T |-> Q, N) ) = T |-> remove(Q, P), remove(P, N) .
  eq remove(P, emptyN) = emptyN .
+ceq setwS(N, T, P, A, Y) = N' if N' := setw(N, T, P, A, Y) /\ N' =/= emptyN .  
+ eq setwS(N, T, P, A, Y) = N [owise] .
 endfm

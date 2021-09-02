@@ -14,16 +14,16 @@ mod RW-FMS is
  var K : NzNat .
  
  eq M = 10 . 
- eq net = t(0) |-> [2 . p(1), 1 . p(2) + 1 . p(3), emptyBagP], t(1) |-> [1 . p(2) , 1 . p(4), 1 . p(7)],
-          t(2) |-> [1 . p(3) , 1 . p(5), 1 . p(8)], t(3) |-> [1 . p(4) + 1 . p(5) , 1 . p(6), emptyBagP],
-          t(4) |-> [1 . p(6) , 2 . p(1), emptyBagP], t(5) |-> [1 . p(0) , 1 . p(7), emptyBagP],
-          t(6) |-> [1 . p(0) , 1 . p(8), emptyBagP].
+ eq net = t(0) |-> [2 . p(1), 1 . p(2) + 1 . p(3), nilP], t(1) |-> [1 . p(2) , 1 . p(4), 1 . p(7)],
+          t(2) |-> [1 . p(3) , 1 . p(5), 1 . p(8)], t(3) |-> [1 . p(4) + 1 . p(5) , 1 . p(6), nilP],
+          t(4) |-> [1 . p(6) , 2 . p(1), nilP], t(5) |-> [1 . p(0) , 1 . p(7), nilP],
+          t(6) |-> [1 . p(0) , 1 . p(8), nilP].
  eq m0  = 2 * M . p(1) +  1 . p(0) .
  
-  crl [r1] : N K . P2 + K . P5 + 1 . PF => (N' , t(0) |-> [1 . p(1), 1 . P3, emptyBagP],  t(3) |-> [2 . P5, 1 . p(6), emptyBagP]) K . P3 + K . P5 + 1 . p(0) if K = M /\ N', t(0) |-> [2 . p(1), 1 . P2 + 1 . P3, emptyBagP] , t(3) |-> [1 . P4 + 1 . P5, 1 . p(6), emptyBagP], TF |-> [1 . p(0), 1 . PF, emptyBagP] := N  .
- *** crl [r1] : N S + K . P2 => (N' , t(0) |-> [1 . p(1), 1 . P3, emptyBagP],  t(3) |-> [2 . P5, 1 . p(6), emptyBagP]) S + K . P3  + 1 . p(0)
- ***             if  N', t(0) |-> [2 . p(1), 1 . P2 + 1 . P3, emptyBagP] , t(3) |-> [1 . P4 + 1 . P5, 1 . p(6), emptyBagP], TF |-> [1 . p(0), 1 . PF, emptyBagP] := N  /\  dead(N S + K . P2).
- crl [r2] : N S  => net S + 1 . p(0) + M . P2 - M . P3 - 1 . p(7) - 1 . p(8) if N', t(0) |-> [1 . p(1), 1 . P3, emptyBagP], TL |-> [1 . P2, 1 . P4, 1 . PF] := N /\ P2 =/= P3 and-then dead(N S) .
+  crl [r1] : N K . P2 + K . P5 + 1 . PF => (N' , t(0) |-> [1 . p(1), 1 . P3, nilP],  t(3) |-> [2 . P5, 1 . p(6), nilP]) K . P3 + K . P5 + 1 . p(0) if K = M /\ N', t(0) |-> [2 . p(1), 1 . P2 + 1 . P3, nilP] , t(3) |-> [1 . P4 + 1 . P5, 1 . p(6), nilP], TF |-> [1 . p(0), 1 . PF, nilP] := N  .
+ *** crl [r1] : N S + K . P2 => (N' , t(0) |-> [1 . p(1), 1 . P3, nilP],  t(3) |-> [2 . P5, 1 . p(6), nilP]) S + K . P3  + 1 . p(0)
+ ***             if  N', t(0) |-> [2 . p(1), 1 . P2 + 1 . P3, nilP] , t(3) |-> [1 . P4 + 1 . P5, 1 . p(6), nilP], TF |-> [1 . p(0), 1 . PF, nilP] := N  /\  dead(N S + K . P2).
+ crl [r2] : N S  => net S + 1 . p(0) + M . P2 - M . P3 - 1 . p(7) - 1 . p(8) if N', t(0) |-> [1 . p(1), 1 . P3, nilP], TL |-> [1 . P2, 1 . P4, 1 . PF] := N /\ P2 =/= P3 and-then dead(N S) .
  *** crl [r3] : N S  => setw(N, t(0), p(9), i, 1) S if S[p(0)] = 0 /\ S[p(9)] = 0 . 
 endm
 
