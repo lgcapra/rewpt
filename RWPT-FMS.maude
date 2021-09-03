@@ -22,6 +22,6 @@ mod RWPT-FMS is
  *** crl [r2] : N S   => net S + 1 . p(0) + M . P3 - M . P2 - 1 . p(7) - 1 . p(8)  if 1 . P2 := Out(N, t(0)) /\  1 . P2 + 1 . P3 := Out(net, t(0))  /\ dead(N S) 
  ***                   /\ (net S + 1 . p(0) + M . P3 - M . P2 - 1 . p(7) - 1 . p(8) :: System) .
  *** crl [r3] : N S  => setw(N, t(0), p(9), i, 1) S if S[p(0)] = 0 /\ S[p(9)] = 0 /\ K . p(1) := In(N,t(0)) .
- crl [r3] : N S  => setw(N, t(0), p(9), i, 1) S if S[p(0)] = 0 /\ S[p(9)] = 0  /\ in(N, p(9)) = false .
+ *** crl [r3] : N S  => setw(N, t(0), p(9), i, 1) S if S[p(0)] = 0 /\ S[p(9)] = 0  /\ in(N, p(9)) = false .
 endm
 
