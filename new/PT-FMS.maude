@@ -1,0 +1,16 @@
+in CAN-PT-SYS
+*** in PT-SYS+
+
+fmod PT-FMS is
+ protecting CAN-PT-SYS .
+ *** protecting PT-SYS .
+ op net : -> Net .
+ op m0  : -> BagP .  
+ op M   : -> Nat . *** model's parameter
+ eq M = 30 . 
+ eq net = t(0,"load") |-> [2 . p(1,"start"), 1 . p(2,"line") + 1 . p(3,"line"), nilP], t(1,"line") |-> [1 . p(2,"line") , 1 . p(4,"ass"), 1 . p(7,"faulty")], t(2,"line") |-> [1 . p(3,"line") , 1 . p(5,"ass"),
+          1 . p(8,"faulty")], t(3,"ass") |-> [1 . p(4,"ass") + 1 . p(5,"ass") , 1 . p(6,"end"), nilP],
+          t(4,"rest") |-> [1 . p(6,"end") , 2 . p(1,"start"), nilP], t(5,"fault") |-> [1 . p(0,"focc") , 1 . p(7,"faulty"), nilP], t(6,"fault") |-> [1 . p(0,"focc") , 1 . p(8,"faulty"), nilP].
+ eq m0  = 2 * M . p(1,"start") +  1 . p(0,"focc") .
+endfm
+

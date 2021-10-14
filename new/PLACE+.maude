@@ -1,0 +1,5 @@
+in PT-NODE.maude
+
+fmod PLACE is
+ protecting PT-NODE * (sort Node to Place, op n to p) .
+endfm

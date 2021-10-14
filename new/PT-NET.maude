@@ -1,0 +1,35 @@
+in TRAN<
+in IMATRIX<
+in SORTABLE-MAP
+
+fmod PT-NET is
+ pr SORTABLE-MAP{TRAN<,IMATRIX<} * (sort Map{TRAN<,IMATRIX<} to Net, sort Entry{TRAN<,IMATRIX<} to ImatrixT, op empty to emptyN) .
+ 
+ var T : Tran .
+ vars P P' : Place .
+ var N : Net .
+ vars I O H : BagP .
+ var K : NzNat .
+
+ op in :  Net Place -> Bool . *** test the existence of a place
+ eq in((T |-> [I + K . P, O, H], N), P) = true .
+ eq in((T |-> [I, O + K . P, H], N), P) = true .
+ eq in((T |-> [I, O, H + K . P], N), P) = true .
+ eq in(N, P) = false [owise] .
+
+ op in :  Net Tran -> Bool . *** test the existence of a transition
+ eq in(N, T) = $hasMapping(N, T) .
+
+ var S : SetP .
+ var Q : Imatrix .
+ 
+ op places : Net -> SetP [memo] .
+ eq places(N) = $places(N, emptyP) .  
+ op $places : Net SetP -> SetP . 
+ eq $places(emptyN, S) = S . 
+ eq $places((T |-> Q , N), S) = $places(N, (S, places(Q))) .
+
+ op swap : Net Place Place -> Net .
+ eq swap((T |-> Q, N), P , P') = T |-> swap(Q,  P , P'), swap(N, P , P') .
+ eq swap(emptyN, P , P') = emptyN .
+endfm

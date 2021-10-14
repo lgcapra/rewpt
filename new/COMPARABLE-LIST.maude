@@ -1,0 +1,14 @@
+fmod COMPARABLE-LIST{X :: STRICT-TOTAL-ORDER} is 
+ pr SORTABLE-LIST{X} .
+ pr EXT-BOOL . 
+ op _lex_  : List{X} List{X} -> Bool . 
+ op _lexeq_ : List{X} List{X} -> Bool .
+ vars E E' : X$Elt .
+ vars L L' : List{X} .
+ var NEL : NeList{X} .
+ eq [list-cmp] : E L lex E' L' = if E == E' then L lex L' else E < E' fi . 
+ eq nil lex NEL = true .
+ eq L lex nil = false .
+ eq L lexeq L' = L == L' or-else L lex L' .
+endfm
+ 

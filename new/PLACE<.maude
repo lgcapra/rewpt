@@ -1,0 +1,5 @@
+in PLACE+
+
+view PLACE< from STRICT-TOTAL-ORDER to PLACE is 
+ sort Elt to Place . 
+endv

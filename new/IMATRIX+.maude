@@ -1,0 +1,26 @@
+in BAGP+.maude
+
+fmod IMATRIX is
+ pr BAGP .
+ sort Imatrix .
+ op [_,_,_] : BagP BagP BagP -> Imatrix [ctor] .
+ vars X Y Z X' Y' Z' : BagP .
+ var P P' : Place .
+ 
+ op remove : Imatrix Place -> Imatrix .
+ eq remove([X,Y,Z], P) = [set(X,P,0),set(Y,P,0),set(Z,P,0)] .
+ 
+ op _<_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices
+ eq [X,Y,Z] < [X',Y',Z'] = X le X' or-else X == X' and-then (Y le Y' or-else Y == Y' and-then Z le Z') .
+
+ ops I O H : Imatrix -> BagP .
+ eq I([X,Y,Z]) = X .
+ eq O([X,Y,Z]) = Y .
+ eq H([X,Y,Z]) = Z .
+
+ op places : Imatrix -> SetP .
+ eq places([X,Y,Z]) = support(X), support(Y), support(Z) .
+
+ op swap : Imatrix Place Place -> Imatrix .
+ eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
+endfm

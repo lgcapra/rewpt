@@ -1,0 +1,7 @@
+in SORTABLE-BAG
+in BAGP+
+
+view BAGP< from STRICT-TOTAL-ORDER to BAGP is 
+ sort Elt to BagP .
+ op X:Elt < Y:Elt to term makeList(X:BagP) lex makeList(Y:BagP)  .
+endv

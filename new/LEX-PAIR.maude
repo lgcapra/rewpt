@@ -1,0 +1,11 @@
+in PAIR
+
+fmod LEX-PAIR{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} is 
+ pr PAIR{STRICT-WEAK-ORDER,STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER, STRICT-TOTAL-ORDER}{X, Y} 
+       * (sort Pair{STRICT-WEAK-ORDER,STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER, STRICT-TOTAL-ORDER}{X, Y} to Pair{X,Y}) . 
+ pr EXT-BOOL .
+ op _<_ : Pair{X, Y} Pair{X, Y} -> Bool . 
+ vars A A’ : X$Elt . 
+ vars B B’ : Y$Elt . 
+ eq < A ; B > < < A’ ; B’ > = A < A’ or-else (A == A’ and-then B < B’) . 
+endfm

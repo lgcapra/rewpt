@@ -1,0 +1,5 @@
+in PT-NODE.maude
+
+fmod TRAN is
+ protecting PT-NODE * (sort Node to Tran, op n to t) .
+endfm

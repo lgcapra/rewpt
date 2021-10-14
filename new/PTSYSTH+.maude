@@ -1,0 +1,13 @@
+*** in PT-SYS+
+*** in CAN-PT-SYS
+in BAGP+
+in PT-NET
+
+fth PTSYSTH  is 
+ *** protecting PT-SYS .
+ *** protecting CAN-PT-SYS .
+ pr BAGP .
+ pr PT-NET .
+ op m0  : -> BagP .
+ op net : -> Net .
+endfth 

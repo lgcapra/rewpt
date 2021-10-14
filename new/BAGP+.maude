@@ -1,0 +1,15 @@
+in PLACE<
+in SORTABLE-BAG
+
+fmod BAGP is
+ pr SORTABLE-BAG{PLACE<} * (sort Bag{PLACE<} to BagP, sort NeBag{PLACE<} to NeBagP, 
+                            sort Set{PLACE<} to SetP, sort NeSet{PLACE<} to NeSetP,
+                            op nil to nilP, op empty to emptyP) .
+ vars P P' $P : Place . 
+ var B : BagP .
+ vars K K' : NzNat .
+
+ op swap : BagP Place Place -> BagP .
+ eq swap(K . $P + B, P, P')  = if $P == P then K . P' else (if  $P == P' then K . P else K . $P fi) fi + swap(B, P, P') .
+ eq swap(nilP, P, P') = nilP .
+endfm

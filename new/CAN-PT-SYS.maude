@@ -1,0 +1,27 @@
+in PT-SYS+
+
+fmod CAN-PT-SYS is
+ *** inc PT-SYS .
+ pr PT-SYS .
+ vars Q Q' : Imatrix .
+ vars S : String .
+ vars I J : Nat .
+ vars P P' : Place .
+ var SYS SYS' : System .
+ vars N N' : Net .
+ vars M0 M0' : BagP .
+ var PS : SetP .
+ var NPS : NeSetP .
+
+ op canonize : System -> System .
+ eq canonize(SYS) = $canonize(SYS, places(SYS)) .
+ op $canonize : System SetP -> System .
+ eq $canonize(SYS, emptyP) = SYS .
+ eq $canonize(SYS, (P, PS) ) = $canonize($canonize(SYS, P, PS), PS)  .
+ op $canonize : System Place SetP -> System .
+ eq $canonize(SYS, P, (P', NPS)) = $canonize($canonize(SYS, P, P'), P, NPS) . 
+ eq $canonize(SYS, P, emptyP) = SYS . 
+ceq $canonize(SYS, p(I,S), p(J,S)) = SYS' if  I =/= J /\ SYS' := swap(SYS, p(I,S) , p(J,S)) /\ SYS' < SYS .
+  eq $canonize(SYS, P, P') = SYS [owise] .
+ *** ceq t(I,S) |-> Q, t(J,S) |-> Q' = t(I,S) |-> Q', t(J,S) |-> Q if I < J /\ Q' < Q . *** preserves order
+endfm

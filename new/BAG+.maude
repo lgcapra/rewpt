@@ -1,0 +1,66 @@
+fmod BAG{X :: TRIV} is
+ protecting INT .
+ protecting EXT-BOOL .
+ protecting SET{X} .
+ sorts Bag{X} NeBag{X} .
+ subsorts NeBag{X} < Bag{X} .
+
+ vars N M : NzNat .
+ var K : Nat .
+ vars X Y : X$Elt .
+ var B B' : Bag{X} .
+
+ op nil : -> Bag{X} [ctor] .
+ op _._  : NzNat X$Elt ->  NeBag{X} [prec 35 ctor] .
+
+ op _`[_`] : Bag{X} X$Elt -> Nat [prec 23] .
+ op _+_  : Bag{X} Bag{X} -> Bag{X} [prec 39 ctor assoc comm id: nil] .
+ op _+_  : NeBag{X} Bag{X} -> NeBag{X} [ctor ditto] .
+ eq (N . X + B)[X] = N .
+ eq B[X] = 0 [owise] .
+ eq N . X + M . X = (N + M) . X .
+ 
+ op _-_  : Bag{X} Bag{X} -> Bag{X} [prec 41 gather (E e) right id: nil] .
+ eq N . X + B - M . X + B' = if N > M then N - M . X + (B - B') else B - B' fi  .
+ eq B - M . X + B' = B - B' [owise] .
+ 
+ op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
+ ceq N . X + B <= B' = false if N > B'[X] .
+ eq B <= B' = true [owise] . 
+ *** eq nil <= B = true .
+ *** eq N . X + B <= M . X + B' = N <= M and-then B <= B' .
+ *** eq B <= B' = false [owise] . 
+ 
+ op _>'_ : Bag{X} Bag{X} -> Bool [prec 43] .
+ ceq N . X + B >' B' = false if N <= B'[X] .
+ eq B >' B' = true [owise] .
+ *** eq nil >' B = true .
+ *** eq N . X + B >' M . X +  B' = N > M and-then B >' B' .
+ *** eq B >' B' = true [owise] .
+ 
+ op set  : Bag{X} X$Elt Nat -> Bag{X} . 
+ eq set(B + N . X, X, K) = if K == 0 then B else B + K . X fi . 
+ eq set(B, X, K) =  if K == 0 then B else B + K . X fi [owise] .
+
+ op |_| : Bag{X} -> Nat . 
+ op |_| : NeBag{X} -> NzNat . 
+ eq | B | = $card(B, 0) . 
+ op $card : Bag{X} Nat -> Nat . 
+ eq $card(nil, K) = K . 
+ eq $card(N . X + B, K) = $card(B, K + N) .
+ 
+ op bsize : Bag{X} -> Nat . 
+ op bsize : NeBag{X} -> NzNat . 
+ eq bsize(B) = $bsize(B, 0) .  
+ op $bsize : Bag{X} Nat -> Nat . 
+ eq $bsize(nil, K) = K . 
+ eq $bsize(N . X + B, K) = $bsize(B, K + 1) .
+
+ var S : Set{X} .
+ op support : Bag{X} -> Set{X} .
+ op support : NeBag{X} -> NeSet{X} .
+ eq support(B) = $support(B, empty) .  
+ op $support : Bag{X} Set{X} -> Set{X} . 
+ eq $support(nil, S) = S . 
+ eq $support(N . X + B, S) = $support(B, (S, X)) .
+endfm

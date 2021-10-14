@@ -1,0 +1,19 @@
+in PT-FMS.maude
+
+mod RWPT-FMS is
+ *** protecting PT-RWLIB .
+ pr PT-FMS .
+ vars N N' : Net .
+ vars TL TF : Tran .
+ vars P2 P3 P4 P5 PF : Place .
+ var S : BagP .
+ var K : NzNat .
+ crl [r1] : (N, t(0,"load") |-> [2 . p(1,"start"), 1 . P2 + 1 . P3, nilP] , t(3,"ass") |-> [1 . P4 + 1 . P5, 1 . p(6,"end"), nilP], TF |-> [1 . p(0,"focc"), 1 . PF, nilP], TL |-> [1 . P3, 1 . P5, 1 . PF]) S + 1 . PF => 
+            (N, t(0,"load") |-> [1 . p(1,"start"), 1 . P2, nilP],  t(3,"ass") |-> [2 . P4, 1 . p(6,"end"), nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . p(0,"focc") if S[P5] = 0 .
+ crl [r2] : N S   => net S + 1 . p(0,"focc") + M . P3 - M . P2 - 1 . p(7,"faulty") - 1 . p(8,"faulty")  if 1 . P2 := Out(N, t(0,"load")) /\  1 . P2 + 1 . P3 := Out(net, t(0,"load"))  /\ dead(N S) .
+ *** crl [r2] : N S   => net S + 1 . p(0,"focc") + M . P3 - M . P2 - 1 . p(7,"faulty") - 1 . p(8,"faulty")  if 1 . P2 := Out(N, t(0,"load")) /\  1 . P2 + 1 . P3 := Out(net, t(0,"load"))  /\ dead(N S) 
+ ***                   /\ (net S + 1 . p(0,"focc") + M . P3 - M . P2 - 1 . p(7,"faulty") - 1 . p(8,"faulty") :: System) .
+ *** crl [r3] : N S  => setw(N, t(0,"load"), p(9), i, 1) S if S[p(0,"focc")] = 0 /\ S[p(9)] = 0 /\ K . p(1,"start") := In(N,t(0,"load")) .
+ *** crl [r3] : N S  => setw(N, t(0,"load"), p(9), i, 1) S if S[p(0,"focc")] = 0 /\ S[p(9)] = 0  /\ in(N, p(9)) = false .
+endm
+

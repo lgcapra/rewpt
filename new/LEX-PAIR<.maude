@@ -1,0 +1,5 @@
+in LEX-PAIR
+
+view LEX-PAIR<{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} from STRICT-TOTAL-ORDER to LEX-PAIR{X,Y} is 
+ sort Elt to Pair{X,Y} . 
+endv

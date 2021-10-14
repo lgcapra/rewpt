@@ -1,0 +1,45 @@
+in Vimatrix+.maude
+in Vtran+.maude
+in PT-NET
+
+fmod PT-SYS is
+ pr PT-NET .
+ sort System .
+ op __ : Net BagP -> [System] [ctor] .
+ vars N N' : Net .
+ vars T T' : Tran .
+ vars P P' : Place .
+ vars I O H S S' : BagP .
+ vars Q Q' : Imatrix .
+ vars K K' : NzNat .
+
+ eq T |-> [I,I,H] = emptyN [metadata "null t"] .
+ceq T |-> [K . P + I, O, K' . P + H] = emptyN if K >= K' [metadata "dead t"] .
+*** ceq N K . P + S = N S if in(N, P) = false [metadata "isolated p"] .
+ 
+ op enabled : System Tran -> [Bool] .
+ eq enabled( (T |-> [I,O,H], N) S, T) = I <= S and-then H >' S .
+
+cmb N S : System if N =/= emptyN . *** the net of a PT system cannot be empty
+ 
+ op dead : System -> Bool .
+ceq dead((T |-> Q, N) S) = false if enabled( (T |-> Q, N) S, T) .
+ eq dead(N S) = true [owise] .
+
+ op _<_ : System  System -> Bool .
+ eq N S < N' S' = N < N' or-else N == N' and-then S le S' .
+ 
+ ops In Out Inh : Net Tran -> [BagP] . 
+ eq In( (T |-> [I,O,H], N), T) = I .
+ eq Out((T |-> [I,O,H], N), T) = O .
+ eq Inh((T |-> [I,O,H], N), T) = H .
+
+ op in :  System Place -> Bool . *** test the existence of a place
+ eq in(N S, P) =  S[P] =/= 0 or-else in(N, P).
+
+ op places : System -> NeSetP .
+ eq places(N S) = places(N), support(S) .
+
+ op swap : System Place Place -> System .
+ eq swap(N S, P, P') = swap(N, P, P') swap(S, P, P') .
+endfm
