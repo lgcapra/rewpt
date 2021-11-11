@@ -1,0 +1,28 @@
+in MAP+
+in LEX-PAIR
+in COMPARABLE-LIST
+
+fmod SORTABLE-MAP{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} is
+ pr MAP+{STRICT-WEAK-ORDER,STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER,STRICT-TOTAL-ORDER}{X,Y} * 
+  (sort Map{STRICT-WEAK-ORDER,STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER,STRICT-TOTAL-ORDER}{X,Y} to Map{X,Y},
+   sort Entry{STRICT-WEAK-ORDER,STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER,STRICT-TOTAL-ORDER}{X,Y} to Entry{X,Y}) .
+ pr COMPARABLE-LIST{LEX-PAIR<{X,Y}} * (sort List{LEX-PAIR<{X,Y}} to List{X,Y},
+    sort NeList{LEX-PAIR<{X,Y}} to NeList{X,Y}, op nil to []) .
+
+ vars M M' : Map{X,Y} .
+ var L : List{X,Y} .  
+ var K : X$Elt .
+ var V : Y$Elt .
+ 
+ op makeList  : Map{X,Y} -> List{X,Y} .
+ op $makeList : Map{X,Y} List{X,Y} -> List{X,Y} . 
+ op $makeList : Map{X,Y} NeList{X,Y} -> NeList{X,Y} . 
+ eq makeList(M) = $makeList(M, []) . 
+ eq $makeList(emptyM, L) = sort(L) . 
+ eq $makeList((K |-> V, M), L) = $makeList(M, < K ; V > L) . 
+
+ op _<_  : Map{X,Y} Map{X,Y} -> Bool . 
+ op _<=_ : Map{X,Y} Map{X,Y} -> Bool .
+ eq M < M' = makeList(M) lex makeList(M') .
+ eq M <= M' = M == M' or-else M < M' .
+endfm
