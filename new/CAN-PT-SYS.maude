@@ -1,4 +1,10 @@
 in PT-SYS+
+in LAZYEVAL
+
+view Nat0 from DEFAULT to PT-SYS is 
+ sort Elt to BagP .
+ op 0 to emptyP . 
+endv
 
 fmod CAN-PT-SYS is
  *** inc PT-SYS .
@@ -10,18 +16,37 @@ fmod CAN-PT-SYS is
  var SYS SYS' : System .
  vars N N' : Net .
  vars M0 M0' : BagP .
- var PS : SetP .
- var NPS : NeSetP .
+ var SP SP' SX SY SZ : SetP .
+ var NSP : NeSetP .
 
  op canonize : System -> System .
  eq canonize(SYS) = $canonize(SYS, places(SYS)) .
  op $canonize : System SetP -> System .
  eq $canonize(SYS, emptyP) = SYS .
- eq $canonize(SYS, (P, PS) ) = $canonize($canonize(SYS, P, PS), PS)  .
+ eq $canonize(SYS, (P, SP) ) = $canonize($canonize(SYS, P, SP), SP)  .
  op $canonize : System Place SetP -> System .
- eq $canonize(SYS, P, (P', NPS)) = $canonize($canonize(SYS, P, P'), P, NPS) . 
+ eq $canonize(SYS, P, (P', NSP)) = $canonize($canonize(SYS, P, P'), P, NSP) . 
  eq $canonize(SYS, P, emptyP) = SYS . 
 ceq $canonize(SYS, p(I,S), p(J,S)) = SYS' if  I =/= J /\ SYS' := swap(SYS, p(I,S) , p(J,S)) /\ SYS' < SYS .
   eq $canonize(SYS, P, P') = SYS [owise] .
  *** ceq t(I,S) |-> Q, t(J,S) |-> Q' = t(I,S) |-> Q', t(J,S) |-> Q if I < J /\ Q' < Q . *** preserves order
+
+ op minArc : Net Atype -> BagP . *** returns the min "sum" of edges of a certain type
+ var A : Atype .
+ var T : Tran .
+ eq minArc(emptyN, A) = nilP . 
+ eq minArc((T |-> Q, N), A) = smin(Q(A), minArc(N, A)) . 
+ 
+ op _and-then_ : SetP SetP -> SetP [strat (1 0) gather (e E) prec 55] .
+ eq emptyP and-then SP = SP .
+ eq SP and-then SP' = SP [owise] . 
+ 
+ op minLess : Net Place -> SetP . *** builds on the homonym op of BAGP
+**** ceq minLess(N, P) =  if SX =/= emptyP then SX else if SY =/= emptyP then SY else SZ fi fi
+***                    if SX := minLess(N, P, i) /\ SY := minLess(N, P, o) /\ SZ := minLess(N, P, h) . 
+ eq minLess(N, P) = minLess(N, P, i) and-then minLess(N, P, o) and-then minLess(N, P, h) . 
+ op minLess : Net Place Atype -> SetP . 
+ eq minLess(N, P, A) =  minLess(minArc(N, A), P) .
+ 
+ 
 endfm
