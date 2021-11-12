@@ -1,15 +1,38 @@
 in PLACE<
-in SORTABLE-BAG
+in ../shared/SORTABLE-BAG
 
 fmod BAGP is
  pr SORTABLE-BAG{PLACE<} * (sort Bag{PLACE<} to BagP, sort NeBag{PLACE<} to NeBagP, 
-                            sort Set{PLACE<} to SetP, sort NeSet{PLACE<} to NeSetP,
-                            op nil to nilP, op empty to emptyP) .
+                             sort Set{PLACE<} to SetP, sort NeSet{PLACE<} to NeSetP,
+                             sort List{PLACE<,Nat} to ListPNat, sort NeList{PLACE<,Nat} to NeListPNat,
+                             op nil to nilP, op empty to emptyP) .
+
+ 
+*** operators helpful for canonization
+ op swap : BagP Place Place -> BagP .
  vars P P' $P : Place . 
  var B : BagP .
  vars K K' : NzNat .
-
- op swap : BagP Place Place -> BagP .
  eq swap(K . $P + B, P, P')  = if $P == P then K . P' else (if  $P == P' then K . P else K . $P fi) fi + swap(B, P, P') .
  eq swap(nilP, P, P') = nilP .
+
+ op labMap  : BagP String -> SetP . *** returns the set of places with a certain label
+ var S : SetP .
+ var L : String .
+ vars N N' : Nat .
+ eq labMap(B, L) = $labMap(B, L, emptyP) .
+ op $labMap : BagP String SetP ->  SetP .
+ eq $labMap(nilP, L, S) = S . 
+ eq $labMap(K . p(N,L) + B, L, S) = $labMap(B, L, (S, p(N,L)) ) .
+ eq $labMap(K . P + B, L, S) = $labMap(B, L, S)  [owise] .
+
+ op minLess  : BagP Place -> SetP . *** returns the set of places with min coefficients and subscript greater than a given place's subscript
+ eq minLess(nilP, P) =  emptyP .
+ eq minLess(K . P  + B, P) =  $minLess(B, P, K, emptyP) .
+ eq minLess(K . P' + B, P) =  $minLess(K . P' + B, P, K, emptyP) [owise].
+ op $minLess  : BagP Place NzNat SetP -> SetP . *** the Nat arg represents the partial minimum
+ eq $minLess(nilP, P, K, S) = S .
+ceq $minLess(K . p(N,L) + B, p(N',L), K', S) = $minLess(B, p(N',L), K, p(N,L)) if N > N' /\ K < K' . 
+ceq $minLess(K . p(N,L) + B, p(N',L), K, S) = $minLess(B, p(N',L), K, (p(N,L), S) ) if N > N' . 
+ eq $minLess(K . P + B, P', K', S) = $minLess(B, P', K', S) [owise] .
 endfm
