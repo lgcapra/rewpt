@@ -1,14 +1,15 @@
 in PT-SYS+
 in LAZYEVAL
 
-view Nat0 from DEFAULT to PT-SYS is 
- sort Elt to BagP .
+view SetP0 from DEFAULT to PT-SYS is 
+ sort Elt to SetP .
  op 0 to emptyP . 
 endv
 
 fmod CAN-PT-SYS is
  *** inc PT-SYS .
  pr PT-SYS .
+ pr LAZYEVAL{SetP0} .
  vars Q Q' : Imatrix .
  vars S : String .
  vars I J : Nat .
@@ -37,16 +38,8 @@ ceq $canonize(SYS, p(I,S), p(J,S)) = SYS' if  I =/= J /\ SYS' := swap(SYS, p(I,S
  eq minArc(emptyN, A) = nilP . 
  eq minArc((T |-> Q, N), A) = smin(Q(A), minArc(N, A)) . 
  
- op _and-then_ : SetP SetP -> SetP [strat (1 0) gather (e E) prec 55] .
- eq emptyP and-then SP = SP .
- eq SP and-then SP' = SP [owise] . 
- 
  op minLess : Net Place -> SetP . *** builds on the homonym op of BAGP
-**** ceq minLess(N, P) =  if SX =/= emptyP then SX else if SY =/= emptyP then SY else SZ fi fi
-***                    if SX := minLess(N, P, i) /\ SY := minLess(N, P, o) /\ SZ := minLess(N, P, h) . 
  eq minLess(N, P) = minLess(N, P, i) and-then minLess(N, P, o) and-then minLess(N, P, h) . 
  op minLess : Net Place Atype -> SetP . 
  eq minLess(N, P, A) =  minLess(minArc(N, A), P) .
- 
- 
 endfm
