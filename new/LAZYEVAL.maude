@@ -1,0 +1,6 @@
+fmod LAZYEVAL{X :: DEFAULT}  is
+ vars X X' : X$Elt . 
+ op _and-then_ : X$Elt X$Elt -> X$Elt [strat (1 0) gather (e E) prec 55] .
+ eq 0 and-then X = X .
+ eq X and-then X' = X [owise] . 
+endfm

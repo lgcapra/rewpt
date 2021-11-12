@@ -1,7 +1,9 @@
-in BAGP+.maude
+in BAGP+
+in TRAN
 
 fmod IMATRIX is
  pr BAGP .
+ pr ATYPE .
  sort Imatrix .
  op [_,_,_] : BagP BagP BagP -> Imatrix [ctor] .
  vars X Y Z X' Y' Z' : BagP .
@@ -18,9 +20,16 @@ fmod IMATRIX is
  eq O([X,Y,Z]) = Y .
  eq H([X,Y,Z]) = Z .
 
+ op _(_) : Imatrix Atype -> BagP . *** introduced for convenience
+ var Q : Imatrix .
+ var a : Atype .
+ eq Q(i) = I(Q) .
+ eq Q(o) = O(Q) .
+ eq Q(h) = H(Q) .
+
  op places : Imatrix -> SetP .
  eq places([X,Y,Z]) = support(X), support(Y), support(Z) .
-
+ 
  op swap : Imatrix Place Place -> Imatrix .
  eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
 endfm

@@ -1,43 +1,38 @@
 fmod MAP+{X :: TRIV, Y :: TRIV} is 
-  protecting BOOL .
-  protecting SET{X} * (op empty to nokeys) + LIST{Y} * (op nil to novalues)  .
+  pr NAT .
   sorts Entry{X,Y} Map{X,Y} .
   subsorts Entry{X,Y} < Map{X,Y} .
   op _|->_ : X$Elt Y$Elt -> Entry{X,Y} [ctor] .
-  op empty : -> Map{X,Y} [ctor] .
-  op _`,_ : [Map{X,Y}] [Map{X,Y}] -> [Map{X,Y}] [assoc comm id: empty ctor prec 121 format (d r os d)] .
+  op emptyM : -> Map{X,Y} [ctor] .
+  op _`,_ : [Map{X,Y}] [Map{X,Y}] -> [Map{X,Y}] [assoc comm id: emptyM ctor prec 121 format (d r os d)] .
   op undefined : -> [Y$Elt] [ctor] .
   op insert : X$Elt Y$Elt [Map{X,Y}] -> [Map{X,Y}] .
   op insert : X$Elt Y$Elt Map{X,Y} -> Map{X,Y} .
   op remove : X$Elt [Map{X,Y}] -> [Map{X,Y}] .
   op remove : X$Elt Map{X,Y} -> Map{X,Y} .
-  
   op _`[_`] : [Map{X,Y}] X$Elt -> [Y$Elt] [prec 23] .
   op $hasMapping : [Map{X,Y}] X$Elt -> Bool .
-  
-  op keyset : [Map{X,Y}] -> Set{X} .
-  op values : [Map{X,Y}] -> List{Y} .
-  op hasduplicate : [Map{X,Y}] -> Bool .
-  
+  op hasDuplicate : [Map{X,Y}] -> Bool .
   var D : X$Elt .
   vars R R' : Y$Elt .
   var M : [Map{X,Y}] .
-  
+  var E : Entry{X,Y} .
+  var K : Nat .
   eq $hasMapping ((M, D |-> R), D) = true .
   eq $hasMapping (M, D) = false [owise] .
   eq insert (D, R, (M, D |-> R')) = if $hasMapping (M, D) then insert (D, R, M) else (M, D |-> R) fi .
   eq insert (D, R, M) = (M, D |-> R) [owise] .
   eq remove (D, (M, D |-> R)) = remove(D, M) .
   eq remove (D, M) = M [owise] .
-  eq insert (D, R, M) = (M, D |-> R) [owise] .
   eq (M, D |-> R) [D] = if $hasMapping (M, D) then undefined else R fi .
   eq M [D] = undefined [owise] .
-  
-  eq hasduplicate((D |-> R, D |-> R', M)) = true .
-  eq hasduplicate(M) = false [owise] .
-  cmb M : Map{X,Y} if hasduplicate(M) = false .
-  eq keyset(empty) = nokeys .
-  eq keyset((D |-> R, M)) = D, keyset(M) .
-  eq values(empty) = novalues .
-  eq values((D |-> R, M)) = R values(M) .
+  eq hasDuplicate((D |-> R, D |-> R', M)) = true .
+  eq hasDuplicate(M) = false [owise] .
+ cmb M : Map{X,Y} if hasDuplicate(M) = false .
+
+ op msize : [Map{X,Y}] -> Nat . 
+ op $msize : [Map{X,Y}] Nat -> Nat . 
+ eq msize(M) = $msize(M, 0) .  
+ eq $msize(emptyM, K) = K . 
+ eq $msize((E, M), K) = $msize(M, K + 1) .
 endfm

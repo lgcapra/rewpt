@@ -1,4 +1,5 @@
-in PTSYSTH 
+in PT-SYS
+in shared/PTSYSTH 
 
 mod PT-EMU{X :: PTSYSTH} is
  var T : Tran .

@@ -1,4 +1,4 @@
-in TRAN
+*** in TRAN
 
 view Tran from TRIV to TRAN is 
  sort Elt to Tran . 

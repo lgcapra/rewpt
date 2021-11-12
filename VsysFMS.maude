@@ -1,6 +1,0 @@
-in RW-FMS
-
-view SysFMS from SYSTH to RW-FMS is 
- op m0 to m0 .
- op net to net . 
-endv

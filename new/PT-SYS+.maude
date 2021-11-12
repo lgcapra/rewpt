@@ -1,5 +1,5 @@
 in Vimatrix+.maude
-in Vtran+.maude
+in ../shared/Vtran
 in PT-NET
 
 fmod PT-SYS is

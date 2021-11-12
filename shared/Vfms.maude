@@ -1,0 +1,6 @@
+*** in PT-FMS
+
+view Fms from PTSYSTH to PT-FMS is 
+ op m0 to m0 .
+ op net to net . 
+endv

@@ -1,11 +1,11 @@
 in PT-SYS+
+in ATYPE
 *** in CAN-PT-SYS.maude
 
 fmod PT-RWLIB is
- protecting PT-SYS .
+ pr ATYPE .
+ pr PT-SYS .
  *** protecting CAN-PT-SYS .
- sort Atype . *** arc type
- ops i o h : -> Atype [ctor] .
  op w : Net Tran Place Atype -> [Nat] . ***get an arc's weight
  op setw : Net Tran Place Atype Nat  -> Net . ***set an arc
  op setwS : Net Tran Place Atype Nat  -> Net . ***set an arc in a safe way

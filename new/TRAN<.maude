@@ -1,4 +1,4 @@
-in TRAN+
+in TRAN
 
 view TRAN< from STRICT-TOTAL-ORDER to TRAN is 
  sort Elt to Tran . 

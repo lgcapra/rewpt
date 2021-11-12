@@ -3,6 +3,8 @@ fmod TRAN is
  sort Tran .
  op t : Nat -> Tran [ctor] .
  op subscript : Tran -> Nat .
- vars N : Nat .
+ vars N N' : Nat .
  eq subscript (t(N)) = N .
+ op _<_ : Tran Tran -> Bool .
+ eq t(N) < t(N') = N < N' .
 endfm

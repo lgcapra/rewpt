@@ -1,5 +1,5 @@
 *** in PTSYSTH+
-*** in CAN-PT-SYS
+in CAN-PT-SYS
 
 mod PT-EMU{X :: PTSYSTH} is
  *** pr PT-SYS .

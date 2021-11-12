@@ -1,4 +1,4 @@
-in SORTABLE-BAG
+in ../shared/SORTABLE-BAG
 in BAGP+
 
 view BAGP< from STRICT-TOTAL-ORDER to BAGP is 

@@ -23,6 +23,19 @@ fmod BAG{X :: TRIV} is
  op _-_  : Bag{X} Bag{X} -> Bag{X} [prec 41 gather (E e) right id: nil] .
  eq N . X + B - M . X + B' = if N > M then N - M . X + (B - B') else B - B' fi  .
  eq B - M . X + B' = B - B' [owise] .
+
+ op _*_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection
+ eq B * B = B .
+ eq B * nil = nil .
+ eq N . X + B * M . X + B' = min(N,M) . X + (B * B') .
+ eq N . X + B * B' = B * B' [owise] .
+
+ op smin : Bag{X} Bag{X} -> Bag{X} [assoc comm] . *** minimum (sum) between multiplicities other than 0
+ op smin : NeBag{X} Bag{X} -> NeBag{X} [ditto] .
+ eq smin(B, B) = B .
+ eq smin(B, nil) = B .
+ eq smin(N . X + B, M . X + B') = min(N,M) . X + smin(B, B') .
+ eq smin(N . X + B, B') = N . X + smin(B, B')  [owise] .
  
  op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
  ceq N . X + B <= B' = false if N > B'[X] .
@@ -44,14 +57,14 @@ fmod BAG{X :: TRIV} is
 
  op |_| : Bag{X} -> Nat . 
  op |_| : NeBag{X} -> NzNat . 
- eq | B | = $card(B, 0) . 
- op $card : Bag{X} Nat -> Nat . 
- eq $card(nil, K) = K . 
- eq $card(N . X + B, K) = $card(B, K + N) .
+ eq | B | = $bcard(B, 0) . 
+ op $bcard : Bag{X} Nat -> Nat . 
+ eq $bcard(nil, K) = K . 
+ eq $bcard(N . X + B, K) = $bcard(B, K + N) .
  
- op bsize : Bag{X} -> Nat . 
- op bsize : NeBag{X} -> NzNat . 
- eq bsize(B) = $bsize(B, 0) .  
+ op size : Bag{X} -> Nat . 
+ op size : NeBag{X} -> NzNat . 
+ eq size(B) = $bsize(B, 0) .  
  op $bsize : Bag{X} Nat -> Nat . 
  eq $bsize(nil, K) = K . 
  eq $bsize(N . X + B, K) = $bsize(B, K + 1) .

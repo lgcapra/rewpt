@@ -1,6 +1,6 @@
-in PT-SYS2
+*** in PT-SYS
 
-fth SYSTH  is 
+fth PTSYSTH  is 
  protecting PT-SYS .
  op m0  : -> BagP .
  op net : -> Net .

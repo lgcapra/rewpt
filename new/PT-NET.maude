@@ -1,9 +1,9 @@
 in TRAN<
 in IMATRIX<
-in SORTABLE-MAP
+in ../shared/SORTABLE-MAP
 
 fmod PT-NET is
- pr SORTABLE-MAP{TRAN<,IMATRIX<} * (sort Map{TRAN<,IMATRIX<} to Net, sort Entry{TRAN<,IMATRIX<} to ImatrixT, op empty to emptyN) .
+ pr SORTABLE-MAP{TRAN<,IMATRIX<} * (sort Map{TRAN<,IMATRIX<} to Net, sort Entry{TRAN<,IMATRIX<} to ImatrixT, op emptyM to emptyN) .
  
  var T : Tran .
  vars P P' : Place .
