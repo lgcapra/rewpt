@@ -1,10 +1,11 @@
 in TRAN<
 in IMATRIX<
 in ../shared/SORTABLE-MAP
+in ../shared/COMPARABLE-LIST
 
 fmod PT-NET is
  pr SORTABLE-MAP{TRAN<,IMATRIX<} * (sort Map{TRAN<,IMATRIX<} to Net, sort Entry{TRAN<,IMATRIX<} to ImatrixT, op emptyM to emptyN) .
- 
+ **** pr COMPARABLE-LIST{PLACE<} * (sort List{PLACE<} to ListP, sort NeList{PLACE<} to NeListP, op nil to emptyListP ) .
  var T : Tran .
  vars P P' : Place .
  var N : Net .
@@ -12,9 +13,7 @@ fmod PT-NET is
  var K : NzNat .
 
  op in :  Net Place -> Bool . *** test the existence of a place
- eq in((T |-> [I + K . P, O, H], N), P) = true .
- eq in((T |-> [I, O + K . P, H], N), P) = true .
- eq in((T |-> [I, O, H + K . P], N), P) = true .
+ceq in((T |-> Q, N), P) = true if in (Q, P) .
  eq in(N, P) = false [owise] .
 
  op in :  Net Tran -> Bool . *** test the existence of a transition
@@ -29,6 +28,13 @@ fmod PT-NET is
  eq $places(emptyN, S) = S . 
  eq $places((T |-> Q , N), S) = $places(N, (S, places(Q))) .
 
+ *** op placeList : Net -> ListP .
+ **** eq placeList(N) = $makeList(places(N),emptyListP) .
+ **** var L : ListP .
+ ***** op $makeList : SetP ListP -> ListP . 
+ **** eq $makeList(emptyP, L) = sort(L) . 
+ **** eq $makeList((P, S), L) = $makeList(S, P L) . 
+ 
  op swap : Net Place Place -> Net .
  eq swap((T |-> Q, N), P , P') = T |-> swap(Q,  P , P'), swap(N, P , P') .
  eq swap(emptyN, P , P') = emptyN .

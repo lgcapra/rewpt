@@ -1,5 +1,6 @@
 fmod COMPARABLE-LIST{X :: STRICT-TOTAL-ORDER} is 
  pr SORTABLE-LIST{X} .
+ *** pr SORTABLE-LIST-AND-SET{X} .
  pr EXT-BOOL . 
  op _lex_  : List{X} List{X} -> Bool . 
  op _lexeq_ : List{X} List{X} -> Bool .

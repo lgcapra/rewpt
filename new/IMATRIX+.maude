@@ -1,5 +1,6 @@
 in BAGP+
 in TRAN
+in ATYPE
 
 fmod IMATRIX is
  pr BAGP .
@@ -26,6 +27,13 @@ fmod IMATRIX is
  eq Q(i) = I(Q) .
  eq Q(o) = O(Q) .
  eq Q(h) = H(Q) .
+
+ op in :  Imatrix Place -> Bool . *** test the existence of a place
+ var K : NzNat .
+ eq in([X + K . P, Y, Z], P) = true .
+ eq in([X, Y + K . P, Z], P) = true .
+ eq in([X, Y, Z + K . P], P) = true .
+ eq in(Q, P) = false [owise] .
 
  op places : Imatrix -> SetP .
  eq places([X,Y,Z]) = support(X), support(Y), support(Z) .

@@ -4,6 +4,7 @@ in PT-NET
 
 fmod PT-SYS is
  pr PT-NET .
+ pr COMPARABLE-LIST{PLACE<} * (sort List{PLACE<} to ListP, sort NeList{PLACE<} to NeListP, op nil to emptyListP ) .
  sort System .
  op __ : Net BagP -> [System] [ctor] .
  vars N N' : Net .
@@ -40,6 +41,14 @@ ceq dead((T |-> Q, N) S) = false if enabled( (T |-> Q, N) S, T) .
  op places : System -> NeSetP .
  eq places(N S) = places(N), support(S) .
 
+ op placeList : System -> ListP .
+ eq placeList(N S) = $makeList(places(N S),emptyListP) .
+ var SP : SetP .
+ var L : ListP .
+ op $makeList : SetP ListP -> ListP . 
+ eq $makeList(emptyP, L) = sort(L) . 
+ eq $makeList((P, SP), L) = $makeList(SP, P L) . 
+ 
  op swap : System Place Place -> System .
- eq swap(N S, P, P') = swap(N, P, P') swap(S, P, P') .
+ eq swap(N S, P, P') = swap(N, P, P') swap(S, P, P') . 
 endfm
