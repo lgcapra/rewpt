@@ -1,0 +1,7 @@
+in COMP-PAIR-LIST
+
+view COMP-PAIR-LIST<{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} from STRICT-TOTAL-ORDER to COMP-PAIR-LIST{X,Y} is 
+ sort Elt to  List{X,Y} .
+ op _<_ to _lex_ .
+endv
+ 

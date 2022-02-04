@@ -1,0 +1,25 @@
+in CAN-PT-SYS
+*** in PT-SYS+
+
+fmod PT-FMS is
+ protecting CAN-PT-SYS .
+ *** protecting PT-SYS .
+ ops net net1 : -> Net .
+ op m0  : -> BagP .  
+ op M   : -> Nat . *** model's parameter
+ eq M = 50 . 
+ *** eq net = t(0,"load") |-> [2 . p(1,"start"), 1 . p(2,"line") + 1 . p(3,"line"), nilP], t(1,"line") |-> [1 . p(2,"line") , 1 . p(4,"ass"), 1 . p(7,"faulty")], t(2,"line") |-> [1 . p(3,"line") , 1 . p(5,"ass"),
+ ***         1 . p(8,"faulty")], t(3,"ass") |-> [1 . p(4,"ass") + 1 . p(5,"ass") , 1 . p(6,"end"), nilP],
+ ***         t(4,"rest") |-> [1 . p(6,"end") , 2 . p(1,"start"), nilP], t(5,"fault") |-> [1 . p(0,"focc") , 1 . p(7,"faulty"), nilP], t(6,"fault") |-> [1 . p(0,"focc") , 1 . p(8,"faulty"), nilP].
+ *** eq m0  = 2 * M . p(1,"start") +  1 . p(0,"focc") .
+ eq net = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP], t(1,"") |-> [1 . p(2,""), 1 . p(4,""), 1 . p(7,"")], t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
+          1 . p(8,"")], t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP],
+          t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP], t(5,"") |-> [1 . p(0,""), 1 . p(7,""), nilP], t(6,"") |-> [1 . p(0,""), 1 . p(8,""), nilP].
+ eq m0  = 2 * M . p(1,"") +  1 . p(0,"") .
+
+ *** usati per prove canonizzazione
+ eq net1 = t(0,"") |-> [1 . p(1,"") + 1 . p(2,"") + 1 . p(3,""), nilP, nilP], t(1,"") |-> [2 . p(1,"") + 3 . p(4,""), nilP, 1 . p(7,"")],
+           t(3,"") |-> [2 . p(3,"") + 3 . p(2,"") , 1 . p(6,""), nilP] .
+
+endfm
+

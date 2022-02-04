@@ -1,8 +1,0 @@
-view BagP from TRIV to BAGP is 
- sort Elt to BagP .
-endv
-
-fmod SETOFBAGP is
-  pr BAGP .
-  pr SET{BagP} * (sort Set{BagP} to SetBagP, sort NeSet{BagP} to NeSetBagP, op empty to emptySetBagP).
-endfm

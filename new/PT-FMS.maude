@@ -1,16 +1,29 @@
 in CAN-PT-SYS
 *** in PT-SYS+
 
+*** usato per prove di canonizzazione -- fare riferimento all'originale
 fmod PT-FMS is
  protecting CAN-PT-SYS .
  *** protecting PT-SYS .
- op net : -> Net .
- op m0  : -> BagP .  
- op M   : -> Nat . *** model's parameter
- eq M = 30 . 
- eq net = t(0,"load") |-> [2 . p(1,"start"), 1 . p(2,"line") + 1 . p(3,"line"), nilP], t(1,"line") |-> [1 . p(2,"line") , 1 . p(4,"ass"), 1 . p(7,"faulty")], t(2,"line") |-> [1 . p(3,"line") , 1 . p(5,"ass"),
-          1 . p(8,"faulty")], t(3,"ass") |-> [1 . p(4,"ass") + 1 . p(5,"ass") , 1 . p(6,"end"), nilP],
-          t(4,"rest") |-> [1 . p(6,"end") , 2 . p(1,"start"), nilP], t(5,"fault") |-> [1 . p(0,"focc") , 1 . p(7,"faulty"), nilP], t(6,"fault") |-> [1 . p(0,"focc") , 1 . p(8,"faulty"), nilP].
- eq m0  = 2 * M . p(1,"start") +  1 . p(0,"focc") .
+ ops net0 net net1 net2 : -> Net .
+ ops m0  m1 : -> BagP .
+ *** esempio 1  
+ eq m0  = 2 . p(1,"") +  1 . p(0,"") .
+ eq net0 = t(0,"") |-> [1 . p(0,"") + 3 . p(1,"") + 3 . p(2,""), nilP, nilP], 
+          t(1,"") |-> [2 . p(2,"") + 3 . p(1,"") + 3 . p(3,""), nilP, nilP],
+          t(2,"") |-> [2 . p(2,"") + 3 . p(3,"") + 4 . p(0,""), nilP, nilP].
+ 
+ eq net = t(0,"") |-> [1 . p(3,"") + 3 . p(1,"") + 3 . p(2,""), nilP, nilP], 
+          t(1,"") |-> [1 . p(2,"") + 3 . p(0,"") + 4 . p(3,""), nilP, nilP],
+          t(2,"") |-> [2 . p(2,"") + 3 . p(3,"") + 3 . p(0,""), nilP, nilP].
+ 
+ *** esempio 2  
+ eq net1 = t(0,"") |-> [1 . p(0,"") + 1 . p(4,"") + 4 . p(1,"") + 5 . p(2,""), nilP, nilP],
+           t(1,"") |-> [1 . p(2,"") + 1 . p(1,"") + 4 . p(3,"") + 5 . p(0,""), nilP, nilP],
+           t(2,"") |-> [2 . p(2,"") + 2 . p(3,"") + 3 . p(0,""), nilP, nilP].
+                      
+*** esempio 3  
+ eq net2 = t(0,"") |-> [1 . p(0,"") + 1 . p(4,"") + 4 . p(1,"") + 5 . p(2,""), 1 . p(2,"") + 1 . p(1,"") + 4 . p(3,"") + 5 . p(0,""), 
+                      2 . p(2,"") + 2 . p(3,"") + 3 . p(0,"")].
 endfm
 

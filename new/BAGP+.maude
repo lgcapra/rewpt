@@ -1,38 +1,44 @@
+in ../shared/Vplace
+in ../shared/BAG
+in ../shared/COMP-PAIR-LIST
+
 in PLACE<
-in ../shared/SORTABLE-BAG
 
 fmod BAGP is
- pr SORTABLE-BAG{PLACE<} * (sort Bag{PLACE<} to BagP, sort NeBag{PLACE<} to NeBagP, 
-                             sort Set{PLACE<} to SetP, sort NeSet{PLACE<} to NeSetP,
-                             sort List{PLACE<,Nat} to ListPNat, sort NeList{PLACE<,Nat} to NeListPNat,
-                             op nil to nilP, op empty to emptyP) .
-
+ pr BAG{Place} * ( sort Bag{Place} to BagP, sort NeBag{Place} to NeBagP, sort Set{Place} to SetP, sort NeSet{Place} to NeSetP,
+                   op nil to nilP, op empty to emptyP) .
+ pr COMP-PAIR-LIST{Nat<, PLACE<} * (sort Pair{Nat<,PLACE<} to PairNP, sort NeList{Nat<,PLACE<} to NeListNP,
+                                       sort List{Nat<,PLACE<} to ListNP, op emptyListXY to emptyListNP) .
  
-*** operators helpful for canonization
- op swap : BagP Place Place -> BagP .
  vars P P' $P : Place . 
- var B : BagP .
  vars K K' : NzNat .
- eq swap(K . $P + B, P, P')  = if $P == P then K . P' else (if  $P == P' then K . P else K . $P fi) fi + swap(B, P, P') .
- eq swap(nilP, P, P') = nilP .
+ vars B B' : BagP .
+ vars N N' : Nat .
+ var W : String .
+ var S : SetP .
+
+ *** operators helpful for canonization (?)
+ op swap : BagP Place Place -> BagP .  *** swaps two places in a bag
+ eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P') .
+ eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P') .
+ eq swap(B, P, P')  = B [owise].
 
  op labMap  : BagP String -> SetP . *** returns the set of places with a certain label
- var S : SetP .
- var L : String .
- vars N N' : Nat .
- eq labMap(B, L) = $labMap(B, L, emptyP) .
+ eq labMap(B, W) = $labMap(B, W, emptyP) .
  op $labMap : BagP String SetP ->  SetP .
- eq $labMap(nilP, L, S) = S . 
- eq $labMap(K . p(N,L) + B, L, S) = $labMap(B, L, (S, p(N,L)) ) .
- eq $labMap(K . P + B, L, S) = $labMap(B, L, S)  [owise] .
+ eq $labMap(nilP, W, S) = S . 
+ eq $labMap(K . p(N,W) + B, W, S) = $labMap(B, W, (S, p(N,W)) ) .
+ eq $labMap(K . P + B, W, S) = $labMap(B, W, S)  [owise] .
 
- op minLess  : BagP Place -> SetP . *** returns the set of places with min coefficients and subscript greater than a given place's subscript
- eq minLess(nilP, P) =  emptyP .
- eq minLess(K . P  + B, P) =  $minLess(B, P, K, emptyP) .
- eq minLess(K . P' + B, P) =  $minLess(K . P' + B, P, K, emptyP) [owise].
- op $minLess  : BagP Place NzNat SetP -> SetP . *** the Nat arg represents the partial minimum
- eq $minLess(nilP, P, K, S) = S .
-ceq $minLess(K . p(N,L) + B, p(N',L), K', S) = $minLess(B, p(N',L), K, p(N,L)) if N > N' /\ K < K' . 
-ceq $minLess(K . p(N,L) + B, p(N',L), K, S) = $minLess(B, p(N',L), K, (p(N,L), S) ) if N > N' . 
- eq $minLess(K . P + B, P', K', S) = $minLess(B, P', K', S) [owise] .
+ op makeList : BagP -> ListNP . *** builds an (unordered) list of pairs < weight ; el > out of a bag
+ eq makeList(B) = $makeList(B, emptyListNP) .
+ var LNP : ListNP . 
+ op $makeList : BagP ListNP -> ListNP .
+ eq $makeList(nilP, LNP) = LNP .
+eq  $makeList(K . P + B, LNP) = $makeList(B, < K ; P > LNP) . 
+ op makeSList : BagP -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag
+ eq makeSList(B) = sort(makeList(B)) .
+
+ op _lt_ : BagP BagP -> Bool . *** maps on the order relation of lists of comparable pairs (the sequence of weights is considered first)
+ eq B lt B' = makeSList(B) lex12 makeSList(B') . 
 endfm

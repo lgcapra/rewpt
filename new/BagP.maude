@@ -1,0 +1,3 @@
+view BagP from TRIV to BAGP is 
+ sort Elt to BagP .
+endv

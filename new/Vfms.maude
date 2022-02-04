@@ -1,5 +1,5 @@
 in PTSYSTH+
-in PT-FMS
+in PT-FMS-orig
 
 view Fms from PTSYSTH to PT-FMS is 
  op m0 to m0 .

@@ -4,7 +4,6 @@ in PT-NET
 
 fmod PT-SYS is
  pr PT-NET .
- pr COMPARABLE-LIST{PLACE<} * (sort List{PLACE<} to ListP, sort NeList{PLACE<} to NeListP, op nil to emptyListP ) .
  sort System .
  op __ : Net BagP -> [System] [ctor] .
  vars N N' : Net .
@@ -13,42 +12,27 @@ fmod PT-SYS is
  vars I O H S S' : BagP .
  vars Q Q' : Imatrix .
  vars K K' : NzNat .
-
- eq T |-> [I,I,H] = emptyN [metadata "null t"] .
-ceq T |-> [K . P + I, O, K' . P + H] = emptyN if K >= K' [metadata "dead t"] .
-*** ceq N K . P + S = N S if in(N, P) = false [metadata "isolated p"] .
+ 
+ op net : System -> Net . 
+ op marking : System -> BagP .
+ eq net(N S) = N .
+ eq marking(N S) = S .
  
  op enabled : System Tran -> [Bool] .
  eq enabled( (T |-> [I,O,H], N) S, T) = I <= S and-then H >' S .
 
-cmb N S : System if N =/= emptyN . *** the net of a PT system cannot be empty
+cmb N S : System if N =/= emptyN  and-then repeatedKeys?(N) == false . *** /\ support(S) subset places(N) . *** the net of a PT system cannot be empty
  
- op dead : System -> Bool .
+ op dead : System -> Bool . *** checks for a deadlock state
 ceq dead((T |-> Q, N) S) = false if enabled( (T |-> Q, N) S, T) .
  eq dead(N S) = true [owise] .
 
- op _<_ : System  System -> Bool .
- eq N S < N' S' = N < N' or-else N == N' and-then S le S' .
- 
- ops In Out Inh : Net Tran -> [BagP] . 
- eq In( (T |-> [I,O,H], N), T) = I .
- eq Out((T |-> [I,O,H], N), T) = O .
- eq Inh((T |-> [I,O,H], N), T) = H .
-
- op in :  System Place -> Bool . *** test the existence of a place
+ op in :  System Place -> Bool . *** tests the existence of a place
  eq in(N S, P) =  S[P] =/= 0 or-else in(N, P).
 
  op places : System -> NeSetP .
  eq places(N S) = places(N), support(S) .
 
- op placeList : System -> ListP .
- eq placeList(N S) = $makeList(places(N S),emptyListP) .
- var SP : SetP .
- var L : ListP .
- op $makeList : SetP ListP -> ListP . 
- eq $makeList(emptyP, L) = sort(L) . 
- eq $makeList((P, SP), L) = $makeList(SP, P L) . 
- 
  op swap : System Place Place -> System .
  eq swap(N S, P, P') = swap(N, P, P') swap(S, P, P') . 
 endfm

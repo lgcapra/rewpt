@@ -1,0 +1,95 @@
+*** this module defines PT edges (of any type) as maps from transitions to bags on places
+in BAGP+
+in TRAN<
+in BagP
+in BAGP<
+in ../shared/Vtran
+in ../shared/MAP+old
+in ../shared/COMP-PAIR-LIST
+
+fmod ARC-FUN is
+ inc MAP+{Tran,BagP} * (sort Map{Tran,BagP} to ArcFun, sort Entry{Tran,BagP} to FunT, op emptyM to emptyF,
+                        sort Set{Tran} to SetT, sort NeSet{Tran} to NeSetT, op empty to emptyT, op keySet to transitions) .
+ pr SORTABLE-LIST{TRAN<}  * (sort List{TRAN<} to ListT, sort NeList{TRAN<} to NeListT, op nil to emptyListT ) .
+ pr SORTABLE-LIST{PLACE<}  * (sort List{PLACE<} to ListP, sort NeList{PLACE<} to NeListP, op nil to emptyListP ) .
+ pr LIST{BagP} * (sort List{BagP} to ListBagP, sort NeList{BagP} to NeListBagP, op nil to emptyListBagP ) .
+ pr COMP-PAIR-LIST{BAGP<, TRAN<} * (sort Pair{BAGP<,TRAN<} to PairBT, sort NeList{BAGP<,TRAN<} to NeListBT,
+                                       sort List{BAGP<,TRAN<} to ListBT, op emptyListXY to emptyListBT) .
+ 
+ var T : Tran .
+ vars P P' : Place .
+ vars B B' : BagP .
+ vars K K' : NzNat .
+ vars F F' : ArcFun .
+ 
+ eq  T |-> nilP = emptyF . *** null mappings are erased
+
+ op _(_) : ArcFun Tran -> BagP . *** special look-up mapping non-present transitions to the empty bag 
+ eq (F, T |-> B)(T) = (F, T |-> B)[T] .
+ eq F(T) = nilP [owise] .
+ 
+ op in :  ArcFun Place -> Bool . *** test the existence of a place (i.e., whether a place is mapped)
+ eq in((T |-> K . P + B, F), P) = true .
+ eq in(F, P) = false [owise] .
+
+ op in :  ArcFun Tran -> Bool . *** test the existence of a transition
+ eq in((T |-> B, F), T) = true .
+ eq in(F, T) = false [owise] .
+ *** eq in(F, T) = $hasMapping(F, T) .
+
+ op places : ArcFun -> SetP [memo] .
+ eq places(F) = $places(F, emptyP) .  
+ op $places : ArcFun SetP -> SetP . 
+ var SP : SetP .
+ eq $places(emptyF, SP) = SP . 
+ eq $places((T |-> B , F), SP) = $places(F, (SP, support(B))) .
+
+ op tranList : ArcFun -> ListT .  *** returns the sorted list of transitions
+ eq tranList(F) = $makeListT(F,emptyListT) .
+ var LT : ListT .
+ op $makeListT : ArcFun ListT -> ListT . 
+ eq $makeListT(emptyF, LT) = sort(LT) . 
+ eq $makeListT((T |-> B, F), LT) = $makeListT(F, T LT) . 
+
+ **** canonization part
+ op makeSList : ArcFun -> ListBT . *** builds an ordered list of pairs < bag ; tran >
+ eq makeSList(F) = $makeSList(F, emptyListBT) .
+ var LBT : ListBT . 
+ op $makeSList : ArcFun ListBT -> ListBT .
+ eq $makeSList(emptyF, LBT) = sort(LBT) .
+eq  $makeSList((T |-> B, F), LBT) = $makeSList(F, < B ; T > LBT) . 
+ 
+ op swap : ArcFun Place Place -> ArcFun .  *** swaps two places in an arc-function
+ eq swap((T |-> B, F), P , P') = T |-> swap(B,  P , P'), swap(F, P , P') .
+ eq swap(emptyF, P , P') = emptyF .
+
+ vars L L1 : ListP .
+ var Init : Bool .
+ var W : String .
+ vars Y J : Nat .
+ 
+ *** the following part should be moved (?)
+ ***  op minGtIdx : BagP Place SetP -> NeSetP . *** Given B, P, SP, if A = {P' in B s.t. index(P') >= index(P) and SP != 0 => P' in SP} is not 0 then returns the elements P' of A with MINIMAL-weight s.t. if B[P] > 0 then B[P'] <= B[P] (note that P may be included).
+                                           *** If B is 0 or A is 0 returns P .  
+ *** eq minGtIdx(K . P + B, P, SP) = $minGtIdx(B, P, K, SP) .
+ *** eq minGtIdx(B, P, SP) = $minGtIdx(B, P, 10000000000000,  SP)  [owise] .
+ *** op $minGtIdx : BagP Place NzNat SetP -> NeSetP .
+*** ceq $minGtIdx( K' . p(Y,W)  + B, p(J,W), K, SP) = $minGtIdx(B, p(Y,W), K',  SP) if Y > J /\ K' < K /\ SP == emptyP or-else p(Y,W) in SP . *** found el. with idx > and weight <
+*** ceq $minGtIdx( K . p(Y,W)  + B, p(J,W), K, SP)  = p(Y,W) , $minGtIdx(B, p(J,W), K,  SP ) if Y > J /\ SP == emptyP or-else p(Y,W) in SP [owise].  *** found el. with idx > and weight =
+ *** eq $minGtIdx(B, P, K,  SP) = P [owise] .
+ 
+ *** the same, but works on lists (should be more efficient in some cases)
+ op minGtIdx : BagP Place ListP -> NeListP . *** Given B, P, SP, if A = {P' in B s.t. index(P') >= index(P) and SP != 0 => P' in SP} is not 0 then returns the elements P' of A with MINIMAL-weight s.t. if B[P] > 0 then B[P'] <= B[P] (note that P may be included).
+                                             *** If B is 0 or A is 0 returns P .
+                                             *** The returned list is ordered: if its size is > 1 the el. with the greatest idx is the 2nd one (even if P is not in the list!) 
+ op _inNotEmpty_ : Place ListP -> Bool . *** defined for efficiency (occurs is less efficient)
+ eq P inNotEmpty emptyListP = true .
+ eq P inNotEmpty L P L1 = true .
+ eq P inNotEmpty L = false [owise] .
+ eq minGtIdx(K . P + B, P, L) = $minGtIdx(B, P, K, L) . *** P is in B
+ eq minGtIdx(B, P, L) = $minGtIdx(B, P, 10000000000000, L)  [owise] .
+ op $minGtIdx : BagP Place NzNat ListP -> NeListP .
+ceq $minGtIdx( K' . p(Y,W)  + B, p(J,W), K, L) = $minGtIdx(B, p(Y,W), K',  L) if Y > J /\ K' < K /\ p(Y,W) inNotEmpty L . *** found el. with idx > and weight <
+ceq $minGtIdx( K . p(Y,W)  + B, p(J,W), K, L)  = $minGtIdx(B, p(J,W), K,  L ) p(Y,W)  if Y > J /\ p(Y,W) inNotEmpty L [owise].  *** found el. with idx > and weight =
+ eq $minGtIdx(B, P, K, L) = P [owise] .
+endfm

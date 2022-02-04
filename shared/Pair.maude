@@ -1,0 +1,5 @@
+in PAIR
+
+view Pair{X :: TRIV, Y :: TRIV} from TRIV to PAIR{X,Y} is 
+ sort Elt to Pair{X,Y} . 
+endv

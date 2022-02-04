@@ -1,45 +1,54 @@
 in PT-SYS+
 in LAZYEVAL
 
-view SetP0 from DEFAULT to PT-SYS is 
- sort Elt to SetP .
- op 0 to emptyP . 
+view EmptyListP from DEFAULT to PT-SYS is 
+ sort Elt to ListP .
+ op 0 to emptyListP  . 
 endv
 
 fmod CAN-PT-SYS is
- *** inc PT-SYS .
- pr PT-SYS .
- pr LAZYEVAL{SetP0} .
+ inc PT-SYS .
+ pr LAZYEVAL{EmptyListP} .
  vars Q Q' : Imatrix .
  vars S : String .
  vars I J : Nat .
- vars P P' : Place .
- var SYS SYS' : System .
- vars N N' : Net .
- vars M0 M0' : BagP .
- var SP SP' SX SY SZ : SetP .
- var NSP : NeSetP .
-
- op canonize : System -> System .
- eq canonize(SYS) = $canonize(SYS, places(SYS)) .
- op $canonize : System SetP -> System .
- eq $canonize(SYS, emptyP) = SYS .
- eq $canonize(SYS, (P, SP) ) = $canonize($canonize(SYS, P, SP), SP)  .
- op $canonize : System Place SetP -> System .
- eq $canonize(SYS, P, (P', NSP)) = $canonize($canonize(SYS, P, P'), P, NSP) . 
- eq $canonize(SYS, P, emptyP) = SYS . 
-ceq $canonize(SYS, p(I,S), p(J,S)) = SYS' if  I =/= J /\ SYS' := swap(SYS, p(I,S) , p(J,S)) /\ SYS' < SYS .
-  eq $canonize(SYS, P, P') = SYS [owise] .
+ vars P P' P'' : Place .
+ vars T T' : Tran .
+ vars SYS  SYS' SYS'' : System .
+ vars N  N' : Net .
+ vars B M0 M0' : BagP .
+ vars SP SP' : SetP .
+ vars LP LP' LP'' : ListP .
+ vars NeLP : NeListP .
+ vars Sy Sy' : System .
+ 
  *** ceq t(I,S) |-> Q, t(J,S) |-> Q' = t(I,S) |-> Q', t(J,S) |-> Q if I < J /\ Q' < Q . *** preserves order
 
- op minArc : Net Atype -> BagP . *** returns the min "sum" of edges of a certain type
+ op canonize : System -> System .
+
+ *** ceq SYS = SYS' if SYS' := canonize(SYS) /\ SYS =/= SYS' .
+ *** implementation of canonization 
+
+ **** canonization part
+ var AL : ListBT .
+ var NeAL : NeListBT .
  var A : Atype .
- var T : Tran .
- eq minArc(emptyN, A) = nilP . 
- eq minArc((T |-> Q, N), A) = smin(Q(A), minArc(N, A)) . 
- 
- op minLess : Net Place -> SetP . *** builds on the homonym op of BAGP
- eq minLess(N, P) = minLess(N, P, i) and-then minLess(N, P, o) and-then minLess(N, P, h) . 
- op minLess : Net Place Atype -> SetP . 
- eq minLess(N, P, A) =  minLess(minArc(N, A), P) .
+ op canonize : Atype ListP System -> System . *** canonizes a system w.r.t. a sorted list of (net) places and a (type of sorted) adjacency list
+ eq canonize(A, NeLP, Sy) = canonize(A, makeAdjList(net(Sy),A), NeLP, Sy) .
+ eq canonize(A, emptyListP, Sy) = Sy .
+ op canonize  : Atype ListBT ListP System -> System . *** canonizes a system w.r.t. a sorted list of (net) places and a (sorted) adjacency list
+ eq canonize(A, AL, emptyListP, Sy) = Sy  .
+ceq canonize(A, AL, P LP, Sy) = canonize(A, LP, Sy')  if Sy' := canonizeP(AL, P, Sy) /\ Sy' =/= Sy . *** SISTEMARE (BISOGNA RIORDINARE AL IN CASO DI SWAP)
+ eq canonize(A, AL, P LP, Sy) = canonize(A, AL, LP, Sy) [owise] . 
+ op canonizeP : ListBT Place System -> System . *** canonizes a system w.r.t. a place and an adjacency list - builds on minGtIdx
+ eq canonizeP(AL, P, Sy) = $canonizeP(AL, P, emptyListP, Sy) .
+ op $canonizeP : ListBT Place ListP System -> System . *** auxiliary version taking a list (set) of places as additional arg - builds on takeAction
+ eq $canonizeP(emptyListBT, P, LP, Sy) = Sy .
+ceq $canonizeP(< B ; T > AL, P, LP, Sy) = takeAction(< B ; T > AL, P, LP'', Sy) if LP'' := minGtIdx(B, P, LP)  /\ LP'' =/= emptyListP .
+ eq $canonizeP(< B ; T > AL, P, LP, Sy) = $canonizeP(AL, P, LP, Sy) [owise] . *** a5 (set A is empty P doesn't belong to B)  
+ op takeAction : NeListBT Place NeListP System -> System . 
+ eq takeAction(< B ; T > AL, P, P NeLP, Sy) = $canonizeP(AL, P, NeLP, Sy) . *** a1 (continues from the next bag using P and the tail of listP as args)
+ceq takeAction(< B ; T > AL, P, P' NeLP, Sy) = $canonizeP(swap(AL, P , P''), P, P' tail(NeLP), swap(Sy, P, P'')) if P' =/= P /\ P'' := head(NeLP) . *** a2 (swaps P with the 2nd el of listP and sorts then continues from the next bag still using P and the residual of listP)
+ceq takeAction(NeAL, P, P', Sy) = swap(Sy, P, P' )  if P' =/= P . *** a3 (swaps P with the only el P' of listP, different from P, sorts and continues from the next(P))
+ eq takeAction(NeAL, P, P, Sy) = Sy . *** a4 (continues from next(P) )
 endfm

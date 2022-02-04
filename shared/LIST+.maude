@@ -1,0 +1,14 @@
+*** List extension with list-manipulation operators
+
+fmod LIST+{X :: TRIV} is 
+ pr LIST{X} .
+ pr EXT-BOOL . 
+ op swap : List{X} Place Place -> List{X} . *** works on list of pairs < weight ; b-elem >
+ var List : List{X} .
+ *** eq swap(< K ; $P >  List, P, P')  = if $P == P then < K ; P' > else (if  $P == P' then < K ; P > else < K ; $P > fi) fi swap(List, P, P') .
+ eq swap(< K ; P >  List, P, P')  = < K ; P' > swap(List, P, P') .
+ eq swap(< K ; P' > List, P, P')  = < K ; P >  swap(List, P, P') .
+ eq swap(< K ; $P >  List, P, P')  = < K ; $P > swap(List, P, P') [owise].
+ eq swap(emptyListNatP, P, P') = emptyListNatP .
+endfm
+ 

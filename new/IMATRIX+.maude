@@ -13,8 +13,8 @@ fmod IMATRIX is
  op remove : Imatrix Place -> Imatrix .
  eq remove([X,Y,Z], P) = [set(X,P,0),set(Y,P,0),set(Z,P,0)] .
  
- op _<_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices
- eq [X,Y,Z] < [X',Y',Z'] = X le X' or-else X == X' and-then (Y le Y' or-else Y == Y' and-then Z le Z') .
+ op _<_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt relation between bags (based in turn on lex12)
+ eq [X,Y,Z] < [X',Y',Z'] = X lt X' or-else X == X' and-then (Y lt Y' or-else Y == Y' and-then Z lt Z') .
 
  ops I O H : Imatrix -> BagP .
  eq I([X,Y,Z]) = X .

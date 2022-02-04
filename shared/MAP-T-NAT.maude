@@ -1,0 +1,3 @@
+fmod MAP-T-NAT is
+ pr MAP+{Tran,Nat} .
+endfm
