@@ -14,22 +14,27 @@ fmod CAN-PT-SYS is
  vars I J : Nat .
  vars P P' P'' : Place .
  vars T T' : Tran .
- vars SYS  SYS' SYS'' : System .
+ vars SYS  SYS' : System .
  vars N  N' : Net .
  vars B M0 M0' : BagP .
  vars SP SP' : SetP .
- vars LP LP' LP'' : ListP .
- vars NeLP : NeListP .
+ vars LP LP' : ListP .
+ vars LT LT'  : ListT .
+ var NeLP : NeListP .
+ var NeLT : NeListT .
  vars Sy Sy' : System .
  
  *** ceq t(I,S) |-> Q, t(J,S) |-> Q' = t(I,S) |-> Q', t(J,S) |-> Q if I < J /\ Q' < Q . *** preserves order
 
+ **** canonization part
  op canonize : System -> System .
 
  *** ceq SYS = SYS' if SYS' := canonize(SYS) /\ SYS =/= SYS' .
- *** implementation of canonization 
+ *** implementation of canonization
 
- **** canonization part
+ op replacePindices : System String -> System . *** replace the place indices (with a given label) so that they range throug 0..n-1 
+ 
+ 
  var AL : ListBT .
  var NeAL : NeListBT .
  var A : Atype .
@@ -44,11 +49,31 @@ ceq canonize(A, AL, P LP, Sy) = canonize(A, LP, Sy')  if Sy' := canonizeP(AL, P,
  eq canonizeP(AL, P, Sy) = $canonizeP(AL, P, emptyListP, Sy) .
  op $canonizeP : ListBT Place ListP System -> System . *** auxiliary version taking a list (set) of places as additional arg - builds on takeAction
  eq $canonizeP(emptyListBT, P, LP, Sy) = Sy .
-ceq $canonizeP(< B ; T > AL, P, LP, Sy) = takeAction(< B ; T > AL, P, LP'', Sy) if LP'' := minGtIdx(B, P, LP)  /\ LP'' =/= emptyListP .
+ceq $canonizeP(< B ; T > AL, P, LP, Sy) = takeAction(< B ; T > AL, P, LP', Sy) if LP' := minGtIdx(B, P, LP)  /\ LP' =/= emptyListP .
  eq $canonizeP(< B ; T > AL, P, LP, Sy) = $canonizeP(AL, P, LP, Sy) [owise] . *** a5 (set A is empty P doesn't belong to B)  
  op takeAction : NeListBT Place NeListP System -> System . 
  eq takeAction(< B ; T > AL, P, P NeLP, Sy) = $canonizeP(AL, P, NeLP, Sy) . *** a1 (continues from the next bag using P and the tail of listP as args)
 ceq takeAction(< B ; T > AL, P, P' NeLP, Sy) = $canonizeP(swap(AL, P , P''), P, P' tail(NeLP), swap(Sy, P, P'')) if P' =/= P /\ P'' := head(NeLP) . *** a2 (swaps P with the 2nd el of listP and sorts then continues from the next bag still using P and the residual of listP)
 ceq takeAction(NeAL, P, P', Sy) = swap(Sy, P, P' )  if P' =/= P . *** a3 (swaps P with the only el P' of listP, different from P, sorts and continues from the next(P))
  eq takeAction(NeAL, P, P, Sy) = Sy . *** a4 (continues from next(P) )
+
+ *** the following operators replace the indices of nodes so that they range in 0...n-1
+ *** assume that the list of nodes holds all and only the nodes with a certain label, sorted in increasing order
+ op replaceIndexP : System ListP -> System . 
+ eq replaceIndexP(Sy, emptyListP) = Sy .
+ceq replaceIndexP(Sy, NeLP) = Sy if subscript(last(NeLP)) + 1 == size(NeLP) .
+ eq replaceIndexP(Sy, NeLP) = $replaceIndexP(Sy, NeLP, 0) [owise] .
+ op $replaceIndexP : System ListP Nat -> System . 
+ eq $replaceIndexP(Sy, emptyListP, I) = Sy .
+ eq $replaceIndexP(Sy, p(I, S) LP, I) = $replaceIndexP(Sy, LP, I + 1) . 
+ceq $replaceIndexP(Sy, p(J, S) LP, I) = $replaceIndexP(swap(Sy, p(J, S), p(I, S)), LP, I + 1) if I =/= J .
+
+op replaceIndexT : Net ListT -> Net . 
+ eq replaceIndexT(N, emptyListT) = N .
+ceq replaceIndexT(N, NeLT) = N if subscript(last(NeLT)) + 1 == size(NeLT) .
+ eq replaceIndexT(N, NeLT) = $replaceIndexT(N, NeLT, 0) [owise] .
+ op $replaceIndexT : Net ListT Nat -> Net . 
+ eq $replaceIndexT(N, emptyListT, I) = N .
+ eq $replaceIndexT(N, t(I, S) LT, I) = $replaceIndexT(N, LT, I + 1) . 
+ceq $replaceIndexT(N, t(J, S) LT, I) = $replaceIndexT(swap(N, t(J, S), t(I, S)), LT, I + 1) if I =/= J .
 endfm

@@ -16,11 +16,11 @@ fmod BAGP is
  vars N N' : Nat .
  var W : String .
  var S : SetP .
-
- *** operators helpful for canonization (?)
+ *** operators helpful for canonization
+ *** swap two elements, if one is missing operates like a replace 
  op swap : BagP Place Place -> BagP .  *** swaps two places in a bag
- eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P') .
- eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P') .
+ eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P')  .
+ eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P')  .
  eq swap(B, P, P')  = B [owise].
 
  op labMap  : BagP String -> SetP . *** returns the set of places with a certain label

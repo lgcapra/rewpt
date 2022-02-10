@@ -19,11 +19,11 @@ fmod PT-NET is
                                        sort List{BAGP<,TRAN<} to ListBT, op emptyListXY to emptyListBT) .
  pr ATYPE .
 
- var  T : Tran .
  var  N : Net .
- vars P P'  : Place .
+ vars T T' : Tran .
+ vars P P' : Place .
+ vars K K' : NzNat .
  vars I O H B : BagP .
- vars K K'  : NzNat .
  
  eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 
@@ -46,7 +46,7 @@ ceq in((T |-> Q, N), P) = true if in (Q, P) .
  var S : SetP .
  var Q : Imatrix .
  
- op places : Net -> SetP [memo] .
+ op places : Net -> SetP .
  eq places(N) = $places(N, emptyP) .  
  op $places : Net SetP -> SetP . 
  eq $places(emptyN, S) = S . 
@@ -69,6 +69,14 @@ ceq in((T |-> Q, N), P) = true if in (Q, P) .
  **** canonization part
  var AL : ListBT . 
  var A : Atype .
+
+ *** return the places of a given type 
+ op places : Net Atype -> SetP .
+ eq places(N, A) = $places(N, A, emptyP) .
+ op $places : Net Atype SetP -> SetP .
+ eq $places(emptyN, A, S) = S .
+ eq $places((T |-> Q, N), A, S) = $places(N, A, (S, support(Q(A))) ) . 
+ 
  
  op makeAdjList : Net Atype -> ListBT . *** makes a sorted adjacency list out of a net 
  eq makeAdjList(N, A) = $makeAdjList(N, A, emptyListBT) .
@@ -82,11 +90,16 @@ ceq in((T |-> Q, N), P) = true if in (Q, P) .
  eq swap((T |-> Q, N), P, P') = T |-> swap(Q, P, P'), swap(N, P, P') .
  eq swap(emptyN, P, P') = emptyN .
 
- op swap : ListBT Place Place -> ListBT .  *** swaps two places in a adjacency list and sorts the resulting list
+ op swap : ListBT Place Place -> ListBT .  *** swaps two places in an adjacency list and sorts the resulting list
  eq swap(AL, P, P') = sort($swap(AL, P, P')) .
- op $swap : ListBT Place Place -> ListBT . *** swaps two places in a adjacency list
+ op $swap : ListBT Place Place -> ListBT . *** swaps two places in an adjacency list
  eq $swap(emptyListBT, P, P') = emptyListBT .
  eq $swap(< B ; T > AL, P, P') = < swap(B, P, P') ; T > $swap(AL, P, P') . 
+
+ op swap : Net Tran Tran -> Net .  *** swaps two transitions in a net
+ eq swap((T |-> Q, N), T, T') = T' |-> Q, swap(N, T, T') . 
+ eq swap((T |-> Q, N), T', T) = T' |-> Q, swap(N, T', T) .
+ eq swap(N, T, T') = N [owise] .
 
  var SP : SetP . 
  var Init : Bool .
