@@ -13,15 +13,18 @@ fmod IMATRIX is
  op remove : Imatrix Place -> Imatrix .
  eq remove([X,Y,Z], P) = [set(X,P,0),set(Y,P,0),set(Z,P,0)] .
  
- op _<_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt relation between bags (based in turn on lex12)
+ op _<_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt relation between bags (currently based in turn on lex12)
  eq [X,Y,Z] < [X',Y',Z'] = X lt X' or-else X == X' and-then (Y lt Y' or-else Y == Y' and-then Z lt Z') .
+
+ op _<'_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt' relation between bags (currently based in turn on lex)
+ eq [X,Y,Z] <' [X',Y',Z'] = X lt' X' or-else X == X' and-then (Y lt' Y' or-else Y == Y' and-then Z lt' Z') .
 
  ops I O H : Imatrix -> BagP .
  eq I([X,Y,Z]) = X .
  eq O([X,Y,Z]) = Y .
  eq H([X,Y,Z]) = Z .
 
- op _(_) : Imatrix Atype -> BagP . *** introduced for convenience
+ op _(_) : Imatrix Atype -> BagP [prec 23] . *** introduced for convenience
  var Q : Imatrix .
  var a : Atype .
  eq Q(i) = I(Q) .
@@ -37,7 +40,11 @@ fmod IMATRIX is
 
  op places : Imatrix -> SetP .
  eq places([X,Y,Z]) = support(X), support(Y), support(Z) .
- 
+
+ *** canonization ops
  op swap : Imatrix Place Place -> Imatrix .
  eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
+
+ op replace : Imatrix Place Place -> Imatrix .
+ eq replace([X,Y,Z], P, P') = [replace(X,P,P'),replace(Y,P,P'),replace(Z,P,P')] .
 endfm

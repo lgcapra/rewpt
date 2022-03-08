@@ -48,9 +48,9 @@ fmod BAG{X :: TRIV} is
  eq set(B + N . X, X, K) = if K == 0 then B else B + K . X fi . 
  eq set(B, X, K) =  if K == 0 then B else B + K . X fi [owise] .
 
- op |_| : Bag{X} -> Nat . 
- op |_| : NeBag{X} -> NzNat . 
- eq | B | = $bcard(B, 0) . 
+ op ||_|| : Bag{X} -> Nat . 
+ op ||_|| : NeBag{X} -> NzNat . 
+ eq || B || = $bcard(B, 0) . 
  op $bcard : Bag{X} Nat -> Nat . 
  eq $bcard(nil, K) = K . 
  eq $bcard(N . X + B, K) = $bcard(B, K + N) .

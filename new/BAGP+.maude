@@ -17,12 +17,19 @@ fmod BAGP is
  var W : String .
  var S : SetP .
  *** operators helpful for canonization
- *** swap two elements, if one is missing operates like a replace 
- op swap : BagP Place Place -> BagP .  *** swaps two places in a bag
- eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P')  .
- eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P')  .
- eq swap(B, P, P')  = B [owise].
-
+ op swap : BagP Place Place -> BagP .  *** swaps two places
+ op replace : BagP Place Place -> BagP . *** replaces the first place with the second one
+ eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
+ eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
+ eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
+ *** eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P')  . *** slightly less efficient
+ *** eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P')  .
+ eq swap(B, P, P')  = B [owise] .
+ 
+ eq replace(K . P + B, P, P') = K . P' + B .
+ eq replace(B, P, P') = B [owise] .
+ 
+ *** helpful?
  op labMap  : BagP String -> SetP . *** returns the set of places with a certain label
  eq labMap(B, W) = $labMap(B, W, emptyP) .
  op $labMap : BagP String SetP ->  SetP .
@@ -39,6 +46,9 @@ eq  $makeList(K . P + B, LNP) = $makeList(B, < K ; P > LNP) .
  op makeSList : BagP -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag
  eq makeSList(B) = sort(makeList(B)) .
 
- op _lt_ : BagP BagP -> Bool . *** maps on the order relation of lists of comparable pairs (the sequence of weights is considered first)
+ op _lt_ : BagP BagP -> Bool . *** maps on the order relation of lists of comparable pairs (weight sequence considered first)
  eq B lt B' = makeSList(B) lex12 makeSList(B') . 
+
+ op _lt'_ : BagP BagP -> Bool . *** maps on the usual, pair-wise, order relation of lists of comparable pairs
+ eq B lt' B' = makeSList(B) lex makeSList(B') . 
 endfm

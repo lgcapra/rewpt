@@ -12,18 +12,33 @@ fmod PT-NET is
  inc MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
  pr SORTABLE-LIST{TRAN<}  * (sort List{TRAN<} to ListT, sort NeList{TRAN<} to NeListT, op nil to emptyListT ) .
  pr SORTABLE-LIST{PLACE<}  * (sort List{PLACE<} to ListP, sort NeList{PLACE<} to NeListP, op nil to emptyListP ) .
- pr LIST{BagP} * (sort List{BagP} to ListBagP, sort NeList{BagP} to NeListBagP, op nil to emptyListBagP ) .
- pr COMP-PAIR-LIST{IMATRIX<, TRAN<} * (sort Pair{IMATRIX<,TRAN<} to PairQT, sort NeList{IMATRIX<,TRAN<} to NeListQT,
-                                       sort List{IMATRIX<,TRAN<} to ListQT, op emptyListXY to emptyListQT) .
- pr COMP-PAIR-LIST{BAGP<, TRAN<} * (sort Pair{BAGP<,TRAN<} to PairBT, sort NeList{BAGP<,TRAN<} to NeListBT,
-                                       sort List{BAGP<,TRAN<} to ListBT, op emptyListXY to emptyListBT) .
+ pr SORTABLE-LIST{BAGP<} * (sort List{BAGP<} to ListBagP, sort NeList{BAGP<} to NeListBagP, op nil to emptyListBagP ) .
+ pr COMP-PAIR-LIST{BAGP<, TRAN<} * (sort Pair{BAGP<,TRAN<} to PairBT, sort NeList{BAGP<,TRAN<} to NeListBT, sort List{BAGP<,TRAN<} to ListBT, op emptyListXY to emptyListBT) .
+ pr SORTABLE-LIST{IMATRIX<} * (sort List{IMATRIX<} to ListQ, sort NeList{IMATRIX<} to NeListQ, op nil to emptyListQ ) .
+ *** otherwise, we might define a COMP-PAIR-LIST of matrices and transitions  
+
+ pr SET{BagP} * (sort Set{BagP} to SetBagP, sort NeSet{BagP} to NeSetBagP, op empty to emptyBagP ) .
+
  pr ATYPE .
 
  var  N : Net .
  vars T T' : Tran .
  vars P P' : Place .
+ vars Y J  : Nat .
  vars K K' : NzNat .
  vars I O H B : BagP .
+ vars Q Q' : Imatrix .
+ vars S SP : SetP . 
+ var W :  String .
+ var F :  Bool .
+ var AL : ListBT . 
+ var LQ : ListQ .
+ var A :  Atype .
+ var BL : ListBagP . 
+ var BS : SetBagP .
+ var NeBS : NeSetBagP .
+ var L' : ListT .
+ var E : ImatrixT .
  
  eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 
@@ -43,9 +58,6 @@ ceq in((T |-> Q, N), P) = true if in (Q, P) .
  op in :  Net Tran -> Bool . *** test the existence of a transition
  eq in(N, T) = $hasMapping(N, T) .
 
- var S : SetP .
- var Q : Imatrix .
- 
  op places : Net -> SetP .
  eq places(N) = $places(N, emptyP) .  
  op $places : Net SetP -> SetP . 
@@ -61,15 +73,12 @@ ceq in((T |-> Q, N), P) = true if in (Q, P) .
 
  op tranList : Net -> ListT .  *** returns the sorted list of transitions
  eq tranList(N) = $makeListT(N,emptyListT) .
- var L' : ListT .
  op $makeListT : Net ListT -> ListT . 
  eq $makeListT(emptyN, L') = sort(L') . 
  eq $makeListT((T |-> Q, N), L') = $makeListT(N, T L') . 
 
- **** canonization part
- var AL : ListBT . 
- var A : Atype .
-
+ **** operators helpful for canonization
+ 
  *** return the places of a given type 
  op places : Net Atype -> SetP .
  eq places(N, A) = $places(N, A, emptyP) .
@@ -77,57 +86,119 @@ ceq in((T |-> Q, N), P) = true if in (Q, P) .
  eq $places(emptyN, A, S) = S .
  eq $places((T |-> Q, N), A, S) = $places(N, A, (S, support(Q(A))) ) . 
  
+ *** makes a sorted adjacency list out of a net 
+ op makeAdjList : Net -> ListQ .  
+ eq makeAdjList(N) = $makeAdjList(N, emptyListQ) .
+ op $makeAdjList : Net ListQ -> ListQ .
+ eq $makeAdjList(emptyN, LQ) = sort(LQ) .
+ eq $makeAdjList((T |-> Q, N), LQ) = $makeAdjList(N, LQ Q)  .
  
- op makeAdjList : Net Atype -> ListBT . *** makes a sorted adjacency list out of a net 
- eq makeAdjList(N, A) = $makeAdjList(N, A, emptyListBT) .
- op $makeAdjList : Net Atype ListBT -> ListBT .
- eq $makeAdjList(emptyN, A, AL) = sort(AL) .
- eq $makeAdjList((T |-> Q, N), A, AL) = $makeAdjList(N, A, AL < Q(A) ; T > ) . 
+ *** makes a sorted adjacency list out of a net -- transitions with the given label are considered
+ op makeAdjList : Net String -> ListQ .  
+ eq makeAdjList(N, W) = $makeAdjList(N, W, emptyListQ) .
+ op $makeAdjList : Net String ListQ -> ListQ .
+ eq $makeAdjList(emptyN, W, LQ) = sort(LQ) .
+ eq $makeAdjList((t(Y, W) |-> Q, N), W, LQ) = $makeAdjList(N, W, LQ Q)  .
+ eq $makeAdjList((T |-> Q, N), W, LQ) = $makeAdjList(N, W, LQ)  [owise] .
  
- eq < nilP ; T > =  emptyListBT . *** null arc-function are erased (optional)
+ *** makes a sorted adjacency list of a given type (i,o,h) out of a net (NOTE builds on the operator above, i.e., on the order defined on inc. matrices)
+ op makeAdjListS : Net Atype -> ListBagP .
+ eq makeAdjListS(N, A) = $makeAdjListS(makeAdjList(N), A, emptyListBagP) . *** the list (of matrices) is ordered -- consequently the particular lists are
+ op $makeAdjListS : ListQ Atype ListBagP -> ListBagP .
+ eq $makeAdjListS(emptyListQ, A, BL) = BL .
+ceq $makeAdjListS(Q LQ, A, BL) = $makeAdjListS(LQ, A, BL) if Q(A) == nilP . *** optimization . 
+ eq $makeAdjListS(Q LQ, A, BL) = $makeAdjListS(LQ, A, BL Q(A) ) [owise] . 
+ *** makes an unsorted adjacency list of a given type (i,o,h) out of a net
+ op makeAdjList : Net Atype -> ListBagP .  
+ eq makeAdjList(N, A) = $makeAdjList(N, A, emptyListBagP) .
+ op $makeAdjList : Net Atype ListBagP -> ListBagP .
+ eq $makeAdjList(emptyN, A, BL) = BL .
+ eq $makeAdjList((T |-> Q, N), A, BL) = $makeAdjList(N, A, BL Q(A))  .
+ 
 
- op swap : Net Place Place -> Net .  *** swaps two places in a net
+ *** makes a sorted adjacency list of a given type (i,o,h) out of a net
+ **** op makeAdjList : Net Atype -> ListBT .  
+ **** eq makeAdjList(N, A) = $makeAdjList(N, A, emptyListBT) .
+ **** op $makeAdjList : Net Atype ListBT -> ListBT .
+ **** eq $makeAdjList(emptyN, A, AL) = sort(AL) .
+**** ceq $makeAdjList((T |-> Q, N), A, AL) = $makeAdjList(N, A, AL < B ; T > ) if B := Q(A) /\ B =/= nilP . *** optimization: null bags are skipped
+ **** eq $makeAdjList((E, N), A, AL) = $makeAdjList(N, A, AL) [owise] . 
+
+ *** equivalent version resulting in a sorted list of bags (not of pairs < T ; B > )
+ **** op makeAdjListS : Net Atype -> ListBagP . *** makes a sorted adjacency list out of a net 
+ **** eq makeAdjListS(N, A) = $makeAdjListS(N, A, emptyListBagP) .
+ **** op $makeAdjListS : Net Atype ListBagP -> ListBagP .
+ **** eq $makeAdjListS(emptyN, A, BL) = sort(BL) .
+**** ceq $makeAdjListS((T |-> Q, N), A, BL) = $makeAdjListS(N, A, BL B ) if B := Q(A) /\ B =/= nilP . *** optimization . 
+ **** eq $makeAdjListS((E, N), A, BL) = $makeAdjListS(N, A, BL) [owise] . 
+
+ *** version resulting in a set of bags
+ **** op makeAdjSet : Net Atype -> SetBagP . *** makes a sorted adjacency list out of a net 
+ **** eq makeAdjSet(N, A) = $makeAdjSet(N, A, emptyBagP) .
+ **** op $makeAdjSet : Net Atype SetBagP -> SetBagP .
+ **** eq $makeAdjSet(emptyN, A, BS) = BS .
+ **** eq $makeAdjSet((T |-> Q, N), A, BS) = $makeAdjSet(N, A, (BS, Q(A)) ) . 
+
+ **** op toSet : ListBagP -> SetBagP . *** makes a set out of a list of bags (still needed?)
+ **** eq toSet(BL) = $toSet(BL, emptyBagP) .
+ **** op $toSet : ListBagP SetBagP -> SetBagP .
+ **** eq $toSet(emptyListBagP, BS) = BS .
+ **** eq $toSet(B BL, BS) = $toSet(BL, (B, BS)) .
+ 
+ *** operators to swap pairs of elements (various versions)
+ op swap : Net Place Place -> Net . 
  eq swap((T |-> Q, N), P, P') = T |-> swap(Q, P, P'), swap(N, P, P') .
  eq swap(emptyN, P, P') = emptyN .
 
- op swap : ListBT Place Place -> ListBT .  *** swaps two places in an adjacency list and sorts the resulting list
- eq swap(AL, P, P') = sort($swap(AL, P, P')) .
+ *** swaps two places in an adjacency list and sorts the resulting list
+ op swapS : ListBT Place Place -> ListBT .  
+ eq swapS(AL, P, P') = sort($swap(AL, P, P')) .
  op $swap : ListBT Place Place -> ListBT . *** swaps two places in an adjacency list
  eq $swap(emptyListBT, P, P') = emptyListBT .
  eq $swap(< B ; T > AL, P, P') = < swap(B, P, P') ; T > $swap(AL, P, P') . 
+ 
+ *** swaps two places in an adjacency list and sorts the resulting list
+ op swapS : ListBagP Place Place -> ListBagP .  
+ eq swapS(BL, P, P') = sort($swap(BL, P, P')) .
+ op $swap : ListBagP Place Place -> ListBagP . *** swaps two places in an adjacency list
+ eq $swap(emptyListBagP, P, P') = emptyListBagP .
+ eq $swap(B BL, P, P') = swap(B, P, P') $swap(BL, P, P') . 
 
+ *** op swap : SetBagP Place Place -> SetBagP .  *** swaps two places in a set of bags
+ *** eq swap( (B, NeBS), P, P') = swap(B, P, P'), swap(NeBS, P, P') . *** NOTE: using NeBS avoids infinite recursion
+ **** eq swap(emptyBagP, P, P') = emptyBagP .
+
+ op replace : Net Place Place -> Net .  *** replace the first places with the 2nd one in a net
+ eq replace((T |-> Q, N), P, P') = T |-> replace(Q, P, P'), replace(N, P, P') .
+ eq replace(emptyN, P, P') = emptyN .
+
+ *** transitions
  op swap : Net Tran Tran -> Net .  *** swaps two transitions in a net
  eq swap((T |-> Q, N), T, T') = T' |-> Q, swap(N, T, T') . 
  eq swap((T |-> Q, N), T', T) = T' |-> Q, swap(N, T', T) .
+ *** eq swap((T |-> Q, T' |-> Q', N), T, T') = T |-> Q', T' |-> Q, N . 
+ *** eq swap((T |-> Q, N), T, T') = T' |-> Q, N [owise] . 
+ *** eq swap((T |-> Q, N), T', T) = T' |-> Q, N [owise] . 
  eq swap(N, T, T') = N [owise] .
-
- var SP : SetP . 
- var Init : Bool .
- var W : String .
- vars Y J : Nat .
+ op replace : Net Tran Tran -> [Net] .  *** replace the first transition with the 2nd one in a net
+ eq replace((T |-> Q, N), T, T') = T' |-> Q, N .
+ eq replace(N, T, T') = N [owise] .
  
- ***  op minGtIdx : BagP Place SetP -> NeSetP . *** Given B, P, SP, if A = {P' in B s.t. index(P') >= index(P) and SP != 0 => P' in SP} is not 0 then returns the elements P' of A with MINIMAL-weight s.t. if B[P] > 0 then B[P'] <= B[P] (note that P may be included).
-                                           *** If B is 0 or A is 0 returns P .  
- *** eq minGtIdx(K . P + B, P, SP) = $minGtIdx(B, P, K, SP) .
- *** eq minGtIdx(B, P, SP) = $minGtIdx(B, P, 10000000000000,  SP)  [owise] .
- *** op $minGtIdx : BagP Place NzNat SetP -> NeSetP .
-*** ceq $minGtIdx( K' . p(Y,W)  + B, p(J,W), K, SP) = $minGtIdx(B, p(Y,W), K',  SP) if Y > J /\ K' < K /\ SP == emptyP or-else p(Y,W) in SP . *** found el. with idx > and weight <
-*** ceq $minGtIdx( K . p(Y,W)  + B, p(J,W), K, SP)  = p(Y,W) , $minGtIdx(B, p(J,W), K,  SP ) if Y > J /\ SP == emptyP or-else p(Y,W) in SP [owise].  *** found el. with idx > and weight =
- *** eq $minGtIdx(B, P, K,  SP) = P [owise] .
  
- *** the same, but works on lists (should be more efficient in some cases)
- op minGtIdx : BagP Place ListP -> ListP . *** Given B, P, SP, if A = {P' in B s.t. index(P') >= index(P) and SP != 0 => P' in SP} is not 0 then returns the elements {P'} of A with MINIMAL-weight s.t. if B[P] > 0 then B[P'] <= B[P] (possibly including P).
+ *** base operator for the canonization algorithm
+ op minGtIdx : BagP Place ListP -> ListP .   *** Given B, P, LP, if A = {P' in B s.t. index(P') >= index(P) and LP != 0 => P' in LP} is not 0 then returns the elements {P'} of A with MINIMAL-weight s.t. if B[P] > 0 then B[P'] <= B[P] (possibly including P).
                                              *** If A is empty returns P if B[P] > 0, otherwise 0 .
                                              *** If the retuned list's size is > 1 the 2nd el. is that with the greatest idx (also if P is not in the list!) 
  op _inNotEmpty_ : Place ListP -> Bool . *** defined for efficiency (occurs is less efficient)
  eq P inNotEmpty emptyListP = true .
  eq P inNotEmpty L P L1 = true .
  eq P inNotEmpty L = false [owise] .
+ 
  eq minGtIdx(K . P + B, P, L) = $minGtIdx(B, P, K, L, true) . *** P is in B
  eq minGtIdx(B, P, L) = $minGtIdx(B, P, 10000000000000, L, false)  [owise] . *** P is not in B
  op $minGtIdx : BagP Place NzNat ListP Bool -> NeListP .
- var F : Bool .
 ceq $minGtIdx( K' . p(Y,W)  + B, p(J,W), K, L, F) = $minGtIdx(B, p(Y,W), K', L, true) if Y > J /\ K' < K /\ p(Y,W) inNotEmpty L . *** found el. with idx > and weight <
 ceq $minGtIdx( K . p(Y,W)  + B, p(J,W), K, L, F)  = $minGtIdx(B, p(J,W), K, L, F ) p(Y,W)  if Y > J /\ p(Y,W) inNotEmpty L [owise].  *** found el. with idx > and weight =
  eq $minGtIdx(B, P, K, L, F) = if F then P else emptyListP fi [owise] .
+
 endfm

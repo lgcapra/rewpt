@@ -26,7 +26,7 @@ fmod COMP-PAIR-LIST{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} is
     eq NeL cmp2 emptyListXY = 2 .
     eq < A ; B > L cmp2 < A' ; B > L'  =  L cmp2 L' [owise] .
     eq < A ; B > L cmp2 < A' ; B' > L' =  (if B < B' then 1 else 2 fi) [owise] .
-
+    *** defined in addition to COMPARABLE-LIST's lex (which performs a classical pair-wise comparison) 
     var N : Nat .
    ceq L lex12 L' = if N == 1 then true else if N == 2 then false else (L cmp2 L') == 1 fi fi   if N := L cmp1 L' .
    

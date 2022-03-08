@@ -34,8 +34,11 @@ ceq dead((T |-> Q, N) S) = false if enabled( (T |-> Q, N) S, T) .
  eq places(N S) = places(N), support(S) .
 
  op placeList : System -> ListP .
- eq placeList(N S) = $makeListP(places(N S),emptyListP) .
+ eq placeList(N S) = $makeListP(places(N S), emptyListP) .
 
  op swap : System Place Place -> System .
  eq swap(N S, P, P') = swap(N, P, P') swap(S, P, P') . 
+
+ op replace : System Place Place -> System .
+ eq replace(N S, P, P') = replace(N, P, P') replace(S, P, P') . 
 endfm
