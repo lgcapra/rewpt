@@ -3,7 +3,6 @@ in PLACE<
 in Vimatrix+
 in BagP
 in BAGP<
-in IMATRIX<
 in ../shared/Vtran
 in ../shared/MAP+old
 in ../shared/COMP-PAIR-LIST
@@ -32,9 +31,9 @@ fmod PT-NET is
  var W :  String .
  var F :  Bool .
  var AL : ListBT . 
- var LQ : ListQ .
+ vars QL QL' : ListQ .
  var A :  Atype .
- var BL : ListBagP . 
+ vars BL BL' : ListBagP . 
  var BS : SetBagP .
  var NeBS : NeSetBagP .
  var L' : ListT .
@@ -90,24 +89,24 @@ ceq in((T |-> Q, N), P) = true if in (Q, P) .
  op makeAdjList : Net -> ListQ .  
  eq makeAdjList(N) = $makeAdjList(N, emptyListQ) .
  op $makeAdjList : Net ListQ -> ListQ .
- eq $makeAdjList(emptyN, LQ) = sort(LQ) .
- eq $makeAdjList((T |-> Q, N), LQ) = $makeAdjList(N, LQ Q)  .
+ eq $makeAdjList(emptyN, QL) = sort(QL) .
+ eq $makeAdjList((T |-> Q, N), QL) = $makeAdjList(N, QL Q)  .
  
  *** makes a sorted adjacency list out of a net -- transitions with the given label are considered
  op makeAdjList : Net String -> ListQ .  
  eq makeAdjList(N, W) = $makeAdjList(N, W, emptyListQ) .
  op $makeAdjList : Net String ListQ -> ListQ .
- eq $makeAdjList(emptyN, W, LQ) = sort(LQ) .
- eq $makeAdjList((t(Y, W) |-> Q, N), W, LQ) = $makeAdjList(N, W, LQ Q)  .
- eq $makeAdjList((T |-> Q, N), W, LQ) = $makeAdjList(N, W, LQ)  [owise] .
+ eq $makeAdjList(emptyN, W, QL) = sort(QL) .
+ eq $makeAdjList((t(Y, W) |-> Q, N), W, QL) = $makeAdjList(N, W, QL Q)  .
+ eq $makeAdjList((T |-> Q, N), W, QL) = $makeAdjList(N, W, QL)  [owise] .
  
  *** makes a sorted adjacency list of a given type (i,o,h) out of a net (NOTE builds on the operator above, i.e., on the order defined on inc. matrices)
  op makeAdjListS : Net Atype -> ListBagP .
  eq makeAdjListS(N, A) = $makeAdjListS(makeAdjList(N), A, emptyListBagP) . *** the list (of matrices) is ordered -- consequently the particular lists are
  op $makeAdjListS : ListQ Atype ListBagP -> ListBagP .
  eq $makeAdjListS(emptyListQ, A, BL) = BL .
-ceq $makeAdjListS(Q LQ, A, BL) = $makeAdjListS(LQ, A, BL) if Q(A) == nilP . *** optimization . 
- eq $makeAdjListS(Q LQ, A, BL) = $makeAdjListS(LQ, A, BL Q(A) ) [owise] . 
+ceq $makeAdjListS(Q QL, A, BL) = $makeAdjListS(QL, A, BL) if Q(A) == nilP . *** optimization . 
+ eq $makeAdjListS(Q QL, A, BL) = $makeAdjListS(QL, A, BL Q(A) ) [owise] . 
  *** makes an unsorted adjacency list of a given type (i,o,h) out of a net
  op makeAdjList : Net Atype -> ListBagP .  
  eq makeAdjList(N, A) = $makeAdjList(N, A, emptyListBagP) .
@@ -115,35 +114,24 @@ ceq $makeAdjListS(Q LQ, A, BL) = $makeAdjListS(LQ, A, BL) if Q(A) == nilP . *** 
  eq $makeAdjList(emptyN, A, BL) = BL .
  eq $makeAdjList((T |-> Q, N), A, BL) = $makeAdjList(N, A, BL Q(A))  .
  
+ *** extract from a list of bags (assumed ordered, according to the criterion above) the header composed of bags with the same weights
+ op headqw : ListBagP -> ListBagP .
+ eq headqw(BL) = $headqw(BL, emptyListBagP) .
+ op $headqw : ListBagP ListBagP -> ListBagP . *** auxiliary op
+ eq $headqw(B BL, emptyListBagP) = $headqw(BL, B) .
+ var NeBL : NeListBagP .
+ceq $headqw(B BL, NeBL) = $headqw(BL, NeBL B) if head(NeBL) eqw B .
+ eq $headqw(BL, BL') = BL' [owise] .
 
- *** makes a sorted adjacency list of a given type (i,o,h) out of a net
- **** op makeAdjList : Net Atype -> ListBT .  
- **** eq makeAdjList(N, A) = $makeAdjList(N, A, emptyListBT) .
- **** op $makeAdjList : Net Atype ListBT -> ListBT .
- **** eq $makeAdjList(emptyN, A, AL) = sort(AL) .
-**** ceq $makeAdjList((T |-> Q, N), A, AL) = $makeAdjList(N, A, AL < B ; T > ) if B := Q(A) /\ B =/= nilP . *** optimization: null bags are skipped
- **** eq $makeAdjList((E, N), A, AL) = $makeAdjList(N, A, AL) [owise] . 
-
- *** equivalent version resulting in a sorted list of bags (not of pairs < T ; B > )
- **** op makeAdjListS : Net Atype -> ListBagP . *** makes a sorted adjacency list out of a net 
- **** eq makeAdjListS(N, A) = $makeAdjListS(N, A, emptyListBagP) .
- **** op $makeAdjListS : Net Atype ListBagP -> ListBagP .
- **** eq $makeAdjListS(emptyN, A, BL) = sort(BL) .
-**** ceq $makeAdjListS((T |-> Q, N), A, BL) = $makeAdjListS(N, A, BL B ) if B := Q(A) /\ B =/= nilP . *** optimization . 
- **** eq $makeAdjListS((E, N), A, BL) = $makeAdjListS(N, A, BL) [owise] . 
-
- *** version resulting in a set of bags
- **** op makeAdjSet : Net Atype -> SetBagP . *** makes a sorted adjacency list out of a net 
- **** eq makeAdjSet(N, A) = $makeAdjSet(N, A, emptyBagP) .
- **** op $makeAdjSet : Net Atype SetBagP -> SetBagP .
- **** eq $makeAdjSet(emptyN, A, BS) = BS .
- **** eq $makeAdjSet((T |-> Q, N), A, BS) = $makeAdjSet(N, A, (BS, Q(A)) ) . 
-
- **** op toSet : ListBagP -> SetBagP . *** makes a set out of a list of bags (still needed?)
- **** eq toSet(BL) = $toSet(BL, emptyBagP) .
- **** op $toSet : ListBagP SetBagP -> SetBagP .
- **** eq $toSet(emptyListBagP, BS) = BS .
- **** eq $toSet(B BL, BS) = $toSet(BL, (B, BS)) .
+ *** extract from a list of matrices (assumed ordered, according to the criterion above) the header composed of bags (i, o, h) with the same weights
+ op headqw : ListQ -> ListQ .
+ eq headqw(QL) = $headqw(QL, emptyListQ) .
+ op $headqw : ListQ ListQ -> ListQ . *** auxiliary op
+ eq $headqw(Q QL, emptyListQ) = $headqw(QL, Q) .
+ var NeQL : NeListQ .
+ceq $headqw(Q QL, NeQL) = $headqw(QL, NeQL Q) if head(NeQL) eqw Q .
+ eq $headqw(QL, QL') = QL' [owise] .
+ 
  
  *** operators to swap pairs of elements (various versions)
  op swap : Net Place Place -> Net . 

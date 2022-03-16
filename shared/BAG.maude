@@ -69,4 +69,10 @@ fmod BAG{X :: TRIV} is
  op $support : Bag{X} Set{X} -> Set{X} . 
  eq $support(nil, S) = S . 
  eq $support(N . X + B, S) = $support(B, (S, X)) .
+
+ *** checks whether two bags have the same multiplicities
+ op _eqw_ : Bag{X} Bag{X} -> Bool [ comm ] .
+ eq B eqw B = true .
+ eq N . X + B eqw N . Y + B' = B eqw B' .
+ eq B eqw B' = false [owise] . 
 endfm

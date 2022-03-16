@@ -4,10 +4,11 @@ in CAN-PT-SYS
 fmod PT-FMS is
  protecting CAN-PT-SYS .
  *** protecting PT-SYS .
- ops net net1 net1' net2 net2' net3 net4 net5 net6 net7 net7' : -> Net .
- op m0  : -> BagP .  
- op M   : -> Nat . *** model's parameter
- eq M = 20 . 
+ ops net symnet net1 net1' net2 net2' net3 net4 net5 net6 net7 net7' : -> Net .
+ ops m0 m0' : -> BagP . 
+ ops dead1 dead2 sy1 sy1' : -> System .
+ op  M   : -> Nat . *** MS model's parameter
+ eq M = 1 . 
  *** eq net = t(0,"load") |-> [2 . p(1,"start"), 1 . p(2,"line") + 1 . p(3,"line"), nilP], t(1,"line") |-> [1 . p(2,"line") , 1 . p(4,"ass"), 1 . p(7,"faulty")], t(2,"line") |-> [1 . p(3,"line") , 1 . p(5,"ass"),
  ***         1 . p(8,"faulty")], t(3,"ass") |-> [1 . p(4,"ass") + 1 . p(5,"ass") , 1 . p(6,"end"), nilP],
  ***         t(4,"rest") |-> [1 . p(6,"end") , 2 . p(1,"start"), nilP], t(5,"fault") |-> [1 . p(0,"focc") , 1 . p(7,"faulty"), nilP], t(6,"fault") |-> [1 . p(0,"focc") , 1 . p(8,"faulty"), nilP].
@@ -48,6 +49,28 @@ eq net7 = t(0,"") |-> [1 . p(1,"") + 1 . p(3,"") , 3 . p(3,"") + 1 . p(4,""), 1 
 
 eq net7' = t(0,"") |-> [1 . p(1,"") + 1 . p(3,"") , 1 . p(6,"") + 1 . p(2,""), 1 . p(1,"")], t(1,"") |-> [1 . p(1,"") + 1 . p(3,"") , 3 . p(5,"") + 2 . p(4,""), 1 . p(7,"")],
        t(3,"") |-> [1 . p(1,"") + 1 . p(3,"") , 1 . p(6,"") + 1 . p(3,""), 1 . p(3,"") + 2 . p(2,"")] .
+
+eq symnet = t(0,"") |-> [1 . p(0,""), 1 . p(2,"") , nilP], t(1,"") |-> [1 . p(1,""), 1 . p(3,""), nilP],
+           t(2,"") |-> [1 . p(3,"") + 1 . p(2,"") , 1 . p(0,"") + 1 . p(1,""),  nilP] .
+
+eq m0' = 1 . p(1,"") +  1 . p(0,"") .
+
+eq dead1 = (t(0, "") |-> [2 . p(1, ""),1 . p(2, "") + 1 . p(3, ""),nilP], t(1, "") |-> [1 . p(2, ""),1 . p(4, ""),1 . p(7, "")], t(2, "") |-> [1 . p(3, ""),1 . p(
+     5, ""),1 . p(8, "")], t(3, "") |-> [1 . p(4, "") + 1 . p(5, ""),1 . p(6, ""),nilP], t(4, "") |-> [1 . p(6, ""),2 . p(1, ""),nilP], t(5, "") |-> [1 . p(0, ""),1 .
+     p(7, ""),nilP], t(6, "") |-> [1 . p(0, ""),1 . p(8, ""),nilP]) 1 . p(3, "") + 1 . p(4, "") + 1 . p(8, "") .
+
+*** eq dead2 = (t(0, "") |-> [2 . p(1, ""),1 . p(2, "") + 1 . p(3, ""),nilP], t(1, "") |-> [1 . p(2, ""),1 . p(4, ""),1 . p(7, "")], t(2, "") |-> [1 . p(3, ""),1 . p(
+***     5, ""),1 . p(8, "")], t(3, "") |-> [1 . p(4, "") + 1 . p(5, ""),1 . p(6, ""),nilP], t(4, "") |-> [1 . p(6, ""),2 . p(1, ""),nilP], t(5, "") |-> [1 . p(0, ""),1 .
+***     p(7, ""),nilP], t(6, "") |-> [1 . p(0, ""),1 . p(8, ""),nilP]) 1 . p(2, "") + 1 . p(5, "") + 1 . p(7, "") .
+
+eq dead2 = (t(0, "") |-> [2 . p(1, ""),nilP,nilP], t(1, "") |-> [1 . p(2, ""),nilP,nilP], t(2, "") |-> [1 . p(3, ""),nilP,nilP],
+      t(3, "") |-> [1 . p(4, "") + 1 . p(5, ""),nilP,nilP], t(4, "") |-> [1 . p(6, ""),nilP,nilP], t(5, "") |-> [1 . p(0, ""),nilP,nilP],
+      t(6, "") |-> [1 . p(0, ""),nilP,nilP]) 1 . p(2, "") + 1 . p(5, "") + 1 . p(7, "") .
+
+*** examples showing that the current canonization is incomplete (doesn't lead to the minimal term)
+eq sy1 = (t(0, "") |-> [2 . p(1, ""),nilP,nilP], t(1, "") |-> [1 . p(0, ""),2 . p(1,""),nilP], t(2, "") |-> [2 . p(0, ""),nilP,nilP]) nilP . *** final, according to the curr. alg, but not min
+eq sy1' = (t(0, "") |-> [1 . p(0, ""),2 . p(0,""),nilP], t(1, "") |-> [1 . p(1, ""),1 . p(0,"") + 1 . p(2,""),nilP], t(2, "") |-> [1 . p(1, ""),2 . p(0, ""),nilP],
+          t(3, "") |-> [1 . p(1, "") + 1 . p(4, ""),1 . p(1, ""),nilP]) nilP .
 
 
 endfm

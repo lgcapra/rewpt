@@ -2,4 +2,5 @@ in IMATRIX+.maude
 
 view IMATRIX< from STRICT-TOTAL-ORDER to IMATRIX is 
  sort Elt to Imatrix . 
+ op _<_ to _wi<_ .
 endv

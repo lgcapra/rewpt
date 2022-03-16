@@ -8,16 +8,35 @@ fmod IMATRIX is
  sort Imatrix .
  op [_,_,_] : BagP BagP BagP -> Imatrix [ctor] .
  vars X Y Z X' Y' Z' : BagP .
- var P P' : Place .
+ vars P P' : Place .
+ vars N N' : Nat .
+ vars IL IL' OL OL' HL HL' : ListNP .
+ vars Q Q' : Imatrix .
  
  op remove : Imatrix Place -> Imatrix .
  eq remove([X,Y,Z], P) = [set(X,P,0),set(Y,P,0),set(Z,P,0)] .
  
+ *** still needed?
  op _<_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt relation between bags (currently based in turn on lex12)
  eq [X,Y,Z] < [X',Y',Z'] = X lt X' or-else X == X' and-then (Y lt Y' or-else Y == Y' and-then Z lt Z') .
 
  op _<'_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt' relation between bags (currently based in turn on lex)
  eq [X,Y,Z] <' [X',Y',Z'] = X lt' X' or-else X == X' and-then (Y lt' Y' or-else Y == Y' and-then Z lt' Z') .
+
+ *** new : (efficiently) compares two matrices first considering multiplicities (weights) then (place) indices of bags i, o, h, in the order 
+ *** forse si può semplificare
+ op _wi<_ : Imatrix Imatrix -> Bool . 
+ceq [X,Y,Z] wi< [X',Y',Z'] = true if  IL := toListS(X) /\ IL' := toListS(X') /\ $less(IL cmp1 IL', $evalwO(IL, IL', toListS(Y), toListS(Y'), toListS(Z), toListS(Z') ) ) .
+ eq Q wi< Q' = false [owise] .
+ op $evalwO : ListNP ListNP ListNP ListNP ListNP ListNP -> Bool [ strat (3 4 0) ].
+ceq $evalwO(IL, IL', OL, OL', HL, HL') = true if $less(OL cmp1 OL', $evalwH(IL, IL', OL, OL', HL, HL' ) ) .
+ eq $evalwO(IL, IL', OL, OL', HL, HL') = false [owise] .
+ op $evalwH : ListNP ListNP ListNP ListNP ListNP ListNP -> Bool .
+ceq $evalwH(IL, IL', OL, OL', HL, HL') = true if $less(HL cmp1 HL', $evalwI(IL, IL', OL, OL', HL, HL' ) ) .
+ op $evalwI : ListNP ListNP ListNP ListNP ListNP ListNP -> Bool .
+ eq $evalwI(IL, IL', OL, OL', HL, HL') = $less(IL cmp2 IL', $less(OL cmp2 OL', HL cmp2 HL' == 1)) .
+ op $less : Nat Bool -> Bool [ strat (1 0) ] . *** checks if the value is 1 -- otherwise, if the value is 0 evaluates the condition (else returns false)
+ eq $less(N, B:Bool) = N == 1 or-else N == 0 and-then B:Bool . 
 
  ops I O H : Imatrix -> BagP .
  eq I([X,Y,Z]) = X .
@@ -25,10 +44,9 @@ fmod IMATRIX is
  eq H([X,Y,Z]) = Z .
 
  op _(_) : Imatrix Atype -> BagP [prec 23] . *** introduced for convenience
- var Q : Imatrix .
  var a : Atype .
  eq Q(i) = I(Q) .
- eq Q(o) = O(Q) .
+ eq Q(o) = O(Q) . 
  eq Q(h) = H(Q) .
 
  op in :  Imatrix Place -> Bool . *** test the existence of a place
@@ -47,4 +65,9 @@ fmod IMATRIX is
 
  op replace : Imatrix Place Place -> Imatrix .
  eq replace([X,Y,Z], P, P') = [replace(X,P,P'),replace(Y,P,P'),replace(Z,P,P')] .
+
+ *** checks whether corresponding components of two incidence matrices have the same multiplicities (builds on the analogous for bags)
+ op _eqw_ : Imatrix Imatrix -> Bool [ comm ] .
+ eq [X,Y,Z] eqw [X',Y',Z'] = X eqw X' and-then Y eqw Y' and-then Z eqw Z' . 
+
 endfm

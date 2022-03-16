@@ -12,10 +12,12 @@ fmod BAGP is
  
  vars P P' $P : Place . 
  vars K K' : NzNat .
- vars B B' : BagP .
  vars N N' : Nat .
+ vars B B' : BagP .
  var W : String .
  var S : SetP .
+ var LNP : ListNP . 
+ 
  *** operators helpful for canonization
  op swap : BagP Place Place -> BagP .  *** swaps two places
  op replace : BagP Place Place -> BagP . *** replaces the first place with the second one
@@ -37,18 +39,33 @@ fmod BAGP is
  eq $labMap(K . p(N,W) + B, W, S) = $labMap(B, W, (S, p(N,W)) ) .
  eq $labMap(K . P + B, W, S) = $labMap(B, W, S)  [owise] .
 
- op makeList : BagP -> ListNP . *** builds an (unordered) list of pairs < weight ; el > out of a bag
- eq makeList(B) = $makeList(B, emptyListNP) .
- var LNP : ListNP . 
- op $makeList : BagP ListNP -> ListNP .
- eq $makeList(nilP, LNP) = LNP .
-eq  $makeList(K . P + B, LNP) = $makeList(B, < K ; P > LNP) . 
- op makeSList : BagP -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag
- eq makeSList(B) = sort(makeList(B)) .
+ *** extracts the sub-bag with a certain label out of a bag
+ op extract : BagP String -> BagP .
+ eq extract(B, W) = $extract(B, W, nilP) .
+ op $extract : BagP String BagP -> BagP .
+ eq $extract(nilP, W, B) = B .
+ eq $extract(K . p(N,W) + B, W, B') = $extract(B, W, K . p(N,W) +  B') . 
+ eq $extract(K . P + B, W, B') = $extract(B, W, B') [owise] .
+ 
+ *** in alternative, we might define toList in BAG, then reuse extract
+ op toList : BagP String -> ListNP . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with a certain label
+ eq toList(B, W) = $toList(B, W, emptyListNP) .
+ op $toList : BagP String ListNP -> ListNP .
+ eq $toList(nilP, W, LNP) = LNP .
+ eq $toList(K . p(N,W) + B, W, LNP) = $toList(B, W, < K ; p(N,W) > LNP) . 
+ eq $toList(K . P + B, W, LNP) = $toList(B, W, LNP) [owise] .
+ op toListS : BagP String -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag
+ eq toListS(B, W) = sort(toList(B, W)) .
 
+ op toList : BagP -> ListNP . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with empty label
+ eq toList(B) = toList(B, "") .
+ op toListS : BagP -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag  -- considers places with empty label
+ eq toListS(B) = sort(toList(B)) .
+
+ *** are still needed?
  op _lt_ : BagP BagP -> Bool . *** maps on the order relation of lists of comparable pairs (weight sequence considered first)
- eq B lt B' = makeSList(B) lex12 makeSList(B') . 
+ eq B lt B' = toListS(B) lex12 toListS(B') . 
 
  op _lt'_ : BagP BagP -> Bool . *** maps on the usual, pair-wise, order relation of lists of comparable pairs
- eq B lt' B' = makeSList(B) lex makeSList(B') . 
+ eq B lt' B' = toListS(B) lex toListS(B') . 
 endfm
