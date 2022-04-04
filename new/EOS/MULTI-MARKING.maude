@@ -1,0 +1,9 @@
+in ../BAGP+
+in ../BagP
+
+*** a multi-marking is defined as a bag of bags on net places
+fmod MULTI-MARKING is
+ pr BAG{BagP} * ( sort Bag{BagP} to Multimark, sort NeBag{BagP} to NeMultimark, sort Set{BagP} to SetBagP, sort NeSet{BagP} to NeSetBagP,
+                   op nil to nilMultiM, op empty to emptySetBagP) .
+  
+endfm

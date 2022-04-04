@@ -1,22 +1,24 @@
 in TRAN<
 in PLACE<
 in Vimatrix+
+in IMATRIX<
 in BagP
 in BAGP<
 in ../shared/Vtran
-in ../shared/MAP+old
+in ../shared/MAP+
 in ../shared/COMP-PAIR-LIST
 
 fmod PT-NET is
- inc MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
+ inc MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN,
+                           sort Set{Tran} to SetT, sort NeSet{Tran} to NeSetT, op empty to emptyT).
  pr SORTABLE-LIST{TRAN<}  * (sort List{TRAN<} to ListT, sort NeList{TRAN<} to NeListT, op nil to emptyListT ) .
  pr SORTABLE-LIST{PLACE<}  * (sort List{PLACE<} to ListP, sort NeList{PLACE<} to NeListP, op nil to emptyListP ) .
  pr SORTABLE-LIST{BAGP<} * (sort List{BAGP<} to ListBagP, sort NeList{BAGP<} to NeListBagP, op nil to emptyListBagP ) .
- pr COMP-PAIR-LIST{BAGP<, TRAN<} * (sort Pair{BAGP<,TRAN<} to PairBT, sort NeList{BAGP<,TRAN<} to NeListBT, sort List{BAGP<,TRAN<} to ListBT, op emptyListXY to emptyListBT) .
+ *** pr COMP-PAIR-LIST{BAGP<, TRAN<} * (sort Pair{BAGP<,TRAN<} to PairBT, sort NeList{BAGP<,TRAN<} to NeListBT, sort List{BAGP<,TRAN<} to ListBT, op emptyListXY to emptyListBT) .
  pr SORTABLE-LIST{IMATRIX<} * (sort List{IMATRIX<} to ListQ, sort NeList{IMATRIX<} to NeListQ, op nil to emptyListQ ) .
  *** otherwise, we might define a COMP-PAIR-LIST of matrices and transitions  
 
- pr SET{BagP} * (sort Set{BagP} to SetBagP, sort NeSet{BagP} to NeSetBagP, op empty to emptyBagP ) .
+ pr SET{BagP} * (sort Set{BagP} to SetBagP, sort NeSet{BagP} to NeSetBagP, op empty to emptySetBagP ) .
 
  pr ATYPE .
 
@@ -30,7 +32,6 @@ fmod PT-NET is
  vars S SP : SetP . 
  var W :  String .
  var F :  Bool .
- var AL : ListBT . 
  vars QL QL' : ListQ .
  var A :  Atype .
  vars BL BL' : ListBagP . 
@@ -41,8 +42,8 @@ fmod PT-NET is
  
  eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 
- ops F Out Inh : Net Tran -> [BagP] . 
- eq F( (T |-> Q, N), T) = I(Q) .
+ ops In Out Inh : Net Tran -> [BagP] . 
+ eq In( (T |-> Q, N), T) = I(Q) .
  eq Out((T |-> Q, N), T) = O(Q) .
  eq Inh((T |-> Q, N), T) = H(Q) .
 
@@ -139,13 +140,6 @@ ceq $headqw(Q QL, NeQL) = $headqw(QL, NeQL Q) if head(NeQL) eqw Q .
  eq swap(emptyN, P, P') = emptyN .
 
  *** swaps two places in an adjacency list and sorts the resulting list
- op swapS : ListBT Place Place -> ListBT .  
- eq swapS(AL, P, P') = sort($swap(AL, P, P')) .
- op $swap : ListBT Place Place -> ListBT . *** swaps two places in an adjacency list
- eq $swap(emptyListBT, P, P') = emptyListBT .
- eq $swap(< B ; T > AL, P, P') = < swap(B, P, P') ; T > $swap(AL, P, P') . 
- 
- *** swaps two places in an adjacency list and sorts the resulting list
  op swapS : ListBagP Place Place -> ListBagP .  
  eq swapS(BL, P, P') = sort($swap(BL, P, P')) .
  op $swap : ListBagP Place Place -> ListBagP . *** swaps two places in an adjacency list
@@ -154,7 +148,7 @@ ceq $headqw(Q QL, NeQL) = $headqw(QL, NeQL Q) if head(NeQL) eqw Q .
 
  *** op swap : SetBagP Place Place -> SetBagP .  *** swaps two places in a set of bags
  *** eq swap( (B, NeBS), P, P') = swap(B, P, P'), swap(NeBS, P, P') . *** NOTE: using NeBS avoids infinite recursion
- **** eq swap(emptyBagP, P, P') = emptyBagP .
+ **** eq swap(emptySetBagP, P, P') = emptySetBagP .
 
  op replace : Net Place Place -> Net .  *** replace the first places with the 2nd one in a net
  eq replace((T |-> Q, N), P, P') = T |-> replace(Q, P, P'), replace(N, P, P') .

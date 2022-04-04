@@ -1,42 +1,33 @@
 fmod MAP+{X :: TRIV, Y :: TRIV} is 
+  inc MAP{X,Y} * (op empty to emptyM).
+  *** protecting SET{X} .
   pr NAT .
-  sorts Entry{X,Y} Map{X,Y} .
-  subsorts Entry{X,Y} < Map{X,Y} .
-  
-  op _|->_ : X$Elt Y$Elt -> Entry{X,Y} [ctor] .
-  op emptyM : -> Map{X,Y} [ctor] .
-  op undefined : -> [Y$Elt] [ctor] .  *** undefined value (of unmapped key)
-  op notAMap : X$Elt -> [Map{X,Y}] [ctor] . *** repeated key in a map
-  
-  var D : X$Elt .
   vars R R' : Y$Elt .
-  var E E' : Entry{X,Y} .
+  var D : X$Elt .
+  var E : Entry{X,Y} .
   var M : Map{X,Y} .
   var K : Nat .
   
-  op _`,_ : Map{X,Y} Map{X,Y} -> [Map{X,Y}] [assoc comm id: emptyM ctor prec 121 format (d r os d)] .
-  eq E, E = E . *** duplicate-entries are removed (a map is a set)
- ceq M, D |-> R, D |-> R' = notAMap(D) if R =/= R' . *** duplicate-keys are forbidden 
-  
-  op insert : X$Elt Y$Elt Map{X,Y} -> Map{X,Y} . *** defined on "true" maps only
-  eq insert (D, R, (M, D |-> R')) = M, D |-> R . *** the value of key D is overwritten
-  eq insert (D, R, M) = (M, D |-> R) [owise] .
-  
-  op remove : X$Elt Map{X,Y} -> Map{X,Y} . *** defined on "true" maps only
+  *** eq E, E = E . *** duplicates are removed (a map is a set of entries)
+
+  op remove : X$Elt Map{X,Y} -> Map{X,Y} . *** removes a key from a map 
   eq remove (D, (M, D |-> R)) = remove(D, M) .
   eq remove (D, M) = M [owise] .
-  
-  op $hasMapping : Map{X,Y} X$Elt -> Bool .
-  eq $hasMapping ((M, D |-> R), D) = true .
-  eq $hasMapping (M, D) = false [owise] .
-  
-  op _`[_`] : Map{X,Y} X$Elt -> [Y$Elt] [prec 23] .  *** defined on "true" maps only
-  eq (M, D |-> R) [D] =  R  .
-  eq M [D] = undefined [owise] .
-  
-  op msize : Map{X,Y} -> Nat . *** defined on "true" maps only
+    
+  op repeatedKeys? : Map{X,Y}  -> Bool . *** cheks for repeated keys
+  eq repeatedKeys?((D |-> R, D |-> R', M)) = true .
+  eq repeatedKeys?(M) = false [owise] .
+
+  op msize : Map{X,Y} -> Nat .
   op $msize : Map{X,Y} Nat -> Nat . 
   eq msize(M) = $msize(M, 0) .  
   eq $msize(emptyM, K) = K . 
   eq $msize((E, M), K) = $msize(M, K + 1) .
+
+  *** var S : Set{X} .
+  *** op keySet : Map{X,Y} -> Set{X} .
+  *** eq keySet(M) = $keySet(M, empty) .  
+  *** op $keySet : Map{X,Y} Set{X} -> Set{X} . 
+  *** eq $keySet(emptyM, S) = S . 
+  *** eq $keySet((D |-> R, M), S) = $keySet(M, (S, D)) .
 endfm

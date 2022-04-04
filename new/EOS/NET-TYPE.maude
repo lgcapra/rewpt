@@ -1,0 +1,14 @@
+in ../PT-NET
+in ../../shared/Vplace
+
+view Net from TRIV to PT-NET is 
+ sort Elt to Net .
+endv
+
+fmod NET-TYPES is
+   pr MAP+{String,Net} * (sort Map{String,Net} to NeTypeS, sort Entry{String,Net} to EntrySN, op emptyM to emptyNeTypeS) .
+endfm
+
+fmod NET-TYPE is
+  pr MAP+{Place,Net} * (sort Map{Place,Net} to NeType, sort Entry{Place,Net} to EntryPN, op emptyM to emptyNeType ) .
+endfm
