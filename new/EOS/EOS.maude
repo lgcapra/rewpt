@@ -1,0 +1,75 @@
+in ../PT-SYS+
+
+*** a multi-marking is defined as a bag of bags on net places
+fmod MULTI-MARKING is
+ pr BAG{BagP} * ( sort Bag{BagP} to Multimark, sort NeBag{BagP} to NeMultimark, sort Set{BagP} to SetBagP, sort NeSet{BagP} to NeSetBagP,
+                   op nil to nilMultiM, op empty to emptySetBagP) .
+  
+endfm
+
+*** trivial view of a PT-Net
+view Net from TRIV to PT-NET is 
+ sort Elt to Net .
+endv
+
+*** map places to net-types
+fmod NET-TYPE is
+  pr MAP+{Place,Net} * (sort Map{Place,Net} to NeType, sort Entry{Place,Net} to EntryPN, op emptyM to emptyNeType ) .
+endfm
+
+*** alternative map place-labels to net-types
+fmod NET-TYPES is
+   pr MAP+{String,Net} * (sort Map{String,Net} to NeTypeS, sort Entry{String,Net} to EntrySN, op emptyM to emptyNeTypeS) .
+endfm
+
+*** a multi-marked PT net
+fmod MULTI-SYS is
+   pr PT-NET .
+   pr MULTI-MARKING .
+   sort Multisys .
+   op __ : Net Multimark -> Multisys [ctor] . *** juxtaposition of a net and a multi-marking
+endfm
+
+*** structure of a system-net
+fmod EOS-NET is
+  pr PT-NET .
+  pr NET-TYPE .
+  sort Sysnet .
+  op __ : Net NeType -> Sysnet [ctor] . *** juxtaposition of a net and net-types
+endfm
+
+
+*** trivial view of a multi-marking
+view Multimark from TRIV to MULTI-MARKING is 
+ sort Elt to Multimark .
+endv
+
+*** marking of a system-net
+fmod EOS-MARKING is
+  pr MAP+{Place,Multimark} * (sort Map{Place,Multimark} to Sysnetmark, sort Entry{Place,Multimark} to SysnetmarkP, op emptyM to emptySysnetM) .
+endfm
+
+*** marked syetem-net, i.e., EOS
+fmod EOSYS is
+  pr EOS-NET .
+  pr EOS-MARKING .
+  sort Eosystem .
+  op __ : Sysnet Sysnetmark -> Eosystem [ctor] . *** juxtaposition of a net and net-types
+endfm
+
+fmod EOS-EXAMPLES is
+  pr EOSYS .
+  ops mmark1 mmark2 : -> Multimark .
+  eq mmark1 = 1 . (1 . p(1, "") + 2 . p(2, "")) .
+  eq mmark2 = 1 . 1 . p(1, "") .
+  op net1 : -> Net .
+  eq net1 = t(1, "") |-> [1 . p(1, ""),1 . p(1, "") + 2 . p(2, "") ,nilP], t(2, "") |-> [1 . p(1, "") + 2 . p(2, ""),1 . p(1, ""),nilP] .
+  op netype1 : -> NeType .
+  eq netype1 = p(1,"sys") |-> net1, p(2,"sys") |-> net1 .
+ ops sysmark1 sysmark2 : -> Sysnetmark .
+  eq sysmark1 =  p(1,"sys") |-> mmark1 ,  p(2,"sys") |-> mmark2 .
+  op sysnet1 : -> Sysnet .
+  eq sysnet1 = (t(1, "sys") |-> [1 . p(1, "sys"),1 . p(2, "sys") ,nilP], t(2, "sys") |-> [1 . p(1, "sys"),1 . p(2, "sys") ,nilP]) netype1 .
+  op eos1 : -> Eosystem .
+  eq eos1 = sysnet1 sysmark1 .
+endfm
