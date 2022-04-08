@@ -1,0 +1,24 @@
+in EOS
+
+fmod EOS-EXAMPLES is
+  pr EOSYS .
+  ops mmark1 mmark2 : -> Multimark .
+  eq mmark1 = 1 . (1 . p(1, "") + 2 . p(2, "")) .
+  eq mmark2 = 1 . 1 . p(1, "") .
+  ops net1 fakenet sysnet1 sysnet2 : -> Net .
+  eq net1 = t(1, "") |-> [1 . p(1, ""),1 . p(1, "") + 2 . p(2, "") ,nilP], t(2, "") |-> [1 . p(1, "") + 2 . p(2, ""),1 . p(1, ""),nilP] .
+  eq fakenet = t(1, "") |-> [1 . p(1, ""),1 . p(1, "") + 2 . p(2, "") ,nilP], t(1, "") |-> [1 . p(1, "") + 2 . p(2, ""),1 . p(1, ""),nilP] .
+  eq sysnet1 = t(1, "sys") |-> [1 . p(1, "sys"),1 . p(1, "sys") + 2 . p(2, "sys") ,nilP], t(2, "sys") |-> [1 . p(1, "sys") + 2 . p(2, "sys"),1 . p(1, "sys"),nilP] .
+  eq sysnet2 = t(1, "sys") |-> [1 . p(1, "sys"),1 . p(1, "sys") + 2 . p(2, "sys") ,nilP], t(2, "sys") |-> [1 . p(1, "sys") + 2 . p(2, "sys"),1 . p(1, "sys"),nilP] .
+  ops netype1 netype2 : -> NeType .
+  eq netype1 = p(1,"sys") |-> net1, p(2,"sys") |-> net1 .
+  eq netype2 = p(1,"sys") |-> net1, p(2,"sys") |-> net1, p(3,"sys") |-> net1 .
+ ops sysmark1 sysmark2 : -> Sysnetmark .
+  eq sysmark1 =  p(1,"sys") |-> mmark1 ,  p(2,"sys") |-> mmark2 .
+ ops eosnet1 fakeosnet : -> Sysnet .
+  eq eosnet1 = net1 netype1 .
+  eq fakeosnet = fakenet netype1 .
+  *** eq fakeosnet = net1 netype2 .
+  op eos1 : -> Eosystem .
+  eq eos1 = eosnet1 sysmark1 .
+endfm

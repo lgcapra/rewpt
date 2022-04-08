@@ -42,6 +42,9 @@ fmod PT-NET is
  
  eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 
+ op welldef : Net -> Bool .
+ eq welldef(N) = N =/= emptyN and-then repeatedKeys?(N) == false . 
+ 
  ops In Out Inh : Net Tran -> [BagP] . 
  eq In( (T |-> Q, N), T) = I(Q) .
  eq Out((T |-> Q, N), T) = O(Q) .

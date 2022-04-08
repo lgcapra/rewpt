@@ -1,14 +1,12 @@
 fmod MAP+{X :: TRIV, Y :: TRIV} is 
-  inc MAP{X,Y} * (op empty to emptyM).
-  *** protecting SET{X} .
+  pr MAP{X,Y} * (op empty to emptyM) .
+  *** pr MAP-SET{X,Y} .
   pr NAT .
   vars R R' : Y$Elt .
   var D : X$Elt .
   var E : Entry{X,Y} .
   var M : Map{X,Y} .
   var K : Nat .
-  
-  *** eq E, E = E . *** duplicates are removed (a map is a set of entries)
 
   op remove : X$Elt Map{X,Y} -> Map{X,Y} . *** removes a key from a map 
   eq remove (D, (M, D |-> R)) = remove(D, M) .
@@ -23,11 +21,4 @@ fmod MAP+{X :: TRIV, Y :: TRIV} is
   eq msize(M) = $msize(M, 0) .  
   eq $msize(emptyM, K) = K . 
   eq $msize((E, M), K) = $msize(M, K + 1) .
-
-  *** var S : Set{X} .
-  *** op keySet : Map{X,Y} -> Set{X} .
-  *** eq keySet(M) = $keySet(M, empty) .  
-  *** op $keySet : Map{X,Y} Set{X} -> Set{X} . 
-  *** eq $keySet(emptyM, S) = S . 
-  *** eq $keySet((D |-> R, M), S) = $keySet(M, (S, D)) .
 endfm
