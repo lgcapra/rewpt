@@ -14,8 +14,14 @@ endv
 
 *** map from places to net-types
 fmod NET-TYPE is
-  pr MAP+{Place,Net} * (sort Map{Place,Net} to NeType, sort Entry{Place,Net} to EntryPN, op emptyM to emptyNeType)
-                     * (sort Set{Place} to SetP, sort NeSet{Place} to NeSetP, op empty to emptyP ) .
+  pr MAP+{Place,Net} * (sort Map{Place,Net} to NeType, sort Entry{Place,Net} to EntryPN, op emptyM to emptyNeType) .
+  var P : Place .
+  var N : Net .
+  var T : NeType .
+  op welldef : NeType -> Bool . *** characterizes well defined net-types
+ceq welldef(T) = false if repeatedKeys?(T)  .
+ceq welldef((P |-> N, T)) = false if not(welldef(N)) .
+ eq welldef(T) = true [owise] . 
 endfm
 
 *** alternative map from strings (place-labels) to net-types
@@ -36,15 +42,17 @@ fmod EOS-NET is
   pr PT-NET .
   pr NET-TYPE .
   sort Sysnet .
-  op __ : Net NeType -> [Sysnet] [ctor] . *** juxtaposition of a net and net-types
-  
+  op __ : Net NeType -> [Sysnet] [ctor] . *** juxtaposition of a net and net-types -- note the use of a kind
+  op net : Sysnet -> Net .
+  op netypes : Sysnet -> NeType .
   vars N N'  : Net .
   vars S S' : Sysnet .
   vars T T' : NeType .
   var P : Place .
- 
-cmb N (P |-> N', T) : Sysnet if welldef(N) and-then repeatedKeys?((P |-> N', T)) == false and-then in(N, P) .
-endfm
+  eq net(N T) = N .
+  eq netypes(N T) = T .
+cmb N T : Sysnet if welldef(N) and-then welldef(T) . *** charcterization of well-formed EOS nets
+ endfm
 
 
 *** trivial view of a multi-marking
@@ -63,4 +71,10 @@ fmod EOSYS is
   pr EOS-MARKING .
   sort Eosystem .
   op __ : Sysnet Sysnetmark -> Eosystem [ctor] . *** juxtaposition of a net and net-types
+  op sysnet  : Eosystem -> Sysnet .
+  op sysmark : Eosystem -> Sysnetmark .
+  var S : Sysnet .
+  var M : Sysnetmark .
+  eq sysnet(S M)  = S .
+  eq sysmark(S M) = M .
 endfm
