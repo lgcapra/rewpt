@@ -18,8 +18,6 @@ fmod PT-NET is
  pr SORTABLE-LIST{IMATRIX<} * (sort List{IMATRIX<} to ListQ, sort NeList{IMATRIX<} to NeListQ, op nil to emptyListQ ) .
  *** otherwise, we might define a COMP-PAIR-LIST of matrices and transitions  
 
- pr SET{BagP} * (sort Set{BagP} to SetBagP, sort NeSet{BagP} to NeSetBagP, op empty to emptySetBagP ) .
-
  pr ATYPE .
 
  var  N : Net .
@@ -35,8 +33,6 @@ fmod PT-NET is
  vars QL QL' : ListQ .
  var A :  Atype .
  vars BL BL' : ListBagP . 
- var BS : SetBagP .
- var NeBS : NeSetBagP .
  var L' : ListT .
  var E : ImatrixT .
  
@@ -46,16 +42,16 @@ fmod PT-NET is
  eq welldef(N) = N =/= emptyN and-then repeatedKeys?(N) == false . 
  
  ops In Out Inh : Net Tran -> [BagP] . 
- eq In( (T |-> Q, N), T) = I(Q) .
- eq Out((T |-> Q, N), T) = O(Q) .
- eq Inh((T |-> Q, N), T) = H(Q) .
+ eq In(T |-> Q ; N, T) = I(Q) .
+ eq Out(T |-> Q ; N, T) = O(Q) .
+ eq Inh(T |-> Q ; N, T) = H(Q) .
 
  op dead : ImatrixT -> Bool .  *** checks for structurally dead transitions 
  eq dead(T |-> [K . P + I, O, K' . P + H]) = K >= K' [metadata "dead t"] .
  eq dead(Q:ImatrixT) = false [owise] .
 
  op in :  Net Place -> Bool . *** test the existence of a place
-ceq in((T |-> Q, N), P) = true if in (Q, P) .
+ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq in(N, P) = false [owise] .
 
  op in :  Net Tran -> Bool . *** test the existence of a transition
@@ -65,20 +61,20 @@ ceq in((T |-> Q, N), P) = true if in (Q, P) .
  eq places(N) = $places(N, emptyP) .  
  op $places : Net SetP -> SetP . 
  eq $places(emptyN, S) = S . 
- eq $places((T |-> Q , N), S) = $places(N, (S, places(Q))) .
+ eq $places(T |-> Q ; N, S) = $places(N, S U places(Q)) .
 
  op placeList : Net -> ListP . *** returns the sorted list of places of a net
  eq placeList(N) = $makeListP(places(N),emptyListP) .
  var L L1 : ListP .
  op $makeListP : SetP ListP -> ListP . 
  eq $makeListP(emptyP, L) = sort(L) . 
- eq $makeListP((P, S), L) = $makeListP(S, P L) . 
+ eq $makeListP(P U S, L) = $makeListP(S, P L) . 
 
  op tranList : Net -> ListT .  *** returns the sorted list of transitions
  eq tranList(N) = $makeListT(N,emptyListT) .
  op $makeListT : Net ListT -> ListT . 
  eq $makeListT(emptyN, L') = sort(L') . 
- eq $makeListT((T |-> Q, N), L') = $makeListT(N, T L') . 
+ eq $makeListT(T |-> Q ; N, L') = $makeListT(N, T L') . 
 
  **** operators helpful for canonization
  
@@ -87,22 +83,22 @@ ceq in((T |-> Q, N), P) = true if in (Q, P) .
  eq places(N, A) = $places(N, A, emptyP) .
  op $places : Net Atype SetP -> SetP .
  eq $places(emptyN, A, S) = S .
- eq $places((T |-> Q, N), A, S) = $places(N, A, (S, support(Q(A))) ) . 
+ eq $places(T |-> Q ; N, A, S) = $places(N, A, S U support(Q(A)) ) . 
  
  *** makes a sorted adjacency list out of a net 
  op makeAdjList : Net -> ListQ .  
  eq makeAdjList(N) = $makeAdjList(N, emptyListQ) .
  op $makeAdjList : Net ListQ -> ListQ .
  eq $makeAdjList(emptyN, QL) = sort(QL) .
- eq $makeAdjList((T |-> Q, N), QL) = $makeAdjList(N, QL Q)  .
+ eq $makeAdjList(T |-> Q ; N, QL) = $makeAdjList(N, QL Q)  .
  
  *** makes a sorted adjacency list out of a net -- transitions with the given label are considered
  op makeAdjList : Net String -> ListQ .  
  eq makeAdjList(N, W) = $makeAdjList(N, W, emptyListQ) .
  op $makeAdjList : Net String ListQ -> ListQ .
  eq $makeAdjList(emptyN, W, QL) = sort(QL) .
- eq $makeAdjList((t(Y, W) |-> Q, N), W, QL) = $makeAdjList(N, W, QL Q)  .
- eq $makeAdjList((T |-> Q, N), W, QL) = $makeAdjList(N, W, QL)  [owise] .
+ eq $makeAdjList(t(Y, W) |-> Q ; N, W, QL) = $makeAdjList(N, W, QL Q)  .
+ eq $makeAdjList(T |-> Q ; N, W, QL) = $makeAdjList(N, W, QL)  [owise] .
  
  *** makes a sorted adjacency list of a given type (i,o,h) out of a net (NOTE builds on the operator above, i.e., on the order defined on inc. matrices)
  op makeAdjListS : Net Atype -> ListBagP .
@@ -116,7 +112,7 @@ ceq $makeAdjListS(Q QL, A, BL) = $makeAdjListS(QL, A, BL) if Q(A) == nilP . *** 
  eq makeAdjList(N, A) = $makeAdjList(N, A, emptyListBagP) .
  op $makeAdjList : Net Atype ListBagP -> ListBagP .
  eq $makeAdjList(emptyN, A, BL) = BL .
- eq $makeAdjList((T |-> Q, N), A, BL) = $makeAdjList(N, A, BL Q(A))  .
+ eq $makeAdjList(T |-> Q ; N, A, BL) = $makeAdjList(N, A, BL Q(A))  .
  
  *** extract from a list of bags (assumed ordered, according to the criterion above) the header composed of bags with the same weights
  op headqw : ListBagP -> ListBagP .
@@ -139,7 +135,7 @@ ceq $headqw(Q QL, NeQL) = $headqw(QL, NeQL Q) if head(NeQL) eqw Q .
  
  *** operators to swap pairs of elements (various versions)
  op swap : Net Place Place -> Net . 
- eq swap((T |-> Q, N), P, P') = T |-> swap(Q, P, P'), swap(N, P, P') .
+ eq swap(T |-> Q ; N, P, P') = T |-> swap(Q, P, P') ; swap(N, P, P') .
  eq swap(emptyN, P, P') = emptyN .
 
  *** swaps two places in an adjacency list and sorts the resulting list
@@ -149,24 +145,20 @@ ceq $headqw(Q QL, NeQL) = $headqw(QL, NeQL Q) if head(NeQL) eqw Q .
  eq $swap(emptyListBagP, P, P') = emptyListBagP .
  eq $swap(B BL, P, P') = swap(B, P, P') $swap(BL, P, P') . 
 
- *** op swap : SetBagP Place Place -> SetBagP .  *** swaps two places in a set of bags
- *** eq swap( (B, NeBS), P, P') = swap(B, P, P'), swap(NeBS, P, P') . *** NOTE: using NeBS avoids infinite recursion
- **** eq swap(emptySetBagP, P, P') = emptySetBagP .
-
  op replace : Net Place Place -> Net .  *** replace the first places with the 2nd one in a net
- eq replace((T |-> Q, N), P, P') = T |-> replace(Q, P, P'), replace(N, P, P') .
+ eq replace(T |-> Q ; N, P, P') = T |-> replace(Q, P, P') ; replace(N, P, P') .
  eq replace(emptyN, P, P') = emptyN .
 
  *** transitions
  op swap : Net Tran Tran -> Net .  *** swaps two transitions in a net
- eq swap((T |-> Q, N), T, T') = T' |-> Q, swap(N, T, T') . 
- eq swap((T |-> Q, N), T', T) = T' |-> Q, swap(N, T', T) .
+ eq swap(T |-> Q ; N, T, T') = T' |-> Q ; swap(N, T, T') . 
+ eq swap(T |-> Q ; N, T', T) = T' |-> Q ; swap(N, T', T) .
  *** eq swap((T |-> Q, T' |-> Q', N), T, T') = T |-> Q', T' |-> Q, N . 
  *** eq swap((T |-> Q, N), T, T') = T' |-> Q, N [owise] . 
  *** eq swap((T |-> Q, N), T', T) = T' |-> Q, N [owise] . 
  eq swap(N, T, T') = N [owise] .
  op replace : Net Tran Tran -> [Net] .  *** replace the first transition with the 2nd one in a net
- eq replace((T |-> Q, N), T, T') = T' |-> Q, N .
+ eq replace(T |-> Q ; N, T, T') = T' |-> Q ; N .
  eq replace(N, T, T') = N [owise] .
  
  

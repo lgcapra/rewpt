@@ -19,19 +19,19 @@ fmod PT-SYS is
  eq marking(N S) = S .
  
  op enabled : System Tran -> [Bool] .
- eq enabled( (T |-> [I,O,H], N) S, T) = I <= S and-then H >' S .
+ eq enabled((T |-> [I,O,H] ; N) S, T) = I <= S and-then H >' S .
 
 cmb N S : System if welldef(N) . *** /\ support(S) subset places(N) . *** the net of a PT system cannot be empty
  
  op dead : System -> Bool . *** checks for a deadlock state
-ceq dead((T |-> Q, N) S) = false if enabled( (T |-> Q, N) S, T) .
+ceq dead((T |-> Q ; N) S) = false if enabled((T |-> Q ; N) S, T) .
  eq dead(N S) = true [owise] .
 
  op in :  System Place -> Bool . *** tests the existence of a place
  eq in(N S, P) =  S[P] =/= 0 or-else in(N, P).
 
  op places : System -> NeSetP .
- eq places(N S) = places(N), support(S) .
+ eq places(N S) = places(N) U support(S) .
 
  op placeList : System -> ListP .
  eq placeList(N S) = $makeListP(places(N S), emptyListP) .

@@ -6,15 +6,15 @@ fmod EOS-EXAMPLES is
   eq mmark1 = 1 . (1 . p(1, "") + 2 . p(2, "")) .
   eq mmark2 = 1 . 1 . p(1, "") .
   ops net1 fakenet sysnet1 sysnet2 : -> Net .
-  eq net1 = t(1, "") |-> [1 . p(1, ""),1 . p(1, "") + 2 . p(2, "") ,nilP], t(2, "") |-> [1 . p(1, "") + 2 . p(2, ""),1 . p(1, ""),nilP] .
-  eq fakenet = t(1, "") |-> [1 . p(1, ""),1 . p(1, "") + 2 . p(2, "") ,nilP], t(1, "") |-> [1 . p(1, "") + 2 . p(2, ""),1 . p(1, ""),nilP] .
-  eq sysnet1 = t(1, "sys") |-> [1 . p(1, "sys"),1 . p(1, "sys") + 2 . p(2, "sys") ,nilP], t(2, "sys") |-> [1 . p(1, "sys") + 2 . p(2, "sys"),1 . p(1, "sys"),nilP] .
-  eq sysnet2 = t(1, "sys") |-> [1 . p(1, "sys"),1 . p(1, "sys") + 2 . p(2, "sys") ,nilP], t(2, "sys") |-> [1 . p(1, "sys") + 2 . p(2, "sys"),1 . p(1, "sys"),nilP] .
+  eq net1 = t(1, "") |-> [1 . p(1, ""),1 . p(1, "") + 2 . p(2, "") ,nilP] ; t(2, "") |-> [1 . p(1, "") + 2 . p(2, ""),1 . p(1, ""),nilP] .
+  eq fakenet = t(1, "") |-> [1 . p(1, ""),1 . p(1, "") + 2 . p(2, "") ,nilP] ; t(1, "") |-> [1 . p(1, "") + 2 . p(2, ""),1 . p(1, ""),nilP] .
+  eq sysnet1 = t(1, "sys") |-> [1 . p(1, "sys"),1 . p(1, "sys") + 2 . p(2, "sys") ,nilP] ; t(2, "sys") |-> [1 . p(1, "sys") + 2 . p(2, "sys"),1 . p(1, "sys"),nilP] .
+  eq sysnet2 = t(1, "sys") |-> [1 . p(1, "sys"),1 . p(1, "sys") + 2 . p(2, "sys") ,nilP] ; t(2, "sys") |-> [1 . p(1, "sys") + 2 . p(2, "sys"),1 . p(1, "sys"),nilP] .
   ops netype1 fakenetype : -> NeType .
-  eq netype1 = p(1,"sys") |-> net1, p(2,"sys") |-> net1 .
-  eq fakenetype = p(1,"sys") |-> net1, p(1,"sys") |-> net1, p(4,"sys") |-> net1 .
+  eq netype1 = p(1,"sys") |-> net1 ; p(2,"sys") |-> net1 .
+  eq fakenetype = p(1,"sys") |-> net1 ; p(1,"sys") |-> net1 ; p(4,"sys") |-> net1 .
  ops sysmark1 sysmark2 : -> Sysnetmark .
-  eq sysmark1 =  p(1,"sys") |-> mmark1 ,  p(2,"sys") |-> mmark2 .
+  eq sysmark1 =  p(1,"sys") |-> mmark1 ;  p(2,"sys") |-> mmark2 .
  ops eosnet1 fakeosnet : -> Sysnet .
   eq eosnet1 = sysnet1 netype1 .
   eq fakeosnet = fakenet netype1 .

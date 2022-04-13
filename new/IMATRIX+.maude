@@ -57,7 +57,7 @@ ceq $evalwH(IL, IL', OL, OL', HL, HL') = true if $less(HL cmp1 HL', $evalwI(IL, 
  eq in(Q, P) = false [owise] .
 
  op places : Imatrix -> SetP .
- eq places([X,Y,Z]) = support(X), support(Y), support(Z) .
+ eq places([X,Y,Z]) = support(X) U support(Y) U support(Z) .
 
  *** canonization ops
  op swap : Imatrix Place Place -> Imatrix .

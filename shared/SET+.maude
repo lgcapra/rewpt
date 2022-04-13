@@ -1,0 +1,11 @@
+*** redefinition of SET with some operator renaming (to avoid conflicts with MAP operators, e.g., 
+*** when importing a SET from a MAP, and vice-versa)
+
+fmod SET+{X :: TRIV} is
+  pr SET{X} * (op empty to emptyS, op _,_ to _U_ ) .
+endfm   
+
+*** trivial view to SET+
+view Set+{X :: TRIV} from TRIV to SET+{X} is 
+ sort Elt to Set{X} .
+endv

@@ -6,7 +6,7 @@ in PLACE<
 
 fmod BAGP is
  pr BAG{Place} * ( sort Bag{Place} to BagP, sort NeBag{Place} to NeBagP, sort Set{Place} to SetP, sort NeSet{Place} to NeSetP,
-                   op nil to nilP, op empty to emptyP) .
+                   op nil to nilP, op emptyS to emptyP) .
  pr COMP-PAIR-LIST{Nat<, PLACE<} * (sort Pair{Nat<,PLACE<} to PairNP, sort NeList{Nat<,PLACE<} to NeListNP,
                                        sort List{Nat<,PLACE<} to ListNP, op emptyListXY to emptyListNP) .
  
@@ -36,7 +36,7 @@ fmod BAGP is
  eq labMap(B, W) = $labMap(B, W, emptyP) .
  op $labMap : BagP String SetP ->  SetP .
  eq $labMap(nilP, W, S) = S . 
- eq $labMap(K . p(N,W) + B, W, S) = $labMap(B, W, (S, p(N,W)) ) .
+ eq $labMap(K . p(N,W) + B, W, S) = $labMap(B, W, S U p(N,W)) .
  eq $labMap(K . P + B, W, S) = $labMap(B, W, S)  [owise] .
 
  *** extracts the sub-bag with a certain label out of a bag

@@ -3,7 +3,7 @@ in ../PT-SYS+
 *** a multi-marking is defined as a bag of bags on net places
 fmod MULTI-MARKING is
  pr BAG{BagP} * ( sort Bag{BagP} to Multimark, sort NeBag{BagP} to NeMultimark, sort Set{BagP} to SetBagP, sort NeSet{BagP} to NeSetBagP,
-                   op nil to nilMultiM, op empty to emptySetBagP) .
+                   op nil to nilMultiM, op emptyS to emptySetBagP) .
   
 endfm
 
@@ -20,7 +20,7 @@ fmod NET-TYPE is
   var T : NeType .
   op welldef : NeType -> Bool . *** characterizes well defined net-types
 ceq welldef(T) = false if repeatedKeys?(T)  .
-ceq welldef((P |-> N, T)) = false if not(welldef(N)) .
+ceq welldef(P |-> N ; T) = false if not(welldef(N)) .
  eq welldef(T) = true [owise] . 
 endfm
 

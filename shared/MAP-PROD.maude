@@ -1,0 +1,38 @@
+in SET+
+in MAP+
+in ../new/BagP
+
+fmod MAP-OF-SET{X :: TRIV,Y :: TRIV} is
+  pr MAP+{X,Set+{Y}} * (sort Map{X,Set+{Y}} to Map{X,Set{Y}}, sort Entry{X,Set+{Y}} to Entry{X,Set{Y}}, 
+                         op emptyM to emptyMSet, op undefined to undefMSet) . 
+endfm
+
+fmod SET-OF-MAP{X :: TRIV,Y :: TRIV} is
+  pr SET+{Map+{X,Y}} * (sort Set{Map+{X,Y}} to Set{Map{X,Y}}, sort NeSet{Map+{X,Y}} to NeSet{Map{X,Y}},
+                        op emptyS to emptySetM) .   
+endfm
+
+fmod MAP-PROD{X :: TRIV,Y :: TRIV} is
+  pr SET-OF-MAP{X,Y} .
+  pr MAP-OF-SET{X,Y} * (op _|->_ to _>>_ ) .
+  vars S S' : Set{Y} .
+  vars K K' : X$Elt .
+  vars V V' : Y$Elt .
+  vars E E' : Entry{X,Set{Y}} .
+  var M : Map{X,Y} .
+  var SM : Set{Map{X,Y}} .
+  
+  op prod : Map{X,Set{Y}}  -> Set{Map{X,Y}} .
+  op _x_ : Entry{X,Set{Y}} Map{X,Y} -> Set{Map{X,Y}} .
+  op $x :  Entry{X,Set{Y}} Map{X,Y} Set{Map{X,Y}} -> Set{Map{X,Y}} .
+
+  eq E x emptyM = emptySetM .
+  eq E x M = $x(E, M, emptySetM) [owise].
+  eq $x(K >> V U S, M, SM)  = $x(K >> S, M, (K |-> V ; M) U SM) .
+  eq $x(K >> emptyS, M, SM) = SM .
+   
+endfm
+
+fmod MAP-PROD-BAGP is 
+  pr MAP-PROD{String,BagP} .
+endfm

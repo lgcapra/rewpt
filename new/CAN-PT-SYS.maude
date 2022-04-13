@@ -101,7 +101,7 @@ ceq $canonizeInOut(Sy, K, S, true) =  canonizeNet(Sy', o, K, S, marking(Sy') mak
  eq canonizeTrans(N, S) = $canonizeTrans(makeAdjList(N, S), 0, S, emptyN) .
  op $canonizeTrans : ListQ Nat String Net -> Net .
  eq $canonizeTrans(emptyListQ, I, S, N) = N .
- eq $canonizeTrans(Q LQ, I, S, N) = $canonizeTrans(LQ, I + 1, S, (N, t(I,S) |-> Q)) . 
+ eq $canonizeTrans(Q LQ, I, S, N) = $canonizeTrans(LQ, I + 1, S, N ; t(I,S) |-> Q) . 
 
  *** canonizes the system's marking, taken in isolation (this version builds on minGtIdx - doesn't exploit the fact that the returned list may be >1-size)
  op canonizeM : System String -> System . 
