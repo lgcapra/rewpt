@@ -1,8 +1,8 @@
 fmod BAG{X :: TRIV} is
  protecting INT .
  protecting EXT-BOOL .
- *** protecting SET{X} * (op empty to emptyS) .
  protecting SET+{X}  .
+
  sorts Bag{X} NeBag{X} .
  subsorts NeBag{X} < Bag{X} .
 
@@ -76,8 +76,10 @@ fmod BAG{X :: TRIV} is
  eq B eqw B = true .
  eq N . X + B eqw N . Y + B' = B eqw B' .
  eq B eqw B' = false [owise] . 
+ 
 endfm
 
+*** parameterized trivial view to BAG{X}
 view Bag{X :: TRIV} from TRIV to BAG{X} is 
  sort Elt to Bag{X} . 
 endv
