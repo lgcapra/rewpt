@@ -1,0 +1,16 @@
+in ../PT-SYS+
+
+*** a multi-marking is defined as a bag of bags on net places
+fmod MULTI-MARKING is
+ pr BAG{BagP} * (sort Set{BagP} to Set{Bag{Place}}, sort NeSet{BagP} to NeSet{Bag{Place}},
+     sort Bag{BagP} to Bag{Bag{Place}}, sort NeBag{BagP} to NeBag{Bag{Place}}, op nil to nilBagBP,
+                  op emptyS to emptySetBP ) .
+  
+endfm
+
+*** trivial view of a multi-marking
+view Multimark from TRIV to MULTI-MARKING is 
+ sort Elt to Bag{Bag{Place}} .
+endv
+
+

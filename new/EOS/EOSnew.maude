@@ -1,0 +1,73 @@
+in MULTI-MARKING
+
+*** trivial view of a PT-Net
+view Net from TRIV to PT-NET is 
+ sort Elt to Net .
+endv
+
+*** map from places to net-types
+fmod NET-TYPE is
+  pr MAP+{Place,Net} * (sort Map{Place,Net} to NeType, sort Entry{Place,Net} to EntryPN, op emptyM to emptyNeType) .
+  var P : Place .
+  var N : Net .
+  var T : NeType .
+  op welldef : NeType -> Bool . *** characterizes well defined net-types
+ceq welldef(T) = false if repeatedKeys?(T)  .
+ceq welldef(P |-> N ; T) = false if not(welldef(N)) .
+ eq welldef(T) = true [owise] . 
+endfm
+
+*** alternative map from strings (place-labels) to net-types
+fmod NET-TYPES is
+   pr MAP+{String,Net} * (sort Map{String,Net} to NeTypeS, sort Entry{String,Net} to EntrySN, op emptyM to emptyNeTypeS) .
+endfm
+
+*** a multi-marked PT net
+fmod MULTI-SYS is
+   pr PT-NET .
+   pr MULTI-MARKING .
+   sort Multisys .
+   op __ : Net Multimark -> Multisys [ctor] . *** juxtaposition of a net and a multi-marking
+endfm
+
+*** structure of a system-net
+fmod EOS-NET is
+  pr PT-NET .
+  pr NET-TYPE .
+  sort Sysnet .
+  op __ : Net NeType -> [Sysnet] [ctor] . *** juxtaposition of a net and net-types -- note the use of a kind
+  op net : Sysnet -> Net .
+  op netypes : Sysnet -> NeType .
+  vars N N'  : Net .
+  vars S S' : Sysnet .
+  vars T T' : NeType .
+  var P : Place .
+  eq net(N T) = N .
+  eq netypes(N T) = T .
+cmb N T : Sysnet if welldef(N) and-then welldef(T) . *** charcterization of well-formed EOS nets
+ endfm
+
+*** marking of a system-net
+fmod EOS-MARKING is
+  pr MAP+{Place,Multimark} * (sort Map{Place,Multimark} to Sysnetmark, sort Entry{Place,Multimark} to SysnetmarkP, op emptyM to emptySysnetM) .
+endfm
+
+*** marked system-net, i.e., EOS
+fmod EOSYS is
+  pr EOS-NET + EOS-MARKING  + BAG-EXT{Place} * (sort Bag{Place} to BagP, sort NeBag{Place} to NeBagP, sort Set{Place} to SetP, sort NeSet{Place} to NeSetP,
+                              sort SetBag{Place} to SetBagP, sort NeSetBag{Place} to NeSetBagP, 
+                              op nil to nilP, op emptyS to emptyP, op emptySetB to emptySetBagP) .
+
+ 
+  
+  sort Eosystem .
+  op __ : Sysnet Sysnetmark -> Eosystem [ctor] . *** juxtaposition of a net and net-types
+  op sysnet  : Eosystem -> Sysnet .
+  op sysmark : Eosystem -> Sysnetmark .
+  var S : Sysnet .
+  var M : Sysnetmark .
+  eq sysnet(S M)  = S .
+  eq sysmark(S M) = M .
+
+  *** op enabledSet : Imatrix ->  Map{Place,Set{BagP}} .
+endfm
