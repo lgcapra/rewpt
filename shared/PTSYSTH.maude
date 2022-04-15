@@ -2,6 +2,6 @@
 
 fth PTSYSTH  is 
  protecting PT-SYS .
- op m0  : -> BagP .
+ op m0  : -> Bag{Place} .
  op net : -> Net .
 endfth 

@@ -1,3 +1,5 @@
+in SET+
+
 fmod BAG{X :: TRIV} is
  protecting INT .
  protecting EXT-BOOL .

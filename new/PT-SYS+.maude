@@ -5,16 +5,16 @@ in PT-NET
 fmod PT-SYS is
  pr PT-NET .
  sort System .
- op __ : Net BagP -> [System] [ctor] .
+ op __ : Net Bag{Place} -> [System] [ctor] .
  vars N N' : Net .
  vars T T' : Tran .
  vars P P' : Place .
- vars I O H S S' : BagP .
+ vars I O H S S' : Bag{Place} .
  vars Q Q' : Imatrix .
  vars K K' : NzNat .
  
  op net : System -> Net . 
- op marking : System -> BagP .
+ op marking : System -> Bag{Place} .
  eq net(N S) = N .
  eq marking(N S) = S .
  
@@ -30,10 +30,10 @@ ceq dead((T |-> Q ; N) S) = false if enabled((T |-> Q ; N) S, T) .
  op in :  System Place -> Bool . *** tests the existence of a place
  eq in(N S, P) =  S[P] =/= 0 or-else in(N, P).
 
- op places : System -> NeSetP .
+ op places : System -> NeSet{Place} .
  eq places(N S) = places(N) U support(S) .
 
- op placeList : System -> ListP .
+ op placeList : System -> List{Place} .
  eq placeList(N S) = $makeListP(places(N S), emptyListP) .
 
  op swap : System Place Place -> System .

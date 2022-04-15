@@ -1,26 +1,27 @@
 in ../shared/Vplace
 in ../shared/BAG
 in ../shared/COMP-PAIR-LIST
+in ./EOS/BAG-EXT
 
 in PLACE<
 
 fmod BAGP is
- pr BAG{Place} * ( sort Bag{Place} to BagP, sort NeBag{Place} to NeBagP, sort Set{Place} to SetP, sort NeSet{Place} to NeSetP,
-                   op nil to nilP, op emptyS to emptyP) .
+ *** pr BAG{Place} * ( op nil to nilP, op emptyS to emptyP) .
+ pr BAG-EXT{Place} * ( op nil to nilP, op emptyS to emptyP, op emptySetB to emptySetBP) .
  pr COMP-PAIR-LIST{Nat<, PLACE<} * (sort Pair{Nat<,PLACE<} to PairNP, sort NeList{Nat<,PLACE<} to NeListNP,
                                        sort List{Nat<,PLACE<} to ListNP, op emptyListXY to emptyListNP) .
  
  vars P P' $P : Place . 
  vars K K' : NzNat .
  vars N N' : Nat .
- vars B B' : BagP .
+ vars B B' : Bag{Place} .
  var W : String .
- var S : SetP .
+ var S : Set{Place} .
  var LNP : ListNP . 
  
  *** operators helpful for canonization
- op swap : BagP Place Place -> BagP .  *** swaps two places
- op replace : BagP Place Place -> BagP . *** replaces the first place with the second one
+ op swap : Bag{Place} Place Place -> Bag{Place} .  *** swaps two places
+ op replace : Bag{Place} Place Place -> Bag{Place} . *** replaces the first place with the second one
  eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
  eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
  eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
@@ -32,40 +33,40 @@ fmod BAGP is
  eq replace(B, P, P') = B [owise] .
  
  *** helpful?
- op labMap  : BagP String -> SetP . *** returns the set of places with a certain label
+ op labMap  : Bag{Place} String -> Set{Place} . *** returns the set of places with a certain label
  eq labMap(B, W) = $labMap(B, W, emptyP) .
- op $labMap : BagP String SetP ->  SetP .
+ op $labMap : Bag{Place} String Set{Place} ->  Set{Place} .
  eq $labMap(nilP, W, S) = S . 
  eq $labMap(K . p(N,W) + B, W, S) = $labMap(B, W, S U p(N,W)) .
  eq $labMap(K . P + B, W, S) = $labMap(B, W, S)  [owise] .
 
  *** extracts the sub-bag with a certain label out of a bag
- op extract : BagP String -> BagP .
+ op extract : Bag{Place} String -> Bag{Place} .
  eq extract(B, W) = $extract(B, W, nilP) .
- op $extract : BagP String BagP -> BagP .
+ op $extract : Bag{Place} String Bag{Place} -> Bag{Place} .
  eq $extract(nilP, W, B) = B .
  eq $extract(K . p(N,W) + B, W, B') = $extract(B, W, K . p(N,W) +  B') . 
  eq $extract(K . P + B, W, B') = $extract(B, W, B') [owise] .
  
  *** in alternative, we might define toList in BAG, then reuse extract
- op toList : BagP String -> ListNP . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with a certain label
+ op toList : Bag{Place} String -> ListNP . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with a certain label
  eq toList(B, W) = $toList(B, W, emptyListNP) .
- op $toList : BagP String ListNP -> ListNP .
+ op $toList : Bag{Place} String ListNP -> ListNP .
  eq $toList(nilP, W, LNP) = LNP .
  eq $toList(K . p(N,W) + B, W, LNP) = $toList(B, W, < K ; p(N,W) > LNP) . 
  eq $toList(K . P + B, W, LNP) = $toList(B, W, LNP) [owise] .
- op toListS : BagP String -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag
+ op toListS : Bag{Place} String -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag
  eq toListS(B, W) = sort(toList(B, W)) .
 
- op toList : BagP -> ListNP . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with empty label
+ op toList : Bag{Place} -> ListNP . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with empty label
  eq toList(B) = toList(B, "") .
- op toListS : BagP -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag  -- considers places with empty label
+ op toListS : Bag{Place} -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag  -- considers places with empty label
  eq toListS(B) = sort(toList(B)) .
 
  *** are still needed?
- op _lt_ : BagP BagP -> Bool . *** maps on the order relation of lists of comparable pairs (weight sequence considered first)
+ op _lt_ : Bag{Place} Bag{Place} -> Bool . *** maps on the order relation of lists of comparable pairs (weight sequence considered first)
  eq B lt B' = toListS(B) lex12 toListS(B') . 
 
- op _lt'_ : BagP BagP -> Bool . *** maps on the usual, pair-wise, order relation of lists of comparable pairs
+ op _lt'_ : Bag{Place} Bag{Place} -> Bool . *** maps on the usual, pair-wise, order relation of lists of comparable pairs
  eq B lt' B' = toListS(B) lex toListS(B') . 
 endfm
