@@ -3,8 +3,8 @@
 in ../../shared/BAG
 
 fmod BAG-EXT{X :: TRIV} is
- protecting SET+{Bag{X}} * (op emptyS : -> Set{Bag{X}} to emptySetB) .
-
+ *** protecting SET+{Bag{X}} * (op emptyS : -> Set{Bag{X}} to emptySetB) .
+ pr BAG{X} .
  vars N K : NzNat .
  var I : Nat .
  vars X Y : X$Elt .

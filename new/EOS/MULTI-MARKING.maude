@@ -5,6 +5,30 @@ fmod MULTI-MARKING is
  pr BAG{BagP} * (sort Set{BagP} to Set{Bag{Place}}, sort NeSet{BagP} to NeSet{Bag{Place}},
      sort Bag{BagP} to Bag{Bag{Place}}, sort NeBag{BagP} to NeBag{Bag{Place}}, op nil to nilBagBP,
                   op emptyS to emptySetBP ) .
+vars N K : NzNat .
+ var I : Nat .
+ vars X Y : Place .
+ vars B B' : Bag{Place} .
+ var NeB   : NeBag{Place} .
+ vars S S' : Set{Bag{Place}} .
+ 
+ op split : Bag{Place} Nat -> Set{Bag{Place}} . *** splits a bag into sub-bags of a given cardinality 
+ op $forsplit  : Nat Place Bag{Place} NzNat -> Set{Bag{Place}} .
+
+ eq split(B, 0) = nilP . *** base case 1)
+ceq split(NeB, K) = NeB if || NeB || == K . *** base case 2) 
+ceq split(B, K) = emptySetBP if  || B || < K .  *** base case 3)
+ eq split(N . X + B, K) = $forsplit(min(N,K), X, B, K) [owise] . *** || B || > K
+ eq $forsplit(0, X, B, K) = split(B, K) .
+ eq $forsplit(N, X, B, K) = addall(N . X, split(B, K - N)) U $forsplit(N - 1, X, B, K) .
+
+
+ op addall  : Bag{Place} Set{Bag{Place}}  -> Set{Bag{Place}} . *** sum the specified bag to every bag in the set
+ eq addall(B, S) = $addall(B, S, emptySetBP) .
+ op $addall : Bag{Place} Set{Bag{Place}} Set{Bag{Place}} -> Set{Bag{Place}} .
+ eq $addall(B, emptySetBP, S) = S .
+ eq $addall(B, B' U S', S) = $addall(B, S', B + B' U S) .
+ 
   
 endfm
 

@@ -6,8 +6,8 @@ in ./EOS/BAG-EXT
 in PLACE<
 
 fmod BAGP is
- *** pr BAG{Place} * ( op nil to nilP, op emptyS to emptyP) .
- pr BAG-EXT{Place} * ( op nil to nilP, op emptyS to emptyP, op emptySetB to emptySetBP) .
+ pr BAG{Place} * ( op nil to nilP, op emptyS to emptyP) .
+ *** pr BAG-EXT{Place} * ( op nil to nilP, op emptyS to emptyP, op emptySetB to emptySetBP) .
  pr COMP-PAIR-LIST{Nat<, PLACE<} * (sort Pair{Nat<,PLACE<} to PairNP, sort NeList{Nat<,PLACE<} to NeListNP,
                                        sort List{Nat<,PLACE<} to ListNP, op emptyListXY to emptyListNP) .
  
