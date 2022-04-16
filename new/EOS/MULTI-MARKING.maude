@@ -1,10 +1,28 @@
 in ../PT-SYS+
+in MAP-PROD
+
+*** product of maps of sets of bags (of places)
+fmod MAPSETP-PROD is
+  pr MAP-PROD{Place,BagP} * (sort Set{BagP} to Set{Bag{Place}}, sort NeSet{BagP} to NeSet{Bag{Place}},
+       sort Map{Place,BagP} to  Map{Place,Bag{Place}}, sort Entry{Place,BagP} to  Entry{Place,Bag{Place}},
+       sort Set{Map{Place,BagP}} to Set{Map{Place,Bag{Place}}}, 
+       sort NeSet{Map{Place,BagP}} to NeSet{Map{Place,Bag{Place}}},
+       sort Map{Place,Set{BagP}} to  Map{Place,Set{Bag{Place}}}, 
+       sort Entry{Place,Set{BagP}} to Entry{Place,Set{Bag{Place}}},
+       op emptyS to emptySetBP).
+  ops map1 map2 : -> Map{Place,Set{Bag{Place}}} .
+  *** examples of maps -- calculate prod(map{1,2})
+  eq map1 =  p(1,"") >> 1 . p(1,"") + 2 . p(0, "") U 2 . p(1,"")  ; p(2,"") >> 1 . p(1,"") U 2 . p(1,"") .
+  eq map2 =  map1 ; p(3,"") >> 3 . p(1,"") + 2 . p(0, "") U 3 . p(2,"")  .
+endfm
 
 *** a multi-marking is defined as a bag of bags on net places
 fmod MULTI-MARKING is
  pr BAG{BagP} * (sort Set{BagP} to Set{Bag{Place}}, sort NeSet{BagP} to NeSet{Bag{Place}},
      sort Bag{BagP} to Bag{Bag{Place}}, sort NeBag{BagP} to NeBag{Bag{Place}}, op nil to nilBagBP,
                   op emptyS to emptySetBP ) .
+ pr MAPSETP-PROD .
+
 vars N K : NzNat .
  var I : Nat .
  vars X Y : Place .
@@ -28,7 +46,6 @@ ceq split(B, K) = emptySetBP if  || B || < K .  *** base case 3)
  op $addall : Bag{Place} Set{Bag{Place}} Set{Bag{Place}} -> Set{Bag{Place}} .
  eq $addall(B, emptySetBP, S) = S .
  eq $addall(B, B' U S', S) = $addall(B, S', B + B' U S) .
- 
   
 endfm
 

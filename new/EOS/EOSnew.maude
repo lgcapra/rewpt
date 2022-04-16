@@ -20,6 +20,13 @@ endfm
 *** alternative map from strings (place-labels) to net-types
 fmod NET-TYPES is
    pr MAP+{String,Net} * (sort Map{String,Net} to NeTypeS, sort Entry{String,Net} to EntrySN, op emptyM to emptyNeTypeS) .
+   var L : String .
+   var N : Net .
+   var T : NeTypeS .
+   op welldef : NeTypeS -> Bool . *** characterizes well defined net-types
+ ceq welldef(T) = false if repeatedKeys?(T)  .
+ ceq welldef(L |-> N ; T) = false if not(welldef(N)) .
+  eq welldef(T) = true [owise] .
 endfm
 
 *** a multi-marked PT net
@@ -27,7 +34,7 @@ fmod MULTI-SYS is
    pr PT-NET .
    pr MULTI-MARKING .
    sort Multisys .
-   op __ : Net Multimark -> Multisys [ctor] . *** juxtaposition of a net and a multi-marking
+   op __ : Net Bag{Bag{Place}} -> Multisys [ctor] . *** juxtaposition of a net and a multi-marking
 endfm
 
 *** structure of a system-net
@@ -54,12 +61,7 @@ endfm
 
 *** marked system-net, i.e., EOS
 fmod EOSYS is
-  pr EOS-NET + EOS-MARKING  + BAG-EXT{Place} * (sort Bag{Place} to BagP, sort NeBag{Place} to NeBagP, sort Set{Place} to SetP, sort NeSet{Place} to NeSetP,
-                              sort SetBag{Place} to SetBagP, sort NeSetBag{Place} to NeSetBagP, 
-                              op nil to nilP, op emptyS to emptyP, op emptySetB to emptySetBagP) .
-
- 
-  
+  pr EOS-NET + EOS-MARKING  .
   sort Eosystem .
   op __ : Sysnet Sysnetmark -> Eosystem [ctor] . *** juxtaposition of a net and net-types
   op sysnet  : Eosystem -> Sysnet .
@@ -69,5 +71,5 @@ fmod EOSYS is
   eq sysnet(S M)  = S .
   eq sysmark(S M) = M .
 
-  *** op enabledSet : Imatrix ->  Map{Place,Set{BagP}} .
+  op enabledSet : Imatrix ->  Map{Place,Set{Bag{Place}}} .
 endfm

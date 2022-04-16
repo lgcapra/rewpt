@@ -49,11 +49,3 @@ fmod MAP-PROD{X :: TRIV,Y :: TRIV} is
   eq $eljoin(K, V, SM U M, SM')  = $eljoin(K, V, SM, (M ; K |-> V) U SM')  .
  
 endfm
-
-
-fmod MAP-PROD-EXE is
-  pr MAP-PROD{String,BagP} .
-  ops map1 map2 : -> Map{String,Set{BagP}} .
-  eq map1 =  "a" >> 1 . p(1,"") + 2 . p(0, "") U 2 . p(1,"")  ; "b" >> 1 . p(1,"") U 2 . p(1,"") .
-  eq map2 =  map1 ; "c" >> 3 . p(1,"") + 2 . p(0, "") U 3 . p(2,"")  .
-endfm

@@ -1,7 +1,7 @@
 in ../shared/Vplace
 in ../shared/BAG
 in ../shared/COMP-PAIR-LIST
-in ./EOS/BAG-EXT
+***in ./EOS/BAG-EXT
 
 in PLACE<
 
