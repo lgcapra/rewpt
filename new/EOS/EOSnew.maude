@@ -68,8 +68,18 @@ fmod EOSYS is
   op sysmark : Eosystem -> Sysnetmark .
   var S : Sysnet .
   var M : Sysnetmark .
+  var SM :  Set{Map{Place,Bag{Place}}} .
+  vars B B' : Bag{Place} .
+  var BB : Bag{Bag{Place}} .
+  var P : Place .
+  vars K K' : NzNat .
   eq sysnet(S M)  = S .
   eq sysmark(S M) = M .
 
-  op enabledSet : Imatrix ->  Map{Place,Set{Bag{Place}}} .
+  op fireinstances : Bag{Place} Sysnetmark  -> Map{Place,Set{Bag{Place}}} .
+  op firemap : Bag{Place} Sysnetmark  -> Set{Map{Place,Bag{Place}}} .
+  eq firemap(B, M) = $firemap(B, M, emptySetM) .
+  op $firemap : Bag{Place} Sysnetmark  Set{Map{Place,Bag{Place}}} -> Set{Map{Place,Bag{Place}}} .
+  eq $firemap(nilP, M, SM) = SM .
+  eq $firemap(K . P + B, (P |-> BB ; M), SM) = $firemap(B, M, SM U (P |-> split(BB, K))) .  
 endfm

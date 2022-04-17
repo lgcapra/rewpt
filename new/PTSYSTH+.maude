@@ -8,6 +8,6 @@ fth PTSYSTH  is
  *** protecting CAN-PT-SYS .
  pr BAGP .
  pr PT-NET .
- op m0  : -> Bag{Place} .
+ op m0  : -> Pbag .
  op net : -> Net .
 endfth 

@@ -3,8 +3,7 @@ in SET+
 fmod BAG{X :: TRIV} is
  protecting INT .
  protecting EXT-BOOL .
- protecting SET+{X}  .
-
+ 
  sorts Bag{X} NeBag{X} .
  subsorts NeBag{X} < Bag{X} .
 
@@ -64,14 +63,6 @@ fmod BAG{X :: TRIV} is
  op $bsize : Bag{X} Nat -> Nat . 
  eq $bsize(nil, K) = K . 
  eq $bsize(N . X + B, K) = $bsize(B, K + 1) .
-
- var S : Set{X} .
- op support : Bag{X} -> Set{X} .
- op support : NeBag{X} -> NeSet{X} .
- eq support(B) = $support(B, emptyS) .  
- op $support : Bag{X} Set{X} -> Set{X} . 
- eq $support(nil, S) = S . 
- eq $support(N . X + B, S) = $support(B, S U X) .
 
  *** checks whether two bags have the same multiplicities
  op _eqw_ : Bag{X} Bag{X} -> Bool [ comm ] .

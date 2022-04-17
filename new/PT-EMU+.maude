@@ -1,11 +1,11 @@
-*** in PTSYSTH+
+in PTSYSTH+
 in CAN-PT-SYS
 
 mod PT-EMU{X :: PTSYSTH} is
  *** pr PT-SYS .
  pr CAN-PT-SYS .
  var T : Tran .
- var I O H S : Bag{Place} .
+ var I O H S : Pbag .
  var N N' : Net .
  crl [firing] : N S => N S + O - I if T |-> [I,O,H] ; N' := N /\ I <= S /\ H >' S .
  *** alternative 

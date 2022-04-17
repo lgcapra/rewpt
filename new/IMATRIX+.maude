@@ -6,8 +6,8 @@ fmod IMATRIX is
  pr BAGP .
  pr ATYPE .
  sort Imatrix .
- op [_,_,_] : Bag{Place} Bag{Place} Bag{Place} -> Imatrix [ctor] .
- vars X Y Z X' Y' Z' : Bag{Place} .
+ op [_,_,_] : Pbag Pbag Pbag -> Imatrix [ctor] .
+ vars X Y Z X' Y' Z' : Pbag .
  vars P P' : Place .
  vars N N' : Nat .
  vars IL IL' OL OL' HL HL' : ListNP .
@@ -38,12 +38,12 @@ ceq $evalwH(IL, IL', OL, OL', HL, HL') = true if $less(HL cmp1 HL', $evalwI(IL, 
  op $less : Nat Bool -> Bool [ strat (1 0) ] . *** checks if the value is 1 -- otherwise, if the value is 0 evaluates the condition (else returns false)
  eq $less(N, B:Bool) = N == 1 or-else N == 0 and-then B:Bool . 
 
- ops I O H : Imatrix -> Bag{Place} .
+ ops I O H : Imatrix -> Pbag .
  eq I([X,Y,Z]) = X .
  eq O([X,Y,Z]) = Y .
  eq H([X,Y,Z]) = Z .
 
- op _(_) : Imatrix Atype -> Bag{Place} [prec 23] . *** introduced for convenience
+ op _(_) : Imatrix Atype -> Pbag [prec 23] . *** introduced for convenience
  var a : Atype .
  eq Q(i) = I(Q) .
  eq Q(o) = O(Q) . 
@@ -56,7 +56,7 @@ ceq $evalwH(IL, IL', OL, OL', HL, HL') = true if $less(HL cmp1 HL', $evalwI(IL, 
  eq in([X, Y, Z + K . P], P) = true .
  eq in(Q, P) = false [owise] .
 
- op places : Imatrix -> Set{Place} .
+ op places : Imatrix -> Pset .
  eq places([X,Y,Z]) = support(X) U support(Y) U support(Z) .
 
  *** canonization ops

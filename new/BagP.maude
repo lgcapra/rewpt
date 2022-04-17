@@ -1,3 +1,0 @@
-view BagP from TRIV to BAGP is 
- sort Elt to Bag{Place} .
-endv

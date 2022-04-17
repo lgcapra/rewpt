@@ -3,3 +3,8 @@ in PT-NODE.maude
 fmod TRAN is
  protecting PT-NODE * (sort Node to Tran, op n to t) .
 endfm
+
+*** default view
+view Tran from TRIV to TRAN is 
+ sort Elt to Tran . 
+endv

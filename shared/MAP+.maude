@@ -1,7 +1,8 @@
 *** enriched MAP definition (with some renaming)
 
 fmod MAP+{X :: TRIV, Y :: TRIV} is 
-  pr MAP{X,Y} * (op empty to emptyM, op _,_ to _;_ [prec 71])  .
+  pr MAP{X,Y} * (op empty to emptyM, op _,_ to _`;_ [prec 71]
+  )  .
   pr NAT .
   vars R R' : Y$Elt .
   var D : X$Elt .
@@ -10,18 +11,18 @@ fmod MAP+{X :: TRIV, Y :: TRIV} is
   var K : Nat .
 
   op remove : X$Elt Map{X,Y} -> Map{X,Y} . *** removes a key from a map 
-  eq remove (D, M ; D |-> R) = remove(D, M) .
+  eq remove (D, (M ; D |-> R)) = remove(D, M) .
   eq remove (D, M) = M [owise] .
     
   op repeatedKeys? : Map{X,Y}  -> Bool . *** cheks for repeated keys
-  eq repeatedKeys?(D |-> R ; D |-> R' ; M) = true .
+  eq repeatedKeys?((D |-> R ; D |-> R' ; M)) = true .
   eq repeatedKeys?(M) = false [owise] .
 
   op msize : Map{X,Y} -> Nat .
   op $msize : Map{X,Y} Nat -> Nat . 
   eq msize(M) = $msize(M, 0) .  
   eq $msize(emptyM, K) = K . 
-  eq $msize(E ; M, K) = $msize(M, K + 1) .
+  eq $msize((E ; M), K) = $msize(M, K + 1) .
 endfm
 
 *** trivial view to MAP+

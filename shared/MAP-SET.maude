@@ -6,7 +6,7 @@ fmod MAP-SET{X :: TRIV, Y :: TRIV} is
   var R : Y$Elt .
   var D : X$Elt .
   op keySet : Map{X,Y} -> Set{X} .
-  eq keySet(M) = $keySet(M, emptyS) .  
+  eq keySet(M) = $keySet(M, empty) .  
   op $keySet : Map{X,Y} Set{X} -> Set{X} . 
   eq $keySet(emptyM, S) = S . 
   eq $keySet(D |-> R ; M, S) = $keySet(M, S U D) .

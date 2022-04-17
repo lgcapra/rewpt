@@ -3,55 +3,21 @@ in MAP-PROD
 
 *** product of maps of sets of bags (of places)
 fmod MAPSETP-PROD is
-  pr MAP-PROD{Place,BagP} * (sort Set{BagP} to Set{Bag{Place}}, sort NeSet{BagP} to NeSet{Bag{Place}},
-       sort Map{Place,BagP} to  Map{Place,Bag{Place}}, sort Entry{Place,BagP} to  Entry{Place,Bag{Place}},
-       sort Set{Map{Place,BagP}} to Set{Map{Place,Bag{Place}}}, 
-       sort NeSet{Map{Place,BagP}} to NeSet{Map{Place,Bag{Place}}},
-       sort Map{Place,Set{BagP}} to  Map{Place,Set{Bag{Place}}}, 
-       sort Entry{Place,Set{BagP}} to Entry{Place,Set{Bag{Place}}},
-       op emptyS to emptySetBP).
-  ops map1 map2 : -> Map{Place,Set{Bag{Place}}} .
+   pr MAP-PROD{Place,Bag{Pbag}} * (op emptyS to emptySBPbag, op nil to emptyBPbag).
+   ops map1 map2 : -> Map{Place,Set{Bag{Pbag}}} .
   *** examples of maps -- calculate prod(map{1,2})
-  eq map1 =  p(1,"") >> 1 . p(1,"") + 2 . p(0, "") U 2 . p(1,"")  ; p(2,"") >> 1 . p(1,"") U 2 . p(1,"") .
-  eq map2 =  map1 ; p(3,"") >> 3 . p(1,"") + 2 . p(0, "") U 3 . p(2,"")  .
+   eq map1 =  p(1,"") >> 1 . (1 . p(1,"") + 2 . p(0, "")) U 2 . 1 . p(1,"")  ; p(2,"") >> 3 . 1 . p(1,"") U 2 . (1 . p(1,"") + 1 . p(2, "")).
 endfm
 
 *** a multi-marking is defined as a bag of bags on net places
 fmod MULTI-MARKING is
- pr BAG{BagP} * (sort Set{BagP} to Set{Bag{Place}}, sort NeSet{BagP} to NeSet{Bag{Place}},
-     sort Bag{BagP} to Bag{Bag{Place}}, sort NeBag{BagP} to NeBag{Bag{Place}}, op nil to nilBagBP,
-                  op emptyS to emptySetBP ) .
  pr MAPSETP-PROD .
-
-vars N K : NzNat .
- var I : Nat .
- vars X Y : Place .
- vars B B' : Bag{Place} .
- var NeB   : NeBag{Place} .
- vars S S' : Set{Bag{Place}} .
- 
- op split : Bag{Place} Nat -> Set{Bag{Place}} . *** splits a bag into sub-bags of a given cardinality 
- op $forsplit  : Nat Place Bag{Place} NzNat -> Set{Bag{Place}} .
-
- eq split(B, 0) = nilP . *** base case 1)
-ceq split(NeB, K) = NeB if || NeB || == K . *** base case 2) 
-ceq split(B, K) = emptySetBP if  || B || < K .  *** base case 3)
- eq split(N . X + B, K) = $forsplit(min(N,K), X, B, K) [owise] . *** || B || > K
- eq $forsplit(0, X, B, K) = split(B, K) .
- eq $forsplit(N, X, B, K) = addall(N . X, split(B, K - N)) U $forsplit(N - 1, X, B, K) .
-
-
- op addall  : Bag{Place} Set{Bag{Place}}  -> Set{Bag{Place}} . *** sum the specified bag to every bag in the set
- eq addall(B, S) = $addall(B, S, emptySetBP) .
- op $addall : Bag{Place} Set{Bag{Place}} Set{Bag{Place}} -> Set{Bag{Place}} .
- eq $addall(B, emptySetBP, S) = S .
- eq $addall(B, B' U S', S) = $addall(B, S', B + B' U S) .
-  
+ pr BAG-SPLIT{Pbag} * (op nil to emptyBPbag, op emptySetB to emptySBPbag) .  
 endfm
 
 *** trivial view of a multi-marking
 view Multimark from TRIV to MULTI-MARKING is 
- sort Elt to Bag{Bag{Place}} .
+ sort Elt to Bag{Pbag} .
 endv
 
 
