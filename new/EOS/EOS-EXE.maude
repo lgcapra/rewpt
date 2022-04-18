@@ -2,23 +2,37 @@ in EOS
 
 fmod EOS-EXAMPLES is
   pr EOSYS .
-  ops mmark1 mmark2 : -> Multimark .
-  eq mmark1 = 1 . (1 . p(1, "") + 2 . p(2, "")) .
-  eq mmark2 = 1 . 1 . p(1, "") .
-  ops net1 fakenet sysnet1 sysnet2 : -> Net .
-  eq net1 = t(1, "") |-> [1 . p(1, ""),1 . p(1, "") + 2 . p(2, "") ,emptyPbag] ; t(2, "") |-> [1 . p(1, "") + 2 . p(2, ""),1 . p(1, ""),emptyPbag] .
-  eq fakenet = t(1, "") |-> [1 . p(1, ""),1 . p(1, "") + 2 . p(2, "") ,emptyPbag] ; t(1, "") |-> [1 . p(1, "") + 2 . p(2, ""),1 . p(1, ""),emptyPbag] .
-  eq sysnet1 = t(1, "sys") |-> [1 . p(1, "sys"),1 . p(1, "sys") + 2 . p(2, "sys") ,emptyPbag] ; t(2, "sys") |-> [1 . p(1, "sys") + 2 . p(2, "sys"),1 . p(1, "sys"),emptyPbag] .
-  eq sysnet2 = t(1, "sys") |-> [1 . p(1, "sys"),1 . p(1, "sys") + 2 . p(2, "sys") ,emptyPbag] ; t(2, "sys") |-> [1 . p(1, "sys") + 2 . p(2, "sys"),1 . p(1, "sys"),emptyPbag] .
-  ops netype1 fakenetype : -> NeType .
+  ops mmark1 mmark2 : -> Bag{Pbag} .
+  eq mmark1 = 1 . (1 . p(1, "") + 2 . p(2, "")) + 2 . 1 . p(2,"") .
+  eq mmark2 = 2 . 1 . p(1, "") .
+  ops sysnet net1 fakenet sysnet1 sysnet2 type1 type2 : -> Net .
+  eq net1 = t(1, "") |-> [1 . p(1, ""), 1 . p(1, "") + 2 . p(2, ""), emptyPbag] ; t(2, "") |-> [1 . p(1, "") + 2 . p(2, ""), 1 . p(1, ""), emptyPbag] .
+  eq fakenet = t(1, "") |-> [1 . p(1, ""), 1 . p(1, "") + 2 . p(2, ""), emptyPbag] ; t(1, "") |-> [1 . p(1, "") + 2 . p(2, ""), 1 . p(1, ""), emptyPbag] .
+  eq sysnet1 = t(1, "sys") |-> [1 . p(1, "sys"), 1 . p(1, "sys") + 2 . p(2, "sys"), emptyPbag] ; t(2, "sys") |-> [1 . p(1, "sys") + 2 . p(2, "sys"), 1 . p(1, "sys"), emptyPbag] .
+  eq sysnet2 = t(1, "sys") |-> [1 . p(1, "sys"), 1 . p(1, "sys") + 2 . p(2, "sys"), emptyPbag] ; t(2, "sys") |-> [1 . p(1, "sys") + 2 . p(2, "sys"), 1 . p(1, "sys"), emptyPbag] .
+  ops netype netype1 fakenetype : -> NeType .
   eq netype1 = p(1,"sys") |-> net1 ; p(2,"sys") |-> net1 .
-  eq fakenetype = p(1,"sys") |-> net1 ; p(1,"sys") |-> net1 ; p(4,"sys") |-> net1 .
- ops sysmark1 sysmark2 : -> Sysnetmark .
+  eq fakenetype = (p(1,"sys") |-> net1) ; (p(1,"sys") |-> net1) ; (p(4,"sys") |-> net1) .
+  ops sysmark sysmark1 sysmark2 : -> Map{Place,Bag{Pbag}} .
   eq sysmark1 =  p(1,"sys") |-> mmark1 ;  p(2,"sys") |-> mmark2 .
- ops eosnet1 fakeosnet : -> Sysnet .
+  ops eosnet eosnet1 fakeosnet : -> Sysnet .
   eq eosnet1 = sysnet1 netype1 .
   eq fakeosnet = fakenet netype1 .
   *** eq fakeosnet = sysnet1 fakenetype .
-  op eos1 : -> Eosystem .
+  ops eos eos1 : -> Eosystem .
   eq eos1 = eosnet1 sysmark1 .
+  
+  *** example used in EOS slides (the EOS net consists of a single transition)
+  eq sysnet =  t(1, "sys") |-> [1 . p(1, "sys") + 1 . p(2, "sys")+ 1 . p(3, "sys"), 1 . p(4, "sys") + 1 . p(5, "sys")+ 1 . p(6, "sys"), emptyPbag]  .
+  eq type1 = t(1, "") |-> [1 . p(1, "a1"), 1 . p(2, "b1"), emptyPbag] .
+  eq type2 = t(2, "") |-> [1 . p(1, "a2") + 1 . p(2, "b2"), 1 . p(3, "c2"), emptyPbag] .
+  eq netype = p(1,"sys") |-> type1 ; p(2,"sys") |-> type1 ; p(3,"sys") |-> type2 ;
+              p(4,"sys") |-> type1 ; p(5,"sys") |-> type2 ; p(6,"sys") |-> type2 .
+  eq eosnet = sysnet netype .
+  eq sysmark =  p(1,"sys") |-> 1 . emptyPbag + 1 . (1 . p(1, "a1") + 1 . p(2, "b1"));  
+                p(2,"sys") |-> 1 . 1 . p(1, "a1") ;
+                p(3,"sys") |-> 1 . (1 . p(1, "a2") + 1 . p(2, "b2")) .
+  eq eos = eosnet sysmark .
+  
+  
 endfm

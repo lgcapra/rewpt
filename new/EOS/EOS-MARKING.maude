@@ -1,0 +1,17 @@
+in ../../shared/BAG
+in ../PT-SYS+
+in ../Pbag
+in MAP-PROD
+
+ *** a multi-marking is defined as a bag of bags on net places
+fmod EOS-MARKING is
+ pr MAP-PROD{Place,Bag{Pbag}} * (op emptyS to emptySBPbag, op nil to emptyBPbag,
+                                 op emptyM to emptyEosMark, op emptyMapS to emptyMSBPbag, op emptySetM to emptySMBPbag
+                                ***, sort Map{Place,Bag{Pbag}} to Sysnetmark, sort Entry{Place,Bag{Pbag}} to SysnetmarkP,
+                               ) .
+  *** examples of maps -- calculate prod(map{1,2})
+ ops map1 map2 : -> Map{Place,Set{Bag{Pbag}}} .
+ eq map1 =  p(1,"") >> 1 . (1 . p(1,"") + 2 . p(0, "")) U 2 . 1 . p(1,"")  ; p(2,"") >> 3 . 1 . p(1,"") U 2 . (1 . p(1,"") + 1 . p(2, "")).
+endfm
+
+

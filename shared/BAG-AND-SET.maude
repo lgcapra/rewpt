@@ -1,0 +1,26 @@
+*** this module relates bags and sets
+
+fmod BAG-AND-SET{X :: TRIV} is
+ protecting SET+{X} .
+ protecting BAG{X} .
+ 
+ var N : NzNat .
+ var K : Nat .
+ var X : X$Elt .
+ var B : Bag{X} .
+ var S : Set{X} .
+
+ op support : Bag{X} -> Set{X} .
+ op support : NeBag{X} -> NeSet{X} .
+ eq support(B) = $support(B, emptyS) .  
+ op $support : Bag{X} Set{X} -> Set{X} . 
+ eq $support(nil, S) = S . 
+ eq $support(N . X + B, S) = $support(B, S U X) .
+ 
+ op asbag : Set{X} -> Bag{X} . *** to define
+endfm
+
+*** parameterized trivial view to BAG{X}
+view BagSet{X :: TRIV} from TRIV to BAG-AND-SET{X} is 
+ sort Elt to Bag{X} . 
+endv

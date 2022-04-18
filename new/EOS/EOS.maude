@@ -1,11 +1,6 @@
-in ../PT-SYS+
+in EOS-MARKING
+in BAG-SPLIT
 
-*** a multi-marking is defined as a bag of bags on net places
-fmod MULTI-MARKING is
- pr BAG{BagP} * ( sort Bag{BagP} to Multimark, sort NeBag{BagP} to NeMultimark, sort Set{BagP} to SetBagP, sort NeSet{BagP} to NeSetBagP,
-                   op nil to nilMultiM, op emptyS to emptySetBagP) .
-  
-endfm
 
 *** trivial view of a PT-Net
 view Net from TRIV to PT-NET is 
@@ -27,15 +22,22 @@ endfm
 *** alternative map from strings (place-labels) to net-types
 fmod NET-TYPES is
    pr MAP+{String,Net} * (sort Map{String,Net} to NeTypeS, sort Entry{String,Net} to EntrySN, op emptyM to emptyNeTypeS) .
+   var L : String .
+   var N : Net .
+   var T : NeTypeS .
+   op welldef : NeTypeS -> Bool . *** characterizes well defined net-types
+ ceq welldef(T) = false if repeatedKeys?(T)  .
+ ceq welldef(L |-> N ; T) = false if not(welldef(N)) .
+  eq welldef(T) = true [owise] .
 endfm
 
 *** a multi-marked PT net
-fmod MULTI-SYS is
-   pr PT-NET .
-   pr MULTI-MARKING .
-   sort Multisys .
-   op __ : Net Multimark -> Multisys [ctor] . *** juxtaposition of a net and a multi-marking
-endfm
+*** fmod MULTI-SYS is
+***    pr PT-NET .
+***    pr MULTI-MARKING .
+***    sort Multisys .
+***    op __ : Net Bag{Pbag} -> Multisys [ctor] . *** juxtaposition of a net and a multi-marking
+*** endfm
 
 *** structure of a system-net
 fmod EOS-NET is
@@ -54,27 +56,52 @@ fmod EOS-NET is
 cmb N T : Sysnet if welldef(N) and-then welldef(T) . *** charcterization of well-formed EOS nets
  endfm
 
-
-*** trivial view of a multi-marking
-view Multimark from TRIV to MULTI-MARKING is 
- sort Elt to Multimark .
-endv
-
-*** marking of a system-net
-fmod EOS-MARKING is
-  pr MAP+{Place,Multimark} * (sort Map{Place,Multimark} to Sysnetmark, sort Entry{Place,Multimark} to SysnetmarkP, op emptyM to emptySysnetM) .
-endfm
+*** alternative definition where the token-types are a map string-net
+fmod EOS-NET2 is
+  pr PT-NET .
+  pr NET-TYPES .
+  sort Sysnet .
+  op __ : Net NeTypeS -> [Sysnet] [ctor] . *** juxtaposition of a net and net-types -- note the use of a kind
+  op net : Sysnet -> Net .
+  op netypes : Sysnet -> NeTypeS .
+  vars N N'  : Net .
+  vars S S' : Sysnet .
+  vars T T' : NeTypeS .
+  var P : Place .
+  eq net(N T) = N .
+  eq netypes(N T) = T .
+cmb N T : Sysnet if welldef(N) and-then welldef(T) . *** charcterization of well-formed EOS nets
+ endfm
 
 *** marked system-net, i.e., EOS
-fmod EOSYS is
-  pr EOS-NET .
-  pr EOS-MARKING .
-  sort Eosystem .
-  op __ : Sysnet Sysnetmark -> Eosystem [ctor] . *** juxtaposition of a net and net-types
-  op sysnet  : Eosystem -> Sysnet .
-  op sysmark : Eosystem -> Sysnetmark .
-  var S : Sysnet .
-  var M : Sysnetmark .
-  eq sysnet(S M)  = S .
-  eq sysmark(S M) = M .
+ fmod EOSYS is
+   pr EOS-NET + EOS-MARKING  .
+   pr BAG-SPLIT{Pbag} * (op nil to emptyBPbag, op emptySetB to emptySBPbag) .  
+ 
+   sort Eosystem .
+   
+   *** op __ : Sysnet Sysnetmark -> Eosystem [ctor] . 
+   op __ : Sysnet Map{Place,Bag{Pbag}} -> Eosystem [ctor] . 
+   op sysnet  : Eosystem -> Sysnet .
+   *** op sysmark : Eosystem -> Sysnetmark .
+   op sysmark : Eosystem -> Map{Place,Bag{Pbag}} .
+   var S : Sysnet .
+   var M : Map{Place,Bag{Pbag}} .
+   var MS :  Map{Place,Set{Bag{Pbag}}} .
+   var SM :  Set{Map{Place,Bag{Pbag}}} .
+   vars B B' : Pbag .
+   var BB : Bag{Pbag} .
+   var P : Place .
+   vars K K' : NzNat .
+   eq sysnet(S M)  = S .
+   eq sysmark(S M) = M .
+
+   op firinginstances : Pbag Map{Place,Bag{Pbag}}  -> [Set{Map{Place,Bag{Pbag}}}] . *** calculates the set of EOS firing instance given an I(O) function
+   eq firinginstances(B, M) = prod(localinstances(B, M)) .
+   op localinstances  : Pbag Map{Place,Bag{Pbag}}  -> Map{Place,Set{Bag{Pbag}}} .
+   eq localinstances(B, M) = $localinstances(B, M, emptyMSBPbag) .
+   op $localinstances : Pbag Map{Place,Bag{Pbag}}  Map{Place,Set{Bag{Pbag}}} -> Map{Place,Set{Bag{Pbag}}} .
+   eq $localinstances(emptyPbag, M, MS) = MS .
+   eq $localinstances(K . P + B, (P |-> BB ; M), MS) = $localinstances(B, M, (MS ; P >> split(BB, K))) .  *** core equation: place P of I(O) inc. matrix is marked
+   eq $localinstances(K . P + B, M, MS) = emptyMSBPbag [owise].  *** place P of I(O) inc. matrix is NOT marked
 endfm
