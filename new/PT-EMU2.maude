@@ -1,0 +1,23 @@
+in CAN-PT-SYS2
+
+fth PTSYSTH  is 
+ pr BAGP .
+ pr PT-NET .
+ op m0  : -> Bag{Place} .
+ op net : -> Net .
+endfth 
+
+mod PT-EMU{X :: PTSYSTH} is
+ *** pr PT-SYS .
+ pr CAN-PT-SYS .
+ var T : Tran .
+ var I O H S : Bag{Place} .
+ var N N' : Net .
+ crl [firing] : N S => N S + O - I if T |-> [I,O,H] ; N' := N /\ I <= S /\ H >' S .
+ *** alternative 
+ **** crl [firing] : (T |-> [I,O,H] ; N) S => (T |-> [I,O,H] ; N) S + O - I if I <= S /\ H >' S  .
+ *** canonization version
+ var C : Bool .
+ *** crl [cfiring] : N S C => N S + O - I C if T |-> [I,O,H] ; N' := N /\ I <= S /\ H >' S . *** can. firing (preserves canonization status)
+ crl [cfiring] : N S C => N S + O - I false if T |-> [I,O,H] ; N' := N /\ I <= S /\ H >' S . *** can. firing (doesn't preserve canonization status)
+endm

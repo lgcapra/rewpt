@@ -8,3 +8,8 @@ endfm
 view Tran from TRIV to TRAN is 
  sort Elt to Tran . 
 endv
+
+*** total-order view to TRAN
+view TRAN< from STRICT-TOTAL-ORDER to TRAN is 
+ sort Elt to Tran . 
+endv

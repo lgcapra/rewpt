@@ -1,4 +1,4 @@
-in PT-FMS
+in PT-FMS2
 
 view Fms from PTSYSTH to PT-FMS is 
   

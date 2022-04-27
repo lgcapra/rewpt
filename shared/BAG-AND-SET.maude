@@ -1,3 +1,6 @@
+in BAG
+in SET+
+
 *** this module relates bags and sets
 
 fmod BAG-AND-SET{X :: TRIV} is

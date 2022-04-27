@@ -1,3 +1,0 @@
-view Pbag from TRIV to BAGP is 
- sort Elt to Pbag .
-endv

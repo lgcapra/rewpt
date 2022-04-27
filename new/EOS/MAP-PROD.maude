@@ -11,6 +11,7 @@ fmod SET-OF-MAP{X :: TRIV,Y :: TRIV} is
                         op emptyS to emptySetM) .   
  endfm
 
+*** this module defines a kind of Cartesian product among maps to sets
 fmod MAP-PROD{X :: TRIV,Y :: TRIV} is
     pr SET-OF-MAP{X,Y} .
     pr MAP-OF-SET{X,Y} * (op _|->_ to _>>_ ) .

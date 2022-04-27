@@ -1,5 +1,0 @@
-in IMATRIX+.maude
-
-view Imatrix from TRIV to IMATRIX is 
- sort Elt to Imatrix . 
-endv

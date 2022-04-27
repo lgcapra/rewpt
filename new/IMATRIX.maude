@@ -1,4 +1,4 @@
-in BAGP+
+in BAGP
 in TRAN
 in ATYPE
 
@@ -71,3 +71,14 @@ ceq $evalwH(IL, IL', OL, OL', HL, HL') = true if $less(HL cmp1 HL', $evalwI(IL, 
  eq [X,Y,Z] eqw [X',Y',Z'] = X eqw X' and-then Y eqw Y' and-then Z eqw Z' . 
 
 endfm
+
+*** default view to IMATRIX
+view Imatrix from TRIV to IMATRIX is 
+ sort Elt to Imatrix . 
+endv
+
+*** total-order view to IMATRIX
+view IMATRIX< from STRICT-TOTAL-ORDER to IMATRIX is 
+ sort Elt to Imatrix . 
+ op _<_ to _wi<_ .
+endv

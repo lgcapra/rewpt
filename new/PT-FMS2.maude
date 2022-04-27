@@ -1,11 +1,11 @@
-in CAN-PT-SYS
-*** in PT-SYS
+in CAN-PT-SYS2
+*** in PT-SYS2
 
 fmod PT-FMS is
  protecting CAN-PT-SYS .
  *** protecting PT-SYS .
  ops net symnet net1 net1' net2 net2' net3 net4 net5 net6 net7 net7' : -> Net .
- ops m0 m0' : -> Pbag . 
+ ops m0 m0' : -> Bag{Place} . 
  ops dead1 dead2 sy1 sy1' : -> System .
  op  M   : -> Nat . *** MS model's parameter
  eq M = 1 . 

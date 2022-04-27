@@ -1,5 +1,11 @@
-in PTSYSTH+
 in CAN-PT-SYS
+
+fth PTSYSTH  is 
+ pr BAGP .
+ pr PT-NET .
+ op m0  : -> Pbag .
+ op net : -> Net .
+endfth 
 
 mod PT-EMU{X :: PTSYSTH} is
  *** pr PT-SYS .

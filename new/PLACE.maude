@@ -8,3 +8,8 @@ endfm
 view Place from TRIV to PLACE is 
  sort Elt to Place . 
 endv
+
+*** total-order view to PLACE
+view PLACE< from STRICT-TOTAL-ORDER to PLACE is 
+ sort Elt to Place . 
+endv

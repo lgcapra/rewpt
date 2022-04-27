@@ -1,20 +1,18 @@
-in Vimatrix+.maude
-in ../shared/Vtran
-in PT-NET
+in PT-NET2
 
 fmod PT-SYS is
  pr PT-NET .
  sort System .
- op __ : Net Pbag -> [System] [ctor] .
+ op __ : Net Bag{Place} -> [System] [ctor] .
  vars N N' : Net .
  vars T T' : Tran .
  vars P P' : Place .
- vars I O H S S' : Pbag .
+ vars I O H S S' : Bag{Place} .
  vars Q Q' : Imatrix .
  vars K K' : NzNat .
  
  op net : System -> Net . 
- op marking : System -> Pbag .
+ op marking : System -> Bag{Place} .
  eq net(N S) = N .
  eq marking(N S) = S .
  
@@ -30,10 +28,10 @@ ceq dead((T |-> Q ; N) S) = false if enabled((T |-> Q ; N) S, T) .
  op in :  System Place -> Bool . *** tests the existence of a place
  eq in(N S, P) =  S[P] =/= 0 or-else in(N, P).
 
- op places : System -> NePset .
+ op places : System -> NeSet{Place} .
  eq places(N S) = places(N) U support(S) .
 
- op placeList : System -> Plist .
+ op placeList : System -> List{Place} .
  eq placeList(N S) = $makePlist(places(N S), emptyPlist) .
 
  op swap : System Place Place -> System .

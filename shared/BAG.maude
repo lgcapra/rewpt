@@ -26,11 +26,26 @@ fmod BAG{X :: TRIV} is
  eq N . X + B - M . X + B' = if N > M then N - M . X + (B - B') else B - B' fi  .
  eq B - M . X + B' = B - B' [owise] .
 
- op _*_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection
- eq B * B = B .
- eq B * nil = nil .
- eq N . X + B * M . X + B' = min(N,M) . X + (B * B') .
- eq N . X + B * B' = B * B' [owise] .
+ op _∩_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection
+ eq B ∩ B = B .
+ eq B ∩ nil = nil .
+ eq N . X + B ∩ M . X + B' = min(N,M) . X + (B ∩ B') .
+ eq N . X + B ∩ B' = B ∩ B' [owise] .
+ op _I_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection (aliasing)
+ eq B I B' = B ∩ B' .
+ 
+
+*** scalar product
+ op _*_ : Nat Bag{X} -> Bag{X}  [prec 37] . *** higher priority than the sum (in any case parenthese needed to disambiguate)
+ eq 0 * B = nil .
+ eq M * nil = nil .
+ eq M * (N . X + B) = (M * N) . X + M * B .
+ 
+ *** scalar division (by a nonzero nat) 
+ op _/_ : Bag{X} NzNat -> Bag{X} [prec 37]. *** higher priority than the sum (for symmetry with *)
+ eq nil / M = nil .  
+ceq (N . X + B) / M = B / M if N quo M == 0 .
+ eq (N . X + B) / M = N quo M . X + B / M [owise] .
 
  op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
  ceq N . X + B <= B' = false if N > B'[X] .

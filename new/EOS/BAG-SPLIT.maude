@@ -2,30 +2,82 @@
 *** set of bags are defined too
 in ../../shared/BAG
 
+fmod SET-OF-BAG{X :: TRIV} is
+   pr SET+{Bag{X}} * (op emptyS : -> Set{Bag{X}} to emptySetBag) .  
+endfm
+
+*** this module contains operators to split a bag in sub-bags
 fmod BAG-SPLIT{X :: TRIV} is
- protecting SET+{Bag{X}} * (op emptyS : -> Set{Bag{X}} to emptySetB) .
+ *** might be it convenient to define as a separated module BAG-OF-BAG?
+ pr SET-OF-BAG{X} .
+  
  vars N K : NzNat .
  var I : Nat .
  vars X Y : X$Elt .
  vars B B' : Bag{X} .
  var NeB   : NeBag{X} .
  vars S S' : Set{Bag{X}} .
- 
- op split : Bag{X} Nat -> Set{Bag{X}} . *** splits a bag into sub-bags of a given cardinality 
- op $forsplit  : Nat X$Elt Bag{X} NzNat -> Set{Bag{X}} .
 
+ *** base op: splits a bag into sub-bags of given cardinality, e.g., split(2 . a + 1 . b, 2) == 2 . a U 1 . a + 1 . b 
+ op split : Bag{X} Nat -> Set{Bag{X}} .  
+ op $forsplit  : Nat X$Elt Bag{X} NzNat -> Set{Bag{X}} .
  eq split(B, 0) = nil . *** base case 1)
 ceq split(NeB, K) = NeB if || NeB || == K . *** base case 2) 
-ceq split(B, K) = emptySetB if  || B || < K .  *** base case 3)
+ceq split(B, K) = emptySetBag if  || B || < K .  *** base case 3)
  eq split(N . X + B, K) = $forsplit(min(N,K), X, B, K) [owise] . *** || B || > K
  eq $forsplit(0, X, B, K) = split(B, K) .
  eq $forsplit(N, X, B, K) = addall(N . X, split(B, K - N)) U $forsplit(N - 1, X, B, K) .
 
-
  op addall  : Bag{X} Set{Bag{X}}  -> Set{Bag{X}} . *** sum the specified bag to every bag in the set
- eq addall(B, S) = $addall(B, S, emptySetB) .
+ eq addall(B, S) = $addall(B, S, emptySetBag) .
  op $addall : Bag{X} Set{Bag{X}} Set{Bag{X}} -> Set{Bag{X}} .
- eq $addall(B, emptySetB, S) = S .
+ eq $addall(B, emptySetBag, S) = S .
  eq $addall(B, B' U S', S) = $addall(B, S', B + B' U S) .
-  
+
+ *** splits a bag into sub-bags of cardinality less than or equal to the given one, e.g., splitsub(2 . a + 1 . b, 2) == 2 . a U 1 . a + 1 . b U 1 . a U 1 . b U nil 
+ op splitsub : Bag{X} Nat -> Set{Bag{X}} .
+ eq splitsub(B, I) = $splitsub(B, I, emptySetBag) . 
+ op $splitsub : Bag{X} Nat Set{Bag{X}} -> Set{Bag{X}} . *** we use an accumulator also in this situation
+ eq $splitsub(B, 0, S) = S U nil .
+ eq $splitsub(B, K, S) = $splitsub(B, K - 1, S U split(B, K) )  .
+ 
+ *** splits a bag into all its sub-bags 
+ op splitsub : Bag{X} -> Set{Bag{X}} .
+ eq splitsub(B) = splitsub(B, || B ||) . 
+endfm
+
+*** this module contains operators to decompose a (nested) bag in corresponding sums (represented in turn by nested bags).
+fmod BAG-DECOMP{X :: TRIV} is
+ pr SET-OF-BAG{Bag{X}} * (op emptySetBag to emptySetBag2, op nil : -> Bag{Bag{X}} to emptyBag2) . *** to distinguis from level 0's nil
+ 
+ vars N K : NzNat .
+ var I : Nat .
+ vars X Y : X$Elt .
+ vars B B' : Bag{X} .
+ var NeB   : NeBag{X} .
+ 
+ *** translates a nested bag into the equivalent (meant as a sum) flat bag
+ *** builds on bag scalar product 
+ op flat : Bag{Bag{X}} -> Bag{X} . 
+
+ *** decomposes a bag into the set of all nested bags each denoting a "sum" that concides with the given bag
+ *** (builds on expand)
+ op decomp : Bag{X} Nat -> Set{Bag{Bag{X}}} . 
+
+ *** decomposes a bag into the set of all nested bags each which denote a "sum" 
+ *** that concides with (or is less than) the given bag (builds on decomp)
+ op decompsub : Bag{X} Nat -> Set{Bag{Bag{X}}} .
+
+ *** expands a nested bag into the set of all "equivalent" nested bags such that cardinality of the top
+ *** bag is the cardinality of the argument plus one
+ op expand : Bag{Bag{X}} -> Set{Bag{Bag{X}}} .
+endfm
+
+
+fmod DECOMP-BAG-PLACE is
+ pr BAG-DECOMP{Place} .
+endfm
+
+fmod SPLIT-BAG-PLACE is
+ pr BAG-SPLIT{Place} .
 endfm

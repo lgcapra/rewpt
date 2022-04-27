@@ -1,6 +1,6 @@
 in ../shared/BAG-AND-SET
 in ../shared/COMP-PAIR-LIST
-in PLACE<
+in PLACE
 
 fmod BAGP is
  *** pr BAG{Place} * ( op nil to emptyPbag) .
@@ -68,3 +68,15 @@ fmod BAGP is
  op _lt'_ : Pbag Pbag -> Bool . *** maps on the usual, pair-wise, order relation of lists of comparable pairs
  eq B lt' B' = toListS(B) lex toListS(B') . 
 endfm
+
+
+*** deafult view to BAGP
+view Pbag from TRIV to BAGP is 
+ sort Elt to Pbag .
+endv
+
+*** total-order view to BAGP
+view BAGP< from STRICT-TOTAL-ORDER to BAGP is 
+ sort Elt to Pbag .
+ op _<_ to _lt_ . 
+endv

@@ -1,4 +1,0 @@
-view BAGP< from STRICT-TOTAL-ORDER to BAGP is 
- sort Elt to Pbag .
- op _<_ to _lt_ . 
-endv

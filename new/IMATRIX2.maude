@@ -1,0 +1,84 @@
+in BAGP2
+in TRAN
+in ATYPE
+
+fmod IMATRIX is
+ pr BAGP .
+ pr ATYPE .
+ sort Imatrix .
+ op [_,_,_] : Bag{Place} Bag{Place} Bag{Place} -> Imatrix [ctor] .
+ vars X Y Z X' Y' Z' : Bag{Place} .
+ vars P P' : Place .
+ vars N N' : Nat .
+ vars IL IL' OL OL' HL HL' : List{Nat,Place} .
+ vars Q Q' : Imatrix .
+ 
+ op remove : Imatrix Place -> Imatrix .
+ eq remove([X,Y,Z], P) = [set(X,P,0),set(Y,P,0),set(Z,P,0)] .
+ 
+ *** still needed?
+ op _<_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt relation between bags (currently based in turn on lex12)
+ eq [X,Y,Z] < [X',Y',Z'] = X lt X' or-else X == X' and-then (Y lt Y' or-else Y == Y' and-then Z lt Z') .
+
+ op _<'_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt' relation between bags (currently based in turn on lex)
+ eq [X,Y,Z] <' [X',Y',Z'] = X lt' X' or-else X == X' and-then (Y lt' Y' or-else Y == Y' and-then Z lt' Z') .
+
+ *** new : (efficiently) compares two matrices first considering multiplicities (weights) then (place) indices of bags i, o, h, in the order 
+ *** forse si può semplificare
+ op _wi<_ : Imatrix Imatrix -> Bool . 
+ceq [X,Y,Z] wi< [X',Y',Z'] = true if  IL := toListS(X) /\ IL' := toListS(X') /\ $less(IL cmp1 IL', $evalwO(IL, IL', toListS(Y), toListS(Y'), toListS(Z), toListS(Z') ) ) .
+ eq Q wi< Q' = false [owise] .
+ op $evalwO : List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} -> Bool [ strat (3 4 0) ].
+ceq $evalwO(IL, IL', OL, OL', HL, HL') = true if $less(OL cmp1 OL', $evalwH(IL, IL', OL, OL', HL, HL' ) ) .
+ eq $evalwO(IL, IL', OL, OL', HL, HL') = false [owise] .
+ op $evalwH : List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} -> Bool .
+ceq $evalwH(IL, IL', OL, OL', HL, HL') = true if $less(HL cmp1 HL', $evalwI(IL, IL', OL, OL', HL, HL' ) ) .
+ op $evalwI : List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} -> Bool .
+ eq $evalwI(IL, IL', OL, OL', HL, HL') = $less(IL cmp2 IL', $less(OL cmp2 OL', HL cmp2 HL' == 1)) .
+ op $less : Nat Bool -> Bool [ strat (1 0) ] . *** checks if the value is 1 -- otherwise, if the value is 0 evaluates the condition (else returns false)
+ eq $less(N, B:Bool) = N == 1 or-else N == 0 and-then B:Bool . 
+
+ ops I O H : Imatrix -> Bag{Place} .
+ eq I([X,Y,Z]) = X .
+ eq O([X,Y,Z]) = Y .
+ eq H([X,Y,Z]) = Z .
+
+ op _(_) : Imatrix Atype -> Bag{Place} [prec 23] . *** introduced for convenience
+ var a : Atype .
+ eq Q(i) = I(Q) .
+ eq Q(o) = O(Q) . 
+ eq Q(h) = H(Q) .
+
+ op in :  Imatrix Place -> Bool . *** test the existence of a place
+ var K : NzNat .
+ eq in([X + K . P, Y, Z], P) = true .
+ eq in([X, Y + K . P, Z], P) = true .
+ eq in([X, Y, Z + K . P], P) = true .
+ eq in(Q, P) = false [owise] .
+
+ op places : Imatrix -> Set{Place} .
+ eq places([X,Y,Z]) = support(X) U support(Y) U support(Z) .
+
+ *** canonization ops
+ op swap : Imatrix Place Place -> Imatrix .
+ eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
+
+ op replace : Imatrix Place Place -> Imatrix .
+ eq replace([X,Y,Z], P, P') = [replace(X,P,P'),replace(Y,P,P'),replace(Z,P,P')] .
+
+ *** checks whether corresponding components of two incidence matrices have the same multiplicities (builds on the analogous for bags)
+ op _eqw_ : Imatrix Imatrix -> Bool [ comm ] .
+ eq [X,Y,Z] eqw [X',Y',Z'] = X eqw X' and-then Y eqw Y' and-then Z eqw Z' . 
+
+endfm
+
+*** default view to IMATRIX
+view Imatrix from TRIV to IMATRIX is 
+ sort Elt to Imatrix . 
+endv
+
+*** total-order view to IMATRIX
+view IMATRIX< from STRICT-TOTAL-ORDER to IMATRIX is 
+ sort Elt to Imatrix . 
+ op _<_ to _wi<_ .
+endv

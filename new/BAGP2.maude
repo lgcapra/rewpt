@@ -1,0 +1,79 @@
+in ../shared/BAG-AND-SET
+in ../shared/COMP-PAIR-LIST
+in PLACE<
+
+fmod BAGP is
+ pr BAG-AND-SET{Place} * ( op nil to emptyPbag, op emptyS to emptyPset) .
+ pr COMP-PAIR-LIST{Nat<, PLACE<} * (sort Pair{Nat<,PLACE<} to Pair{Nat,Place},sort List{Nat<,PLACE<} to List{Nat,Place},
+                                    sort NeList{Nat<,PLACE<} to NeList{Nat,Place}, op emptyListXY to emptyListNP) .
+ 
+ vars P P' $P : Place . 
+ vars K K' : NzNat .
+ vars N N' : Nat .
+ vars B B' : Bag{Place} .
+ var W : String .
+ var S : Set{Place} .
+ var LNP : List{Nat,Place} . 
+ 
+ *** operators helpful for canonization
+ op swap : Bag{Place} Place Place -> Bag{Place} .  *** swaps two places
+ op replace : Bag{Place} Place Place -> Bag{Place} . *** replaces the first place with the second one
+ eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
+ eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
+ eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
+ *** eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P')  . *** slightly less efficient
+ *** eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P')  .
+ eq swap(B, P, P')  = B [owise] .
+ 
+ eq replace(K . P + B, P, P') = K . P' + B .
+ eq replace(B, P, P') = B [owise] .
+ 
+ *** helpful?
+ *** op labMap  : Bag{Place} String -> Pset . *** returns the set of places with a certain label
+ *** eq labMap(B, W) = $labMap(B, W, emptyPset) .
+ *** op $labMap : Bag{Place} String Pset ->  Pset .
+ *** eq $labMap(emptyPbag, W, S) = S . 
+ *** eq $labMap(K . p(N,W) + B, W, S) = $labMap(B, W, S U p(N,W)) .
+ *** eq $labMap(K . P + B, W, S) = $labMap(B, W, S)  [owise] .
+
+ *** extracts the sub-bag with a certain label out of a bag
+ op extract : Bag{Place} String -> Bag{Place} .
+ eq extract(B, W) = $extract(B, W, emptyPbag) .
+ op $extract : Bag{Place} String Bag{Place} -> Bag{Place} .
+ eq $extract(emptyPbag, W, B) = B .
+ eq $extract(K . p(N,W) + B, W, B') = $extract(B, W, K . p(N,W) +  B') . 
+ eq $extract(K . P + B, W, B') = $extract(B, W, B') [owise] .
+ 
+ *** in alternative, we might define toList in BAG, then reuse extract
+ op toList : Bag{Place} String -> List{Nat,Place} . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with a certain label
+ eq toList(B, W) = $toList(B, W, emptyListNP) .
+ op $toList : Bag{Place} String List{Nat,Place} -> List{Nat,Place} .
+ eq $toList(emptyPbag, W, LNP) = LNP .
+ eq $toList(K . p(N,W) + B, W, LNP) = $toList(B, W, < K ; p(N,W) > LNP) . 
+ eq $toList(K . P + B, W, LNP) = $toList(B, W, LNP) [owise] .
+ op toListS : Bag{Place} String -> List{Nat,Place} . *** builds an ordered list of pairs < weight ; el > out of a bag
+ eq toListS(B, W) = sort(toList(B, W)) .
+
+ op toList : Bag{Place} -> List{Nat,Place} . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with empty label
+ eq toList(B) = toList(B, "") .
+ op toListS : Bag{Place} -> List{Nat,Place} . *** builds an ordered list of pairs < weight ; el > out of a bag  -- considers places with empty label
+ eq toListS(B) = sort(toList(B)) .
+
+ *** are still needed?
+ op _lt_ : Bag{Place} Bag{Place} -> Bool . *** maps on the order relation of lists of comparable pairs (weight sequence considered first)
+ eq B lt B' = toListS(B) lex12 toListS(B') . 
+
+ op _lt'_ : Bag{Place} Bag{Place} -> Bool . *** maps on the usual, pair-wise, order relation of lists of comparable pairs
+ eq B lt' B' = toListS(B) lex toListS(B') . 
+endfm
+
+*** deafult view to BAGP
+view Pbag from TRIV to BAGP is 
+ sort Elt to Bag{Place} .
+endv
+
+*** total-order view to BAGP
+view BAGP< from STRICT-TOTAL-ORDER to BAGP is 
+ sort Elt to Bag{Place} .
+ op _<_ to _lt_ . 
+endv

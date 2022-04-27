@@ -1,0 +1,49 @@
+in PT-NET
+
+fmod PT-SYS is
+ pr PT-NET .
+ sort System .
+ op __ : Net Pbag -> [System] [ctor] .
+ vars N N' : Net .
+ vars T T' : Tran .
+ vars P P' : Place .
+ vars I O H S S' : Pbag .
+ vars Q Q' : Imatrix .
+ vars K K' : NzNat .
+ 
+ op net : System -> Net . 
+ op marking : System -> Pbag .
+ eq net(N S) = N .
+ eq marking(N S) = S .
+ 
+ op enabled : System Tran -> [Bool] .
+ eq enabled((T |-> [I,O,H] ; N) S, T) = I <= S and-then H >' S .
+
+cmb N S : System if welldef(N) . *** /\ support(S) subset places(N) . *** the net of a PT system cannot be empty
+ 
+ op dead : System -> Bool . *** checks for a deadlock state
+ceq dead((T |-> Q ; N) S) = false if enabled((T |-> Q ; N) S, T) .
+ eq dead(N S) = true [owise] .
+
+ op in :  System Place -> Bool . *** tests the existence of a place
+ eq in(N S, P) =  S[P] =/= 0 or-else in(N, P).
+
+ op places : System -> NePset .
+ eq places(N S) = places(N) U support(S) .
+
+ op placeList : System -> Plist .
+ eq placeList(N S) = $makePlist(places(N S), emptyPlist) .
+
+ op swap : System Place Place -> System .
+ eq swap(N S, P, P') = swap(N, P, P') swap(S, P, P') . 
+
+ op replace : System Place Place -> System .
+ eq replace(N S, P, P') = replace(N, P, P') replace(S, P, P') . 
+endfm
+
+fth PTSYSTH  is 
+ pr BAGP .
+ pr PT-NET .
+ op m0  : -> Pbag .
+ op net : -> Net .
+endfth 
