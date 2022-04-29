@@ -1,6 +1,6 @@
 in ../shared/BAG-AND-SET
 in ../shared/COMP-PAIR-LIST
-in PLACE<
+in PLACE
 
 fmod BAGP is
  pr BAG-AND-SET{Place} * ( op nil to emptyPbag, op emptyS to emptyPset) .

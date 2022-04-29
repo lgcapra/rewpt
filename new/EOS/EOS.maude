@@ -1,51 +1,78 @@
 in BAG-SPLIT
+in MAP-PROD
 
-
+*** this definition of EOS uses an alternative (simpler) definition of object-net types and introduces
+*** a synchronization map between EOS transitions and object-net transitions 
 *** trivial view of a PT-Net
 view Net from TRIV to PT-NET is 
  sort Elt to Net .
 endv
 
-*** map from places to net-types
-fmod NET-TYPE is
-  pr MAP+{Place,Net} * (sort Map{Place,Net} to NeType, sort Entry{Place,Net} to EntryPN, op emptyM to emptyNeType) .
-  var P : Place .
-  var N : Net .
-  var T : NeType .
-  op welldef : NeType -> Bool . *** characterizes well defined net-types
-ceq welldef(T) = false if repeatedKeys?(T)  .
-ceq welldef(P |-> N ; T) = false if not(welldef(N)) .
- eq welldef(T) = true [owise] . 
+*** net-types are defined as a map from strings (place-labels) to nets
+fmod NET-TYPES is
+   pr MAP+{String,Net} * (sort Map{String,Net} to NeTypeS, sort Entry{String,Net} to EntrySN, op emptyM to emptyNeTypeS) .
+   var L : String .
+   var N : Net .
+   var T : NeTypeS .
+   op welldef : NeTypeS -> Bool . *** characterizes well defined net-types
+ ceq welldef(T) = false if repeatedKeys?(T)  .
+ ceq welldef(L |-> N ; T) = false if not(welldef(N)) .
+  eq welldef(T) = true [owise] .
 endfm
+
+
+*** this module defines the synchronization between EOS transitions and (sets of) object-net transitions
+fmod SYNCHRO is
+  pr SET+{Tran} . 
+  pr MAP+{Tran,Map+{String,Bag{Tran}}} * (sort Map{Tran,Map+{String,Bag{Tran}}} to Syncmap, sort Entry{Tran,Map+{String,Bag{Tran}}} to EntrySync, 
+                                         op emptyM : -> Map{Tran,Map+{String,Bag{Tran}}} to emptySync,
+                                         op emptyM : -> Map{String,Bag{Tran}} to emptyMapSTbag, op nil to emptyTbag) .
+endfm
+
 
 *** structure of a system-net
 fmod EOS-NET is
-  pr PT-NET .
-  pr NET-TYPE .
-  sort Sysnet .
-  op __ : Net NeType -> [Sysnet] [ctor] . *** juxtaposition of a net and net-types -- note the use of a kind
-  op net : Sysnet -> Net .
-  op netypes : Sysnet -> NeType .
-  vars N N'  : Net .
-  vars S S' : Sysnet .
-  vars T T' : NeType .
-  var P : Place .
-  eq net(N T) = N .
-  eq netypes(N T) = T .
-cmb N T : Sysnet if welldef(N) and-then welldef(T) . *** charcterization of well-formed EOS nets
- endfm
+   pr PT-NET .
+   pr NET-TYPES .
+   pr SYNCHRO .
+   sort Sysnet .
+   op ___ : Net NeTypeS Syncmap -> [Sysnet] [ctor] . *** juxtaposition of a net and net-types -- note the use of a kind
+   op net : Sysnet -> Net .
+   op netypes : Sysnet -> NeTypeS .
+   op synchro : Sysnet -> Syncmap .
+   vars N N'  : Net .
+   vars S S' : Sysnet .
+   vars T T' : NeTypeS .
+   vars M M' : Syncmap .
+   var P : Place .
+   eq net(N T M) = N .
+   eq netypes(N T M) = T .
+   eq synchro(N T M) = M .
+ cmb N T M : Sysnet if welldef(N) and-then welldef(T) and-then not(repeatedKeys?(M)) . *** charcterization of well-formed EOS nets
+  endfm
 
+*** this module defines the firing-map for an EOS, which associates to each EOS transition a
+*** set of possible (i.e., enabled) firing modes
+fmod FIRING-MAP is 
+  pr MAP+{Tran,Set+{Map+{Place,Bag{Bag{Place}}}}} * (
+    sort Set{Map+{Place,Bag{Bag{Place}}}} to Set{Map{Place,Bag{Bag{Place}}}}, sort NeSet{Map+{Place,Bag{Bag{Place}}}} to NeSet{Map{Place,Bag{Bag{Place}}}} ,
+    sort Map{Tran,Set+{Map+{Place,Bag{Bag{Place}}}}} to Map{Tran,Set{Map{Place,Bag{Bag{Place}}}}},
+    sort Entry{Tran,Set+{Map+{Place,Bag{Bag{Place}}}}} to Entry{Tran,Set{Map{Place,Bag{Bag{Place}}}}},
+    **** op emptyM : -> Map{Place,Bag{Bag{Place}}} to emptyEosMark,
+    op emptyM : -> Map{Tran,Set+{Map+{Place,Bag{Bag{Place}}}}} to emptyFiringMap,
+    op emptyS to emptySetMapPbag2 ) . 
+endfm
 
 *** marked system-net, i.e., EOS
  fmod EOSYS is
-   pr EOS-NET + (MAP-PROD{Place,Bag{Bag{Place}}} + BAG-SPLIT{Bag{Place}} + BAG-DECOMP{Place}) * 
-                               (op nil : -> Bag{Place} to emptyPbag, 
-                                op nil : -> Bag{Bag{Place}} to emptyPbag2, op emptySetBag to emptySetPbag2,
-                                op emptyS to emptySetPbag2, op emptyM to emptyEosMark, 
-                                op emptyMapS to emptyMapSetPbag2, op emptySetM to emptySetMapPbag2,
-                                op emptySetBag2 to emptySetPbag2, op emptyBag2 to emptyPbag2
+   pr EOS-NET + (MAP-PROD{Place,Bag{Bag{Place}}} + BAG-SPLIT{Bag{Place}} + BAG-DECOMP{Place} + FIRING-MAP) * 
+                    (op nil : -> Bag{Place} to emptyPbag, 
+                     op nil : -> Bag{Bag{Place}} to emptyPbag2, op emptySetBag to emptySetPbag2,
+                     op emptyS to emptySetPbag2, op emptyM to emptyEosMark, 
+                     op emptyMapS to emptyMapSetPbag2, op emptySetM to emptySetMapPbag2,
+                     op emptySetBag2 to emptySetPbag2, op emptyBag2 to emptyPbag2
                                 ***, sort Map{Place,Bag{Bag{Place}}} to Sysnetmark, sort Entry{Place,Bag{Bag{Place}}} to SysnetmarkP,
-                               ) .  
+                    ) .  
 
  
    sort Eosystem .
@@ -80,12 +107,46 @@ cmb N T : Sysnet if welldef(N) and-then welldef(T) . *** charcterization of well
    eq $localinstances(emptyPbag, M, MS) = MS .
    eq $localinstances(K . P + B, (P |-> BB ; M), MS) = $localinstances(B, M, (MS ; P >> split(BB, K))) .  *** core equation: place P of I(O) inc. matrix is marked
    eq $localinstances(K . P + B, M, MS) = emptyMapSetPbag2 [owise].  *** place P of I(O) inc. matrix is NOT marked
+   
    *** main version of firinginstances (builds on the overloaded operator above) 
    op firinginstances : Eosystem Tran -> [Set{Map{Place,Bag{Bag{Place}}}}] .
-   eq firinginstances(E, T) = firinginstances(I(net(sysnet(E))[T]), sysmark(E)) . 
+   eq firinginstances(E, T) = firinginstances(I(net(sysnet(E))[T]), sysmark(E)) .
+   
+   *** calculates the set of firing instances for each EOS transition
+   op firingmap :  Eosystem -> Map{Tran, Set{Map{Place,Bag{Bag{Place}}}}} .
 
+   *** auxiliary op: sum the (nested) bags involved in a firing instance referring to places of the same type to get the flat bag to distribute over the output places  
+   op flat : Map{Place,Bag{Bag{Place}}} String -> Bag{Place} .
+   *** should be defined in a generico module
+   op flat : Bag{Bag{Place}} -> Bag{Place} .
    *** distributes the pre-calculated sum of markings corresponding to an EOS firing instance (1st arg)
    *** to the output places (2nd arg); the places of two bags (i.e., the firing instance and the ouput places) are assumed of the same type
    *** builds on decompose(sub) defined in BAG-SPLIT 
    op distribute : Bag{Place} Bag{Place} ->  [Set{Map{Place,Bag{Bag{Place}}}}] . *** undefined if the 2nd arg is null
+   
+   *** operators performing the sum/difference between EOS markings (firing instances)
+   op _+_ : Map{Place,Bag{Bag{Place}}} Map{Place,Bag{Bag{Place}}} -> Map{Place,Bag{Bag{Place}}} [assoc comm id: emptyEosMark] .
+   op _-_ : Map{Place,Bag{Bag{Place}}} Map{Place,Bag{Bag{Place}}} -> Map{Place,Bag{Bag{Place}}} [gather (E e) right id: emptyEosMark] .
+   
+
+   *** calculates the possible firing effects of a given transition instance 
+   op firings : Eosystem Map{Place, Bag{Bag{Place}}} -> [Set{Map{Place, Bag{Bag{Place}}}}] . 
 endfm
+
+mod EOS-EMU is
+  pr EOSYS . 
+  sort State . *** EOS reachable state: juxtaposition of an EOS system and a firing map 
+  op __ : Eosystem Map{Tran, Set{Map{Place,Bag{Bag{Place}}}}} -> State [ctor].
+  *** var FM : Map{Tran, Set{Map{Place,Bag{Bag{Place}}}}} .
+  *** var FE : Entry{Tran, Set{Map{Place,Bag{Bag{Place}}}}} .
+  *** var T : Tran .
+  var NeFS : NeSet{Map{Place,Bag{Bag{Place}}}} .
+  var FS : Set{Map{Place,Bag{Bag{Place}}}} .
+  vars F F' : Map{Place,Bag{Bag{Place}}} .
+
+  sort Proof .
+  op __ : Map{Place,Bag{Bag{Place}}} Bool -> Proof [ctor].
+  
+  rl [select] : F U NeFS => F . *** non-deterministically selection of a firing instance from a set 
+  crl [select2] : F true => F false if F => F .
+endm
