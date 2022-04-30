@@ -129,24 +129,28 @@ endfm
    op _-_ : Map{Place,Bag{Bag{Place}}} Map{Place,Bag{Bag{Place}}} -> Map{Place,Bag{Bag{Place}}} [gather (E e) right id: emptyEosMark] .
    
 
-   *** calculates the possible firing effects of a given transition instance 
-   op firings : Eosystem Map{Place, Bag{Bag{Place}}} -> [Set{Map{Place, Bag{Bag{Place}}}}] . 
+   *** calculates the possible firing effects of a transition instance 
+   op firings : ImatrixT Map{Place, Bag{Bag{Place}}} -> [Set{Map{Place, Bag{Bag{Place}}}}] . 
 endfm
 
 mod EOS-EMU is
   pr EOSYS . 
   sort State . *** EOS reachable state: juxtaposition of an EOS system and a firing map 
   op __ : Eosystem Map{Tran, Set{Map{Place,Bag{Bag{Place}}}}} -> State [ctor].
-  *** var FM : Map{Tran, Set{Map{Place,Bag{Bag{Place}}}}} .
-  *** var FE : Entry{Tran, Set{Map{Place,Bag{Bag{Place}}}}} .
-  *** var T : Tran .
+  var FM : Map{Tran, Set{Map{Place,Bag{Bag{Place}}}}} . *** the whole firing map
+  var TI : Entry{Tran, Set{Map{Place,Bag{Bag{Place}}}}} . *** a transition firing instance (firing map's entry)
+  var T : Tran .
   var NeFS : NeSet{Map{Place,Bag{Bag{Place}}}} .
-  var FS : Set{Map{Place,Bag{Bag{Place}}}} .
-  vars F F' : Map{Place,Bag{Bag{Place}}} .
+  var FS : Set{Map{Place,Bag{Bag{Place}}}} . *** a firing set
+  vars I O : Map{Place,Bag{Bag{Place}}} . *** a firing instance
+  vars M F F' : Map{Place,Bag{Bag{Place}}} .
+  vars N N' : Net .
+  var Ty : NeTypeS .
+  var Sy : Syncmap .
+  var Q : Imatrix .
 
-  sort Proof .
-  op __ : Map{Place,Bag{Bag{Place}}} Bool -> Proof [ctor].
+  rl [select] : F U NeFS => F . *** non-deterministic extraction of a firing instance from a set 
   
-  rl [select] : F U NeFS => F . *** non-deterministically selection of a firing instance from a set 
-  crl [select2] : F true => F false if F => F .
+ crl [firinginst] : (T |-> Q ; N) Ty Sy M (T |-> I U FS ; FM) => (T |-> Q ; N) Ty Sy ((M - I) + O) firingmap(N Ty Sy ((M - I) + O)) 
+                    if firings(T |-> Q, I) => O .
 endm
