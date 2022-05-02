@@ -23,10 +23,23 @@ endfm
 
 *** this module defines the synchronization between EOS transitions and (sets of) object-net transitions
 fmod SYNCHRO is
-  pr SET+{Tran} . 
-  pr MAP+{Tran,Map+{String,Bag{Tran}}} * (sort Map{Tran,Map+{String,Bag{Tran}}} to Syncmap, sort Entry{Tran,Map+{String,Bag{Tran}}} to EntrySync, 
+   pr SET+{Tran} . 
+   pr MAP+{Tran,Map+{String,Bag{Tran}}} * (sort Map{Tran,Map+{String,Bag{Tran}}} to Syncmap, sort Entry{Tran,Map+{String,Bag{Tran}}} to EntrySync, 
                                          op emptyM : -> Map{Tran,Map+{String,Bag{Tran}}} to emptySync,
                                          op emptyM : -> Map{String,Bag{Tran}} to emptyMapSTbag, op nil to emptyTbag) .
+
+   vars M M' : Syncmap .
+   var MS MS' : Map{String,Bag{Tran}} .
+   vars T T' : Tran .
+   var S : String .
+   var B : Bag{Tran} .
+   var E : EntrySync .
+   op synchronized : Syncmap Tran -> Bool .
+   eq synchronized(emptySync, T) = false .
+   eq synchronized(E ; M , T) = $synchronized(E, T) or-else synchronized(M, T) [owise] .
+   op $synchronized : EntrySync Tran -> Bool .
+  ceq $synchronized(T' |-> (S |-> B ; MS), T) = true if B[T] > 0 .
+   eq $synchronized(E, T) = false [owise] .     
 endfm
 
 
@@ -35,20 +48,27 @@ fmod EOS-NET is
    pr PT-NET .
    pr NET-TYPES .
    pr SYNCHRO .
+   pr SET+{Imatrix} * (op emptyS to emptySetQ) .
    sort Sysnet .
    op ___ : Net NeTypeS Syncmap -> [Sysnet] [ctor] . *** juxtaposition of a net and net-types -- note the use of a kind
    op net : Sysnet -> Net .
    op netypes : Sysnet -> NeTypeS .
    op synchro : Sysnet -> Syncmap .
-   vars N N'  : Net .
-   vars S S' : Sysnet .
-   vars T T' : NeTypeS .
-   vars M M' : Syncmap .
-   var P : Place .
-   eq net(N T M) = N .
-   eq netypes(N T M) = T .
-   eq synchro(N T M) = M .
- cmb N T M : Sysnet if welldef(N) and-then welldef(T) and-then not(repeatedKeys?(M)) . *** charcterization of well-formed EOS nets
+   var N  : Net .
+   var Ty : NeTypeS .
+   var Sy  : Syncmap .
+   var T  : Tran .
+   var Q  : Imatrix .
+   var MS : Map{String,Bag{Tran}} .
+   eq net(N Ty Sy) = N .
+   eq netypes(N Ty Sy) = Ty .
+   eq synchro(N Ty Sy) = Sy .
+ cmb N Ty Sy : Sysnet if welldef(N) and-then welldef(Ty) and-then not(repeatedKeys?(Sy)) and-then submap(N, Sy) . *** characterization of well-formed EOS nets
+   op submap : Net Syncmap -> Bool . *** verifies that Net keys are a subset of Syncmap keys 
+   eq submap(T |-> Q ; N, T |-> MS ; Sy) = submap(N, Sy) .
+   eq submap(emptyN, Sy) = true .
+   eq submap(N, Sy) = false [owise] .
+   op partition : ImatrixT NeTypeS -> Set{Imatrix} [memo]. *** partition a transition's incidence matrix into sub-matrices with places of the same type
   endfm
 
 *** this module defines the firing-map for an EOS, which associates to each EOS transition a
@@ -58,9 +78,8 @@ fmod FIRING-MAP is
     sort Set{Map+{Place,Bag{Bag{Place}}}} to Set{Map{Place,Bag{Bag{Place}}}}, sort NeSet{Map+{Place,Bag{Bag{Place}}}} to NeSet{Map{Place,Bag{Bag{Place}}}} ,
     sort Map{Tran,Set+{Map+{Place,Bag{Bag{Place}}}}} to Map{Tran,Set{Map{Place,Bag{Bag{Place}}}}},
     sort Entry{Tran,Set+{Map+{Place,Bag{Bag{Place}}}}} to Entry{Tran,Set{Map{Place,Bag{Bag{Place}}}}},
-    **** op emptyM : -> Map{Place,Bag{Bag{Place}}} to emptyEosMark,
     op emptyM : -> Map{Tran,Set+{Map+{Place,Bag{Bag{Place}}}}} to emptyFiringMap,
-    op emptyS to emptySetMapPbag2 ) . 
+    op emptyS to emptySetMapPbag2 ) .
 endfm
 
 *** marked system-net, i.e., EOS
@@ -71,7 +90,7 @@ endfm
                      op emptyS to emptySetPbag2, op emptyM to emptyEosMark, 
                      op emptyMapS to emptyMapSetPbag2, op emptySetM to emptySetMapPbag2,
                      op emptySetBag2 to emptySetPbag2, op emptyBag2 to emptyPbag2
-                                ***, sort Map{Place,Bag{Bag{Place}}} to Sysnetmark, sort Entry{Place,Bag{Bag{Place}}} to SysnetmarkP,
+                     ***, sort Map{Place,Bag{Bag{Place}}} to Sysnetmark, sort Entry{Place,Bag{Bag{Place}}} to SysnetmarkP,
                     ) .  
 
  
@@ -112,7 +131,7 @@ endfm
    op firinginstances : Eosystem Tran -> [Set{Map{Place,Bag{Bag{Place}}}}] .
    eq firinginstances(E, T) = firinginstances(I(net(sysnet(E))[T]), sysmark(E)) .
    
-   *** calculates the set of firing instances for each EOS transition
+   *** calculates the set of firing instances for each EOS transition (taking account of synchronizations)
    op firingmap :  Eosystem -> Map{Tran, Set{Map{Place,Bag{Bag{Place}}}}} .
 
    *** auxiliary op: sum the (nested) bags involved in a firing instance referring to places of the same type to get the flat bag to distribute over the output places  
@@ -129,28 +148,59 @@ endfm
    op _-_ : Map{Place,Bag{Bag{Place}}} Map{Place,Bag{Bag{Place}}} -> Map{Place,Bag{Bag{Place}}} [gather (E e) right id: emptyEosMark] .
    
 
-   *** calculates the possible firing effects of a transition instance 
-   op firings : ImatrixT Map{Place, Bag{Bag{Place}}} -> [Set{Map{Place, Bag{Bag{Place}}}}] . 
+   *** calculates the possible firing effects of a transition instance (taking synchronizations into account) 
+   op firings : ImatrixT Map{Place, Bag{Bag{Place}}} Syncmap -> [Set{Map{Place, Bag{Bag{Place}}}}] . 
 endfm
 
+in ../PT-EMU2
+
 mod EOS-EMU is
-  pr EOSYS . 
-  sort State . *** EOS reachable state: juxtaposition of an EOS system and a firing map 
-  op __ : Eosystem Map{Tran, Set{Map{Place,Bag{Bag{Place}}}}} -> State [ctor].
+  pr EOSYS .
+  inc PT-EMU .
   var FM : Map{Tran, Set{Map{Place,Bag{Bag{Place}}}}} . *** the whole firing map
   var TI : Entry{Tran, Set{Map{Place,Bag{Bag{Place}}}}} . *** a transition firing instance (firing map's entry)
   var T : Tran .
   var NeFS : NeSet{Map{Place,Bag{Bag{Place}}}} .
   var FS : Set{Map{Place,Bag{Bag{Place}}}} . *** a firing set
-  vars I O : Map{Place,Bag{Bag{Place}}} . *** a firing instance
-  vars M F F' : Map{Place,Bag{Bag{Place}}} .
+  vars I O M M' : Map{Place,Bag{Bag{Place}}} . *** a firing instance/EOS marking
   vars N N' : Net .
   var Ty : NeTypeS .
   var Sy : Syncmap .
   var Q : Imatrix .
+  var S : String .
+  vars J K : NzNat .
+  vars B B' : Bag{Place} .
+  var B2 : Bag{Bag{Place}} .
 
-  rl [select] : F U NeFS => F . *** non-deterministic extraction of a firing instance from a set 
+  rl [selectinst] : I U NeFS => I . *** non-deterministic extraction of a firing instance from a set 
   
- crl [firinginst] : (T |-> Q ; N) Ty Sy M (T |-> I U FS ; FM) => (T |-> Q ; N) Ty Sy ((M - I) + O) firingmap(N Ty Sy ((M - I) + O)) 
-                    if firings(T |-> Q, I) => O .
+ *** crl [fireinst] : N Ty Sy M (T |-> I U FS ; FM) => E firingmap(E) 
+ ***                   if N' ; T |-> Q := N /\ firings(T |-> Q, I, Sy) => O /\ E := N Ty Sy ((M - I) + O)   .
+
+ crl [firetinst] : N Ty Sy M  => N Ty Sy (M - I) + O
+                    if N' ; T |-> Q := N /\ firingmap(N Ty Sy M)[T] => I /\ firings(T |-> Q, I, Sy) => O  .
+
+ crl [firetaut] : N (S |-> (T |-> Q ; N') ; Ty) Sy (p(J,S) |-> K . B + B2) => 
+                 N (S |-> (T |-> Q ; N') ; Ty) Sy (p(J,S) |-> (K . B - 1 . B) + 1 . B' + B2)
+                 if not(synchronized(Sy, T)) /\ (T |-> Q) B => (T |-> Q) B' . 
+endm
+
+mod SIMPLE-EOS is
+  *** example used in EOS paper (the EOS net consists of a single transition)
+  inc EOS-EMU .
+  ops sysnet type1 type2 : -> Net .
+  op netype  : -> NeTypeS .
+  op m0  : -> Map{Place,Bag{Bag{Place}}} .
+  op net  : -> Sysnet .
+  op sync : -> Syncmap .
+
+  eq sysnet =  t(1, "sys") |-> [1 . p(1,"net1") + 1 . p(2,"net1")+ 1 . p(3, "net2"), 1 . p(4, "net1") + 1 . p(5, "net2")+ 1 . p(6, "net2"), emptyPbag]  .
+  eq type1 = t(1, "") |-> [1 . p(1, "a1"), 1 . p(2, "b1"), emptyPbag] .
+  eq type2 = t(2, "") |-> [1 . p(1, "a2") + 1 . p(2, "b2"), 1 . p(3, "c2"), emptyPbag] .
+  eq netype = "net1" |-> type1  ; "net2" |-> type2 .
+  eq sync = t(1, "sys") |-> ("net1" |-> 1 . t(1, "") ; "net2" |-> 1 . t(2, "") ) .  
+  eq net = sysnet netype sync .
+  eq m0 =  p(1,"net1") |-> 1 . emptyPbag + 1 . (1 . p(1, "a1") + 1 . p(2, "b1"));  
+                p(2,"net1") |-> 1 . 1 . p(1, "a1") ;
+                p(3,"net2") |-> 1 . (1 . p(1, "a2") + 1 . p(2, "b2")) .
 endm

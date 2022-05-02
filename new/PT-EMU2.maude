@@ -1,13 +1,7 @@
 in CAN-PT-SYS2
 
-fth PTSYSTH  is 
- pr BAGP .
- pr PT-NET .
- op m0  : -> Bag{Place} .
- op net : -> Net .
-endfth 
-
-mod PT-EMU{X :: PTSYSTH} is
+*** non-parametric version
+mod PT-EMU is
  *** pr PT-SYS .
  pr CAN-PT-SYS .
  var T : Tran .

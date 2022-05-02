@@ -1,8 +1,7 @@
 *** enriched MAP definition (with some renaming)
 
 fmod MAP+{X :: TRIV, Y :: TRIV} is 
-  pr MAP{X,Y} * (op empty to emptyM, op _,_ to _`;_ [prec 71]
-  )  .
+  pr MAP{X,Y} * (op empty to emptyM, op _,_ to _;_ [prec 71])  .
   pr NAT .
   vars R R' : Y$Elt .
   var D : X$Elt .

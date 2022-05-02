@@ -69,7 +69,6 @@ ceq $evalwH(IL, IL', OL, OL', HL, HL') = true if $less(HL cmp1 HL', $evalwI(IL, 
  *** checks whether corresponding components of two incidence matrices have the same multiplicities (builds on the analogous for bags)
  op _eqw_ : Imatrix Imatrix -> Bool [ comm ] .
  eq [X,Y,Z] eqw [X',Y',Z'] = X eqw X' and-then Y eqw Y' and-then Z eqw Z' . 
-
 endfm
 
 *** default view to IMATRIX
