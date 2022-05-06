@@ -1,0 +1,47 @@
+*** example used in EOS paper (the EOS net consists of a single transition)
+fmod WF-EOS is
+  pr EOSYS . 
+  *** inc EOS-EMU .
+ ops net and seq xor : -> Net .
+ ops a b c : -> ImatrixT . *** < Net 
+  op netype  : -> NeTypeS . *** basic object-net types
+  op m0  : -> Map{Place,Bag{Bag{Place}}} .
+  op eosnet  : -> Sysnet .
+  op sync : -> Syncmap .
+
+  var S : String .
+  var Ty : NeTypeS . 
+  *** this operator is built on a netype map: maps a "op@loc" string to the correspondig op-net
+  *** if the string doesn't contain '@' it is used (as a whole) as a search key in netype map
+  op wftype : NeTypeS String -> [Net] .
+  eq wftype(Ty, S) = Ty[prefix(S,find(S, "@", 0))] .
+  op prefix : String FindResult -> String . *** ayxiliary op
+  eq prefix(S, notFound) = S .
+  eq prefix(S, K:Nat) = substr(S, 0, K:Nat) .
+  *** top operator (overloaded version searching in map netype) 
+  op wftype : String -> [Net] .
+  eq wftype(S) = wftype(netype, S) . 
+  
+
+  eq a =  t(1, "a") |-> [1 . p(1, "begin"), 1 . p(1, "end"), emptyPbag] .
+  eq b =  t(2, "b") |-> [1 . p(2, "begin"), 1 . p(2, "end"), emptyPbag] .
+  eq c =  t(3, "c") |-> [1 . p(3, "begin"), 1 . p(3, "end"), emptyPbag] .
+  
+  eq and =  t(1, "start") |-> [emptyPbag, 1 . p(1, "i"), emptyPbag] ; t(1, "abort") |-> [1 . p(1, "i"), emptyPbag, emptyPbag] ;
+            t(1, "doAndSplit") |-> [1 . p(1, "i"), 1 . p(1, "split1") + 1 . p(1, "split2"), emptyPbag] ;
+             t(1, "doAndJoin") |-> [1 . p(1, "split1") + 1 . p(1, "split2"), 1 . p(1, "o"), emptyPbag] ;
+                  t(1, "stop") |-> [1 . p(1, "o"), emptyPbag, emptyPbag] .
+
+  eq seq = t(2, "start") |-> [emptyPbag, 1 . p(2, "i"), emptyPbag] ; t(2, "abort") |-> [1 . p(2, "i"), emptyPbag, emptyPbag] ;
+           t(2, "doSeqBegin") |-> [1 . p(2, "i"), 1 . p(2, "begin"), emptyPbag] ;
+           t(2, "doSeqStep")  |-> [1 . p(2, "begin"), 1 . p(2, "end") , emptyPbag] ;
+           t(2, "doSeqEnd")   |-> [1 . p(2, "end"), 1 . p(2, "o"), emptyPbag] ;
+                 t(2, "stop") |-> [1 . p(2, "o"), emptyPbag, emptyPbag] .
+
+  **** eq xor = ... 
+  
+  eq netype = "and" |-> and  ; "seq" |-> seq ; "a" |-> a ; "b" |-> b ; "c" |-> c .
+  *** eq sync = ... .  
+  eq eosnet = net netype sync .
+  *** eq m0 =  ... .
+endfm
