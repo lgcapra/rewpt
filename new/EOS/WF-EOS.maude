@@ -2,9 +2,8 @@
 fmod WF-EOS is
   pr EOSYS . 
   *** inc EOS-EMU .
- ops net and seq xor : -> Net .
- ops a b c : -> ImatrixT . *** < Net 
-  op netype  : -> NeTypeS . *** basic object-net types
+ ops net and seq xor atom : -> Net .
+ op netype  : -> NeTypeS . *** basic object-net types
   op m0  : -> Map{Place,Bag{Bag{Place}}} .
   op eosnet  : -> Sysnet .
   op sync : -> Syncmap .
@@ -23,25 +22,27 @@ fmod WF-EOS is
   eq wftype(S) = wftype(netype, S) . 
   
 
-  eq a =  t(1, "a") |-> [1 . p(1, "begin"), 1 . p(1, "end"), emptyPbag] .
-  eq b =  t(2, "b") |-> [1 . p(2, "begin"), 1 . p(2, "end"), emptyPbag] .
-  eq c =  t(3, "c") |-> [1 . p(3, "begin"), 1 . p(3, "end"), emptyPbag] .
+  eq atom =  t(1, "start") |-> [emptyPbag, 1 . p(1, "i"), emptyPbag] ; t(2, "task") |-> [1 . p(1, "i"), 1 . p(2, "o"), emptyPbag] ;
+             t(3, "stop") |-> [1 . p(2, "o"), emptyPbag, emptyPbag] .
   
-  eq and =  t(1, "start") |-> [emptyPbag, 1 . p(1, "i"), emptyPbag] ; t(1, "abort") |-> [1 . p(1, "i"), emptyPbag, emptyPbag] ;
-            t(1, "doAndSplit") |-> [1 . p(1, "i"), 1 . p(1, "split1") + 1 . p(1, "split2"), emptyPbag] ;
-             t(1, "doAndJoin") |-> [1 . p(1, "split1") + 1 . p(1, "split2"), 1 . p(1, "o"), emptyPbag] ;
-                  t(1, "stop") |-> [1 . p(1, "o"), emptyPbag, emptyPbag] .
+  eq and =  t(1, "start") |-> [emptyPbag, 1 . p(1, "i"), emptyPbag] ; t(2, "abort") |-> [1 . p(1, "i"), emptyPbag, emptyPbag] ;
+            t(3, "doAndSplit") |-> [1 . p(1, "i"), 1 . p(2, "wait") + 1 . p(3, "wait"), emptyPbag] ;
+             t(4, "doAndJoin") |-> [1 . p(2, "wait") + 1 . p(3, "wait"), 1 . p(4, "o"), emptyPbag] ;
+                  t(5, "stop") |-> [1 . p(4, "o"), emptyPbag, emptyPbag] .
 
-  eq seq = t(2, "start") |-> [emptyPbag, 1 . p(2, "i"), emptyPbag] ; t(2, "abort") |-> [1 . p(2, "i"), emptyPbag, emptyPbag] ;
-           t(2, "doSeqBegin") |-> [1 . p(2, "i"), 1 . p(2, "begin"), emptyPbag] ;
-           t(2, "doSeqStep")  |-> [1 . p(2, "begin"), 1 . p(2, "end") , emptyPbag] ;
-           t(2, "doSeqEnd")   |-> [1 . p(2, "end"), 1 . p(2, "o"), emptyPbag] ;
-                 t(2, "stop") |-> [1 . p(2, "o"), emptyPbag, emptyPbag] .
+  eq seq = t(1, "start") |-> [emptyPbag, 1 . p(1, "i"), emptyPbag] ; t(2, "abort") |-> [1 . p(1, "i"), emptyPbag, emptyPbag] ;
+           t(2, "doSeqBegin") |-> [1 . p(1, "i"), 1 . p(2, "begin"), emptyPbag] ;
+           t(3, "doSeqStep")  |-> [1 . p(2, "begin"), 1 . p(3, "end") , emptyPbag] ;
+           t(4, "doSeqEnd")   |-> [1 . p(3, "end"), 1 . p(4, "o"), emptyPbag] ;
+                 t(5, "stop") |-> [1 . p(4, "o"), emptyPbag, emptyPbag] .
 
   **** eq xor = ... 
   
-  eq netype = "and" |-> and  ; "seq" |-> seq ; "a" |-> a ; "b" |-> b ; "c" |-> c .
-  *** eq sync = ... .  
+  eq netype = "and" |-> and  ; "seq" |-> seq ; "a" |-> atom ; "b" |-> atom ; "c" |-> atom .
+  *** eq sync = ... . 
+
+  eq net = t(0,"init") |-> [1 . p(0, ""), 1 . p(1, "and@"), emptyPbag] ;
+           t(1,"open And block") |-> [1 . p(1, "and@"), 1 . p(2, "atom@1") + 1 . p(3, "seq@2") + 1 . p(4, "and@"), emptyPbag] .
   eq eosnet = net netype sync .
   *** eq m0 =  ... .
 endfm
