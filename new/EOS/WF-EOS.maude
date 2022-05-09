@@ -3,25 +3,21 @@ fmod WF-EOS is
   pr EOSYS . 
   *** inc EOS-EMU .
  ops net and seq xor atom : -> Net .
- op netype  : -> NeTypeS . *** basic object-net types
+ ops basenetype netype : -> NeTypeS . *** basic (derived) object-net types
   op m0  : -> Map{Place,Bag{Bag{Place}}} .
   op eosnet  : -> Sysnet .
   op sync : -> Syncmap .
 
   var S : String .
   var Ty : NeTypeS . 
-  *** this operator is built on a netype map: maps a "op@loc" string to the correspondig op-net
-  *** if the string doesn't contain '@' it is used (as a whole) as a search key in netype map
+  *** this operator (built on basenetype) maps a "op@loc" string to the correspondig op-net
+  *** if the string doesn't contain '@' it is used (as a whole) as a search key in basenetype
   op wftype : NeTypeS String -> [Net] .
   eq wftype(Ty, S) = Ty[prefix(S,find(S, "@", 0))] .
   op prefix : String FindResult -> String . *** ayxiliary op
   eq prefix(S, notFound) = S .
   eq prefix(S, K:Nat) = substr(S, 0, K:Nat) .
-  *** top operator (overloaded version searching in map netype) 
-  op wftype : String -> [Net] .
-  eq wftype(S) = wftype(netype, S) . 
   
-
   eq atom =  t(1, "start") |-> [emptyPbag, 1 . p(1, "i"), emptyPbag] ; t(2, "task") |-> [1 . p(1, "i"), 1 . p(2, "o"), emptyPbag] ;
              t(3, "stop") |-> [1 . p(2, "o"), emptyPbag, emptyPbag] .
   
@@ -38,11 +34,24 @@ fmod WF-EOS is
 
   **** eq xor = ... 
   
-  eq netype = "and" |-> and  ; "seq" |-> seq ; "a" |-> atom ; "b" |-> atom ; "c" |-> atom .
-  *** eq sync = ... . 
+  eq basenetype = "and" |-> and  ; "seq" |-> seq ; "a" |-> atom ; "b" |-> atom ; "c" |-> atom .
+  eq netype[S] = wftype(basenetype, S) . 
+  
+  eq sync = t(0,"init") |-> ("and" |-> 1 . t(1, "start")) ; 
+            t(1,"openAndBlock") |-> ("and" |-> 1 . t(3, "doAndSplit") ; "a" |-> 1 . t(1, "start") ; "seq" |-> 1 . t(1, "start")) ;
+            t(2,"openSeq1") |-> ( "seq" |-> 1 . t(2, "doSeqBegin") ; "b" |-> 1 . t(1, "start") ) ;
+            t(3,"openSeq2") |-> ( "seq" |-> 1 . t(3, "doSeqStep")  ; "b" |-> 1 . t(3, "stop") ; "c" |-> 1 . t(1, "start") ) ;
+            t(4,"closeSeq") |-> "c" |-> 1 . t(3, "stop")  ;
+            t(5,"closeAndBlock") |-> ("and" |->  1 . t(4, "doAndJoin") ; "seq" |-> 1 . t(5, "stop") ; "a" |-> 1 . t(3, "stop") ). 
 
+  *** system-net -- the "" token-type denotes black tokens
   eq net = t(0,"init") |-> [1 . p(0, ""), 1 . p(1, "and@"), emptyPbag] ;
-           t(1,"open And block") |-> [1 . p(1, "and@"), 1 . p(2, "atom@1") + 1 . p(3, "seq@2") + 1 . p(4, "and@"), emptyPbag] .
+           t(1,"openAndBlock") |-> [1 . p(1, "and@"), 1 . p(2, "a@1") + 1 . p(3, "seq@2") + 1 . p(4, "and@"), emptyPbag] ;
+           t(2,"openSeq1") |-> [1 . p(3, "seq@2"),  1 . p(5, "b@2.1") + 1 . p(3, "seq@2"), emptyPbag] ;
+           t(3,"openSeq2") |-> [1 . p(3, "seq@2") + 1 . p(5, "b@2.1"), 1 . p(6, "c@2.2") + 1 . p(7, "seq@2"), emptyPbag] ;
+           t(4,"closeSeq") |-> [1 . p(6, "c@2.2") + 1 . p(7, "seq@2"),  1 . p(8, "seq@2"), emptyPbag] ;
+           t(5,"closeAndBlock") |-> [1 . p(8, "seq@2") + 1 . p(4, "and@") + 1 . p(2, "a@1"),  1 . p(1, "and@"), emptyPbag] .
+  
   eq eosnet = net netype sync .
-  *** eq m0 =  ... .
+  eq m0 = p(0, "") |-> (1 . emptyPbag) .
 endfm
