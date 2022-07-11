@@ -1,5 +1,7 @@
+in ../PT-NET2
 in BAG-SPLIT
 in MAP-PROD
+
 
 *** this definition of EOS uses an alternative (simpler) definition of object-net types and introduces
 *** a synchronization map between EOS transitions and object-net transitions 

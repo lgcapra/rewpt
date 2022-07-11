@@ -29,7 +29,7 @@ fmod PT-NET is
  var L' : List{Tran} .
  var E : ImatrixT .
  
- eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
+ *** eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 
  op welldef : Net -> Bool .
  eq welldef(N) = N =/= emptyN and-then repeatedKeys?(N) == false . 
