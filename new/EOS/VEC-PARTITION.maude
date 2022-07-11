@@ -1,0 +1,19 @@
+fmod INT-VEC is
+  pr LIST{Nat} * (sort List{Nat} to Vec, sort NeList{Nat} to NeVec, op nil to [] ) .
+
+  op vUnit : Vec -> Vec . *** generates a unit vector of the same length as v
+  op vIsZero : Vec -> Bool . *** checks that v is the null vector
+  op _<|=_ : Vec Vec -> Bool . *** component-wise <=
+  op _lex_ : Vec Vec -> Bool . *** lexicographic order
+  op _plus_ : Vec Vec -> Vec [assoc comm] .
+  op _minus_ : Vec Vec -> Vec .
+  op vHalf : Vec -> Vec .
+endfm
+
+view Vec from TRIV to INT-VEC is 
+ sort Elt to Vec . 
+endv
+
+fmod VEC-PARTITION is 
+ pr LIST{Vec} * (op __ : List{Vec} List{Vec} -> List{Vec} to _;_ ) .
+endfm

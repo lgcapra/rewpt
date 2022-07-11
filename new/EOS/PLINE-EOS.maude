@@ -1,0 +1,52 @@
+*** example used in EOS paper derived from the self-healing FMS example 
+fmod PLINE-EOS is
+  pr EOSYS . 
+  pr CONVERSION .
+  *** inc EOS-EMU .
+  ops sysnet plan lifecycle : -> Net . *** object-nets and system-net modules
+  op  adapt : NzNat -> Net . *** ...system-net modules defined in a "parametric" way
+  op  prodline : Bool String -> Net . *** ...system-net modules defined in a somehow "parametric" way
+  ops fallback adapt cyclefbk : Bool -> Net . 
+  *** basic aliasing for the main components of EOS
+  op  netype  : -> NeTypeS . *** object-net types
+  op  eosnet  : -> Sysnet . *** EOS structure
+  op  sync : -> Syncmap .  *** synchronizations
+  op  m0   : -> Map{Place,Bag{Bag{Place}}} . *** EOS marking
+
+  *** auxiliary operators and variables
+  var S  : String . var Ty : NeTypeS . var I : NzNat . var L : Bool .
+  op line : Bool -> NzNat . *** we denote the two lines with boolean values (true ->1, false -> 2)
+  eq line(true)  = 1 .
+  eq line(false) = 2 .
+  op str : String Bool -> String .
+  eq str(S,L) = S + string(line(L),10) . *** concat. of S with the line number
+  *** object-nets
+  eq plan = t(0,"") |-> [1 . p(1,""), 1 . p(2,"") + 1 . p(3,""), emptyPbag] ; t(1,"line1") |-> [1 . p(2,""), 1 . p(4,""), emptyPbag ] ; 
+            t(2,"line2") |-> [1 . p(3,""), 1 . p(5,""), emptyPbag ] ; t(3,":do_t3()") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), emptyPbag ] .
+  *** has the same structure as plan but only refers to line I (see the labels of t(1,..) and t(2,..)
+  eq fallback(L) = t(0,"") |-> [1 . p(1,""), 1 . p(2,"") + 1 . p(3,""), emptyPbag] ; t(1,str("line",L)) |-> [1 . p(2,""), 1 . p(4,""), emptyPbag ] ; 
+            t(2,str("line",L)) |-> [1 . p(3,""), 1 . p(5,""), emptyPbag ] ; t(3,":do_t3()") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), emptyPbag ] .
+  *** the map of object-net types
+  eq netype = "plan" |-> plan  ; "fallback1" |-> fallback(true) ; "fallback2" |-> fallback(false) .
+  *** the synchronization map (NOTE that in this case synchronizations between system- and object-nets correspond to matching labels)
+  eq sync = t(1,"line1") |-> ("plan" |-> 1 . t(1, "line1")) ; t(2,"line2") |-> ("plan" |-> 1 . t(2, "line2")) ;
+            t(1,"line1") |-> ("fallback1" |-> 1 . t(1, "line1")) ; t(2,"line1") |-> ("fallback1" |-> 1 . t(2, "line1")) ;
+            t(1,"line2") |-> ("fallback2" |-> 1 . t(1, "line2")) ; t(2,"line2") |-> ("fallback2" |-> 1 . t(2, "line2")) . 
+  *** system-net modules
+  eq lifecycle = t(0,"new_plan") |-> [2 . p(1,"") + 1 . p(0,""), 1 . p(2,"plan") + 1 . p(0,"") , emptyPbag] ; t(4,"") |-> [1 . p(6,""), 2 . p(1,""), emptyPbag ] ; 
+                 t(3,"") |-> [1 . p(2,"plan"), 1 . p(6,""), emptyPbag ] .
+
+  eq prodline(L,S) = t(1,str(S + "line",L)) |-> [1 . p(2,S + "plan") + 1 . p(6 + line(L),S + "-"), 1 . p(2,S + "plan") + 1 . p(6 + line(L),S + "-") , emptyPbag] ;
+                   t(2,str(S + "line",L)) |-> [1 . p(2,S + "plan") + 1 . p(6 + line(L),S + "-"), 1 . p(2,S + "plan") + 1 . p(6 + line(L),S + "-") , emptyPbag] .
+  
+  eq adapt(L) = t(4 + line(L),"") |-> [1 . p(0,"") + 1 . p(6 + line(L),"-"), 1 . p(6 + line(L),"") , emptyPbag] ; 
+                t(5 + line(L),str("fallback_to_pl",not(L))) |-> [ 1 . p(2,"plan") + 1 . p(6 + line(L),""), 1 . p(6 + line(L),"") + 2 . p(1,""), emptyPbag] .
+
+  eq cyclefbk(L) = t(0,str("new_fallback",L)) |-> [2 . p(1,"") + 1 . p(6 + line(not(L)),""), 1 . p(2,str("fallback",L)), emptyPbag] ; 
+                   t(3,str("fb",L)) |-> [1 . p(2,str("fallback",L)), 1 . p(6,""), emptyPbag ] .
+  
+  eq sysnet = lifecycle ; prodline(true,"") ; prodline(false,"") ; adapt(true) ; adapt(false) ; 
+              cyclefbk(true) ; cyclefbk(false) ; prodline(true,"fb") ; prodline(false,"fb") .  
+  eq eosnet = sysnet netype sync .
+  eq m0 = p(1, "") |-> (4 . emptyPbag) ; p(7, "-") |-> (1 . emptyPbag) ; p(8, "-") |-> (1 . emptyPbag) ;  p(0, "-") |-> (1 . emptyPbag) .
+endfm

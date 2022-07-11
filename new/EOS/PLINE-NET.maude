@@ -1,0 +1,58 @@
+in ../PT-NET2
+
+*** net structures used in the EOS model derived from the self-healing FMS case-study
+fmod PRODLINE-NET is
+  pr PT-NET . 
+  pr CONVERSION .
+  *** inc EOS-EMU .
+  *** auxiliary operators and variables
+  vars S S' : String . var N : Nat . vars L L' : Bool .
+  op l : Bool -> NzNat . *** we denote the two lines/operations with boolean values (true ->1, false -> 2)
+  eq l(true)  = 1 .
+  eq l(false) = 2 .
+  op str : Nat -> String . *** converts a number to a string
+  eq str(N:Nat) = string(N:Nat,10) .
+  op str : String Bool -> String .
+  eq str(S,L) = S + str(l(L)) . *** concatenates the string S with the number of line L
+  op str : String Bool String Bool -> String .
+  eq str(S,L,S',L') = str(S,L) + "_" + str(S',L') . *** double concatenatation of strings with L numbers
+  
+  
+  op  line : String Bool Bool -> Net . *** object-net's line: the 1st arg denotes the operation t_i, the 2nd line_j, the 3rd the object-net's label
+  eq  line(S,L,L') = t(l(L),str(S + ":line",L')) |-> [1 . p(1 + l(L),S), 1 . p(3 + l(L),S), emptyPbag] .
+  op  start : String -> Net . *** object-net's t0 (start-up): the arg denotes the object-net's label label
+  eq  start(S) = t(0,S) |-> [1 . p(1,S), 1 . p(2,S) + 1 . p(3, S), emptyPbag] .
+  *** eq  start(S) = t(0,S) |-> [emptyPbag, 1 . p(2,S) + 1 . p(3, S), emptyPbag] . *** version without input place
+  *** eq  start(S) = t(0,S) |-> [emptyPbag, 1 . p(1,S) + 1 . p(2,S) + 1 . p(3, S), 1 . p(1,S)] . *** version with inhibitor place
+  op  assemble : String -> Net . *** object-net's t3 (assembly): the arg denotes the object-net's label label
+  eq  assemble(S) = t(3,S + ":do_t3()") |-> [1 . p(4,S) + 1 . p(5, S), 1 . p(6,S), emptyPbag] .
+  
+  *** object-nets
+  ops plan : -> Net . *** object-nets and system-net modules
+  ops fallback : Bool -> Net . 
+  
+  eq plan = start("plan") ; line("plan",true,true) ; line("plan",false,false) ; assemble("plan") .
+  *** has the same structure as plan but both t1 and t2 refer line to L (see the labels of t(1,..) and t(2,..)
+  eq fallback(L) = start(str("fallback",L)) ; line(str("fallback",L),L,L) ; line(str("fallback",L),not(L),L) ; assemble(str("fallback",L)) .
+  
+  *** system-nets (modules)
+  op  prodline : String Bool Bool -> Net . *** ...system-net modules defined in a somehow "parametric" way
+  eq  prodline(S,L,L') = t(l(L),str(S + "_x:line",L')) |-> [1 . p(2,S) + 1 . p(6 + l(L),"-" + S), 1 . p(2,S) + 1 . p(6 + l(L),"-" + S) , emptyPbag] .
+  eq lifecycle = t(0,"new_plan") |-> [2 . p(1,"") + 1 . p(0,""), 1 . p(2,"plan") + 1 . p(0,"") , emptyPbag] ; t(4,"") |-> [1 . p(6,""), 2 . p(1,""), emptyPbag ] ; 
+                 t(3,"") |-> [1 . p(2,"plan"), 1 . p(6,""), emptyPbag ] .
+  
+  ops sysnet lifecycle : -> Net . *** object-nets and system-net modules
+  ops adapt cyclefbk : Bool -> Net . 
+  op  lifecycle : String Bool Bool -> Net .
+
+  eq adapt(L) = t(4 + l(L),"") |-> [1 . p(0,"") + 1 . p(6 + l(L),"-"), 1 . p(6 + l(L),"") , emptyPbag] ; 
+                t(5 + l(L),str("fallback_to_pl",not(L))) |-> [ 1 . p(2,"plan") + 1 . p(6 + l(L),""), 1 . p(6 + l(L),"") + 2 . p(1,""), emptyPbag] .
+
+  eq cyclefbk(L) = t(0,str("new_fallback",L)) |-> [2 . p(1,"") + 1 . p(6 + l(not(L)),""), 1 . p(2,str("fallback",L)), emptyPbag] ; 
+                   t(3,str("fb",L)) |-> [1 . p(2,str("fallback",L)), 1 . p(6,""), emptyPbag ] .
+  
+                   
+  eq sysnet = lifecycle ; prodline("",true,true) ; prodline("",false,false) ; adapt(true) ; adapt(false) ; 
+              cyclefbk(true) ; cyclefbk(false) ; prodline("fb",true,false) ; prodline("fb",false,true) .  
+  
+endfm
