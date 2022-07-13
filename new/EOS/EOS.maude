@@ -65,7 +65,7 @@ fmod EOS-NET is
    eq net(N Ty Sy) = N .
    eq netypes(N Ty Sy) = Ty .
    eq synchro(N Ty Sy) = Sy .
- cmb N Ty Sy : Sysnet if welldef(N) and-then welldef(Ty) and-then not(repeatedKeys?(Sy)) and-then submap(N, Sy) 
+ cmb N Ty Sy : Sysnet if welldef(N)  and-then welldef(Ty)  and-then not(repeatedKeys?(Sy)) *** and-then submap(N, Sy) . *** 
                         and-then coherent(Sy, Ty) . *** characterization of well-formed EOS nets
    op submap : Net Syncmap -> Bool . *** verifies that Net keys are a subset of Syncmap keys 
    eq submap(T |-> Q ; N, T |-> MS ; Sy) = submap(N, Sy) .

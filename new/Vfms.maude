@@ -1,5 +1,4 @@
 in PT-FMS
 
-view Fms from PTSYSTH to PT-FMS is 
-  
+view Fms from PTSYSTH to PT-FMS is   
 endv

@@ -1,4 +1,4 @@
-in ../PT-SYS2
+in ../PT-EMU2
 
 *** net structures used in the EOS model derived from the self-healing FMS case-study
 *** nets are defined in a modular way; some modules are "parametric"
@@ -14,42 +14,46 @@ fmod pline-NET is
   eq str(N:Nat) = string(N:Nat,10) .
   op str : String Bool -> String .
   eq str(S,L) = S + str(l(L)) . *** concatenates the string S with the number of line L
-  op str : String Bool String Bool -> String .
-  eq str(S,L,S',L') = str(S,L) + "_" + str(S',L') . *** double concatenatation of strings with L numbers
+  *** op str : String Bool String Bool -> String .
+  *** eq str(S,L,S',L') = str(S,L) + "_" + str(S',L') . *** double concatenatation of strings with L numbers
   *** base modules of object-nets
   op  line : String Bool Bool -> Net . *** the 1st arg denotes the operation t_i, the 2nd line_j, the 3rd the object-net's label
   eq  line(S,L,L') = t(l(L),str(S + ":line",L')) |-> [1 . p(1 + l(L),S), 1 . p(3 + l(L),S), nil] .
   op  start : String -> Net . *** t0 (start-up transition): the arg denotes the object-net's label
-  eq  start(S) = t(0,S) |-> [1 . p(1,S), 1 . p(2,S) + 1 . p(3, S), nil] .
-  *** eq  start(S) = t(0,S) |-> [nil, 1 . p(2,S) + 1 . p(3, S), nil] . *** version without input place
-  *** eq  start(S) = t(0,S) |-> [nil, 1 . p(1,S) + 1 . p(2,S) + 1 . p(3, S), 1 . p(1,S)] . *** version with inhibitor place
+  *** eq  start(S) = t(0,S) |-> [1 . p(1,S), 1 . p(2,S) + 1 . p(3, S), nil] .
+  eq  start(S) = t(0,S) |-> [nil, 1 . p(1,S) + 1 . p(2,S) + 1 . p(3, S), 1 . p(1,S)] . *** equivalent, using an inhibitor edge
   op  assemble : String -> Net . *** t3 (assembly): the arg denotes the object-net's label label
-  eq  assemble(S) = t(3,S + ":do_t3()") |-> [1 . p(4,S) + 1 . p(5, S), 1 . p(6,S), nil] .
+  eq  assemble(S) = t(3,S + ":do_t3 ") |-> [1 . p(4,S) + 1 . p(5, S), 1 . p(6,S), nil] .
   *** object-nets
   ops plan : -> Net .
   eq plan = start("plan") ; line("plan",true,true) ; line("plan",false,false) ; assemble("plan") .
   ops fallback : Bool -> Net . *** same structure as plan but both t1 and t2 refer line to L (see the labels of t(1,..) and t(2,..) 
-  eq fallback(L) = start(str("fallback",L)) ; line(str("fallback",L),L,L) ; line(str("fallback",L),not(L),L) ; assemble(str("fallback",L)) .
+  eq fallback(L) = start(str("fb",L)) ; line(str("fb",L),L,L) ; line(str("fb",L),not(L),L) ; assemble(str("fb",L)) .
   *** system-net's modules --Convention: places with label "" hold black-tokens, the others hold net-tokens
   *** labelled transitions represent synchronizations or creation of new net-tokens
   op  pline : String Bool Bool -> Net . 
   eq  pline(S,L,L') = t(l(L),str(S + "_x:line",L')) |-> [1 . p(2,S) + 1 . p(6 + l(L'),"-"), 1 . p(2,S) + 1 . p(6 + l(L'),"-") , nil] .
   ops sysnet lifecycle : -> Net . *** object-nets and system-net modules
   eq  lifecycle = t(0,"x:new_plan") |-> [2 . p(1,"") + 1 . p(0,""), 1 . p(2,"plan") + 1 . p(0,"") , nil] ; t(4,"") |-> [1 . p(6,""), 2 . p(1,""), nil ] ; 
-                  t(3,"x:do_t3()") |-> [1 . p(2,"plan"), 1 . p(6,""), nil ] .
+                  t(3,"x:do_t3 ") |-> [1 . p(2,"plan"), 1 . p(6,""), nil ] .
   ops adapt fbkcycle : Bool -> Net . 
   eq  adapt(L) = t(4 + l(L),"") |-> [1 . p(0,"") + 1 . p(6 + l(L),"-"), 1 . p(6 + l(L),"") , nil] ; 
-                 t(5 + l(L),str("fallback_to_pl",not(L))) |-> [ 1 . p(2,"plan") + 1 . p(6 + l(L),""), 1 . p(6 + l(L),"") + 2 . p(1,""), nil] .
-  eq fbkcycle(L) = t(0,str("x:new_fallback",L)) |-> [2 . p(1,"") + 1 . p(6 + l(not(L)),""), 1 . p(2,str("fb",L)), nil] ; 
-                   t(3,str("fb",L) + "_x:do_t3()") |-> [1 . p(2,str("fb",L)), 1 . p(6,""), nil ] .
+                 t(7,str(" fb_to_pl",not(L))) |-> [ 1 . p(2,"plan") + 1 . p(6 + l(L),""), 1 . p(6 + l(L),"") + 2 . p(1,""), nil] .
+  eq fbkcycle(L) = t(0,str(" x:new_fb",L)) |-> [2 . p(1,"") + 1 . p(6 + l(not(L)),""), 1 . p(2,str("fb",L)) + 1 . p(6 + l(not(L)),""), nil] ; 
+                   t(3,str("fb",L) + "_x:do_t3 ") |-> [1 . p(2,str("fb",L)), 1 . p(6,""), nil ] .
   *** system-net of EOS model                
-  eq sysnet = lifecycle ; pline("plan",true,true) ; pline("plan",false,false) ;
-              adapt(true) ; adapt(false) ; 
-              fbkcycle(true)  ; pline("fb1",false,true);
-              fbkcycle(false) ; pline("fb2",true,false) .  
-  
+  eq sysnet = lifecycle ; pline("plan",true,true) ; pline("plan",false,false) ; *** nominal life-cycle
+              adapt(true) ; adapt(false) ;  *** adaptation sub-net
+              fbkcycle(true)  ; pline("fb1",true,true)  ; pline("fb1",false,true) ; *** fallback to line 1
+              fbkcycle(false) ; pline("fb2",true,false) ; pline("fb2",false,false). *** fallback to line 1
+  op K : -> NzNat . *** model's parameter (#raw pieces) --- used in importing modules  
+  eq K = 2 .
 endfm
 
-fmod pline-SYS is
-  pr PT-NET .
-endfm
+*** PT system corresponding to the (marked) system-net
+mod pline-SYS is
+  pr pline-NET * (op sysnet to net ) .
+  pr PT-EMU .
+  op m0 : -> Bag{Place} .
+  eq m0 = (2 * K) . p(1,"") + 1 . p(7,"-") + 1 . p(8,"-") + 1 . p(0,"") .
+endm
