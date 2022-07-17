@@ -1,5 +1,5 @@
-in CAN-PT-SYS
 *** in PT-SYS
+in CAN-PT-SYS
 
 fmod PT-FMS is
  protecting CAN-PT-SYS .
@@ -8,7 +8,7 @@ fmod PT-FMS is
  ops m0 m0' : -> Pbag . 
  ops dead1 dead2 sy1 sy1' : -> System .
  op  M   : -> Nat . *** MS model's parameter
- eq M = 1 . 
+ eq M = 8 . 
  *** eq net = t(0,"load") |-> [2 . p(1,"start"), 1 . p(2,"line") + 1 . p(3,"line"), emptyPbag ] ; t(1,"line") |-> [1 . p(2,"line") , 1 . p(4,"ass"), 1 . p(7,"faulty") ] ; t(2,"line") |-> [1 . p(3,"line") , 1 . p(5,"ass"),
  ***         1 . p(8,"faulty") ] ; t(3,"ass") |-> [1 . p(4,"ass") + 1 . p(5,"ass") , 1 . p(6,"end"), emptyPbag ] ;
  ***         t(4,"rest") |-> [1 . p(6,"end") , 2 . p(1,"start"), emptyPbag ] ; t(5,"fault") |-> [1 . p(0,"focc") , 1 . p(7,"faulty"), emptyPbag ] ; t(6,"fault") |-> [1 . p(0,"focc") , 1 . p(8,"faulty"), emptyPbag].

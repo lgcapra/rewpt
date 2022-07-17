@@ -98,7 +98,7 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq makeAdjListS(N, A) = $makeAdjListS(makeAdjList(N), A, emptyListBagP) . *** the list (of matrices) is ordered -- consequently the particular lists are
  op $makeAdjListS : List{Imatrix} Atype List{Pbag} -> List{Pbag} .
  eq $makeAdjListS(emptyListQ, A, BL) = BL .
-ceq $makeAdjListS(Q QL, A, BL) = $makeAdjListS(QL, A, BL) if Q(A) == emptyPbag . *** optimization . 
+ceq $makeAdjListS(Q QL, A, BL) = $makeAdjListS(QL, A, BL) if Q(A) == nilP . *** optimization . 
  eq $makeAdjListS(Q QL, A, BL) = $makeAdjListS(QL, A, BL Q(A) ) [owise] . 
  *** makes an unsorted adjacency list of a given type (i,o,h) out of a net
  op makeAdjList : Net Atype -> List{Pbag} .  

@@ -1,0 +1,70 @@
+in CAN-PT-SYS-NEW
+
+fmod PT-FMS is
+ protecting PT-NET .
+ op net : -> Net .
+ op m0  : -> Pbag . 
+ op M   : -> NzNat . *** MS model's parameter
+ eq M = 8 . 
+ eq net = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), 1 . p(7,"") ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
+          1 . p(8,"") ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ;
+          t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] ; t(5,"") |-> [1 . p(0,""), 1 . p(7,""), nilP ] ; t(6,"") |-> [1 . p(0,""), 1 . p(8,""), nilP].
+ eq m0  = (2 * M) . p(1,"") +  1 . p(0,"") .
+ *** specification using node labels 
+ *** eq net = t(0,"load") |-> [2 . p(1,"start"), 1 . p(2,"line") + 1 . p(3,"line"), nilP ] ; t(1,"line") |-> [1 . p(2,"line") , 1 . p(4,"ass"), 1 . p(7,"faulty") ] ; t(2,"line") |-> [1 . p(3,"line") , 1 . p(5,"ass"),
+ ***         1 . p(8,"faulty") ] ; t(3,"ass") |-> [1 . p(4,"ass") + 1 . p(5,"ass") , 1 . p(6,"end"), nilP ] ;
+ ***         t(4,"rest") |-> [1 . p(6,"end") , 2 . p(1,"start"), nilP ] ; t(5,"fault") |-> [1 . p(0,"focc") , 1 . p(7,"faulty"), nilP ] ; t(6,"fault") |-> [1 . p(0,"focc") , 1 . p(8,"faulty"), nilP].
+ *** eq m0  = 2 * M . p(1,"start") +  1 . p(0,"focc") .
+endfm
+
+mod PT-EMU is
+ pr CAN-PT-SYS .
+ var  T : Tran .
+ vars I O H M : Pbag .
+ vars N N' : Net .
+ *** firing rule (without canonization)
+ crl [firing] : N M => N M + O - I if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
+ *** including canonization
+ vars C C' : Bool .
+ *** the firing rule preserves the canonization status of the net
+ crl [firing] : N C M C' => (N C) (M + O - I false) if T |-> [I,O,H] ; N' := N /\ I =/= O /\ I <= M /\ H >' M . 
+ *** the following version preserves the canonization status also of the marking (used as an optimization when possible)
+ *** crl [cfiring2] : N C M C' => (N C) (M + O - I C') if T |-> [I,O,H] ; N' := N /\ I =/= O /\ I <= M /\ H >' M .  
+endm
+
+mod FMS-EMU is
+ pr PT-FMS .
+ inc PT-EMU . 
+endm
+
+mod RWPT-FMS is
+ inc FMS-EMU .
+ vars N N' : Net .
+ vars Tload Tfail Tass Tline : Tran .
+ vars P0 P1 P2 P3 P4 P5 P6 P7 P8 PF : Place .
+ var S : Pbag .
+ var K : NzNat .
+ *** crl [r1] : ( N ; t(0,"load") |-> [2 . p(1,"start"), 1 . P2 + 1 . P3, nilP ] ; Tline |-> [1 . P3, 1 . P5, 1 . PF] , t(3,"ass") |-> [1 . P4 + 1 . P5, 1 . p(6,"end"), nilP ] ; Tfail |-> [1 . p(0,"focc"), 1 . PF, nilP]) S + 1 . PF
+ ***        => ( N ; t(0,"load") |-> [1 . p(1,"start"), 1 . P2, nilP ] ;  t(3,"ass") |-> [2 . P4, 1 . p(6,"end"), nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . p(0,"focc") if S[P5] = 0 .
+ *** crl [r2] : N S  => net S + 1 . p(0,"focc") + M . P3 - M . P2 - 1 . p(7,"faulty") - 1 . p(8,"faulty")  if 1 . P2 := Out( N , t(0,"load")) /\  1 . P2 + 1 . P3 := Out(net, t(0,"load"))  /\ dead(N S) .
+ *** alternative versions
+ *** crl [r2] : N S   => net S + 1 . p(0,"focc") + M . P3 - M . P2 - 1 . p(7,"faulty") - 1 . p(8,"faulty")  if 1 . P2 := Out( N ; t(0,"load")) /\  1 . P2 + 1 . P3 := Out(net, t(0,"load"))  /\ dead(N S) 
+ ***                   /\ (net S + 1 . p(0,"focc") + M . P3 - M . P2 - 1 . p(7,"faulty") - 1 . p(8,"faulty") :: System) .
+ *** crl [r3] : N S  => setw( N ; t(0,"load"), p(9), i, 1) S if S[p(0,"focc")] = 0 /\ S[p(9)] = 0 /\ K . p(1,"start") := In( N ;t(0,"load")) .
+ *** crl [r3] : N S  => setw( N ; t(0,"load"), p(9), i, 1) S if S[p(0,"focc")] = 0 /\ S[p(9)] = 0  /\ in( N ; p(9)) = false .
+
+
+
+ *** version with null labels (corresponding to the 1st formulation)
+ *** crl [r1] : ( N ; t(0,"") |-> [2 . p(1,""), 1 . P2 + 1 . P3, nilP ] ; Tline |-> [1 . P3, 1 . P5, 1 . PF] ; t(3,"") |-> [1 . P4 + 1 . P5, 1 . p(6,""), nilP ] ; Tfail |-> [1 . p(0,""), 1 . PF, nilP]) S + 1 . PF
+ ***        => ( N ; t(0,"") |-> [1 . p(1,""), 1 . P2, nilP ] ;  t(3,"") |-> [2 . P4, 1 . p(6,""), nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . p(0,"") if S[P5] == 0 .
+ *** crl [r2] : N S  => net S + 1 . p(0,"") + M . P3 - M . P2 - 1 . p(7,"") - 1 . p(8,"")  if 1 . P2 := Out(N , t(0,"")) /\  1 . P2 + 1 . P3 := Out(net, t(0,""))  /\ dead(N S) .
+ 
+ 
+ *** "parametric" rules (with null labels) using canonization
+ vars C C' : Bool .
+ *** crl [pr1] : ( N ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP] ; Tline |-> [1 . P3, 1 . P5, 1 . PF ] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Tfail |-> [1 . P0, 1 . PF, nilP]) C (S + 1 . PF C') 
+ ***         =>  ( N ; Tload |-> [1 . P1, 1 . P2, nilP ] ; Tass |-> [2 . P4, 1 . P6, nilP]) false (set(S, P3, 0) + S[P3] . P2 + 1 . P0) false if S[P5] = 0 .
+ *** crl [pr2] : ( N ; Tline |-> [1 . P2, 1 . P4, 1 . PF ] ; Tass |-> [2 . P4, 1 . P6, nilP]) C (S + K . P2 + 1 . PF C') => (net false) 1 . p(0,"") + M . p(3,"") + (K - M . p(2,"")) + S[P4] . p(4,"") false if  K >= 2 * M - 1 .
+endm
+

@@ -3,8 +3,8 @@ in ../shared/COMP-PAIR-LIST
 in PLACE
 
 fmod BAGP is
- *** pr BAG{Place} * ( op nil to emptyPbag) .
- pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, op nil to emptyPbag, 
+ *** pr BAG{Place} * ( op nil to nilP) .
+ pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, op nil to nilP, 
                            sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
  pr COMP-PAIR-LIST{Nat<, PLACE<} * (sort Pair{Nat<,PLACE<} to PairNP, sort NeList{Nat<,PLACE<} to NeListNP,
                                        sort List{Nat<,PLACE<} to ListNP, op emptyListXY to emptyListNP) .
@@ -34,15 +34,15 @@ fmod BAGP is
  *** op labMap  : Pbag String -> Pset . *** returns the set of places with a certain label
  *** eq labMap(B, W) = $labMap(B, W, emptyPset) .
  *** op $labMap : Pbag String Pset ->  Pset .
- *** eq $labMap(emptyPbag, W, S) = S . 
+ *** eq $labMap(nilP, W, S) = S . 
  *** eq $labMap(K . p(N,W) + B, W, S) = $labMap(B, W, S U p(N,W)) .
  *** eq $labMap(K . P + B, W, S) = $labMap(B, W, S)  [owise] .
 
  *** extracts the sub-bag with a certain label out of a bag
  op extract : Pbag String -> Pbag .
- eq extract(B, W) = $extract(B, W, emptyPbag) .
+ eq extract(B, W) = $extract(B, W, nilP) .
  op $extract : Pbag String Pbag -> Pbag .
- eq $extract(emptyPbag, W, B) = B .
+ eq $extract(nilP, W, B) = B .
  eq $extract(K . p(N,W) + B, W, B') = $extract(B, W, K . p(N,W) +  B') . 
  eq $extract(K . P + B, W, B') = $extract(B, W, B') [owise] .
  
@@ -50,7 +50,7 @@ fmod BAGP is
  op toList : Pbag String -> ListNP . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with a certain label
  eq toList(B, W) = $toList(B, W, emptyListNP) .
  op $toList : Pbag String ListNP -> ListNP .
- eq $toList(emptyPbag, W, LNP) = LNP .
+ eq $toList(nilP, W, LNP) = LNP .
  eq $toList(K . p(N,W) + B, W, LNP) = $toList(B, W, < K ; p(N,W) > LNP) . 
  eq $toList(K . P + B, W, LNP) = $toList(B, W, LNP) [owise] .
  op toListS : Pbag String -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag

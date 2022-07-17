@@ -1,5 +1,10 @@
-in PT-SYS2
+in PT-SYS
 
+*** this version separates the canonization of the net from the canonization of the marking (done independently)
+*** the net canonization (the same algorithm used in the other modules(s)  CAN-PT-SYS(2)) should be modified so that
+*** it should be driven by the transition incidence matrices (see the RP paper)
+*** the marking canonization builds on indentifyng structurally permutable places -- using labels could make the implementation easy
+*** no implementation is actually provided   
 fmod CAN-PT-SYS is
  inc PT-SYS .
  
@@ -10,65 +15,75 @@ fmod CAN-PT-SYS is
  vars P P' P'' : Place .
  vars T T' : Tran .
  vars SYS  SYS' : System .
- vars N  N' : Net .
- vars B M0 M0' : Bag{Place} .
- vars SP SP' : Set{Place} .
- vars LP LP' : List{Place} .
- vars LT LT'  : List{Tran} .
- var NeLP : NeList{Place} .
- var NeSP : NeSet{Place} .
- var NeLT : NeList{Tran} .
+ vars N N' : Net .
+ vars B M M0 M0' : Pbag .
+ vars SP SP' : Pset .
+ vars LP LP' : Plist .
+ vars LT LT'  : Tlist .
+ var NeLP : NePlist .
+ var NeSP : NePset .
+ var NeLT : NeTlist .
  vars Sy Sy' Sy'' : System .
- var C : Bool .
+ vars C C' : Bool .
  var A : Atype .
- vars BL BL' : List{Bag{Place}} .
- var NeBL : NeList{Bag{Place}} .
+ vars BL BL' : List{Pbag} .
+ var NeBL : NeList{Pbag} .
  
  *** canonization
- sort CanSys .
- op __ : System Bool -> CanSys  [ctor] . *** the boolean flag sets the system's (net) canonization status
- eq Sy false =  canonizePT(Sy, "") true . *** incomplete: canonization driven by N (see CAN-PT-SYS-NEW)
-
- op sys : CanSys -> System .
- eq sys(Sy C) = Sy .
-
- op canonical?  : CanSys -> Bool .
- eq canonical?(Sy C) = C .
+ sort CanSys CanNet CanMark .
+ op __ : Net Bool  -> CanNet   [ctor] .
+ op __ : Pbag Bool -> CanMark  [ctor] .
+ op __ : CanNet CanMark -> CanSys  [ctor] . *** the boolean flags define the PT system's canonization status
  
+ *** accessor operators (syntactic sugar)
+ var CS : CanSys .
+ op sys : CanSys -> System .
+ eq sys(N C M C') = N M .
+ op net  : CanSys -> Net .
+ eq net(CS) = net(sys(CS)) .
+ op marking : CanSys -> Pbag .
+ eq marking(CS) = marking(sys(CS)) .
+ op canonical?  : CanSys -> Bool .
+ eq canonical?(N C M C') = C and-then C' .
+
+ *** canonization equations
+ceq N false M C = net(Sy) true canonizeM(Sy) true if Sy := canonizePT(N M) . *** the net component is not canonical
+ eq N true  M false = N true canonizeM(N M) true . *** the net component is canonical but the marking is not
+
  *** canonizes a given type of edge of a system's net (considering places with the given label) -- builds on canonizeP
  *** uses indices (0..K-1) instead of a list of places -- K is assumed to be the #places with that label
  *** the last parameter is a list of bags representing incidence matrices already canonized and that have to be retained
- op canonizeNet : System Atype Nat String List{Bag{Place}} -> System . 
+ op canonizeNet : System Atype Nat String List{Pbag} -> System . 
  eq canonizeNet(Sy, A, 0, S, BL) = Sy .
  eq canonizeNet(Sy, A, K, S, BL) = canonizeNet(Sy, A, makeAdjListS(net(Sy),A), 0, K, S, BL) .
  --- the adjacency list is passed as a list of place bags
- op canonizeNet  : System Atype List{Bag{Place}} Nat NzNat String List{Bag{Place}} -> System . *** canonizes a system w.r.t. a number of net places and a (sorted) adjacency list
+ op canonizeNet  : System Atype List{Pbag} Nat NzNat String List{Pbag} -> System . *** canonizes a system w.r.t. a number of net places and a (sorted) adjacency list
  eq canonizeNet(Sy, A, BL, K, K, S, BL') = Sy  .
 ceq canonizeNet(Sy, A, BL, I, K, S, BL') = canonizeNet(Sy', A, makeAdjListS(net(Sy'),A), I + 1, K, S, BL')  if I =/= K /\ Sy' := canonizeP(Sy, BL, p(I,S), BL') /\ Sy' =/= Sy . *** implicitly reorders the AL in the case of swap of P with some P'
  eq canonizeNet(Sy, A, BL, I, K, S, BL') = canonizeNet(Sy, A, BL, I + 1, K, S, BL') [owise] .
  
 
  *** canonizes a system w.r.t. a place and an adjacency list - builds on minGtIdx
- op canonizeP : System List{Bag{Place}} Place List{Bag{Place}} -> System . 
+ op canonizeP : System List{Pbag} Place List{Pbag} -> System . 
  eq canonizeP(Sy, BL, P, BL') = $canonizeP(Sy, BL, P, emptyPlist, BL') .
- op $canonizeP : System List{Bag{Place}} Place List{Place} List{Bag{Place}} -> System . *** auxiliary version taking a list (set) of places as additional arg - builds on takeAction
+ op $canonizeP : System List{Pbag} Place Plist List{Pbag} -> System . *** auxiliary version taking a list (set) of places as additional arg - builds on takeAction
  eq $canonizeP(Sy, emptyListBagP, P, LP, BL') = Sy .
 ceq $canonizeP(Sy, B BL, P, LP, BL') = takeAction(Sy, B BL, P, LP', BL') if LP' := minGtIdx(B, P, LP)  /\ LP' =/= emptyPlist .
  eq $canonizeP(Sy, B BL, P, LP, BL') = $canonizeP(Sy, BL, P, LP, BL') [owise] . *** a5 (LP', i.e., set A is empty and P doesn't belong to B) 
 
  *** on the basis of minGtIdx outcome, it may perform some swaps between places
- op takeAction : System NeList{Bag{Place}} Place NeList{Place} List{Bag{Place}} -> System . 
- eq takeAction(Sy, B BL, P, P NeLP, BL') = $canonizeP(Sy, BL, P, NeLP, BL') . *** a1 (continues from the next bag using P and the tail of List{Place} as args)
-ceq takeAction(Sy, B BL, P, (P' P'' LP), BL') = $canonizeP(swap(Sy, P, P''), swapS(BL, P , P''), P, (P' LP), BL') if P' =/= P  /\ BL' == $swap(BL', P, P'') . *** a2 (swaps P with the 2nd el of List{Place} and sorts then continues from the next bag still using P and the residual of List{Place})
-ceq takeAction(Sy, NeBL, P, P', BL) = swap(Sy, P, P' )  if P' =/= P /\ BL == $swap(BL, P, P') . *** a3 (swaps P with the only el P' of List{Place}, different from P, sorts and continues from the next(P))
+ op takeAction : System NeList{Pbag} Place NePlist List{Pbag} -> System . 
+ eq takeAction(Sy, B BL, P, P NeLP, BL') = $canonizeP(Sy, BL, P, NeLP, BL') . *** a1 (continues from the next bag using P and the tail of Plist as args)
+ceq takeAction(Sy, B BL, P, (P' P'' LP), BL') = $canonizeP(swap(Sy, P, P''), swapS(BL, P , P''), P, (P' LP), BL') if P' =/= P  /\ BL' == $swap(BL', P, P'') . *** a2 (swaps P with the 2nd el of Plist and sorts then continues from the next bag still using P and the residual of Plist)
+ceq takeAction(Sy, NeBL, P, P', BL) = swap(Sy, P, P' )  if P' =/= P /\ BL == $swap(BL, P, P') . *** a3 (swaps P with the only el P' of Plist, different from P, sorts and continues from the next(P))
  eq takeAction(Sy, NeBL, P, NeLP, BL) = Sy [owise] . *** a4 (continues from the next place index)
 
  *** top-level ops
 
- *** canonizes a PT system considering nodes with a certain label (defined for convenience) -- builds on canonizePlaces, canonizeTrans
- op canonizePT : System String -> System .
+ *** canonizes a PT system considering nodes with a certain label (defined for convenience) -- builds canonizePlaces, canonizeTrans 
+ op canonizePT : System String  -> System .
 ceq canonizePT(Sy, S) = canonizeTrans(net(Sy'), S) marking(Sy') if Sy' := canonizePlaces(Sy, | places(Sy) |, S) .
-*** consider unlabelled nodes
+ *** consider unlabelled nodes
  op canonizePT : System  -> System .
  eq canonizePT(Sy) = canonizePT(Sy, "") .
  
@@ -76,10 +91,10 @@ ceq canonizePT(Sy, S) = canonizeTrans(net(Sy'), S) marking(Sy') if Sy' := canoni
  op canonizePlaces : System NzNat String -> System . 
 ceq canonizePlaces(Sy, K, S) = canonizeNet(Sy', h, K, S, (makeAdjList(net(Sy'),i) makeAdjList(net(Sy'),o))) if Sy' := $canonizeInOut(Sy, K, S) .
 
- op $canonizeInOut : System NzNat String  -> System .
+ op $canonizeInOut : System NzNat String -> System .
 ceq $canonizeInOut(Sy, K, S) = canonizeNet(Sy', o, K, S, makeAdjList(net(Sy'),i)) if Sy' := canonizeNet(Sy, i, K, S, emptyListBagP)   .
- 
- *** full version -- to be implemented ***
+  
+*** full version (considers all labels) -- TO DEFINE ***
  op canonizePT : System Bool -> System .
 
  var LQ : List{Imatrix} .
@@ -89,23 +104,39 @@ ceq $canonizeInOut(Sy, K, S) = canonizeNet(Sy', o, K, S, makeAdjList(net(Sy'),i)
  eq $canonizeTrans(emptyListQ, I, S, N) = N .
  eq $canonizeTrans(Q LQ, I, S, N) = $canonizeTrans(LQ, I + 1, S, N ; t(I,S) |-> Q) . 
 
-*** TOLTO canonizeM (inutile:semplicemente canonizzava un Pbag)
+ *** canonizes the system's marking taken in isolation considering structurally equivalent (i.e., permutable) places
+ *** DIFFERENTE DALLA PRECEDENTE VERSIONE (INUTILE)
+ *** dummy implementation  
+ op canonizeM : System String -> Pbag . 
+ eq canonizeM(N M, S) = M .
+ op canonizeM : System -> Pbag .
+ eq canonizeM(Sy) = canonizeM(Sy, "") . 
+ 
+ 
 
  *** the following operators replace place indices so that they lie in 0...n-1
  *** assume that the list of places holds all and only the nodes with a certain label, sorted in increasing order
- *** DOMANDA: SI POSSONO DEFINIRE SENZA USARE List{Place}? ANOCORA NECESSARI?
+ *** DOMANDA: SI POSSONO DEFINIRE SENZA USARE Plist? ANOCORA NECESSARI?
  
  op replacePindices : System String -> System . *** replace the place indices (with a given label) so that they range throug 0..n-1 
  
- op replaceIndexP : System List{Place} -> System . 
+ op replaceIndexP : System Plist -> System . 
  eq replaceIndexP(Sy, emptyPlist) = Sy .
 ceq replaceIndexP(Sy, NeLP) = Sy if subscript(last(NeLP)) + 1 == size(NeLP) .
  eq replaceIndexP(Sy, NeLP) = $replaceIndexP(Sy, NeLP, 0) [owise] .
- op $replaceIndexP : System List{Place} Nat -> System . 
+ op $replaceIndexP : System Plist Nat -> System . 
  eq $replaceIndexP(Sy, emptyPlist, I) = Sy .
  eq $replaceIndexP(Sy, p(I, S) LP, I) = $replaceIndexP(Sy, LP, I + 1) . 
 ceq $replaceIndexP(Sy, p(J, S) LP, I) = $replaceIndexP(replace(Sy, p(J, S), p(I, S)), LP, I + 1) if I =/= J .
 
  op replaceIndexP : System -> System .
  eq replaceIndexP(Sy) = replaceIndexP(Sy, placeList(Sy)) .
+
+ *** how the new canonization op should look like (just a first part)
+ op canonizeNet : System String -> Net . 
+ eq canonizeNet(N M, S) = $canonizeNet(makeAdjList(N, S), 0, S, emptyN) .
+ op $canonizeNet : List{Imatrix} Nat String Net -> Net .
+ eq $canonizeNet(emptyListQ, I, S, N) = N .
+ eq $canonizeNet(Q LQ, I, S, N) = $canonizeNet(LQ, I + 1, S, N ; t(I,S) |-> Q) . 
+
 endfm
