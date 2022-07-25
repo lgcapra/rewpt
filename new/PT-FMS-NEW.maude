@@ -2,14 +2,20 @@ in CAN-PT-SYS-NEW
 
 fmod PT-FMS is
  protecting PT-NET .
- op net : -> Net .
- op m0  : -> Pbag . 
+ ops net pline : -> Net .
+ ops m0 m0' : -> Pbag . 
  op M   : -> NzNat . *** MS model's parameter
  eq M = 8 . 
+ *** only the product line structure (without faults)
+ eq pline = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
+          nilP ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ; t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] .
+ *** the FMS (pl + faults; cannot be obtained from pline using ';' because of the inhibitor arcs to t1,t2)
  eq net = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), 1 . p(7,"") ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
           1 . p(8,"") ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ;
           t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] ; t(5,"") |-> [1 . p(0,""), 1 . p(7,""), nilP ] ; t(6,"") |-> [1 . p(0,""), 1 . p(8,""), nilP].
- eq m0  = (2 * M) . p(1,"") +  1 . p(0,"") .
+ eq m0'  = (2 * M) . p(1,"")  .
+ eq m0  = m0' +  1 . p(0,"") .
+
  *** specification using node labels 
  *** eq net = t(0,"load") |-> [2 . p(1,"start"), 1 . p(2,"line") + 1 . p(3,"line"), nilP ] ; t(1,"line") |-> [1 . p(2,"line") , 1 . p(4,"ass"), 1 . p(7,"faulty") ] ; t(2,"line") |-> [1 . p(3,"line") , 1 . p(5,"ass"),
  ***         1 . p(8,"faulty") ] ; t(3,"ass") |-> [1 . p(4,"ass") + 1 . p(5,"ass") , 1 . p(6,"end"), nilP ] ;

@@ -91,8 +91,22 @@ ceq $canonizeInOut(Sy, K, S) = canonizeNet(Sy', o, K, S, makeAdjList(net(Sy'),i)
  eq $canonizeTrans(emptyListQ, I, S, N) = N .
  eq $canonizeTrans(Q LQ, I, S, N) = $canonizeTrans(LQ, I + 1, S, N ; t(I,S) |-> Q) . 
 
- *** TOLTO canonizeM (inutile: semplicemente canonizzava un Pbag)
-
+*** canonizes the system's marking, taken in isolation (this version builds on minGtIdx - doesn't exploit the fact that the returned list may be >1-size)
+ op canonizeM : System String -> System . 
+ eq canonizeM(N nilP, S) = N nilP .
+ var B' : NePbag .
+ eq canonizeM(N B', S) = $canonizeM(N B', 0, S) .
+ op $canonizeM : System Nat String -> System . 
+ceq $canonizeM(N B', I, S) = $canonizeM(takeAction(N B', p(I,S), LP), I + 1, S) if LP := minGtIdx(B', p(I,S), emptyPlist) /\ LP =/= emptyPlist .
+ eq $canonizeM(Sy, I, S) = Sy [owise] .
+ op takeAction : System Place NePlist -> System . *** builds on minGtIdx
+ceq takeAction(N B', P, (P' P'' LP)) = swap(N B', P, P'')  if P' =/= P  . *** a2 (swaps P with the 2nd el of Plist)
+ceq takeAction(N B', P, P') = swap(N B', P, P' )  if P' =/= P  . *** a3 (swaps P with the only el P' of Plist, different from P)
+ eq takeAction(Sy, P, NeLP) = Sy [owise] . *** a4 (nothing to do -- continues from the next place index)
+ *** default
+ op canonizeM : System  -> System . 
+ eq canonizeM(Sy) = canonizeM(Sy, "") . 
+ 
  *** the following operators replace place indices so that they lie in 0...n-1
  *** assume that the list of places holds all and only the nodes with a certain label, sorted in increasing order
  *** DOMANDA: SI POSSONO DEFINIRE SENZA USARE Plist? ANOCORA NECESSARI?
