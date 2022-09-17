@@ -9,3 +9,8 @@ fmod PAIR{X :: TRIV, Y :: TRIV} is
  eq 1st(< A ; B >) = A . 
  eq 2nd(< A ; B >) = B . 
 endfm
+
+*** default view
+view Pair{X :: TRIV, Y :: TRIV} from TRIV to PAIR{X,Y} is 
+ sort Elt to Pair{X,Y} . 
+endv

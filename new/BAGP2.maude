@@ -1,11 +1,11 @@
 in ../shared/BAG-AND-SET
-in ../shared/COMP-PAIR-LIST
+in ../shared/COMP-PAIR-LIST-NEW
 in PLACE
 
 fmod BAGP is
  pr BAG-AND-SET{Place} * ( op nil to emptyPbag, op emptyS to emptyPset) .
- pr COMP-PAIR-LIST{Nat<, PLACE<} * (sort Pair{Nat<,PLACE<} to Pair{Nat,Place},sort List{Nat<,PLACE<} to List{Nat,Place},
-                                    sort NeList{Nat<,PLACE<} to NeList{Nat,Place}, op emptyListXY to emptyListNP) .
+ pr COMP-PAIR-LIST{Nat<, Place<} * (sort Pair{Nat<,Place<} to Pair{Nat,Place},sort List{Nat<,Place<} to List{Nat,Place},
+                                    sort NeList{Nat<,Place<} to NeList{Nat,Place}, op emptyListXY to emptyListNP) .
  
  vars P P' $P : Place . 
  vars K K' : NzNat .
@@ -60,11 +60,9 @@ fmod BAGP is
  eq toListS(B) = sort(toList(B)) .
 
  *** are still needed?
- op _lt_ : Bag{Place} Bag{Place} -> Bool . *** maps on the order relation of lists of comparable pairs (weight sequence considered first)
- eq B lt B' = toListS(B) lex12 toListS(B') . 
+ op _lt_ : Bag{Place} Bag{Place} -> Bool . *** maps to the lexicographic order of of lists of (comparable) pairs
+ eq B lt B' = toListS(B) lt toListS(B') . 
 
- op _lt'_ : Bag{Place} Bag{Place} -> Bool . *** maps on the usual, pair-wise, order relation of lists of comparable pairs
- eq B lt' B' = toListS(B) lex toListS(B') . 
 endfm
 
 *** deafult view to BAGP
@@ -73,7 +71,7 @@ view Pbag from TRIV to BAGP is
 endv
 
 *** total-order view to BAGP
-view BAGP< from STRICT-TOTAL-ORDER to BAGP is 
+view Pbag< from STRICT-TOTAL-ORDER to BAGP is 
  sort Elt to Bag{Place} .
  op _<_ to _lt_ . 
 endv

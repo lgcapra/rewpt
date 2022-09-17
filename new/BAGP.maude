@@ -1,13 +1,13 @@
 in ../shared/BAG-AND-SET
-in ../shared/COMP-PAIR-LIST
+*** in ../shared/COMP-PAIR-LIST
+in ../shared/COMP-PAIR-LIST-NEW
 in PLACE
 
 fmod BAGP is
  *** pr BAG{Place} * ( op nil to nilP) .
  pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, op nil to nilP, 
                            sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
- pr COMP-PAIR-LIST{Nat<, PLACE<} * (sort Pair{Nat<,PLACE<} to PairNP, sort NeList{Nat<,PLACE<} to NeListNP,
-                                       sort List{Nat<,PLACE<} to ListNP, op emptyListXY to emptyListNP) .
+ pr COMP-PAIR-LIST+{Nat<, Place<} * (sort Pair{Nat<,Place<} to PairNP, sort NeList{Nat<,Place<} to NeListNP, sort List{Nat<,Place<} to ListNP, op emptyListXY to emptyListNP) .
  
  vars P P' $P : Place . 
  vars K K' : NzNat .
@@ -53,30 +53,28 @@ fmod BAGP is
  eq $toList(nilP, W, LNP) = LNP .
  eq $toList(K . p(N,W) + B, W, LNP) = $toList(B, W, < K ; p(N,W) > LNP) . 
  eq $toList(K . P + B, W, LNP) = $toList(B, W, LNP) [owise] .
- op toListS : Pbag String -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag
- eq toListS(B, W) = sort(toList(B, W)) .
-
- op toList : Pbag -> ListNP . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with empty label
+ 
+ ops toList toListS toListS1 : Pbag -> ListNP . *** builds (un)ordered list of pairs < weight ; el > out of a bag, by considering places with empty label
  eq toList(B) = toList(B, "") .
- op toListS : Pbag -> ListNP . *** builds an ordered list of pairs < weight ; el > out of a bag  -- considers places with empty label
- eq toListS(B) = sort(toList(B)) .
+ eq toListS(B) = sort(toList(B)) . *** builds an ordered list of pairs out os a bag  
+ eq toListS1(B) = sort1(toList(B)) . *** builds an ordered list of pairs out os a bag 
 
- *** are still needed?
- op _lt_ : Pbag Pbag -> Bool . *** maps on the order relation of lists of comparable pairs (weight sequence considered first)
- eq B lt B' = toListS(B) lex12 toListS(B') . 
 
- op _lt'_ : Pbag Pbag -> Bool . *** maps on the usual, pair-wise, order relation of lists of comparable pairs
- eq B lt' B' = toListS(B) lex toListS(B') . 
+ op _lt_ : Pbag Pbag -> Bool . *** maps to the lexicographic order of lists of (comparable) pairs
+ eq B lt B' = toListS(B) lt toListS(B') . 
+ op cmp1 : Pbag Pbag -> Nat . *** compares the wights of the corresponding (sorted1) lists
+ eq cmp1(B, B') = cmp1(toListS1(B), toListS1(B')) .
+ op _<1_ : Pbag Pbag -> Bool . *** maps to the lexicographic order of weights 
+ eq B <1 B' = cmp1(B, B') == 1 .
 endfm
 
 
-*** deafult view to BAGP
 view Pbag from TRIV to BAGP is 
  sort Elt to Pbag .
 endv
 
-*** total-order view to BAGP
-view BAGP< from STRICT-TOTAL-ORDER to BAGP is 
+*** default total-order
+view Pbag< from STRICT-TOTAL-ORDER to BAGP is 
  sort Elt to Pbag .
  op _<_ to _lt_ . 
 endv

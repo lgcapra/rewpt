@@ -158,3 +158,6 @@ ceq $replaceIndexP(Sy, p(J, S) LP, I) = $replaceIndexP(replace(Sy, p(J, S), p(I,
  eq $canonizeNet(Q LQ, I, S, N) = $canonizeNet(LQ, I + 1, S, N ; t(I,S) |-> Q) . 
 
 endfm
+
+*** prove
+*** red makeAdjList(t(0,"") |-> [1 . p(0,""), 2 . p(2,"") , nilP ] ; t(1,"") |-> [1 . p(1,""), 1 . p(3,""), nilP ]) .

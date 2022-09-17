@@ -84,7 +84,11 @@ ceq (N . X + B) / M = B / M if N quo M == 0 .
  eq B eqw B = true .
  eq N . X + B eqw N . Y + B' = B eqw B' .
  eq B eqw B' = false [owise] . 
- 
+
+ op join : Bag{X} Bag{X} -> [Bag{X}] [assoc comm id: nil] . *** join two bags: elements present in both must have equal multeplicity (otherwise the result in unfefined) 
+ vars NeB NeB' : NeBag{X} .
+ eq join(NeB, NeB) = NeB .
+ceq join(N . X + B, NeB) = N . X + join(B, NeB)  if NeB[X] == 0 .
 endfm
 
 *** parameterized trivial view to BAG{X}

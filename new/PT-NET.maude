@@ -4,11 +4,11 @@ in ../shared/COMP-PAIR-LIST
 
 fmod PT-NET is
  inc MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
- pr SORTABLE-LIST{TRAN<}  * (sort List{TRAN<} to Tlist, sort NeList{TRAN<} to NeTlist, op nil to emptyTlist ) .
- pr SORTABLE-LIST{PLACE<}  * (sort List{PLACE<} to Plist, sort NeList{PLACE<} to NePlist, op nil to emptyPlist ) .
- pr SORTABLE-LIST{BAGP<} * (sort List{BAGP<} to List{Pbag}, sort NeList{BAGP<} to NeList{Pbag}, op nil to emptyListBagP ) .
- *** pr COMP-PAIR-LIST{BAGP<, TRAN<} * (sort Pair{BAGP<, TRAN<} to PairBT, sort NeList{Pbag<,TRAN<} to NeListBT, sort List{Pbag<,TRAN<} to ListBT, op emptyListXY to emptyListBT) .
- pr SORTABLE-LIST{IMATRIX<} * (sort List{IMATRIX<} to List{Imatrix}, sort NeList{IMATRIX<} to NeList{Imatrix}, op nil to emptyListQ ) .
+ pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
+ pr SORTABLE-LIST{Place<}  * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
+ pr SORTABLE-LIST{Pbag<} * (sort List{Pbag<} to List{Pbag}, sort NeList{Pbag<} to NeList{Pbag}, op nil to emptyListBagP ) .
+ *** pr COMP-PAIR-LIST{Pbag<, Tran<} * (sort Pair{Pbag<, Tran<} to PairBT, sort NeList{Pbag<,Tran<} to NeListBT, sort List{Pbag<,Tran<} to ListBT, op emptyListXY to emptyListBT) .
+ pr SORTABLE-LIST{Imatrix<'} * (sort List{Imatrix<'} to List{Imatrix}, sort NeList{Imatrix<'} to NeList{Imatrix}, op nil to emptyListQ ) .
  *** otherwise, we might define a COMP-PAIR-LIST of matrices and transitions  
 
  pr ATYPE .
@@ -78,20 +78,17 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq $places(emptyN, A, S) = S .
  eq $places(T |-> Q ; N, A, S) = $places(N, A, S U support(Q(A)) ) . 
  
- *** makes a sorted adjacency list out of a net 
- op makeAdjList : Net -> List{Imatrix} .  
- eq makeAdjList(N) = $makeAdjList(N, emptyListQ) .
- op $makeAdjList : Net List{Imatrix} -> List{Imatrix} .
- eq $makeAdjList(emptyN, QL) = sort(QL) .
- eq $makeAdjList(T |-> Q ; N, QL) = $makeAdjList(N, QL Q)  .
- 
  *** makes a sorted adjacency list out of a net -- transitions with the given label are considered
  op makeAdjList : Net String -> List{Imatrix} .  
- eq makeAdjList(N, W) = $makeAdjList(N, W, emptyListQ) .
+ eq makeAdjList(N, W) = sort($makeAdjList(N, W, emptyListQ)) .
  op $makeAdjList : Net String List{Imatrix} -> List{Imatrix} .
- eq $makeAdjList(emptyN, W, QL) = sort(QL) .
+ eq $makeAdjList(emptyN, W, QL) = QL .
  eq $makeAdjList(t(Y, W) |-> Q ; N, W, QL) = $makeAdjList(N, W, QL Q)  .
  eq $makeAdjList(T |-> Q ; N, W, QL) = $makeAdjList(N, W, QL)  [owise] .
+
+ *** makes a sorted adjacency list out of a net by considering transitions with an empty label 
+ op makeAdjList : Net -> List{Imatrix} .  
+ eq makeAdjList(N) = makeAdjList(N, "") .
  
  *** makes a sorted adjacency list of a given type (i,o,h) out of a net (NOTE builds on the operator above, i.e., on the order defined on inc. matrices)
  op makeAdjListS : Net Atype -> List{Pbag} .

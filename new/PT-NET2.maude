@@ -4,11 +4,11 @@ in ../shared/COMP-PAIR-LIST
 
 fmod PT-NET is
  inc MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
- pr SORTABLE-LIST{TRAN<}  * (sort List{TRAN<} to List{Tran}, sort NeList{TRAN<} to NeList{Tran}, op nil to emptyTlist ) .
- pr SORTABLE-LIST{PLACE<}  * (sort List{PLACE<} to List{Place}, sort NeList{PLACE<} to NeList{Place}, op nil to emptyPlist ) .
- pr SORTABLE-LIST{BAGP<} * (sort List{BAGP<} to List{Bag{Place}}, sort NeList{BAGP<} to NeList{Bag{Place}}, op nil to emptyListBagP ) .
- *** pr COMP-PAIR-LIST{BAGP<, TRAN<} * (sort Pair{BAGP<, TRAN<} to PairBT, sort NeList{Bag{Place}<,TRAN<} to NeListBT, sort List{Bag{Place}<,TRAN<} to ListBT, op emptyListXY to emptyListBT) .
- pr SORTABLE-LIST{IMATRIX<} * (sort List{IMATRIX<} to List{Imatrix}, sort NeList{IMATRIX<} to NeList{Imatrix}, op nil to emptyListQ ) .
+ pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to List{Tran}, sort NeList{Tran<} to NeList{Tran}, op nil to emptyTlist ) .
+ pr SORTABLE-LIST{Place<}  * (sort List{Place<} to List{Place}, sort NeList{Place<} to NeList{Place}, op nil to emptyPlist ) .
+ pr SORTABLE-LIST{Pbag<} * (sort List{Pbag<} to List{Bag{Place}}, sort NeList{Pbag<} to NeList{Bag{Place}}, op nil to emptyListBagP ) .
+ *** pr COMP-PAIR-LIST{Pbag<, Tran<} * (sort Pair{Pbag<, Tran<} to PairBT, sort NeList{Bag{Place}<,Tran<} to NeListBT, sort List{Bag{Place}<,Tran<} to ListBT, op emptyListXY to emptyListBT) .
+ pr SORTABLE-LIST{Imatrix<'} * (sort List{Imatrix<'} to List{Imatrix}, sort NeList{Imatrix<'} to NeList{Imatrix}, op nil to emptyListQ ) .
  *** otherwise, we might define a COMP-PAIR-LIST of matrices and transitions  
 
  pr ATYPE .

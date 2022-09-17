@@ -16,18 +16,14 @@ fmod IMATRIX is
  op remove : Imatrix Place -> Imatrix .
  eq remove([X,Y,Z], P) = [set(X,P,0),set(Y,P,0),set(Z,P,0)] .
  
- *** still needed?
- op _<_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt relation between bags (currently based in turn on lex12)
+ op _<_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt relation between bags (based in turn on lex)
  eq [X,Y,Z] < [X',Y',Z'] = X lt X' or-else X == X' and-then (Y lt Y' or-else Y == Y' and-then Z lt Z') .
-
- op _<'_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt' relation between bags (currently based in turn on lex)
- eq [X,Y,Z] <' [X',Y',Z'] = X lt' X' or-else X == X' and-then (Y lt' Y' or-else Y == Y' and-then Z lt' Z') .
 
  *** new : (efficiently) compares two matrices first considering multiplicities (weights) then (place) indices of bags i, o, h, in the order 
  *** forse si può semplificare
- op _wi<_ : Imatrix Imatrix -> Bool . 
-ceq [X,Y,Z] wi< [X',Y',Z'] = true if  IL := toListS(X) /\ IL' := toListS(X') /\ $less(IL cmp1 IL', $evalwO(IL, IL', toListS(Y), toListS(Y'), toListS(Z), toListS(Z') ) ) .
- eq Q wi< Q' = false [owise] .
+ op _<'_ : Imatrix Imatrix -> Bool . 
+ceq [X,Y,Z] <' [X',Y',Z'] = true if  IL := toListS(X) /\ IL' := toListS(X') /\ $less(IL cmp1 IL', $evalwO(IL, IL', toListS(Y), toListS(Y'), toListS(Z), toListS(Z') ) ) .
+ eq Q <' Q' = false [owise] .
  op $evalwO : List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} List{Nat,Place} -> Bool [ strat (3 4 0) ].
 ceq $evalwO(IL, IL', OL, OL', HL, HL') = true if $less(OL cmp1 OL', $evalwH(IL, IL', OL, OL', HL, HL' ) ) .
  eq $evalwO(IL, IL', OL, OL', HL, HL') = false [owise] .
@@ -69,6 +65,7 @@ ceq $evalwH(IL, IL', OL, OL', HL, HL') = true if $less(HL cmp1 HL', $evalwI(IL, 
  *** checks whether corresponding components of two incidence matrices have the same multiplicities (builds on the analogous for bags)
  op _eqw_ : Imatrix Imatrix -> Bool [ comm ] .
  eq [X,Y,Z] eqw [X',Y',Z'] = X eqw X' and-then Y eqw Y' and-then Z eqw Z' . 
+
 endfm
 
 *** default view to IMATRIX
@@ -76,8 +73,13 @@ view Imatrix from TRIV to IMATRIX is
  sort Elt to Imatrix . 
 endv
 
-*** total-order view to IMATRIX
-view IMATRIX< from STRICT-TOTAL-ORDER to IMATRIX is 
+*** standard total-order view to IMATRIX
+view Imatrix< from STRICT-TOTAL-ORDER to IMATRIX is 
  sort Elt to Imatrix . 
- op _<_ to _wi<_ .
+endv
+
+*** total order based on subscripts first
+view Imatrix<' from STRICT-TOTAL-ORDER to IMATRIX is 
+ sort Elt to Imatrix . 
+   op _<_ to _<'_ .
 endv

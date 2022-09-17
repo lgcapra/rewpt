@@ -9,3 +9,19 @@ fmod SORTED-PAIR{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} is
  vars B B’ : Y$Elt . 
  eq < A ; B > < < A’ ; B’ > = A < A’ or-else (A == A’ and-then B < B’) . 
 endfm
+
+view Pair<{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} from STRICT-TOTAL-ORDER to SORTED-PAIR{X,Y} is 
+ sort Elt to Pair{X,Y} . 
+endv
+
+view Pair<1{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} from STRICT-TOTAL-ORDER to SORTED-PAIR{X,Y} is 
+ sort Elt to Pair{X,Y} .
+ vars X Y : Elt . 
+ op X < Y to term 1st(X) < 1st(Y) . 
+endv
+
+view Pair<2{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} from STRICT-TOTAL-ORDER to SORTED-PAIR{X,Y} is 
+ sort Elt to Pair{X,Y} .
+ vars X Y : Elt . 
+ op X < Y to term 2nd(X) < 2nd(Y) . 
+endv

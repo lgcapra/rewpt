@@ -1,7 +1,0 @@
-in COMPARABLE-LIST
-
-view COMPARABLE-LIST<{X :: STRICT-TOTAL-ORDER} from STRICT-TOTAL-ORDER to COMPARABLE-LIST{X} is 
- sort Elt to  List{X} .
- op _<_ to _lex_ .
-endv
- 
