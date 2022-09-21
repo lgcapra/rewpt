@@ -4,13 +4,14 @@ in ../shared/COMP-PAIR-LIST
 
 fmod PT-NET is
  inc MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
+ 
  pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
  pr SORTABLE-LIST{Place<}  * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
- pr SORTABLE-LIST{Pbag<} * (sort List{Pbag<} to List{Pbag}, sort NeList{Pbag<} to NeList{Pbag}, op nil to emptyListBagP ) .
- *** pr COMP-PAIR-LIST{Pbag<, Tran<} * (sort Pair{Pbag<, Tran<} to PairBT, sort NeList{Pbag<,Tran<} to NeListBT, sort List{Pbag<,Tran<} to ListBT, op emptyListXY to emptyListBT) .
- pr SORTABLE-LIST{Imatrix<'} * (sort List{Imatrix<'} to List{Imatrix}, sort NeList{Imatrix<'} to NeList{Imatrix}, op nil to emptyListQ ) .
- *** otherwise, we might define a COMP-PAIR-LIST of matrices and transitions  
-
+ *** pr SORTABLE-LIST{Imatrix<'} * (sort List{Imatrix<'} to List{Imatrix}, sort NeList{Imatrix<'} to NeList{Imatrix}, op nil to emptyListQ ) .
+ pr COMPARABLE-LIST{Limatrix<}  * (sort List{Limatrix<}  to List{Limatrix}, sort NeList{Limatrix<}  to NeList{Limatrix},  op nil to emptyListLQ ) .
+ pr COMPARABLE-LIST{Limatrix<1} * (sort List{Limatrix<1} to List{Limatrix}, sort NeList{Limatrix<1} to NeList{Limatrix},  op nil to emptyListLQ, 
+                                   op sort to sort1, op $sort to $sort1, op $split to $split1, op merge to merge1, op $merge to $merge1 ) .
+ 
  pr ATYPE .
 
  var  N : Net .
@@ -20,12 +21,16 @@ fmod PT-NET is
  vars K K' : NzNat .
  vars I O H B : Pbag .
  vars Q Q' : Imatrix .
+ vars LQ LQ' : Limatrix .
+ 
  vars S SP : Pset . 
  var W :  String .
  var F :  Bool .
- vars QL QL' : List{Imatrix} .
+ *** vars QL QL' : List{Imatrix} .
+ vars LQL LQL' : List{Limatrix} .
+ 
  var A :  Atype .
- vars BL BL' : List{Pbag} . 
+ *** vars BL BL' : List{Pbag} . 
  var L' : Tlist .
  var E : ImatrixT .
  
@@ -69,58 +74,48 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq $makeTlist(emptyN, L') = sort(L') . 
  eq $makeTlist(T |-> Q ; N, L') = $makeTlist(N, T L') . 
 
- **** operators helpful for canonization
- 
- *** return the places of a given type 
- op places : Net Atype -> Pset .
+ op places : Net Atype -> Pset . *** return the places of a given type 
  eq places(N, A) = $places(N, A, emptyPset) .
  op $places : Net Atype Pset -> Pset .
  eq $places(emptyN, A, S) = S .
  eq $places(T |-> Q ; N, A, S) = $places(N, A, S U support(Q(A)) ) . 
  
- *** makes a sorted adjacency list out of a net -- transitions with the given label are considered
- op makeAdjList : Net String -> List{Imatrix} .  
- eq makeAdjList(N, W) = sort($makeAdjList(N, W, emptyListQ)) .
- op $makeAdjList : Net String List{Imatrix} -> List{Imatrix} .
- eq $makeAdjList(emptyN, W, QL) = QL .
- eq $makeAdjList(t(Y, W) |-> Q ; N, W, QL) = $makeAdjList(N, W, QL Q)  .
- eq $makeAdjList(T |-> Q ; N, W, QL) = $makeAdjList(N, W, QL)  [owise] .
+ **** canonization part
 
- *** makes a sorted adjacency list out of a net by considering transitions with an empty label 
- op makeAdjList : Net -> List{Imatrix} .  
- eq makeAdjList(N) = makeAdjList(N, "") .
+ *** gets a sorted adjacency list of a given type (i,o,h) out of a net (NOTE builds on the operator above, i.e., on the order defined on inc. matrices)
+ *** op makeAdjListS : Net Atype -> List{Pbag} .
+ *** eq makeAdjListS(N, A) = $makeAdjListS(makeAdjList(N), A, emptyListBagP) . *** the list (of matrices) is ordered -- consequently the particular lists are
+ *** op $makeAdjListS : List{Imatrix} Atype List{Pbag} -> List{Pbag} .
+ *** eq $makeAdjListS(emptyListQ, A, BL) = BL .
+*** ceq $makeAdjListS(Q QL, A, BL) = $makeAdjListS(QL, A, BL) if Q(A) == nilP . *** optimization . 
+ *** eq $makeAdjListS(Q QL, A, BL) = $makeAdjListS(QL, A, BL Q(A) ) [owise] . 
  
- *** makes a sorted adjacency list of a given type (i,o,h) out of a net (NOTE builds on the operator above, i.e., on the order defined on inc. matrices)
- op makeAdjListS : Net Atype -> List{Pbag} .
- eq makeAdjListS(N, A) = $makeAdjListS(makeAdjList(N), A, emptyListBagP) . *** the list (of matrices) is ordered -- consequently the particular lists are
- op $makeAdjListS : List{Imatrix} Atype List{Pbag} -> List{Pbag} .
- eq $makeAdjListS(emptyListQ, A, BL) = BL .
-ceq $makeAdjListS(Q QL, A, BL) = $makeAdjListS(QL, A, BL) if Q(A) == nilP . *** optimization . 
- eq $makeAdjListS(Q QL, A, BL) = $makeAdjListS(QL, A, BL Q(A) ) [owise] . 
  *** makes an unsorted adjacency list of a given type (i,o,h) out of a net
- op makeAdjList : Net Atype -> List{Pbag} .  
- eq makeAdjList(N, A) = $makeAdjList(N, A, emptyListBagP) .
- op $makeAdjList : Net Atype List{Pbag} -> List{Pbag} .
- eq $makeAdjList(emptyN, A, BL) = BL .
- eq $makeAdjList(T |-> Q ; N, A, BL) = $makeAdjList(N, A, BL Q(A))  .
+ *** op makeAdjList : Net Atype -> List{Pbag} .  
+ *** eq makeAdjList(N, A) = $makeAdjList(N, A, emptyListBagP) .
+ *** op $makeAdjList : Net Atype List{Pbag} -> List{Pbag} .
+ *** eq $makeAdjList(emptyN, A, BL) = BL .
+ *** eq $makeAdjList(T |-> Q ; N, A, BL) = $makeAdjList(N, A, BL Q(A))  .
  
- *** extract from a list of bags (assumed ordered, according to the criterion above) the header composed of bags with the same weights
- op headqw : List{Pbag} -> List{Pbag} .
- eq headqw(BL) = $headqw(BL, emptyListBagP) .
- op $headqw : List{Pbag} List{Pbag} -> List{Pbag} . *** auxiliary op
- eq $headqw(B BL, emptyListBagP) = $headqw(BL, B) .
- var NeBL : NeList{Pbag} .
-ceq $headqw(B BL, NeBL) = $headqw(BL, NeBL B) if head(NeBL) eqw B .
- eq $headqw(BL, BL') = BL' [owise] .
-
- *** extract from a list of matrices (assumed ordered, according to the criterion above) the header composed of bags (i, o, h) with the same weights
- op headqw : List{Imatrix} -> List{Imatrix} .
- eq headqw(QL) = $headqw(QL, emptyListQ) .
- op $headqw : List{Imatrix} List{Imatrix} -> List{Imatrix} . *** auxiliary op
- eq $headqw(Q QL, emptyListQ) = $headqw(QL, Q) .
- var NeQL : NeList{Imatrix} .
-ceq $headqw(Q QL, NeQL) = $headqw(QL, NeQL Q) if head(NeQL) eqw Q .
- eq $headqw(QL, QL') = QL' [owise] .
+ *** gets a sorted list of matrices (better, view-lists of matrices) out of a net by sorting on the basis of bag weights
+ op makeAdjList1s : Net String -> List{Limatrix} .  
+ eq makeAdjList1s(N, W) = sort($makeAdjList1s(N, W, emptyListLQ)) .
+ op $makeAdjList1s : Net String List{Limatrix} -> List{Limatrix} .
+ eq $makeAdjList1s(emptyN, W, LQL) = LQL .
+ eq $makeAdjList1s(t(Y, W) |-> Q ; N, W, LQL) = $makeAdjList1s(N, W, LQL toListS1(Q))  .
+ eq $makeAdjList1s(T |-> Q ; N, W, LQL) = $makeAdjList1s(N, W, LQL)  [owise] .
+ op makeAdjList1s : Net -> List{Limatrix} . *** consider empty labels
+ eq makeAdjList1s(N) = makeAdjList1s(N, "") .
+ *** gets the matrices with components having the same weights from the head of a list
+ op headblock : List{Limatrix} -> List{Limatrix} . 
+ eq headblock(LQL) = $headblock(LQL, emptyListLQ) .
+ op $headblock : List{Limatrix} List{Limatrix} -> List{Limatrix} . *** auxiliary op
+ eq $headblock(LQ LQL, emptyListLQ) = $headblock(LQL, LQ) .
+ var NeL : NeList{Limatrix} .
+ceq $headblock(LQ LQL, NeL) = $headblock(LQL, NeL LQ) if cmp1(head(NeL), LQ) == 0 .
+ eq $headblock(LQL, LQL') = LQL' [owise] .
+ 
+ *** op regroup : List{Limatrix} -> List{List{Limatrix}} .
  
  
  *** operators to swap pairs of elements (various versions)
@@ -129,11 +124,9 @@ ceq $headqw(Q QL, NeQL) = $headqw(QL, NeQL Q) if head(NeQL) eqw Q .
  eq swap(emptyN, P, P') = emptyN .
 
  *** swaps two places in an adjacency list and sorts the resulting list
- op swapS : List{Pbag} Place Place -> List{Pbag} .  
- eq swapS(BL, P, P') = sort($swap(BL, P, P')) .
- op $swap : List{Pbag} Place Place -> List{Pbag} . *** swaps two places in an adjacency list
- eq $swap(emptyListBagP, P, P') = emptyListBagP .
- eq $swap(B BL, P, P') = swap(B, P, P') $swap(BL, P, P') . 
+ *** op swap : List{Pbag} Place Place -> List{Pbag} . *** swaps two places in an adjacency list
+ *** eq swap(emptyListBagP, P, P') = emptyListBagP .
+ *** eq swap(B BL, P, P') = swap(B, P, P') swap(BL, P, P') . 
 
  op replace : Net Place Place -> Net .  *** replace the first places with the 2nd one in a net
  eq replace(T |-> Q ; N, P, P') = T |-> replace(Q, P, P') ; replace(N, P, P') .

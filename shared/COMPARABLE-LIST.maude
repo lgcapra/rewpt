@@ -3,7 +3,7 @@ fmod COMPARABLE-LIST{X :: STRICT-TOTAL-ORDER} is
  pr SORTABLE-LIST{X} .
  pr EXT-BOOL . 
  op _lt_  : List{X} List{X} -> Bool . *** lexicographic ordering between lists
- op _leq_ : List{X} List{X} -> Bool .  *** reflexive closure of lt
+ op _leq_ : List{X} List{X} -> Bool .  *** reflexive closure of lex
  vars E E' : X$Elt .
  vars L L' : List{X} .
  var NEL : NeList{X} .
@@ -16,6 +16,25 @@ endfm
 view ComparableList<{X :: STRICT-TOTAL-ORDER} from STRICT-TOTAL-ORDER to COMPARABLE-LIST{X} is 
  sort Elt to  List{X} .
  op _<_ to _lt_ .
-endv
+endv 
 
- 
+fmod COMPARABLE-LIST+{X :: STRICT-WEAK-ORDER+} is 
+ pr WEAKLY-SORTABLE-LIST+{X} .
+ pr EXT-BOOL . 
+ op lex : Nat List{X} List{X} -> Bool . ***  lexicographic ordering (we use lex instead of lt to avoid a conflict)
+ op leq : Nat List{X} List{X} -> Bool .  *** reflexive closure of lex. order
+ vars E E' : X$Elt .
+ vars L L' : List{X} .
+ var NEL : NeList{X} .
+ var C : Nat .
+ eq [list-cmp] : lex(C, E L, E' L') = if E == E' then lex(C, L, L') else lt(C, E, E') fi . 
+ eq lex(C, nil, NEL) = true .
+ eq lex(C, L, nil)   = false .
+ eq leq(C, L, L') = L == L' or-else lex(C, L, L') .
+endfm
+
+view ComparableList<+{X :: STRICT-WEAK-ORDER+} from STRICT-WEAK-ORDER+ to COMPARABLE-LIST+{X} is 
+ sort Elt to  List{X} .
+ op lt to lex .
+endv 
+

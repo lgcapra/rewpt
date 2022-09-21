@@ -7,34 +7,16 @@ fmod IMATRIX is
  pr ATYPE .
  sorts Imatrix Limatrix .
  op [_,_,_] : Pbag Pbag Pbag -> Imatrix [ctor] .
- op [_,_,_] : ListNP ListNP ListNP -> Limatrix [ctor] .
  
  vars X Y Z X' Y' Z' : Pbag .
  vars P P' : Place .
  vars N N' C1 C2 : Nat .
- vars IL IL' OL OL' HL HL' : ListNP .
+ vars IL IL' OL OL' HL HL' : List{Nat,Place} .
  vars Q Q' : Imatrix .
  
- ops toLists  toLists1 : Imatrix -> Limatrix .
- eq toLists([X,Y,Z]) = [toListS(X), toListS(Y), toListS(Z)] .
- eq toLists1([X,Y,Z]) = [toListS1(X), toListS1(Y), toListS1(Z)] .
-
- ops _<_  _<'_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt relation between bags and (partial) order based on bag weights  
- eq Q < Q'  = toLists(Q)  <  toLists(Q') .
- eq Q <' Q' = toLists1(Q) <' toLists1(Q') .
- 
- ops _<_  _<'_ : Limatrix Limatrix -> Bool . *** strict total-order between matrices based on lt relation between bags and (partial) order based on bag weights  
- vars LX LY LZ LX' LY' LZ' : ListNP .
- vars LQ LQ' : Limatrix .
- eq [LX,LY,LZ] <  [LX',LY',LZ'] = LX lt LX' or-else LX == LX' and-then (LY lt LY' or-else LY == LY' and-then LZ lt LZ') .
- op cmp1 : Limatrix Limatrix -> Nat . *** compares the wights of the corresponding (sorted1) lists considering I,O,H in order
-ceq cmp1([LX,LY,LZ], [LX',LY',LZ']) = C1 if C1 := cmp1(LX, LX') /\ C1 =/= 0 . 
-ceq cmp1([LX,LY,LZ], [LX',LY',LZ']) = C2 if C2 := cmp1(LY ,LY') /\ C2 =/= 0 [owise]. 
- eq cmp1([LX,LY,LZ], [LX',LY',LZ']) = cmp1(LZ, LZ') [owise] .
- eq LQ <' LQ' = cmp1(LQ, LQ') == 1 . 
-
  op remove : Imatrix Place -> Imatrix .
  eq remove([X,Y,Z], P) = [set(X,P,0),set(Y,P,0),set(Z,P,0)] .
+ 
  ops I O H : Imatrix -> Pbag .
  eq I([X,Y,Z]) = X .
  eq O([X,Y,Z]) = Y .
@@ -63,10 +45,29 @@ ceq cmp1([LX,LY,LZ], [LX',LY',LZ']) = C2 if C2 := cmp1(LY ,LY') /\ C2 =/= 0 [owi
  op replace : Imatrix Place Place -> Imatrix .
  eq replace([X,Y,Z], P, P') = [replace(X,P,P'),replace(Y,P,P'),replace(Z,P,P')] .
 
- *** checks whether corresponding components of two incidence matrices have the same multiplicities (builds on the analogous for bags)
- op _eqw_ : Imatrix Imatrix -> Bool [ comm ] .
- eq [X,Y,Z] eqw [X',Y',Z'] = X eqw X' and-then Y eqw Y' and-then Z eqw Z' . 
+ *** part used for canonization
+ op [_,_,_] : List{Nat,Place} List{Nat,Place} List{Nat,Place} -> Limatrix . *** list view
+ ops toListS  toListS1 : Imatrix -> Limatrix [memo] . *** maybe only toListS1 should be set memo
+ eq toListS([X,Y,Z])  = [toListS(X),  toListS(Y),  toListS(Z) ] .
+ eq toListS1([X,Y,Z]) = [toListS1(X), toListS1(Y), toListS1(Z)] .
 
+ ops _<_  _<1_ : Limatrix Limatrix -> Bool . *** strict total-order between matrices based on lt relation between bags and (partial) order based on bag weights  
+ vars LX LY LZ LX' LY' LZ' : List{Nat,Place} .
+ vars LQ LQ' : Limatrix .
+ eq [LX,LY,LZ] <  [LX',LY',LZ'] = LX lt LX' or-else LX == LX' and-then (LY lt LY' or-else LY == LY' and-then LZ lt LZ') .
+ op cmp1 : Limatrix Limatrix -> Nat . *** compares the wights of the corresponding (sorted1) lists considering I,O,H in order
+ceq cmp1([LX,LY,LZ], [LX',LY',LZ']) = C1 if C1 := cmp1(LX, LX') /\ C1 =/= 0 . 
+ceq cmp1([LX,LY,LZ], [LX',LY',LZ']) = C2 if C2 := cmp1(LY ,LY') /\ C2 =/= 0 [owise]. 
+ eq cmp1([LX,LY,LZ], [LX',LY',LZ']) = cmp1(LZ, LZ') [owise] .
+ eq LQ <1 LQ' = cmp1(LQ, LQ') == 1 . 
+ 
+ *** derived operators (defined only for convenience: helpful?)
+ ops _<_  _<1_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt relation between bags and (partial) order based on bag weights  
+ eq Q < Q'  = toListS(Q)  <  toListS(Q') .
+ op cmp1 : Imatrix Imatrix -> Nat .
+ eq cmp1(Q, Q') = cmp1(toListS1(Q), toListS1(Q')) .
+ eq Q <1 Q' = cmp1(Q, Q') == 1 .
+ 
 endfm
 
 *** default view to IMATRIX
@@ -80,7 +81,17 @@ view Imatrix< from STRICT-TOTAL-ORDER to IMATRIX is
 endv
 
 *** total order based on subscripts first
-view Imatrix<' from STRICT-TOTAL-ORDER to IMATRIX is 
+view Imatrix<1 from STRICT-TOTAL-ORDER to IMATRIX is 
  sort Elt to Imatrix . 
-   op _<_ to _<'_ .
+   op _<_ to _<1_ .
+endv
+
+*** the same views for the list-views
+view Limatrix< from STRICT-TOTAL-ORDER to IMATRIX is 
+ sort Elt to Limatrix . 
+endv
+
+view Limatrix<1 from STRICT-TOTAL-ORDER to IMATRIX is 
+ sort Elt to Limatrix . 
+   op _<_ to _<1_ .
 endv

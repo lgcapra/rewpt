@@ -7,7 +7,8 @@ fmod BAGP is
  *** pr BAG{Place} * ( op nil to nilP) .
  pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, op nil to nilP, 
                            sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
- pr COMP-PAIR-LIST+{Nat<, Place<} * (sort Pair{Nat<,Place<} to PairNP, sort NeList{Nat<,Place<} to NeListNP, sort List{Nat<,Place<} to ListNP, op emptyListXY to emptyListNP) .
+ pr COMP-PAIR-LIST+{Nat<, Place<} * (sort Pair{Nat<,Place<} to Pair{Nat,Place}, sort NeList{Nat<,Place<} to NeList{Nat,Place},
+                                     sort List{Nat<,Place<} to List{Nat,Place}, op emptyListXY to emptyListNP) .
  
  vars P P' $P : Place . 
  vars K K' : NzNat .
@@ -15,7 +16,7 @@ fmod BAGP is
  vars B B' : Pbag .
  var W : String .
  var S : Pset .
- var LNP : ListNP . 
+ var LNP : List{Nat,Place} . 
  
  *** operators helpful for canonization
  op swap : Pbag Place Place -> Pbag .  *** swaps two places
@@ -47,17 +48,17 @@ fmod BAGP is
  eq $extract(K . P + B, W, B') = $extract(B, W, B') [owise] .
  
  *** in alternative, we might define toList in BAG, then reuse extract
- op toList : Pbag String -> ListNP . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with a certain label
+ op toList : Pbag String -> List{Nat,Place} . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with a certain label
  eq toList(B, W) = $toList(B, W, emptyListNP) .
- op $toList : Pbag String ListNP -> ListNP .
+ op $toList : Pbag String List{Nat,Place} -> List{Nat,Place} .
  eq $toList(nilP, W, LNP) = LNP .
  eq $toList(K . p(N,W) + B, W, LNP) = $toList(B, W, < K ; p(N,W) > LNP) . 
  eq $toList(K . P + B, W, LNP) = $toList(B, W, LNP) [owise] .
  
- ops toList toListS toListS1 : Pbag -> ListNP . *** builds (un)ordered list of pairs < weight ; el > out of a bag, by considering places with empty label
+ ops toList toListS toListS1 : Pbag -> List{Nat,Place} . *** builds (un)ordered list of pairs < weight ; el > out of a bag, by considering places with empty label
  eq toList(B) = toList(B, "") .
- eq toListS(B) = sort(toList(B)) . *** builds an ordered list of pairs out os a bag  
- eq toListS1(B) = sort1(toList(B)) . *** builds an ordered list of pairs out os a bag 
+ eq toListS(B)  = sort(toList(B)) .   *** builds an ordered list of pairs out os a bag  
+ eq toListS1(B) = sort1(toList(B)) . *** builds an ordered list of pairs out os a bag using <1
 
 
  op _lt_ : Pbag Pbag -> Bool . *** maps to the lexicographic order of lists of (comparable) pairs
