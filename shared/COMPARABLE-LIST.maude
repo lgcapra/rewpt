@@ -1,40 +1,67 @@
-*** a COMPARABLE-LIST is a SORTABLE-LIST with a lexicographic ordering 
-fmod COMPARABLE-LIST{X :: STRICT-TOTAL-ORDER} is 
- pr SORTABLE-LIST{X} .
- pr EXT-BOOL . 
- op _lt_  : List{X} List{X} -> Bool . *** lexicographic ordering between lists
- op _leq_ : List{X} List{X} -> Bool .  *** reflexive closure of lex
- vars E E' : X$Elt .
- vars L L' : List{X} .
- var NEL : NeList{X} .
- eq [list-cmp] : E L lt E' L' = if E == E' then L lt L' else E < E' fi . 
- eq nil lt NEL = true .
- eq L lt nil = false .
- eq L leq L' = L == L' or-else L lt L' .
+*** "embedded" list definition (useful to define nested lists) by @Lorenzo Capra
+fmod ELIST{X :: TRIV} is
+    pr LIST{X} .
+    sort Elist{X} .
+    op {_} : List{X} -> Elist{X}  [ctor] .
+    op join : Elist{X} Elist{X} -> Elist{X} [assoc] . 
+    vars L L' : List{X} .
+    eq join({L}, {L'}) = {L L'} .
+ endfm
+
+ view Elist{X :: TRIV} from TRIV to ELIST{X} is
+   sort Elt to Elist{X} .
+endv
+
+fmod NESTED-LIST{X :: TRIV} is
+  pr LIST{Elist{X}} * (op nil : -> List{Elist{X}} to {}) .
 endfm
 
-view ComparableList<{X :: STRICT-TOTAL-ORDER} from STRICT-TOTAL-ORDER to COMPARABLE-LIST{X} is 
- sort Elt to  List{X} .
- op _<_ to _lt_ .
-endv 
+*** version with sort renaming
+*** fmod NESTED-LIST{X :: TRIV} is
+***  pr LIST{Elist{X}} * (sort List{Elist{X}} to ListOfList{X}, sort NeList{Elist{X}} to NeListOfList{X}, op nil : -> List{Elist{X}} to nilnest).
+*** endfm
 
-fmod COMPARABLE-LIST+{X :: STRICT-WEAK-ORDER+} is 
+
+*** "pseudo" lexicographically ordered lists
+*** in the case of a strict-total-order the pseudo lexicographic order collapses with the usual lexicographic order 
+fmod COMPARABLE-LIST{X :: STRICT-WEAK-ORDER+} is 
  pr WEAKLY-SORTABLE-LIST+{X} .
+ pr NESTED-LIST{STRICT-WEAK-ORDER+}{X} * (sort List{STRICT-WEAK-ORDER+}{X} to List{X}, sort NeList{STRICT-WEAK-ORDER+}{X} to NeList{X})
+                                       * (sort List{Elist{STRICT-WEAK-ORDER+}{X}} to List{Elist{X}}, sort NeList{Elist{STRICT-WEAK-ORDER+}{X}} to NeList{Elist{X}})
+                                       * (sort Elist{STRICT-WEAK-ORDER+}{X} to Elist{X})
+                                      .         
  pr EXT-BOOL . 
- op lex : Nat List{X} List{X} -> Bool . ***  lexicographic ordering (we use lex instead of lt to avoid a conflict)
- op leq : Nat List{X} List{X} -> Bool .  *** reflexive closure of lex. order
+ 
+ op lex : Nat List{X} List{X} -> Bool .  *** we use the name lex instead of lt to avoid a conflict
+ op cmp : Nat List{X} List{X} -> Nat .   *** compare method (defined for convenience and efficiency) -- results in {0,1,2}
+ 
  vars E E' : X$Elt .
  vars L L' : List{X} .
- var NEL : NeList{X} .
+ var  NeL  : NeList{X} .
  var C : Nat .
- eq [list-cmp] : lex(C, E L, E' L') = if E == E' then lex(C, L, L') else lt(C, E, E') fi . 
- eq lex(C, nil, NEL) = true .
- eq lex(C, L, nil)   = false .
- eq leq(C, L, L') = L == L' or-else lex(C, L, L') .
+ 
+ eq [lex]  : lex(C, L, L') = cmp(C, L, L') == 1 . *** pseudo lex ordering (builds on cmp)
+ eq [cmp1] : cmp(C, nil, NeL) = 1 .
+ eq [cmp2] : cmp(C, NeL, nil) = 2 .
+ eq [cmp3] : cmp(C, L, L) = 0 .
+ceq [cmp4] : cmp(C, E L, E' L') = 1 if lt(C, E , E') .
+ceq [cmp5] : cmp(C, E L, E' L') = 2 if lt(C, E', E) .
+ eq [cmp6] : cmp(C, E L, E' L') = cmp(C, L, L') [owise] .
+ 
+ op headeq : Nat List{X} -> List{X} . *** gets "equivalent" elements from the head
+ eq headeq(C, L) = $headeq(C, L, nil) .
+ op $headeq : Nat List{X} List{X} -> List{X} . *** auxiliary op
+ eq $headeq(C, E L, nil) = $headeq(C, L, E) .
+ceq $headeq(C, E L, NeL) = $headeq(C, L, NeL E) if cmp(C, head(NeL), E) == 0 .
+ eq $headeq(C, L, L') = L' [owise] .
+
+ *** op partition : Nat List{X} ->  List{Elist{STRICT-WEAK-ORDER+}{X}} .
+ *** op partition : Nat List{X} ->  List{Elist{X}} .
 endfm
 
-view ComparableList<+{X :: STRICT-WEAK-ORDER+} from STRICT-WEAK-ORDER+ to COMPARABLE-LIST+{X} is 
- sort Elt to  List{X} .
- op lt to lex .
-endv 
 
+view ComparableList<{X :: STRICT-WEAK-ORDER+} from STRICT-TOTAL-ORDER to COMPARABLE-LIST{X} is 
+ sort Elt to  List{X} .
+ vars X Y : Elt . 
+ op X < Y to term lt(0, X, Y) .
+endv

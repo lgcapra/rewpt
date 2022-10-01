@@ -1,4 +1,5 @@
-in CAN-PT-SYS-NEW
+*** in CAN-PT-SYS-NEW
+in PT-SYS
 
 fmod PT-FMS is
  protecting PT-NET .
@@ -24,7 +25,8 @@ fmod PT-FMS is
 endfm
 
 mod PT-EMU is
- pr CAN-PT-SYS .
+ *** pr CAN-PT-SYS .
+ pr PT-SYS .
  var  T : Tran .
  vars I O H M : Pbag .
  vars N N' : Net .
@@ -33,7 +35,7 @@ mod PT-EMU is
  *** including canonization
  vars C C' : Bool .
  *** the firing rule preserves the canonization status of the net
- crl [firing] : N C M C' => (N C) (M + O - I false) if T |-> [I,O,H] ; N' := N /\ I =/= O /\ I <= M /\ H >' M . 
+ *** crl [firing] : N C M C' => (N C) (M + O - I false) if T |-> [I,O,H] ; N' := N /\ I =/= O /\ I <= M /\ H >' M . 
  *** the following version preserves the canonization status also of the marking (used as an optimization when possible)
  *** crl [cfiring2] : N C M C' => (N C) (M + O - I C') if T |-> [I,O,H] ; N' := N /\ I =/= O /\ I <= M /\ H >' M .  
 endm

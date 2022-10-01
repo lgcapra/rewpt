@@ -1,43 +1,43 @@
 in PAIR
 
+*** this version defines four STRICT-WEAK-ORDERs for pairs of STRICT-TOTALly ordered components 
+*** one, corresponding to index 0, matches the usual component-wise comparison ("driven" by the 1st comp.) (it is STRICT-TOTAL)
+*** that corresponding to index 1 considers exclusively the 1st components of pairs
+*** that corresponding to index 2 considers exclusively the 2nd components of pairs
+*** that corresponding to any other index matches the inverted usual component-wise comparison (it is STRICT-TOTAL)
 fmod SORTED-PAIR{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} is 
- pr PAIR{STRICT-WEAK-ORDER,STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER, STRICT-TOTAL-ORDER}{X, Y} 
-       * (sort Pair{STRICT-WEAK-ORDER,STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER, STRICT-TOTAL-ORDER}{X, Y} to Pair{X,Y}) . 
- pr EXT-BOOL .
- op _<_ : Pair{X, Y} Pair{X, Y} -> Bool . 
- vars A A’ : X$Elt . 
- vars B B’ : Y$Elt . 
- eq < A ; B > < < A’ ; B’ > = A < A’ or-else (A == A’ and-then B < B’) . 
-endfm
-
-view Pair<{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} from STRICT-TOTAL-ORDER to SORTED-PAIR{X,Y} is 
- sort Elt to Pair{X,Y} . 
-endv
-
-view Pair<1{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} from STRICT-TOTAL-ORDER to SORTED-PAIR{X,Y} is 
- sort Elt to Pair{X,Y} .
- vars X Y : Elt . 
- op X < Y to term 1st(X) < 1st(Y) . 
-endv
-
-*** this version defines two STRICT-WEAK-ORDERs for pairs of STRICT-TOTALly ordered components 
-*** one, corresponding to index 0, matches the usual component-wise comparison ("driven" by the 1st comp.) (it is actually STRICT-TOTAL)
-*** the other, corresponding to any non-zero index, considers exclusively the 1st components of pairs
-*** we may relax the restriction on component domains (e.g., they could be STRICT-WEAK-ORDER+ ...)
-fmod SORTED-PAIR+{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} is 
  pr PAIR{STRICT-WEAK-ORDER,STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER, STRICT-TOTAL-ORDER}{X, Y} 
        * (sort Pair{STRICT-WEAK-ORDER,STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER, STRICT-TOTAL-ORDER}{X, Y} to Pair{X,Y}) . 
  pr EXT-BOOL .
  pr NAT .
  op lt : Nat Pair{X, Y} Pair{X, Y} -> Bool . 
- vars A A’ : X$Elt . 
- vars B B’ : Y$Elt . 
- eq lt(0, < A ; B >, < A’ ; B’ >) = A < A’ or-else (A == A’ and-then B < B’) .
- *** eq < A ; B > < < A’ ; B’ > = A < A’ or-else (A == A’ and-then B < B’) . 
- eq lt(K:NzNat, < A ; B >, < A’ ; B’ >) = A < A’  .
+ vars A A' : X$Elt . 
+ vars B B' : Y$Elt . 
+ eq lt(0, < A ; B >, < A' ; B' >) = A < A' or-else (A == A' and-then B < B') . *** strict total order (driven by 1st comp).
+ eq lt(1, < A ; B >, < A' ; B' >) = A < A'  .  *** strict weak order (based on 1st comp.)
+ eq lt(2, < A ; B >, < A' ; B' >) = B < B'  .  *** strict weak order (based on 2nd comp.)
+ var K : NzNat .
+ceq lt(K, < A ; B >, < A' ; B' >) = B < B' or-else (B == B' and-then A < A') if K > 2 . *** strict total order (driven by 2nd comp).
+ *** defined only for convenience
+ vars P P' : Pair{X, Y} .
+ ops _<_  _<1_  _<2_ : Pair{X, Y} Pair{X, Y} -> Bool .
+ eq P <  P' = lt(0, P, P') .
+ eq P <1 P' = lt(1, P, P') .
+ eq P <2 P' = lt(2, P, P') .
 endfm
 
-view Pair+<{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} from STRICT-WEAK-ORDER+ to SORTED-PAIR+{X,Y} is 
+*** ordinary view 
+view SortedPair{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} from TRIV to SORTED-PAIR{X,Y} is 
+ sort Elt to Pair{X,Y} .
+endv
+
+*** classical view as strict-total-order 
+view SortedPair<{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} from STRICT-TOTAL-ORDER to SORTED-PAIR{X,Y} is 
+ sort Elt to Pair{X,Y} .
+endv
+
+*** view as strict-weak-order 
+view SortedPair+<{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} from STRICT-WEAK-ORDER+ to SORTED-PAIR{X,Y} is 
  sort Elt to Pair{X,Y} . 
 endv
 

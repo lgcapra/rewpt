@@ -7,7 +7,7 @@ fmod BAGP is
  *** pr BAG{Place} * ( op nil to nilP) .
  pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, op nil to nilP, 
                            sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
- pr COMP-PAIR-LIST+{Nat<, Place<} * (sort Pair{Nat<,Place<} to Pair{Nat,Place}, sort NeList{Nat<,Place<} to NeList{Nat,Place},
+ pr COMP-PAIR-LIST{Nat<, Place<} * (sort Pair{Nat<,Place<} to Pair{Nat,Place}, sort NeList{Nat<,Place<} to NeList{Nat,Place},
                                      sort List{Nat<,Place<} to List{Nat,Place}, op emptyListXY to emptyListNP) .
  
  vars P P' $P : Place . 
@@ -18,27 +18,6 @@ fmod BAGP is
  var S : Pset .
  var LNP : List{Nat,Place} . 
  
- *** operators helpful for canonization
- op swap : Pbag Place Place -> Pbag .  *** swaps two places
- op replace : Pbag Place Place -> Pbag . *** replaces the first place with the second one
- eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
- eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
- eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
- *** eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P')  . *** slightly less efficient
- *** eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P')  .
- eq swap(B, P, P')  = B [owise] .
- 
- eq replace(K . P + B, P, P') = K . P' + B .
- eq replace(B, P, P') = B [owise] .
- 
- *** helpful?
- *** op labMap  : Pbag String -> Pset . *** returns the set of places with a certain label
- *** eq labMap(B, W) = $labMap(B, W, emptyPset) .
- *** op $labMap : Pbag String Pset ->  Pset .
- *** eq $labMap(nilP, W, S) = S . 
- *** eq $labMap(K . p(N,W) + B, W, S) = $labMap(B, W, S U p(N,W)) .
- *** eq $labMap(K . P + B, W, S) = $labMap(B, W, S)  [owise] .
-
  *** extracts the sub-bag with a certain label out of a bag
  op extract : Pbag String -> Pbag .
  eq extract(B, W) = $extract(B, W, nilP) .
@@ -46,6 +25,19 @@ fmod BAGP is
  eq $extract(nilP, W, B) = B .
  eq $extract(K . p(N,W) + B, W, B') = $extract(B, W, K . p(N,W) +  B') . 
  eq $extract(K . P + B, W, B') = $extract(B, W, B') [owise] .
+ 
+ *** canonization part
+
+ op replace : Pbag Place Place -> Pbag . *** replaces the first place with the second one
+ eq replace(K . P + B, P, P') = K . P' + B .
+ op swap : Pbag Place Place -> Pbag .  *** swaps two places
+ eq replace(B, P, P') = B [owise] .
+ eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
+ eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
+ eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
+ *** eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P')  . *** slightly less efficient
+ *** eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P')  .
+ eq swap(B, P, P')  = B [owise] .
  
  *** in alternative, we might define toList in BAG, then reuse extract
  op toList : Pbag String -> List{Nat,Place} . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with a certain label
@@ -55,18 +47,23 @@ fmod BAGP is
  eq $toList(K . p(N,W) + B, W, LNP) = $toList(B, W, < K ; p(N,W) > LNP) . 
  eq $toList(K . P + B, W, LNP) = $toList(B, W, LNP) [owise] .
  
- ops toList toListS toListS1 : Pbag -> List{Nat,Place} . *** builds (un)ordered list of pairs < weight ; el > out of a bag, by considering places with empty label
+ var C : Nat .
+ op  toList  : Pbag -> List{Nat,Place} .     *** builds (un)ordered list of pairs < weight ; el > out of a bag, by considering places with empty label
+ ops toListS : Nat Pbag -> List{Nat,Place} . *** the 1st arg identifies the sorting 
  eq toList(B) = toList(B, "") .
- eq toListS(B)  = sort(toList(B)) .   *** builds an ordered list of pairs out os a bag  
- eq toListS1(B) = sort1(toList(B)) . *** builds an ordered list of pairs out os a bag using <1
+ eq toListS(C, B)  = sort(C, toList(B)) .   *** builds an ordered list of pairs out of a bag  using the usual list lex order (0) ([memo] ?) or the lex order based on weights (1)
 
-
- op _lt_ : Pbag Pbag -> Bool . *** maps to the lexicographic order of lists of (comparable) pairs
- eq B lt B' = toListS(B) lt toListS(B') . 
- op cmp1 : Pbag Pbag -> Nat . *** compares the wights of the corresponding (sorted1) lists
- eq cmp1(B, B') = cmp1(toListS1(B), toListS1(B')) .
- op _<1_ : Pbag Pbag -> Bool . *** maps to the lexicographic order of weights 
- eq B <1 B' = cmp1(B, B') == 1 .
+ *** defined for convenience (and to satisfy th STRICT-WEAK-ORDER+)
+ op lt : Nat Pbag Pbag -> Bool . *** maps to the lexicographic orders defined on lists of (comparable) pairs
+ eq lt(C, B , B') = lex(C, toListS(C, B), toListS(C, B')) .
+ *** defined for convenience 
+ op cmp : Nat Pbag Pbag -> Nat . *** maps to the lexicographic orders defined on lists of (comparable) pairs
+ eq cmp(C, B , B') = cmp(C, toListS(C, B), toListS(C, B')) .
+ *** defined for convenience
+ ops _<_  _<1_  _<2_ : Pbag Pbag -> Bool .
+ eq B <  B' = lt(0, B, B') .
+ eq B <1 B' = lt(1, B, B') .
+ eq B <2 B' = lt(2, B, B') .
 endfm
 
 
@@ -74,8 +71,12 @@ view Pbag from TRIV to BAGP is
  sort Elt to Pbag .
 endv
 
-*** default total-order
+*** strict-total-order view
 view Pbag< from STRICT-TOTAL-ORDER to BAGP is 
- sort Elt to Pbag .
- op _<_ to _lt_ . 
+ sort Elt to Pbag . 
+endv
+
+*** strict-weak-order view
+view Pbag+< from STRICT-WEAK-ORDER+ to BAGP is 
+ sort Elt to Pbag . 
 endv

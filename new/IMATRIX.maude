@@ -5,13 +5,12 @@ in ATYPE
 fmod IMATRIX is
  pr BAGP .
  pr ATYPE .
- sorts Imatrix Limatrix .
+ sort Imatrix .
  op [_,_,_] : Pbag Pbag Pbag -> Imatrix [ctor] .
  
  vars X Y Z X' Y' Z' : Pbag .
  vars P P' : Place .
  vars N N' C1 C2 : Nat .
- vars IL IL' OL OL' HL HL' : List{Nat,Place} .
  vars Q Q' : Imatrix .
  
  op remove : Imatrix Place -> Imatrix .
@@ -44,54 +43,92 @@ fmod IMATRIX is
 
  op replace : Imatrix Place Place -> Imatrix .
  eq replace([X,Y,Z], P, P') = [replace(X,P,P'),replace(Y,P,P'),replace(Z,P,P')] .
-
- *** part used for canonization
- op [_,_,_] : List{Nat,Place} List{Nat,Place} List{Nat,Place} -> Limatrix . *** list view
- ops toListS  toListS1 : Imatrix -> Limatrix [memo] . *** maybe only toListS1 should be set memo
- eq toListS([X,Y,Z])  = [toListS(X),  toListS(Y),  toListS(Z) ] .
- eq toListS1([X,Y,Z]) = [toListS1(X), toListS1(Y), toListS1(Z)] .
-
- ops _<_  _<1_ : Limatrix Limatrix -> Bool . *** strict total-order between matrices based on lt relation between bags and (partial) order based on bag weights  
- vars LX LY LZ LX' LY' LZ' : List{Nat,Place} .
- vars LQ LQ' : Limatrix .
- eq [LX,LY,LZ] <  [LX',LY',LZ'] = LX lt LX' or-else LX == LX' and-then (LY lt LY' or-else LY == LY' and-then LZ lt LZ') .
- op cmp1 : Limatrix Limatrix -> Nat . *** compares the wights of the corresponding (sorted1) lists considering I,O,H in order
-ceq cmp1([LX,LY,LZ], [LX',LY',LZ']) = C1 if C1 := cmp1(LX, LX') /\ C1 =/= 0 . 
-ceq cmp1([LX,LY,LZ], [LX',LY',LZ']) = C2 if C2 := cmp1(LY ,LY') /\ C2 =/= 0 [owise]. 
- eq cmp1([LX,LY,LZ], [LX',LY',LZ']) = cmp1(LZ, LZ') [owise] .
- eq LQ <1 LQ' = cmp1(LQ, LQ') == 1 . 
- 
- *** derived operators (defined only for convenience: helpful?)
- ops _<_  _<1_ : Imatrix Imatrix -> Bool . *** strict total-order between matrices based on lt relation between bags and (partial) order based on bag weights  
- eq Q < Q'  = toListS(Q)  <  toListS(Q') .
- op cmp1 : Imatrix Imatrix -> Nat .
- eq cmp1(Q, Q') = cmp1(toListS1(Q), toListS1(Q')) .
- eq Q <1 Q' = cmp1(Q, Q') == 1 .
- 
 endfm
 
-*** default view to IMATRIX
 view Imatrix from TRIV to IMATRIX is 
  sort Elt to Imatrix . 
 endv
 
-*** standard total-order view to IMATRIX
-view Imatrix< from STRICT-TOTAL-ORDER to IMATRIX is 
- sort Elt to Imatrix . 
-endv
 
-*** total order based on subscripts first
-view Imatrix<1 from STRICT-TOTAL-ORDER to IMATRIX is 
- sort Elt to Imatrix . 
-   op _<_ to _<1_ .
-endv
+fmod LIMATRIX is *** list(s)-view of a local incidence matrix
+ pr IMATRIX .
+ sort Limatrix .
+ op [_,_,_] : List{Nat,Place} List{Nat,Place} List{Nat,Place} -> Limatrix [ctor] . 
+ 
+ vars Q Q' : Imatrix .
+ vars X Y Z X' Y' Z' : Pbag .
+ vars P P' : Place .
+ vars N N' C1 C2 : Nat .
+ vars IL IL' OL OL' HL HL' : List{Nat,Place} .
+ vars LX LY LZ LX' LY' LZ' : List{Nat,Place} .
+ vars LQ LQ' : Limatrix . 
+ *** lists-view 
+ op toList : Imatrix String -> Limatrix . *** takes places with a given label
+ op toList : Imatrix -> Limatrix . *** takes places with label ""
+ var  S : String . 
+ eq toList([X,Y,Z], S)  = [toList(X,S),  toList(Y,S),  toList(Z,S) ] .
+ eq toList(Q)  = toList(Q, "") .
+ *** anologous to Imatrix
+ ops I O H : Limatrix -> List{Nat,Place} .
+ eq I([LX,LY,LZ]) = LX .
+ eq O([LX,LY,LZ]) = LY .
+ eq H([LX,LY,LZ]) = LZ .
+ op _(_) : Limatrix Atype -> List{Nat,Place} [prec 23] . 
+ eq LQ(i) = I(LQ) .
+ eq LQ(o) = O(LQ) . 
+ eq LQ(h) = H(LQ) . 
+ *** canonization
+ op swap : Limatrix Place Place -> Limatrix .
+ eq swap([LX,LY,LZ], P, P') = [swap(LX,P,P'),swap(LY,P,P'),swap(LZ,P,P')] .
+ op swap : List{Nat,Place} Place Place -> List{Nat,Place} . *** to define 
 
-*** the same views for the list-views
-view Limatrix< from STRICT-TOTAL-ORDER to IMATRIX is 
+ op replace : Limatrix Place Place -> Limatrix .
+ eq replace([LX,LY,LZ], P, P') = [replace(LX,P,P'),replace(LY,P,P'),replace(LZ,P,P')] .
+ op replace : List{Nat,Place} Place Place -> List{Nat,Place} . *** to define 
+
+ op sort : Nat Limatrix -> Limatrix .
+ eq sort(N, [LX, LY, LZ]) = [sort(N, LX), sort(N, LY), sort(N, LZ)] .
+
+ op cmpQ : Nat Limatrix Limatrix -> Nat . *** maps to the lexicographic order defined on lists of (comparable) pairs -- we need to use a different name
+ceq cmpQ(N, [LX,LY,LZ], [LX',LY',LZ']) = C1 if C1 := cmp(N, LX, LX') /\ C1 =/= 0 . 
+ceq cmpQ(N, [LX,LY,LZ], [LX',LY',LZ']) = C1 if C1 := cmp(N, LY ,LY') /\ C1 =/= 0 [owise]. 
+ eq cmpQ(N, [LX,LY,LZ], [LX',LY',LZ']) = cmp(N, LZ, LZ') [owise] .
+ 
+ op lt : Nat Limatrix Limatrix -> Bool . *** maps to the lexicographic orders defined on lists of (comparable) pairs
+ eq lt(N, LQ, LQ') = cmpQ(N, LQ, LQ') == 1 .
+ *** defined for convenience
+ op lt : Nat Imatrix Imatrix -> Bool . *** maps to the lexicographic orders defined on lists of (comparable) pairs
+ eq lt(N, Q, Q') = cmpQ(N, sort(N, toList(Q)), sort(N, toList(Q'))) == 1 .
+
+ ops _<_  _<1_ : Limatrix Limatrix -> Bool .
+ eq LQ < LQ'  = lt(0, LQ , LQ') .
+ eq LQ <1 LQ' = lt(1, LQ , LQ') .
+ *** defined for convenience
+ ops _<_  _<1_ : Imatrix Imatrix -> Bool .
+ eq Q < Q'  = lt(0, Q , Q') .
+ eq Q <1 Q' = lt(1, Q , Q') .
+endfm
+
+view Limatrix from TRIV to LIMATRIX is 
  sort Elt to Limatrix . 
 endv
 
-view Limatrix<1 from STRICT-TOTAL-ORDER to IMATRIX is 
+*** strict weak order
+view Imatrix< from STRICT-WEAK-ORDER to LIMATRIX is 
+ sort Elt to Imatrix . 
+endv
+
+*** parametric strict weak order
+view Limatrix+< from STRICT-WEAK-ORDER+ to LIMATRIX is 
  sort Elt to Limatrix . 
-   op _<_ to _<1_ .
+endv
+
+*** strict total order
+view Limatrix< from STRICT-TOTAL-ORDER to LIMATRIX is 
+ sort Elt to Limatrix . 
+endv
+
+*** parametric strict total order
+view Imatrix< from STRICT-TOTAL-ORDER+ to LIMATRIX is 
+ sort Elt to Imatrix . 
 endv

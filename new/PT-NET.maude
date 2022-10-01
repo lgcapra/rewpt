@@ -1,6 +1,6 @@
 in IMATRIX
 in ../shared/MAP+
-in ../shared/COMP-PAIR-LIST
+in ../shared/COMP-PAIR-LIST-NEW
 
 fmod PT-NET is
  inc MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
@@ -8,9 +8,9 @@ fmod PT-NET is
  pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
  pr SORTABLE-LIST{Place<}  * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
  *** pr SORTABLE-LIST{Imatrix<'} * (sort List{Imatrix<'} to List{Imatrix}, sort NeList{Imatrix<'} to NeList{Imatrix}, op nil to emptyListQ ) .
- pr COMPARABLE-LIST{Limatrix<}  * (sort List{Limatrix<}  to List{Limatrix}, sort NeList{Limatrix<}  to NeList{Limatrix},  op nil to emptyListLQ ) .
- pr COMPARABLE-LIST{Limatrix<1} * (sort List{Limatrix<1} to List{Limatrix}, sort NeList{Limatrix<1} to NeList{Limatrix},  op nil to emptyListLQ, 
-                                   op sort to sort1, op $sort to $sort1, op $split to $split1, op merge to merge1, op $merge to $merge1 ) .
+ pr COMPARABLE-LIST{Limatrix+<}  * (sort List{Limatrix+<}  to List{Limatrix}, sort NeList{Limatrix+<}  to NeList{Limatrix},  op nil to emptyListLQ ) .
+ *** pr COMPARABLE-LIST{Limatrix<1} * (sort List{Limatrix<1} to List{Limatrix}, sort NeList{Limatrix<1} to NeList{Limatrix},  op nil to emptyListLQ, 
+ ***                                  op sort to sort1, op $sort to $sort1, op $split to $split1, op merge to merge1, op $merge to $merge1 ) .
  
  pr ATYPE .
 
@@ -97,23 +97,14 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  *** eq $makeAdjList(emptyN, A, BL) = BL .
  *** eq $makeAdjList(T |-> Q ; N, A, BL) = $makeAdjList(N, A, BL Q(A))  .
  
- *** gets a sorted list of matrices (better, view-lists of matrices) out of a net by sorting on the basis of bag weights
- op makeAdjList1s : Net String -> List{Limatrix} .  
- eq makeAdjList1s(N, W) = sort($makeAdjList1s(N, W, emptyListLQ)) .
- op $makeAdjList1s : Net String List{Limatrix} -> List{Limatrix} .
- eq $makeAdjList1s(emptyN, W, LQL) = LQL .
- eq $makeAdjList1s(t(Y, W) |-> Q ; N, W, LQL) = $makeAdjList1s(N, W, LQL toListS1(Q))  .
- eq $makeAdjList1s(T |-> Q ; N, W, LQL) = $makeAdjList1s(N, W, LQL)  [owise] .
- op makeAdjList1s : Net -> List{Limatrix} . *** consider empty labels
- eq makeAdjList1s(N) = makeAdjList1s(N, "") .
- *** gets the matrices with components having the same weights from the head of a list
- op headblock : List{Limatrix} -> List{Limatrix} . 
- eq headblock(LQL) = $headblock(LQL, emptyListLQ) .
- op $headblock : List{Limatrix} List{Limatrix} -> List{Limatrix} . *** auxiliary op
- eq $headblock(LQ LQL, emptyListLQ) = $headblock(LQL, LQ) .
- var NeL : NeList{Limatrix} .
-ceq $headblock(LQ LQL, NeL) = $headblock(LQL, NeL LQ) if cmp1(head(NeL), LQ) == 0 .
- eq $headblock(LQL, LQL') = LQL' [owise] .
+ *** gets a sorted list of matrices (better, list-views of matrices) out of a net by sorting on the basis of bag weights
+ op matListS : Nat Net String -> List{Limatrix} .  
+ eq matListS(Y, N, W) = sort(Y, $matListS(Y, N, W, emptyListLQ)) .
+ op $matListS : Nat Net String List{Limatrix} -> List{Limatrix} .
+ eq $matListS(Y, emptyN, W, LQL) = LQL .
+ eq $matListS(Y, T |-> Q ; N, W, LQL) = $matListS(Y, N, W, LQL sort(Y, toList(Q, W)))  .
+ op matListS : Nat Net -> List{Limatrix} . *** consider empty labels
+ eq matListS(Y, N) = matListS(Y, N, "") .
  
  *** op regroup : List{Limatrix} -> List{List{Limatrix}} .
  
@@ -160,5 +151,15 @@ ceq $headblock(LQ LQL, NeL) = $headblock(LQL, NeL LQ) if cmp1(head(NeL), LQ) == 
 ceq $minGtIdx( K' . p(Y,W)  + B, p(J,W), K, L, F) = $minGtIdx(B, p(Y,W), K', L, true) if Y > J /\ K' < K /\ p(Y,W) inNotEmpty L . *** found el. with idx > and weight <
 ceq $minGtIdx( K . p(Y,W)  + B, p(J,W), K, L, F)  = $minGtIdx(B, p(J,W), K, L, F ) p(Y,W)  if Y > J /\ p(Y,W) inNotEmpty L [owise].  *** found el. with idx > and weight =
  eq $minGtIdx(B, P, K, L, F) = if F then P else emptyPlist fi [owise] .
+
+op minGtIdxLM : List{Limatrix} Place -> Pset . *** top op.: given a list of (list-views() of a matrices and a place returns the set of places candidate to swap
+op minGtIdxLM : List{Limatrix} Atype Place -> Pset . *** separately considers the i,o,h components of each matrix
+
+*** op minGtIdxM :  Limatrix Place -> Pset . *** needed?
+*** op $minGtIdxM : Limatrix Place Pset -> Pset . *** auxiliary op
+
+op minGtIdx : List{Nat,Place} Place Pset -> Pset . *** base op.: works on a single list (bag)
+
+
 
 endfm
