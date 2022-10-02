@@ -152,14 +152,18 @@ ceq $minGtIdx( K' . p(Y,W)  + B, p(J,W), K, L, F) = $minGtIdx(B, p(Y,W), K', L, 
 ceq $minGtIdx( K . p(Y,W)  + B, p(J,W), K, L, F)  = $minGtIdx(B, p(J,W), K, L, F ) p(Y,W)  if Y > J /\ p(Y,W) inNotEmpty L [owise].  *** found el. with idx > and weight =
  eq $minGtIdx(B, P, K, L, F) = if F then P else emptyPlist fi [owise] .
 
-op minGtIdxLM : List{Limatrix} Place -> Pset . *** top op.: given a list of (list-views() of a matrices and a place returns the set of places candidate to swap
-op minGtIdxLM : List{Limatrix} Atype Place -> Pset . *** separately considers the i,o,h components of each matrix
+ op minGtIdxLM : List{Limatrix} Place -> Pset . *** top op.: given a list of (list-views() of a matrices and a place returns the set of places candidate to swap
+ op minGtIdxLM : List{Limatrix} Atype Place -> Pset . *** separately considers the i,o,h components of each matrix
 
-*** op minGtIdxM :  Limatrix Place -> Pset . *** needed?
-*** op $minGtIdxM : Limatrix Place Pset -> Pset . *** auxiliary op
+ *** op minGtIdxM :  Limatrix Place -> Pset . *** needed?
+ *** op $minGtIdxM : Limatrix Place Pset -> Pset . *** auxiliary op
 
-op minGtIdx : List{Nat,Place} Place Pset -> Pset . *** base op.: works on a single list (bag)
-
-
+ var LB :  List{Nat,Place} .
+ op $minGtIdx : List{Nat,Place} Place NzNat Pset -> Pset . *** base op.: works on a single list (bag)
+ eq $minGtIdx(emptyListNP, P, K, S) = S .
+ceq $minGtIdx(< K' ; p(Y,"") > LB, P, K, S) = S  if K' > K . *** we assume that the list's weights are in order 
+ceq $minGtIdx(< K' ; p(Y,"") > LB, p(J,""), K, S) = $minGtIdx(LB, p(J,""), K', p(Y,""))  if K' <  K /\ Y >= J .
+ceq $minGtIdx(< K ; p(Y,"") > LB, p(J,""), K, S)  = $minGtIdx(LB, p(J,""), K, (p(Y,"") , S))  if Y >= J .
+ eq $minGtIdx(NP:Pair{Nat,Place} LB, P, K, S) = $minGtIdx(LB, P, K, S) [owise] .
 
 endfm
