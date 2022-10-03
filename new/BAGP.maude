@@ -80,3 +80,8 @@ endv
 view Pbag+< from STRICT-WEAK-ORDER+ to BAGP is 
  sort Elt to Pbag . 
 endv
+
+*** set-view of a bag (defined for convenience)
+view Pset from TRIV to BAGP is
+ sort Elt to Pset .
+endv

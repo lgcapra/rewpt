@@ -8,11 +8,11 @@ fmod PT-NET is
  pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
  pr SORTABLE-LIST{Place<}  * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
  *** pr SORTABLE-LIST{Imatrix<'} * (sort List{Imatrix<'} to List{Imatrix}, sort NeList{Imatrix<'} to NeList{Imatrix}, op nil to emptyListQ ) .
- pr COMPARABLE-LIST{Limatrix+<}  * (sort List{Limatrix+<}  to List{Limatrix}, sort NeList{Limatrix+<}  to NeList{Limatrix},  op nil to emptyListLQ ) .
- *** pr COMPARABLE-LIST{Limatrix<1} * (sort List{Limatrix<1} to List{Limatrix}, sort NeList{Limatrix<1} to NeList{Limatrix},  op nil to emptyListLQ, 
- ***                                  op sort to sort1, op $sort to $sort1, op $split to $split1, op merge to merge1, op $merge to $merge1 ) .
- 
+ pr COMPARABLE-LIST{Limatrix+<}  * (sort List{Limatrix+<}  to List{Limatrix}, sort NeList{Limatrix+<}  to NeList{Limatrix},  op nil to emptyListQL ) .
+ *** pr COMPARABLE-LIST{Limatrix<1} * (sort List{Limatrix<1} to List{Limatrix}, sort NeList{Limatrix<1} to NeList{Limatrix},  op nil to emptyListQL, 
+ ***                                  op sort to sort1, op $sort to $sort1, op $split to $split1, op merge to merge1, op $merge to $merge1 ) . 
  pr ATYPE .
+ pr PAIR{Pset, Nat} . *** multiple return value (defined for convenience)
 
  var  N : Net .
  vars T T' : Tran .
@@ -21,18 +21,20 @@ fmod PT-NET is
  vars K K' : NzNat .
  vars I O H B : Pbag .
  vars Q Q' : Imatrix .
- vars LQ LQ' : Limatrix .
+ vars QL QL' : Limatrix .
  
- vars S SP : Pset . 
+ vars S S' SP : Pset . 
+ vars L L1 : Plist .
  var W :  String .
  var F :  Bool .
+ 
  *** vars QL QL' : List{Imatrix} .
  vars LQL LQL' : List{Limatrix} .
- 
  var A :  Atype .
  *** vars BL BL' : List{Pbag} . 
  var L' : Tlist .
  var E : ImatrixT .
+ var LB :  List{Nat,Place} .
  
  eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 
@@ -63,7 +65,6 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
 
  op placeList : Net -> Plist . *** returns the sorted list of places of a net
  eq placeList(N) = $makePlist(places(N),emptyPlist) .
- var L L1 : Plist .
  op $makePlist : Pset Plist -> Plist . 
  eq $makePlist(emptyPset, L) = sort(L) . 
  eq $makePlist(P U S, L) = $makePlist(S, P L) . 
@@ -99,7 +100,7 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  
  *** gets a sorted list of matrices (better, list-views of matrices) out of a net by sorting on the basis of bag weights
  op matListS : Nat Net String -> List{Limatrix} .  
- eq matListS(Y, N, W) = sort(Y, $matListS(Y, N, W, emptyListLQ)) .
+ eq matListS(Y, N, W) = sort(Y, $matListS(Y, N, W, emptyListQL)) .
  op $matListS : Nat Net String List{Limatrix} -> List{Limatrix} .
  eq $matListS(Y, emptyN, W, LQL) = LQL .
  eq $matListS(Y, T |-> Q ; N, W, LQL) = $matListS(Y, N, W, LQL sort(Y, toList(Q, W)))  .
@@ -137,33 +138,50 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  
  
  *** base operator for the canonization algorithm
- op minGtIdx : Pbag Place Plist -> Plist .   *** Given B, P, LP, if A = {P' in B s.t. index(P') >= index(P) and LP != 0 => P' in LP} is not 0 then returns the elements {P'} of A with MINIMAL-weight s.t. if B[P] > 0 then B[P'] <= B[P] (possibly including P).
+ *** op minGtIdx : Pbag Place Plist -> Plist .   *** Given B, P, LP, if A = {P' in B s.t. index(P') >= index(P) and LP != 0 => P' in LP} is not 0 then returns the elements {P'} of A with MINIMAL-weight s.t. if B[P] > 0 then B[P'] <= B[P] (possibly including P).
                                              *** If A is empty returns P if B[P] > 0, otherwise 0 .
                                              *** If the retuned list's size is > 1 the 2nd el. is that with the greatest idx (also if P is not in the list!) 
- op _inNotEmpty_ : Place Plist -> Bool . *** defined for efficiency (occurs is less efficient)
- eq P inNotEmpty emptyPlist = true .
- eq P inNotEmpty L P L1 = true .
- eq P inNotEmpty L = false [owise] .
+ *** op _inNotEmpty_ : Place Plist -> Bool . *** defined for efficiency (occurs is less efficient)
+ op maxint : -> NzNat [memo] .
+ eq maxint = 10000000000000 .
+ *** eq P inNotEmpty emptyPlist = true .
+ *** eq P inNotEmpty L P L1 = true .
+ *** eq P inNotEmpty L = false [owise] .
  
- eq minGtIdx(K . P + B, P, L) = $minGtIdx(B, P, K, L, true) . *** P is in B
- eq minGtIdx(B, P, L) = $minGtIdx(B, P, 10000000000000, L, false)  [owise] . *** P is not in B
- op $minGtIdx : Pbag Place NzNat Plist Bool -> NePlist .
-ceq $minGtIdx( K' . p(Y,W)  + B, p(J,W), K, L, F) = $minGtIdx(B, p(Y,W), K', L, true) if Y > J /\ K' < K /\ p(Y,W) inNotEmpty L . *** found el. with idx > and weight <
-ceq $minGtIdx( K . p(Y,W)  + B, p(J,W), K, L, F)  = $minGtIdx(B, p(J,W), K, L, F ) p(Y,W)  if Y > J /\ p(Y,W) inNotEmpty L [owise].  *** found el. with idx > and weight =
- eq $minGtIdx(B, P, K, L, F) = if F then P else emptyPlist fi [owise] .
+ *** eq minGtIdx(K . P + B, P, L) = $minGtIdx(B, P, K, L, true) . *** P is in B
+ *** eq minGtIdx(B, P, L) = $minGtIdx(B, P, maxint, L, false)  [owise] . *** P is not in B
+ *** op $minGtIdx : Pbag Place NzNat Plist Bool -> NePlist .
+*** ceq $minGtIdx( K' . p(Y,W)  + B, p(J,W), K, L, F) = $minGtIdx(B, p(Y,W), K', L, true) if Y > J /\ K' < K /\ p(Y,W) inNotEmpty L . *** found el. with idx > and weight <
+*** ceq $minGtIdx( K . p(Y,W)  + B, p(J,W), K, L, F)  = $minGtIdx(B, p(J,W), K, L, F ) p(Y,W)  if Y > J /\ p(Y,W) inNotEmpty L [owise].  *** found el. with idx > and weight =
+***  eq $minGtIdx(B, P, K, L, F) = if F then P else emptyPlist fi [owise] .
 
- op minGtIdxLM : List{Limatrix} Place -> Pset . *** top op.: given a list of (list-views() of a matrices and a place returns the set of places candidate to swap
- op minGtIdxLM : List{Limatrix} Atype Place -> Pset . *** separately considers the i,o,h components of each matrix
-
- *** op minGtIdxM :  Limatrix Place -> Pset . *** needed?
- *** op $minGtIdxM : Limatrix Place Pset -> Pset . *** auxiliary op
-
- var LB :  List{Nat,Place} .
- op $minGtIdx : List{Nat,Place} Place NzNat Pset -> Pset . *** base op.: works on a single list (bag)
- eq $minGtIdx(emptyListNP, P, K, S) = S .
-ceq $minGtIdx(< K' ; p(Y,"") > LB, P, K, S) = S  if K' > K . *** we assume that the list's weights are in order 
+ *** top op.: given a list of (list-views of) matrices prefixed by (the list-view of) a marking, returns the set of places candidate to swap with p 
+ op minGtIdxSys : List{Nat,Place} List{Limatrix} Place -> Pset .
+ceq minGtIdxSys(LB, LQL, P) = S if < S ; K > := $minGtIdx(LB, P, maxint, emptyPset) /\ S =/= emptyPset .
+ eq minGtIdxSys(LB, LQL, P) = $minGtIdxNet(LQL, P) [owise] .
+ *** considers the list of (list-views of) matrices representing a net
+ op $minGtIdxNet : List{Limatrix} Place -> Pset .
+ eq $minGtIdxNet(emptyListQL, P) = emptyPset .
+ vars NeLQL NeLQL' : NeList{Limatrix} .
+ceq $minGtIdxNet(NeLQL, P) = if S == emptyPset then $minGtIdxNet(pop(NeLQL, NeLQL'), P) else S fi if NeLQL' := headeq(1, NeLQL) /\ S := minGtIdxLM(NeLQL', P) .
+ 
+ *** given a list (a block) of assumed similar (list-views of) matrices and a place p, returns the set of places candidate to swap with p
+ op minGtIdxLM : List{Limatrix} Place -> Pset . 
+ceq minGtIdxLM(LQL, P) = S if S := minGtIdxLM(LQL, i, P) /\ S =/= emptyPset . *** first the i component
+ceq minGtIdxLM(LQL, P) = S if S := minGtIdxLM(LQL, o, P) /\ S =/= emptyPset [owise] . *** then o
+ eq minGtIdxLM(LQL, P) = minGtIdxLM(LQL, h, P) [owise] . *** finally h
+ *** separately considers the i,o,h components of each matrix
+ op minGtIdxLM : List{Limatrix} Atype Place -> Pset . 
+ eq minGtIdxLM(LQL, A, P) = $minGtIdxLM(LQL, A, P, maxint, emptyPset) .  *** start-up
+ op $minGtIdxLM : List{Limatrix} Atype Place NzNat Pset -> Pset .
+ eq $minGtIdxLM(emptyListQL, A, P, K, S) = S .
+ceq $minGtIdxLM(QL LQL, A, P, K, S) = $minGtIdxLM(LQL, A, P, K', S') if < S' ; K' > := $minGtIdx(QL(A), P, K, S) .
+ *** base op. acting on a (list-view of a) bag: this version returns a pair of values (a set of places and a weight)
+ op $minGtIdx : List{Nat,Place} Place NzNat Pset -> Pair{Pset,Nat} . *** base op.: works on a single list (bag)
+ eq $minGtIdx(emptyListNP, P, K, S) = < S ; K > .
+ceq $minGtIdx(< K' ; p(Y,"") > LB, P, K, S) = < S ; K > if K' > K . *** we assume that the list's weights are in increasing order 
+ceq $minGtIdx(< K  ; p(Y,"") > LB, p(J,""), K, S) = $minGtIdx(LB, p(J,""), K, S U p(Y,""))  if Y >= J .
 ceq $minGtIdx(< K' ; p(Y,"") > LB, p(J,""), K, S) = $minGtIdx(LB, p(J,""), K', p(Y,""))  if K' <  K /\ Y >= J .
-ceq $minGtIdx(< K ; p(Y,"") > LB, p(J,""), K, S)  = $minGtIdx(LB, p(J,""), K, (p(Y,"") , S))  if Y >= J .
  eq $minGtIdx(NP:Pair{Nat,Place} LB, P, K, S) = $minGtIdx(LB, P, K, S) [owise] .
 
 endfm
