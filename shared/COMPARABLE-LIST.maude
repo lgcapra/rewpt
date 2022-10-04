@@ -3,12 +3,14 @@ fmod ELIST{X :: TRIV} is
     pr LIST{X} .
     sort Elist{X} .
     op {_} : List{X} -> Elist{X}  [ctor] .
-    op join : Elist{X} Elist{X} -> Elist{X} [assoc] . 
+    op join : Elist{X} Elist{X} -> Elist{X} [assoc] .
+    op arg : Elist{X} -> List{X} .
     vars L L' : List{X} .
     eq join({L}, {L'}) = {L L'} .
+    eq arg({L}) = L .
  endfm
 
- view Elist{X :: TRIV} from TRIV to ELIST{X} is
+view Elist{X :: TRIV} from TRIV to ELIST{X} is
    sort Elt to Elist{X} .
 endv
 
@@ -21,15 +23,28 @@ endfm
 ***  pr LIST{Elist{X}} * (sort List{Elist{X}} to ListOfList{X}, sort NeList{Elist{X}} to NeListOfList{X}, op nil : -> List{Elist{X}} to nilnest).
 *** endfm
 
+fmod SORTABLE-ELIST{X :: STRICT-WEAK-ORDER+} is
+  pr ELIST{STRICT-WEAK-ORDER+}{X} * (sort Elist{STRICT-WEAK-ORDER+}{X} to Elist{X},
+                                     sort List{STRICT-WEAK-ORDER+}{X} to List{X},
+                                     sort NeList{STRICT-WEAK-ORDER+}{X} to NeList{X} ) .
+endfm
+
+view SortableElist{X :: STRICT-WEAK-ORDER+} from TRIV to SORTABLE-ELIST{X} is
+   sort Elt to Elist{X} .
+endv
+
+fmod SORTABLE-NESTED-LIST{X :: STRICT-WEAK-ORDER+} is
+  pr LIST{SortableElist{X}} * (sort  List{SortableElist{X}} to List{Elist{X}}, sort NeList{SortableElist{X}} to NeList{Elist{X}},
+                               op nil : -> List{SortableElist{X}} to {}) .
+endfm
+
+
 
 *** "pseudo" lexicographically ordered lists
 *** in the case of a strict-total-order the pseudo lexicographic order collapses with the usual lexicographic order 
 fmod COMPARABLE-LIST{X :: STRICT-WEAK-ORDER+} is 
  pr WEAKLY-SORTABLE-LIST+{X} .
- pr NESTED-LIST{STRICT-WEAK-ORDER+}{X} * (sort List{STRICT-WEAK-ORDER+}{X} to List{X}, sort NeList{STRICT-WEAK-ORDER+}{X} to NeList{X})
-                                       * (sort List{Elist{STRICT-WEAK-ORDER+}{X}} to List{Elist{X}}, sort NeList{Elist{STRICT-WEAK-ORDER+}{X}} to NeList{Elist{X}})
-                                       * (sort Elist{STRICT-WEAK-ORDER+}{X} to Elist{X})
-                                      .         
+ pr SORTABLE-NESTED-LIST{X}  .         
  pr EXT-BOOL . 
  
  op lex : Nat List{X} List{X} -> Bool .  *** we use the name lex instead of lt to avoid a conflict
@@ -37,7 +52,7 @@ fmod COMPARABLE-LIST{X :: STRICT-WEAK-ORDER+} is
  
  vars E E' : X$Elt .
  vars L L' : List{X} .
- var  NeL  : NeList{X} .
+ vars  NeL NeL' : NeList{X} .
  var C : Nat .
  
  eq [lex]  : lex(C, L, L') = cmp(C, L, L') == 1 . *** pseudo lex ordering (builds on cmp)
@@ -47,16 +62,22 @@ fmod COMPARABLE-LIST{X :: STRICT-WEAK-ORDER+} is
 ceq [cmp4] : cmp(C, E L, E' L') = 1 if lt(C, E , E') .
 ceq [cmp5] : cmp(C, E L, E' L') = 2 if lt(C, E', E) .
  eq [cmp6] : cmp(C, E L, E' L') = cmp(C, L, L') [owise] .
- 
- op headeq : Nat List{X} -> List{X} . *** gets "equivalent" elements from the head
+ *** gets "equivalent" elements from the head of a (sorted) list
+ op headeq : Nat List{X} -> List{X} .
+ op headeq : Nat NeList{X} -> NeList{X} .
  eq headeq(C, L) = $headeq(C, L, nil) .
  op $headeq : Nat List{X} List{X} -> List{X} . *** auxiliary op
  eq $headeq(C, E L, nil) = $headeq(C, L, E) .
 ceq $headeq(C, E L, NeL) = $headeq(C, L, NeL E) if cmp(C, head(NeL), E) == 0 .
  eq $headeq(C, L, L') = L' [owise] .
-
- *** op partition : Nat List{X} ->  List{Elist{STRICT-WEAK-ORDER+}{X}} .
- *** op partition : Nat List{X} ->  List{Elist{X}} .
+ *** partitions a (sorted) list into contigous "similarity" blocks (holding elements for which cmp evaluates to 0) 
+ var LoL : List{Elist{X}} .
+ op partition : Nat List{X} ->  List{Elist{X}} .
+ eq partition(C, nil) = {nil} .
+ eq partition(C, NeL) = $partition(C, NeL, {}) .
+ op $partition : Nat List{X} List{Elist{X}} ->  List{Elist{X}} .
+ eq $partition(C, nil, LoL) = LoL .
+ceq $partition(C, NeL, LoL) = $partition(C, pop(NeL, NeL'), LoL {NeL'}) if NeL' := headeq(C, NeL) .
 endfm
 
 

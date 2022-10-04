@@ -8,7 +8,9 @@ fmod PT-NET is
  pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
  pr SORTABLE-LIST{Place<}  * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
  *** pr SORTABLE-LIST{Imatrix<'} * (sort List{Imatrix<'} to List{Imatrix}, sort NeList{Imatrix<'} to NeList{Imatrix}, op nil to emptyListQ ) .
- pr COMPARABLE-LIST{Limatrix+<}  * (sort List{Limatrix+<}  to List{Limatrix}, sort NeList{Limatrix+<}  to NeList{Limatrix},  op nil to emptyListQL ) .
+ pr COMPARABLE-LIST{Limatrix+<}  * (sort List{Limatrix+<}  to List{Limatrix}, sort NeList{Limatrix+<}  to NeList{Limatrix},  op nil to emptyListQL ,
+                                    sort List{Elist{Limatrix+<}} to List{Elist{Limatrix}}, sort NeList{Elist{Limatrix+<}} to NeList{Elist{Limatrix}},
+                                    sort Elist{Limatrix+<} to  Elist{Limatrix}) .
  *** pr COMPARABLE-LIST{Limatrix<1} * (sort List{Limatrix<1} to List{Limatrix}, sort NeList{Limatrix<1} to NeList{Limatrix},  op nil to emptyListQL, 
  ***                                  op sort to sort1, op $sort to $sort1, op $split to $split1, op merge to merge1, op $merge to $merge1 ) . 
  pr ATYPE .
@@ -159,7 +161,7 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op minGtIdxSys : List{Nat,Place} List{Limatrix} Place -> Pset .
 ceq minGtIdxSys(LB, LQL, P) = S if < S ; K > := $minGtIdx(LB, P, maxint, emptyPset) /\ S =/= emptyPset .
  eq minGtIdxSys(LB, LQL, P) = $minGtIdxNet(LQL, P) [owise] .
- *** considers the list of (list-views of) matrices representing a net
+ *** considers the list of (list-views of) matrices representing a net and logically divides them into block of similar elements
  op $minGtIdxNet : List{Limatrix} Place -> Pset .
  eq $minGtIdxNet(emptyListQL, P) = emptyPset .
  vars NeLQL NeLQL' : NeList{Limatrix} .
