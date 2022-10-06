@@ -40,9 +40,6 @@ fmod IMATRIX is
  *** canonization ops
  op swap : Imatrix Place Place -> Imatrix .
  eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
-
- op replace : Imatrix Place Place -> Imatrix .
- eq replace([X,Y,Z], P, P') = [replace(X,P,P'),replace(Y,P,P'),replace(Z,P,P')] .
 endfm
 
 view Imatrix from TRIV to IMATRIX is 
@@ -80,12 +77,7 @@ fmod LIMATRIX is *** list(s)-view of a local incidence matrix
  *** canonization
  op swap : Limatrix Place Place -> Limatrix .
  eq swap([LX,LY,LZ], P, P') = [swap(LX,P,P'),swap(LY,P,P'),swap(LZ,P,P')] .
- op swap : List{Nat,Place} Place Place -> List{Nat,Place} . *** to define 
-
- op replace : Limatrix Place Place -> Limatrix .
- eq replace([LX,LY,LZ], P, P') = [replace(LX,P,P'),replace(LY,P,P'),replace(LZ,P,P')] .
- op replace : List{Nat,Place} Place Place -> List{Nat,Place} . *** to define 
-
+ 
  op sort : Nat Limatrix -> Limatrix .
  eq sort(N, [LX, LY, LZ]) = [sort(N, LX), sort(N, LY), sort(N, LZ)] .
 

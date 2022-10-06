@@ -2,7 +2,7 @@ in ../shared/BAG-AND-SET
 *** in ../shared/COMP-PAIR-LIST
 in ../shared/COMP-PAIR-LIST-NEW
 in PLACE
-
+*** maybe it is convenient to split in two modules: BAGP and BAGP-VLIST
 fmod BAGP is
  *** pr BAG{Place} * ( op nil to nilP) .
  pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, op nil to nilP, 
@@ -46,13 +46,24 @@ fmod BAGP is
  eq $toList(nilP, W, LNP) = LNP .
  eq $toList(K . p(N,W) + B, W, LNP) = $toList(B, W, < K ; p(N,W) > LNP) . 
  eq $toList(K . P + B, W, LNP) = $toList(B, W, LNP) [owise] .
- 
  var C : Nat .
  op  toList  : Pbag -> List{Nat,Place} .     *** builds (un)ordered list of pairs < weight ; el > out of a bag, by considering places with empty label
  ops toListS : Nat Pbag -> List{Nat,Place} . *** the 1st arg identifies the sorting 
  eq toList(B) = toList(B, "") .
  eq toListS(C, B)  = sort(C, toList(B)) .   *** builds an ordered list of pairs out of a bag  using the usual list lex order (0) ([memo] ?) or the lex order based on weights (1)
-
+ *** the same as above, for the list-view
+ var L  : List{Nat,Place} . var X : Pair{Nat,Place} .
+ op replace : List{Nat,Place} Place Place -> List{Nat,Place} . 
+ eq replace(emptyListNP, P, P') = emptyListNP . 
+ eq replace(< K ; P > L, P , P') = < K ; P' > L .
+ eq replace(X L, P, P') = X replace(L, P, P') [owise] .
+ op swap : List{Nat,Place} Place Place -> List{Nat,Place} . 
+ eq swap(emptyListNP, P, P') = emptyListNP . 
+ eq swap(< K ; P > L, P , P') = < K ; P' > replace(L, P', P) .
+ eq swap(< K ; P' > L, P , P') = < K ; P > replace(L, P, P') .
+ eq swap(X L, P, P') = X swap(L, P, P') [owise] .
+ 
+ 
  *** defined for convenience (and to satisfy th STRICT-WEAK-ORDER+)
  op lt : Nat Pbag Pbag -> Bool . *** maps to the lexicographic orders defined on lists of (comparable) pairs
  eq lt(C, B , B') = lex(C, toListS(C, B), toListS(C, B')) .

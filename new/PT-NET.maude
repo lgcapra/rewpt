@@ -9,10 +9,8 @@ fmod PT-NET is
  pr SORTABLE-LIST{Place<}  * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
  *** pr SORTABLE-LIST{Imatrix<'} * (sort List{Imatrix<'} to List{Imatrix}, sort NeList{Imatrix<'} to NeList{Imatrix}, op nil to emptyListQ ) .
  pr COMPARABLE-LIST{Limatrix+<}  * (sort List{Limatrix+<}  to List{Limatrix}, sort NeList{Limatrix+<}  to NeList{Limatrix},  op nil to emptyListQL ,
-                                    sort List{Elist{Limatrix+<}} to List{Elist{Limatrix}}, sort NeList{Elist{Limatrix+<}} to NeList{Elist{Limatrix}},
+                                    sort List{Elist{Limatrix+<}} to ListOfList{Limatrix}, sort NeList{Elist{Limatrix+<}} to NeListOfList{Limatrix},
                                     sort Elist{Limatrix+<} to  Elist{Limatrix}) .
- *** pr COMPARABLE-LIST{Limatrix<1} * (sort List{Limatrix<1} to List{Limatrix}, sort NeList{Limatrix<1} to NeList{Limatrix},  op nil to emptyListQL, 
- ***                                  op sort to sort1, op $sort to $sort1, op $split to $split1, op merge to merge1, op $merge to $merge1 ) . 
  pr ATYPE .
  pr PAIR{Pset, Nat} . *** multiple return value (defined for convenience)
 
@@ -23,7 +21,6 @@ fmod PT-NET is
  vars K K' : NzNat .
  vars I O H B : Pbag .
  vars Q Q' : Imatrix .
- vars QL QL' : Limatrix .
  
  vars S S' SP : Pset . 
  vars L L1 : Plist .
@@ -31,7 +28,10 @@ fmod PT-NET is
  var F :  Bool .
  
  *** vars QL QL' : List{Imatrix} .
- vars LQL LQL' : List{Limatrix} .
+ vars QL QL' : Limatrix .
+ vars LQL LQL'  : List{Limatrix} .
+ vars ELQL ELQL' : Elist{Limatrix} .
+ vars LELQL LELQL' : ListOfList{Limatrix} .
  var A :  Atype .
  *** vars BL BL' : List{Pbag} . 
  var L' : Tlist .
@@ -106,25 +106,31 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $matListS : Nat Net String List{Limatrix} -> List{Limatrix} .
  eq $matListS(Y, emptyN, W, LQL) = LQL .
  eq $matListS(Y, T |-> Q ; N, W, LQL) = $matListS(Y, N, W, LQL sort(Y, toList(Q, W)))  .
- op matListS : Nat Net -> List{Limatrix} . *** consider empty labels
+ op matListS : Nat Net -> List{Limatrix} . *** consider only empty labels
  eq matListS(Y, N) = matListS(Y, N, "") .
+ *** regroups net's (list-views of) matrices into similarity blocks (convenience op)
+ op regroup : Net String -> ListOfList{Limatrix} .
+ eq regroup(N, W) = partition(1, matListS(1, N, W)) .
+ op regroup : Net -> ListOfList{Limatrix} .
+ eq regroup(N) = regroup(N, "") .
  
- *** op regroup : List{Limatrix} -> List{List{Limatrix}} .
- 
- 
- *** operators to swap pairs of elements (various versions)
+ *** operators to swap pairs of elements (various/overloaded versions)
  op swap : Net Place Place -> Net . 
  eq swap(T |-> Q ; N, P, P') = T |-> swap(Q, P, P') ; swap(N, P, P') .
  eq swap(emptyN, P, P') = emptyN .
+
+ op swapLM : List{Limatrix} Place Place -> List{Limatrix} . *** note that "renaming" swap is necessary 
+ eq swapLM(emptyListQL, P, P') = emptyListQL .
+ eq swapLM(QL LQL, P, P') = swap(QL, P, P') swapLM(LQL, P, P') .
+
+ op swap : ListOfList{Limatrix} Place Place -> ListOfList{Limatrix} .
+ eq swap({ }, P, P') = { } .
+ eq swap({LQL} LELQL, P, P') = {swapLM(LQL, P, P')} swap(LELQL, P, P') .
 
  *** swaps two places in an adjacency list and sorts the resulting list
  *** op swap : List{Pbag} Place Place -> List{Pbag} . *** swaps two places in an adjacency list
  *** eq swap(emptyListBagP, P, P') = emptyListBagP .
  *** eq swap(B BL, P, P') = swap(B, P, P') swap(BL, P, P') . 
-
- op replace : Net Place Place -> Net .  *** replace the first places with the 2nd one in a net
- eq replace(T |-> Q ; N, P, P') = T |-> replace(Q, P, P') ; replace(N, P, P') .
- eq replace(emptyN, P, P') = emptyN .
 
  *** transitions
  op swap : Net Tran Tran -> Net .  *** swaps two transitions in a net
@@ -157,17 +163,19 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
 *** ceq $minGtIdx( K . p(Y,W)  + B, p(J,W), K, L, F)  = $minGtIdx(B, p(J,W), K, L, F ) p(Y,W)  if Y > J /\ p(Y,W) inNotEmpty L [owise].  *** found el. with idx > and weight =
 ***  eq $minGtIdx(B, P, K, L, F) = if F then P else emptyPlist fi [owise] .
 
- *** top op.: given a list of (list-views of) matrices prefixed by (the list-view of) a marking, returns the set of places candidate to swap with p 
- op minGtIdxSys : List{Nat,Place} List{Limatrix} Place -> Pset .
-ceq minGtIdxSys(LB, LQL, P) = S if < S ; K > := $minGtIdx(LB, P, maxint, emptyPset) /\ S =/= emptyPset .
- eq minGtIdxSys(LB, LQL, P) = $minGtIdxNet(LQL, P) [owise] .
+ op minGtIdxSys : Net Pbag Place -> Pset . *** convenience op (for debug)
+ eq minGtIdxSys(N, B, P) = minGtIdxSys(toListS(0,B), regroup(N), P) .
+ *** top op.: given a list of lists of (list-views of) "similar" matrices prefixed by (the list-view of) a marking, returns the set of places candidate to swap with p 
+ op minGtIdxSys : List{Nat,Place} ListOfList{Limatrix} Place -> Pset .
+ceq minGtIdxSys(LB, LELQL, P) = S if < S ; K > := $minGtIdx(LB, P, maxint, emptyPset) /\ S =/= emptyPset .
+ eq minGtIdxSys(LB, LELQL, P) = $minGtIdxNet(LELQL, P) [owise] .
  *** considers the list of (list-views of) matrices representing a net and logically divides them into block of similar elements
- op $minGtIdxNet : List{Limatrix} Place -> Pset .
- eq $minGtIdxNet(emptyListQL, P) = emptyPset .
+ op $minGtIdxNet : ListOfList{Limatrix} Place -> Pset .
+ eq $minGtIdxNet({ }, P) = emptyPset .
+ceq $minGtIdxNet(ELQL LELQL, P) = S if S := minGtIdxLM(arg(ELQL), P) /\ S =/= emptyPset .
+ eq $minGtIdxNet(ELQL LELQL, P) = $minGtIdxNet(LELQL, P) [owise] .
+ *** given a list (block) of assumed similar (list-views of) matrices and a place p, returns the set of places candidate to swap with p
  vars NeLQL NeLQL' : NeList{Limatrix} .
-ceq $minGtIdxNet(NeLQL, P) = if S == emptyPset then $minGtIdxNet(pop(NeLQL, NeLQL'), P) else S fi if NeLQL' := headeq(1, NeLQL) /\ S := minGtIdxLM(NeLQL', P) .
- 
- *** given a list (a block) of assumed similar (list-views of) matrices and a place p, returns the set of places candidate to swap with p
  op minGtIdxLM : List{Limatrix} Place -> Pset . 
 ceq minGtIdxLM(LQL, P) = S if S := minGtIdxLM(LQL, i, P) /\ S =/= emptyPset . *** first the i component
 ceq minGtIdxLM(LQL, P) = S if S := minGtIdxLM(LQL, o, P) /\ S =/= emptyPset [owise] . *** then o
