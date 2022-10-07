@@ -4,7 +4,6 @@ in ../shared/COMP-PAIR-LIST-NEW
 in PLACE
 *** maybe it is convenient to split in two modules: BAGP and BAGP-VLIST
 fmod BAGP is
- *** pr BAG{Place} * ( op nil to nilP) .
  pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, op nil to nilP, 
                            sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
  pr COMP-PAIR-LIST{Nat<, Place<} * (sort Pair{Nat<,Place<} to Pair{Nat,Place}, sort NeList{Nat<,Place<} to NeList{Nat,Place},

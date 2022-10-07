@@ -6,7 +6,7 @@ fmod PT-FMS is
  ops net pline net' : -> Net .
  ops m0 m0' : -> Pbag . 
  op M   : -> NzNat . *** MS model's parameter
- eq M = 8 . 
+ eq M = 1 . 
  *** only the product line structure (without faults)
  eq pline = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
           nilP ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ; t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] .
