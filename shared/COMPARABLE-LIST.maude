@@ -22,10 +22,9 @@ ceq [cmp5] : cmp(C, E L, E' L') = 2 if lt(C, E', E) .
 endfm
 
 
-view ComparableList<{X :: STRICT-WEAK-ORDER+} from STRICT-TOTAL-ORDER to COMPARABLE-LIST{X} is 
+view ComparableList<{X :: STRICT-WEAK-ORDER+} from STRICT-WEAK-ORDER+ to COMPARABLE-LIST{X} is 
  sort Elt to  List{X} .
- vars X Y : Elt . 
- op X < Y to term lt(0, X, Y) .
+ op lt to lex .
 endv
 
 *** stuff to defined nested list of comparable elements (plus partitioning into similar blocks)
@@ -50,32 +49,31 @@ endv
 ***  pr LIST{Elist{X}} * (op nil : -> List{Elist{X}} to {}) .
 *** endfm
 
-*** "embedded" sortable list definition
-fmod SORTABLE-ELIST{X :: STRICT-WEAK-ORDER+} is
+*** "embedded" comparable list definition
+fmod COMPARABLE-ELIST{X :: STRICT-WEAK-ORDER+} is
   pr ELIST{STRICT-WEAK-ORDER+}{X} * (sort Elist{STRICT-WEAK-ORDER+}{X} to Elist{X},
                                      sort List{STRICT-WEAK-ORDER+}{X} to List{X},
                                      sort NeList{STRICT-WEAK-ORDER+}{X} to NeList{X} ) .
-  pr  WEAKLY-SORTABLE-LIST+{X } . 
-
+  pr  COMPARABLE-LIST{X} . 
   var C : Nat . var L : List{X} .
   op sort : Nat Elist{X} -> Elist{X} .
   eq sort(C, {L}) = {sort(C,L)} . 
 endfm
 
-view SortableElist{X :: STRICT-WEAK-ORDER+} from TRIV to SORTABLE-ELIST{X} is
+
+view Elist<{X :: STRICT-WEAK-ORDER+} from STRICT-WEAK-ORDER+ to COMPARABLE-ELIST{X} is
    sort Elt to Elist{X} .
+   vars X1 Y1 : Elt . 
+   op lt(C:Nat, X1, Y1) to term lex(C:Nat, arg(X1), arg(Y1)) .
 endv
 
-fmod NESTED-SORTABLE-LIST{X :: STRICT-WEAK-ORDER+} is
-  pr LIST{SortableElist{X}} * (sort  List{SortableElist{X}} to ListOfList{X}, sort NeList{SortableElist{X}} to NeListOfList{X},
-                               op nil : -> List{SortableElist{X}} to {}) .
-endfm
 
 *** defines nested lists of sortable elements 
-fmod COMPARABLE-NESTED-LIST{X :: STRICT-WEAK-ORDER+} is 
+fmod COMP-NESTED-LIST{X :: STRICT-WEAK-ORDER+} is 
  pr COMPARABLE-LIST{X} .
- pr NESTED-SORTABLE-LIST{X}  .          
- 
+ pr COMPARABLE-LIST{Elist<{X}} * (sort  List{Elist<{X}} to ListOfList{X}, sort NeList{Elist<{X}} to NeListOfList{X},
+                               op nil : -> List{Elist<{X}} to {}) .
+
  var E  : X$Elt .
  vars L L' : List{X} .
  vars  NeL NeL' : NeList{X} .
@@ -101,9 +99,3 @@ ceq $partition(C, NeL, LoL) = $partition(C, pop(NeL, NeL'), LoL {NeL'}) if NeL' 
  eq reorder(C, {}) = {} .
  eq reorder(C, {L} LoL) = {sort(C,L)} reorder(C, LoL) .
 endfm
-
-view ComparableNestedList<{X :: STRICT-WEAK-ORDER+} from STRICT-TOTAL-ORDER to COMPARABLE-NESTED-LIST{X} is 
- sort Elt to  List{X} .
- vars X Y : Elt . 
- op X < Y to term lt(0, X, Y) .
-endv

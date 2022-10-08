@@ -4,7 +4,7 @@ in ../shared/COMP-PAIR-LIST-NEW
 
 *** defines (possibly nested) sortable lists of local incidence matrices (representing a PT systems, when abstracting from T names)
 fmod NESTED-MATRIX-LIST is 
-  pr COMPARABLE-NESTED-LIST{Limatrix+<}  * (sort List{Limatrix+<}  to List{Limatrix}, sort NeList{Limatrix+<}  to NeList{Limatrix},  op nil to emptyListQL ,
+  pr COMP-NESTED-LIST{Limatrix+<}  * (sort List{Limatrix+<}  to List{Limatrix}, sort NeList{Limatrix+<}  to NeList{Limatrix},  op nil to emptyListQL ,
                                     sort ListOfList{Limatrix+<} to ListOfList{Limatrix}, sort NeListOfList{Limatrix+<} to NeListOfList{Limatrix},
                                     sort Elist{Limatrix+<} to  Elist{Limatrix}) .
  endfm 
@@ -22,7 +22,7 @@ fmod PT-NET is
  pr SORTABLE-LIST{Place<} * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
  *** pr NESTED-MATRIX-LIST .
  pr SET{NestedMatList} * (sort Set{NestedMatList} to SetOfListOfList{Limatrix}, sort NeSet{NestedMatList} to NeSetOfListOfList{Limatrix},
-                          op empty to emptySetOfNestedQL) .
+                          op empty to emptySetOfNestedQL, op _,_ to _U_) .
  pr ATYPE .
  pr PAIR{Pset, Nat} . *** multiple return value (defined for convenience)
 
@@ -46,7 +46,6 @@ fmod PT-NET is
  vars LELQL LELQL' : ListOfList{Limatrix} .
  var A :  Atype .
  *** vars BL BL' : List{Pbag} . 
- var L' : Tlist .
  var E : ImatrixT .
  var LB :  List{Nat,Place} .
  
@@ -83,11 +82,12 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq $makePlist(emptyPset, L) = sort(L) . 
  eq $makePlist(P U S, L) = $makePlist(S, P L) . 
 
+ var TL : Tlist .
  op tranList : Net -> Tlist .  *** returns the sorted list of transitions
  eq tranList(N) = $makeTlist(N,emptyTlist) .
  op $makeTlist : Net Tlist -> Tlist . 
- eq $makeTlist(emptyN, L') = sort(L') . 
- eq $makeTlist(T |-> Q ; N, L') = $makeTlist(N, T L') . 
+ eq $makeTlist(emptyN, TL) = sort(TL) . 
+ eq $makeTlist(T |-> Q ; N, TL) = $makeTlist(N, T TL) . 
 
  op places : Net Atype -> Pset . *** return the places of a given type 
  eq places(N, A) = $places(N, A, emptyPset) .
@@ -109,7 +109,7 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op regroup : Net Pbag String -> ListOfList{Limatrix} .
  eq regroup(N, B, W) = {[toListS(0,B),emptyListNP,emptyListNP]} partition(1, matListS(1, N, W)) .
  op regroup : Net Pbag -> ListOfList{Limatrix} .
- eq regroup(N, B) = regroup(N, B, "") . *** deafult
+ eq regroup(N, B) = regroup(N, B, "") . *** default
  
  *** operators to swap pairs of elements (various/overloaded versions)
  op swap : Net Place Place -> Net . 
@@ -171,7 +171,31 @@ ceq $minGtIdx(< K' ; p(Y,"") > LB, p(J,""), K, S) = $minGtIdx(LB, p(J,""), K', p
  
  *** canonization op
  vars NeLELQL : NeListOfList{Limatrix} .
- op canonize : ListOfList{Limatrix} Plist -> SetOfListOfList{Limatrix} . *** top operator
- eq canonize({ }, L) = { } .
-ceq canonize(NeLELQL, L) = NeLELQL if size(L) < 2 .
+ var NeL : NePlist .
+ var NeP : NePset .
+ var NeSLELQL : NeSetOfListOfList{Limatrix} . 
+ var SLELQL  : SetOfListOfList{Limatrix} . 
+ op canonize : Net Pbag -> NeListOfList{Limatrix} . *** convenience top op.
+ eq canonize(N, B) = canonize(regroup(N, B), placeList(N)) .
+
+ op canonize : NeListOfList{Limatrix} NePlist -> NeListOfList{Limatrix} . *** real top operator
+ eq canonize(NeLELQL, P) = NeLELQL . *** canonization makes sense if there are at least two places
+ eq canonize(NeLELQL, P NeL) = canonize(min(canonizeP(NeLELQL, P, NeL)), NeL) . 
+ op min : NeSetOfListOfList{Limatrix} -> ListOfList{Limatrix} . *** convenience op
+ eq min(NeSLELQL) = $min($reorder(NeSLELQL)) .
+ op $min : NeSetOfListOfList{Limatrix} -> ListOfList{Limatrix} . *** gets the minimal representative
+ eq $min(LELQL) = LELQL .
+ eq $min (LELQL U LELQL' U SLELQL) = $min(SLELQL U if lex(0, LELQL, LELQL') then LELQL else LELQL' fi) .
+ op $reorder : NeSetOfListOfList{Limatrix} ->  NeSetOfListOfList{Limatrix} . *** reorder a lists of lists of matrices (views)
+ eq $reorder(LELQL) = reorder(0,LELQL) . 
+ eq $reorder(LELQL U NeSLELQL) = $reorder(LELQL) U $reorder(NeSLELQL) . 
+ *** single canonization step (builds on $minGtIdxNet) -- acts recursively (see case 5 of $canonizeP)
+ op canonizeP : NeListOfList{Limatrix} Place NePlist -> NeSetOfListOfList{Limatrix} .
+ eq canonizeP(NeLELQL, P, NeL) = $canonizeP(NeLELQL, P, $minGtIdxNet(NeLELQL, P), NeL) .
+ op $canonizeP : NeListOfList{Limatrix} Place Pset NePlist -> SetOfListOfList{Limatrix} .
+ eq [case1] : $canonizeP(NeLELQL, P, emptyPset, NeL) = NeLELQL . *** base case 1
+ eq [case2] : $canonizeP(NeLELQL, P, P, NeL) = NeLELQL . *** base case 2
+ceq [case3] : $canonizeP(NeLELQL, P, P', NeL) = swap(NeLELQL, P, P') if P =/= P' . *** base case 3  
+ eq [case4] : $canonizeP(NeLELQL, P, P U NeP, NeL) = NeLELQL U $canonizeP(NeLELQL, P, NeP, NeL) . *** P is present: we add the current config.
+ eq [case5] : $canonizeP(NeLELQL, P, P' U NeP, NeL) = canonize(swap(NeLELQL, P, P'), NeL) U $canonizeP(NeLELQL, P, NeP, NeL) [owise] .
 endfm
