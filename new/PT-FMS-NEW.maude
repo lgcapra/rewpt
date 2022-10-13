@@ -1,12 +1,12 @@
-*** in CAN-PT-SYS-NEW
-in PT-SYS
+in CAN-PT-SYS
+*** in PT-SYS
 
 fmod PT-FMS is
- protecting PT-NET .
+ protecting CAN-PT-SYS .
  ops net pline net' : -> Net .
- ops m0 m0' : -> Pbag . 
+ ops m0 m0' m1 m1' d1 d2 : -> Pbag . 
  op M   : -> NzNat . *** MS model's parameter
- eq M = 1 . 
+ eq M = 5 . 
  *** only the product line structure (without faults)
  eq pline = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
           nilP ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ; t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] .
@@ -16,11 +16,28 @@ fmod PT-FMS is
           t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] ; t(5,"") |-> [1 . p(0,""), 1 . p(7,""), nilP ] ; t(6,"") |-> [1 . p(0,""), 1 . p(8,""), nilP].
  eq m0'  = (2 * M) . p(1,"")  .
  eq m0  = m0' +  1 . p(0,"") .
+ *** symmetric markings
+ eq m1  = (2 * (sd(M,1))) . p(1,"") + 1 . p(2,"") + 1 . p(5,"") .  *** M > 1
+ eq m1' = (2 * (sd(M,1))) . p(1,"") + 1 . p(4,"") + 1 . p(3,"") .  *** M > 1
+
+ eq d1 = M . p(3,"") + 1 . p(4,"") + 1 . p(8,"") .
+ eq d2 = M . p(2,"") + 1 . p(5,"") + 1 . p(7,"") .
+
 
  eq net' = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), 1 . p(7,"") ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
           1 . p(8,"") ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ;
           t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] ; t(5,"") |-> [1 . p(0,"") + 1 . p(3,""), 1 . p(7,""), nilP ] ; t(6,"") |-> [1 . p(0,""), 1 . p(8,""), nilP].
  
+ ops dsys1 dsys2 : ->  System .
+ eq dsys1 = (t(0, "") |-> [1 . p(3, ""),1 . p(1, ""),nilP] ; t(1, "") |-> [1 . p(3, ""),1 . p(4, ""),nilP] ; t(2, "") |-> [1 .
+    p(2, ""),1 . p(6, ""),1 . p(1, "")] ; t(3, "") |-> [1 . p(5, ""),1 . p(0, ""),1 . p(4, "")] ; t(4, "") |-> [1 . p(7, ""),2 .
+    p(8, ""),nilP] ; t(5, "") |-> [1 . p(0, "") + 1 . p(6, ""),1 . p(7, ""),nilP] ; t(6, "") |-> [2 . p(8, ""),1 . p(2, "") + 1 .
+    p(5, ""),nilP]) 1 . p(0, "") + 1 . p(1, "") + 1 . p(2, "") .
+
+ eq dsys2 =  (t(0, "") |-> [1 . p(3, ""),1 . p(0, ""),nilP] ; t(1, "") |-> [1 . p(3, ""),1 . p(4, ""),nilP] ; t(2, "") |-> [1 .
+    p(1, ""),1 . p(6, ""),1 . p(0, "")] ; t(3, "") |-> [1 . p(5, ""),1 . p(2, ""),1 . p(4, "")] ; t(4, "") |-> [1 . p(7, ""),2 .
+    p(8, ""),nilP] ; t(5, "") |-> [1 . p(2, "") + 1 . p(6, ""),1 . p(7, ""),nilP] ; t(6, "") |-> [2 . p(8, ""),1 . p(1, "") + 1 .
+    p(5, ""),nilP]) 1 . p(0, "") + 1 . p(1, "") + 1 . p(2, "") .
 
  *** specification using node labels 
  *** eq net = t(0,"load") |-> [2 . p(1,"start"), 1 . p(2,"line") + 1 . p(3,"line"), nilP ] ; t(1,"line") |-> [1 . p(2,"line") , 1 . p(4,"ass"), 1 . p(7,"faulty") ] ; t(2,"line") |-> [1 . p(3,"line") , 1 . p(5,"ass"),
@@ -30,14 +47,15 @@ fmod PT-FMS is
 endfm
 
 mod PT-EMU is
- *** pr CAN-PT-SYS .
- pr PT-SYS .
+ pr CAN-PT-SYS .
+ *** pr PT-SYS .
  var  T : Tran .
  vars I O H M : Pbag .
  vars N N' : Net .
  *** firing rule (without canonization)
- crl [firing] : N M => N M + O - I if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
- *** including canonization
+ *** crl [firing] : N M => N M + O - I if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
+ crl [canfire] : N M => canonize(N M + O - I) if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
+ *** including canonization (old)
  vars C C' : Bool .
  *** the firing rule preserves the canonization status of the net
  *** crl [firing] : N C M C' => (N C) (M + O - I false) if T |-> [I,O,H] ; N' := N /\ I =/= O /\ I <= M /\ H >' M . 
@@ -75,7 +93,7 @@ mod RWPT-FMS is
  
  
  *** "parametric" rules (with null labels) using canonization
- vars C C' : Bool .
+ *** vars C C' : Bool .
  *** crl [pr1] : ( N ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP] ; Tline |-> [1 . P3, 1 . P5, 1 . PF ] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Tfail |-> [1 . P0, 1 . PF, nilP]) C (S + 1 . PF C') 
  ***         =>  ( N ; Tload |-> [1 . P1, 1 . P2, nilP ] ; Tass |-> [2 . P4, 1 . P6, nilP]) false (set(S, P3, 0) + S[P3] . P2 + 1 . P0) false if S[P5] = 0 .
  *** crl [pr2] : ( N ; Tline |-> [1 . P2, 1 . P4, 1 . PF ] ; Tass |-> [2 . P4, 1 . P6, nilP]) C (S + K . P2 + 1 . PF C') => (net false) 1 . p(0,"") + M . p(3,"") + (K - M . p(2,"")) + S[P4] . p(4,"") false if  K >= 2 * M - 1 .

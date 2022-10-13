@@ -14,13 +14,12 @@ view NestedMatList from TRIV to NESTED-MATRIX-LIST is
  sort Elt to ListOfList{Limatrix} .
 endv
 
-*** the canonization should be put in another module ...
+*** the canonization part should be put in a separated module ...
 fmod PT-NET is
  inc MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
  
  pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
  pr SORTABLE-LIST{Place<} * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
- *** pr NESTED-MATRIX-LIST .
  pr SET{NestedMatList} * (sort Set{NestedMatList} to SetOfListOfList{Limatrix}, sort NeSet{NestedMatList} to NeSetOfListOfList{Limatrix},
                           op empty to emptySetOfNestedQL, op _,_ to _U_) .
  pr ATYPE .
@@ -49,7 +48,7 @@ fmod PT-NET is
  var E : ImatrixT .
  var LB :  List{Nat,Place} .
  
- eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
+ *** eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 
  op welldef : Net -> Bool .
  eq welldef(N) = N =/= emptyN and-then repeatedKeys?(N) == false . 
@@ -113,8 +112,12 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  
  *** operators to swap pairs of elements (various/overloaded versions)
  op swap : Net Place Place -> Net . 
- eq swap(T |-> Q ; N, P, P') = T |-> swap(Q, P, P') ; swap(N, P, P') .
- eq swap(emptyN, P, P') = emptyN .
+ceq swap(T |-> Q ; N, P, P') = T |-> swap(Q, P, P') ; swap(N, P, P') if P =/= P' .
+ eq swap(N, P, P') = N [owise] .
+
+ op replace : Net Place Place -> Net .  *** replace the first places with the 2nd one in a net
+ eq replace(T |-> Q ; N, P, P') = T |-> replace(Q, P, P') ; replace(N, P, P') .
+ eq replace(emptyN, P, P') = emptyN .
 
  op swapLM : List{Limatrix} Place Place -> List{Limatrix} . *** note that "renaming" swap is necessary 
  eq swapLM(emptyListQL, P, P') = emptyListQL .
@@ -175,9 +178,7 @@ ceq $minGtIdx(< K' ; p(Y,"") > LB, p(J,""), K, S) = $minGtIdx(LB, p(J,""), K', p
  var NeP : NePset .
  var NeSLELQL : NeSetOfListOfList{Limatrix} . 
  var SLELQL  : SetOfListOfList{Limatrix} . 
- op canonize : Net Pbag -> NeListOfList{Limatrix} . *** convenience top op.
- eq canonize(N, B) = canonize(regroup(N, B), placeList(N)) .
-
+ 
  op canonize : NeListOfList{Limatrix} NePlist -> NeListOfList{Limatrix} . *** real top operator
  eq canonize(NeLELQL, P) = NeLELQL . *** canonization makes sense if there are at least two places
  eq canonize(NeLELQL, P NeL) = canonize(min(canonizeP(NeLELQL, P, NeL)), NeL) . 
@@ -189,13 +190,14 @@ ceq $minGtIdx(< K' ; p(Y,"") > LB, p(J,""), K, S) = $minGtIdx(LB, p(J,""), K', p
  op $reorder : NeSetOfListOfList{Limatrix} ->  NeSetOfListOfList{Limatrix} . *** reorder a lists of lists of matrices (views)
  eq $reorder(LELQL) = reorder(0,LELQL) . 
  eq $reorder(LELQL U NeSLELQL) = $reorder(LELQL) U $reorder(NeSLELQL) . 
- *** single canonization step (builds on $minGtIdxNet) -- acts recursively (see case 5 of $canonizeP)
+ *** single canonization step (builds on $minGtIdxNet) -- acts recursively (see case 3 below)
  op canonizeP : NeListOfList{Limatrix} Place NePlist -> NeSetOfListOfList{Limatrix} .
- eq canonizeP(NeLELQL, P, NeL) = $canonizeP(NeLELQL, P, $minGtIdxNet(NeLELQL, P), NeL) .
- op $canonizeP : NeListOfList{Limatrix} Place Pset NePlist -> SetOfListOfList{Limatrix} .
- eq [case1] : $canonizeP(NeLELQL, P, emptyPset, NeL) = NeLELQL . *** base case 1
- eq [case2] : $canonizeP(NeLELQL, P, P, NeL) = NeLELQL . *** base case 2
-ceq [case3] : $canonizeP(NeLELQL, P, P', NeL) = swap(NeLELQL, P, P') if P =/= P' . *** base case 3  
- eq [case4] : $canonizeP(NeLELQL, P, P U NeP, NeL) = NeLELQL U $canonizeP(NeLELQL, P, NeP, NeL) . *** P is present: we add the current config.
- eq [case5] : $canonizeP(NeLELQL, P, P' U NeP, NeL) = canonize(swap(NeLELQL, P, P'), NeL) U $canonizeP(NeLELQL, P, NeP, NeL) [owise] .
+ eq canonizeP(NeLELQL, P, NeL) = canonizeP(NeLELQL, P, $minGtIdxNet(NeLELQL, P), NeL) .
+ op canonizeP : NeListOfList{Limatrix} Place Pset NePlist -> SetOfListOfList{Limatrix} . *** overload op (for convenience)
+ eq [case1] : canonizeP(NeLELQL, P, emptyPset, NeL) = NeLELQL . *** base case 1
+ eq [case2] : canonizeP(NeLELQL, P, P', NeL) = swap(NeLELQL, P, P') . *** base case 2
+ eq [case3] : canonizeP(NeLELQL, P, NeP, NeL) = $canonizeP(NeLELQL, P, NeP, NeL) [owise] . *** card(NeP) > 1
+ op $canonizeP : NeListOfList{Limatrix} Place Pset NePlist -> SetOfListOfList{Limatrix} . *** iterates over the Pset
+ eq $canonizeP(NeLELQL, P, P' U SP, NeL) = canonize(swap(NeLELQL, P, P'), NeL) U $canonizeP(NeLELQL, P, SP, NeL) .
+ eq $canonizeP(NeLELQL, P, emptyPset, NeL) = emptySetOfNestedQL .
 endfm

@@ -40,14 +40,18 @@ fmod IMATRIX is
  *** canonization ops
  op swap : Imatrix Place Place -> Imatrix .
  eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
+
+ op replace : Imatrix Place Place -> Imatrix .
+ eq replace([X,Y,Z], P, P') = [replace(X,P,P'),replace(Y,P,P'),replace(Z,P,P')] .
+
 endfm
 
 view Imatrix from TRIV to IMATRIX is 
  sort Elt to Imatrix . 
 endv
 
-
-fmod LIMATRIX is *** list(s)-view of a local incidence matrix
+ *** list(s)-view of a local incidence matrix
+fmod LIMATRIX is
  pr IMATRIX .
  sort Limatrix .
  op [_,_,_] : List{Nat,Place} List{Nat,Place} List{Nat,Place} -> Limatrix [ctor] . 
@@ -73,7 +77,13 @@ fmod LIMATRIX is *** list(s)-view of a local incidence matrix
  op _(_) : Limatrix Atype -> List{Nat,Place} [prec 23] . 
  eq LQ(i) = I(LQ) .
  eq LQ(o) = O(LQ) . 
- eq LQ(h) = H(LQ) . 
+ eq LQ(h) = H(LQ) .
+ 
+ op toMat : Limatrix String -> Imatrix . *** back conversion
+ op toMat : Limatrix -> Imatrix . *** back conversion
+ eq toMat([LX,LY,LZ], S)  = [toBag(LX,S),  toBag(LY,S),  toBag(LZ,S) ] .
+ eq toMat(LQ)  = toMat(LQ, "") .
+ 
  *** canonization
  op swap : Limatrix Place Place -> Limatrix .
  eq swap([LX,LY,LZ], P, P') = [swap(LX,P,P'),swap(LY,P,P'),swap(LZ,P,P')] .

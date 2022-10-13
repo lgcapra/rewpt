@@ -98,4 +98,11 @@ ceq $partition(C, NeL, LoL) = $partition(C, pop(NeL, NeL'), LoL {NeL'}) if NeL' 
  op reorder : Nat ListOfList{X} ->  ListOfList{X} .
  eq reorder(C, {}) = {} .
  eq reorder(C, {L} LoL) = {sort(C,L)} reorder(C, LoL) .
+ *** utility op: transforms a nest list into an ordinary one preserving order
+ op toOrdList : ListOfList{X} -> List{X} .
+ eq toOrdList(LoL) = $toOrdList(LoL, nil) .
+ op $toOrdList : ListOfList{X} List{X} -> List{X} .
+ eq $toOrdList({}, L) = L .
+ eq $toOrdList({L} LoL, L') = $toOrdList(LoL, L' L) .  
+
 endfm
