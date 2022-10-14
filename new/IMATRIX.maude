@@ -65,10 +65,10 @@ fmod LIMATRIX is
  vars LQ LQ' : Limatrix . 
  *** lists-view 
  op toList : Imatrix String -> Limatrix . *** takes places with a given label
- op toList : Imatrix -> Limatrix . *** takes places with label ""
+ op toList : Imatrix -> Limatrix . *** takes places with ANY label (previous version: with label "")
  var  S : String . 
  eq toList([X,Y,Z], S)  = [toList(X,S),  toList(Y,S),  toList(Z,S) ] .
- eq toList(Q)  = toList(Q, "") .
+ eq toList([X,Y,Z])  = [toList(X),  toList(Y),  toList(Z) ] .
  *** anologous to Imatrix
  ops I O H : Limatrix -> List{Nat,Place} .
  eq I([LX,LY,LZ]) = LX .
@@ -82,7 +82,10 @@ fmod LIMATRIX is
  op toMat : Limatrix String -> Imatrix . *** back conversion
  op toMat : Limatrix -> Imatrix . *** back conversion
  eq toMat([LX,LY,LZ], S)  = [toBag(LX,S),  toBag(LY,S),  toBag(LZ,S) ] .
- eq toMat(LQ)  = toMat(LQ, "") .
+ eq toMat([LX,LY,LZ])  = [toBag(LX),  toBag(LY),  toBag(LZ) ] .
+
+ op null : Limatrix -> Bool . *** checks that all components are null
+ eq null(LQ) = LQ == [emptyListNP,emptyListNP,emptyListNP] .
  
  *** canonization
  op swap : Limatrix Place Place -> Limatrix .

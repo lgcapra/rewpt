@@ -45,10 +45,14 @@ fmod BAGP is
  eq $toList(nilP, W, LNP) = LNP .
  eq $toList(K . p(N,W) + B, W, LNP) = $toList(B, W, < K ; p(N,W) > LNP) . 
  eq $toList(K . P + B, W, LNP) = $toList(B, W, LNP) [owise] .
+ op toList  : Pbag -> List{Nat,Place} .     *** builds (un)ordered list of pairs < weight ; el > out of a bag, by considering places with ANY (before empty) label
+ eq toList(B) = $toList(B, emptyListNP) .
+ op $toList : Pbag List{Nat,Place} -> List{Nat,Place} .
+ eq $toList(nilP, LNP) = LNP .
+ eq $toList(K . P + B, LNP) = $toList(B, < K ; P > LNP) . 
+ 
  var C : Nat .
- op  toList  : Pbag -> List{Nat,Place} .     *** builds (un)ordered list of pairs < weight ; el > out of a bag, by considering places with empty label
- ops toListS : Nat Pbag -> List{Nat,Place} . *** the 1st arg identifies the sorting 
- eq toList(B) = toList(B, "") .
+ op toListS : Nat Pbag -> List{Nat,Place} . *** the 1st arg identifies the sorting 
  eq toListS(C, B)  = sort(C, toList(B)) .   *** builds an ordered list of pairs out of a bag  using the usual list lex order (0) ([memo] ?) or the lex order based on weights (1)
  *** the same as above, for the list-view
  var L  : List{Nat,Place} . var X : Pair{Nat,Place} .
@@ -69,7 +73,10 @@ fmod BAGP is
  eq $toBag(< K ; p(N,W) > LNP, W, B) = $toBag(LNP, W, B + K . p(N,W)) . 
  eq $toBag(< K ; P > LNP, W, B) = $toBag(LNP, W, B) [owise] .
  op toBag : List{Nat,Place}  -> Pbag . 
- eq toBag(LNP) = toBag(LNP, "") .
+ eq toBag(LNP) = $toBag(LNP, nilP) .
+ op $toBag : List{Nat,Place} Pbag  -> Pbag  .
+ eq $toBag(emptyListNP, B) = B .
+ eq $toBag(< K ; P > LNP, B) = $toBag(LNP, B + K . P) . 
 
  *** defined for convenience (and to satisfy th STRICT-WEAK-ORDER+)
  op lt : Nat Pbag Pbag -> Bool . *** maps to the lexicographic orders defined on lists of (comparable) pairs

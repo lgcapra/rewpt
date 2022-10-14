@@ -97,18 +97,16 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  **** canonization part
 
  *** gets a sorted list of matrices (better, list-views of matrices) out of a net by sorting on the basis of bag weights
- op matListS : Nat Net String -> List{Limatrix} .  
- eq matListS(Y, N, W) = sort(Y, $matListS(Y, N, W, emptyListQL)) .
- op $matListS : Nat Net String List{Limatrix} -> List{Limatrix} .
- eq $matListS(Y, emptyN, W, LQL) = LQL .
- eq $matListS(Y, T |-> Q ; N, W, LQL) = $matListS(Y, N, W, LQL sort(Y, toList(Q, W)))  .
- op matListS : Nat Net -> List{Limatrix} . *** consider only empty labels
- eq matListS(Y, N) = matListS(Y, N, "") .
+ op matListS : Nat Net  -> List{Limatrix} .  
+ eq matListS(Y, N) = sort(Y, $matListS(Y, N, emptyListQL)) .
+ op $matListS : Nat Net List{Limatrix} -> List{Limatrix} .
+ eq $matListS(Y, emptyN, LQL) = LQL .
+ceq $matListS(Y, T |-> Q ; N, LQL) = $matListS(Y, N, LQL sort(Y, LQL' )) if LQL' := toList(Q) /\ null(LQL') == false .
+ eq $matListS(Y, T |-> Q ; N, LQL) = $matListS(Y, N, LQL) [owise] .
+ 
  *** regroups PT's (list-views of) matrices into similarity blocks prefixed by the marking (convenience op)
- op regroup : Net Pbag String -> ListOfList{Limatrix} .
- eq regroup(N, B, W) = {[toListS(0,B),emptyListNP,emptyListNP]} partition(1, matListS(1, N, W)) .
  op regroup : Net Pbag -> ListOfList{Limatrix} .
- eq regroup(N, B) = regroup(N, B, "") . *** default
+ eq regroup(N, B) = {[toListS(0,B),emptyListNP,emptyListNP]} partition(1, matListS(1, N)) .
  
  *** operators to swap pairs of elements (various/overloaded versions)
  op swap : Net Place Place -> Net . 
