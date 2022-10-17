@@ -12,6 +12,12 @@ fmod PT-NODE is
  eq subscript (n(N,L)) = N .
  op label : Node -> String .
  eq label(n(N,L)) = L .
+
+ op prefix : Node String -> Node .
+ eq prefix(n(N,L), L') = n(N,L' + L) .  
+ op suffix : Node String -> Node .
+ eq suffix(n(N,L), L') = n(N,L + L') .  
+
  *** strict total order(s) -- collapse for equally-labelled nodes
  ops _<_  _<'_ : Node Node -> Bool . *** comparison first based on index than on label and vice-versa (originally deafult was the former)
  eq n(N,L) <' n(N',L') = N < N' or-else (N == N' and-then  L < L') .

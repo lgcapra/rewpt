@@ -25,6 +25,10 @@ fmod BAGP is
  eq $extract(K . p(N,W) + B, W, B') = $extract(B, W, K . p(N,W) +  B') . 
  eq $extract(K . P + B, W, B') = $extract(B, W, B') [owise] .
  
+ op prefix : Pbag String -> Pbag .
+ eq prefix(nilP, W) = nilP .
+ eq prefix(K . P + B, W) = K . prefix(P, W) + prefix(B, W) .    
+ 
  *** canonization part
 
  op replace : Pbag Place Place -> Pbag . *** replaces the first place with the second one

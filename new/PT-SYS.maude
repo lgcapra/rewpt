@@ -43,6 +43,7 @@ ceq dead((T |-> Q ; N) S) = false if enabled((T |-> Q ; N) S, T) .
 
  op replace : System Place Place -> System .
  eq replace(N S, P, P') = replace(N, P, P') replace(S, P, P') . 
+
 endfm
 
 fth PTSYSTH  is 

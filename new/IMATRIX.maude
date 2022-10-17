@@ -44,6 +44,10 @@ fmod IMATRIX is
  op replace : Imatrix Place Place -> Imatrix .
  eq replace([X,Y,Z], P, P') = [replace(X,P,P'),replace(Y,P,P'),replace(Z,P,P')] .
 
+ var S : String .
+ op prefix :  Imatrix String -> Imatrix .
+ eq prefix([X,Y,Z], S) = [prefix(X, S),prefix(Y, S),prefix(Z, S)] .
+
 endfm
 
 view Imatrix from TRIV to IMATRIX is 
