@@ -11,7 +11,7 @@ fmod NET-OP is
  vars S S' : Pbag .
  var Sys Sys' : System .
  var I : Nat .
- var K : NzNat .
+ vars K K' : NzNat .
  var L : String .
 *** similar to the op defined in PT-FMS-NEWv2 but more general
  *** juxtapose two systems (NOTE identical places are implicitly merged their marking is summed map)
@@ -26,6 +26,15 @@ fmod NET-OP is
  eq prefix(Sys, K, L) = prefix(Sys, L + "_" + string(K,10)) .
  eq par(Sys, 1, L) = prefix(Sys, 1, L) .
 ceq par(Sys, K, L) = join(par(Sys, sd(K,1), L), prefix(Sys, K, L)) if K > 1 .
+ *** version 2: doesn't insert indices in the prefix -- sets indices modulo the system's size (|P|)
+ op parv2  : System NzNat String -> [System] .
+ eq parv2(Sys, K, L) = $parv2(Sys, K, | places(Sys) |, L)  .
+ op $parv2 : System NzNat NzNat String -> [System] . 
+ eq $parv2(Sys, 1, K', L) = prefix(Sys, L) .
+ceq $parv2(Sys, K, K', L) = join($parv2(Sys, sd(K,1), K', L), prefix&offset(Sys, sd(K,1) * K', L)) if K > 1 . 
+ op parv2  : System NzNat  -> [System] . *** doesnt'modify the label
+ eq parv2(Sys, K) = parv2(Sys, K, "") .
+ 
  *** merge two places of a PT system giving the merged place a new label (Note assumes that merged places hold the same marking, which is retained) .     
  op pmerge : System Place Place Nat String  -> [System] .
 ceq pmerge(N S, P, P', I, L) = replace(replace(N, P, p(I, L)), P', p(I, L)) replace(set(S, P', 0), P, p(I, L)) if S[P] == S[P'] /\ P =/= P' .
@@ -37,10 +46,11 @@ endfm
 
 fmod PT-FMS is
  protecting NET-OP .
- ops net pline net' symnet : -> Net .
+ ops net pline net' symnet symnet2 : -> Net .
  ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag . 
  op M   : -> NzNat . *** MS model's parameter
- eq M = 2 . 
+ eq M = 8 . 
+ ops sys sys2 sys2' sys2'' sys2new : -> System .
  *** only the product line structure (without faults)
  eq pline = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
           nilP ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ; t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] .
@@ -75,7 +85,10 @@ fmod PT-FMS is
           t(4,"rest") |-> [1 . p(0,"end") , 2 . p(0,"start"), nilP ] ; t(5,"fault") |-> [1 . p(0,"focc") , 1 . p(0,"faulty"), nilP ] ; t(6,"fault") |-> [1 . p(0,"focc") , 1 . p(1,"faulty"), nilP].
  eq sym0  = (2 * M) . p(0,"start") +  1 . p(0,"focc") .
 
- 
+ eq sys2 = pmerge(par(symnet sym0, 2, "PL"), p(0, "PL_1start"), p(0, "PL_2start"), 0, "start") .
+ eq sys2' =  pmerge(parv2(symnet sym0, 2), p(0, "start"),  p(9, "start"), 0, "start") .
+ eq sys2'' =  pmerge(parv2(net m0, 2), p(1, ""),  p(10, ""), 1, "") .
+
 endfm
 
 
@@ -87,8 +100,8 @@ mod PT-EMU is
  vars N N' : Net .
  *** firing rule (without canonization)
  *** crl [firing] : N M => N M + O - I if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
+ *** including canonization
  crl [canfire] : N M => canonize(N M + O - I) if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
- *** including canonization (old)
 endm
 
 mod FMS-EMU is
@@ -113,7 +126,6 @@ mod RWPT-FMS is
  *** crl [r3] : N S  => setw( N ; t(0,"load"), p(9), i, 1) S if S[p(0,"focc")] = 0 /\ S[p(9)] = 0  /\ in( N ; p(9)) = false .
 
 
-
  *** version with null labels (corresponding to the 1st formulation)
  *** crl [r1] : ( N ; t(0,"") |-> [2 . p(1,""), 1 . P2 + 1 . P3, nilP ] ; Tline |-> [1 . P3, 1 . P5, 1 . PF] ; t(3,"") |-> [1 . P4 + 1 . P5, 1 . p(6,""), nilP ] ; Tfail |-> [1 . p(0,""), 1 . PF, nilP]) S + 1 . PF
  ***        => ( N ; t(0,"") |-> [1 . p(1,""), 1 . P2, nilP ] ;  t(3,"") |-> [2 . P4, 1 . p(6,""), nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . p(0,"") if S[P5] == 0 .
@@ -127,14 +139,15 @@ mod RWPT-FMS is
  *** crl [pr2] : ( N ; Tline |-> [1 . P2, 1 . P4, 1 . PF ] ; Tass |-> [2 . P4, 1 . P6, nilP]) C (S + K . P2 + 1 . PF C') => (net false) 1 . p(0,"") + M . p(3,"") + (K - M . p(2,"")) + S[P4] . p(4,"") false if  K >= 2 * M - 1 .
 
  *** same rules as in PT-FMS-NEWv2
-*** crl [syr1] : N S + 1 . P8 => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-***      if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ dead(N S + 1 . P8)  .
-*** crl [syr2] : N  S + 1 . P7  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P7, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
-***  dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) S) .
+***   crl [syr1] : N S + 1 . P8 => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+***     if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ dead(N S + 1 . P8)  .
+***   crl [syr2] : N  S + 1 . P7  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P7, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
+***     dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) S) .
+*** including canonization
 crl [cansyr1] : N S + 1 . P8 => canonize(( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 ) 
- if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ dead(N S + 1 . P8)  .
+   if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ dead(N S + 1 . P8)  .
 crl [cansyr2] : N  S + 1 . P7  => canonize(N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 ) if (N' ; Tfail1 |-> [1 . P0, 1 . P7, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
-   dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) S) .
+  dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) S) .
 
 endm
 

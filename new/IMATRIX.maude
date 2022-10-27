@@ -46,7 +46,9 @@ fmod IMATRIX is
 
  var S : String .
  op prefix :  Imatrix String -> Imatrix .
- eq prefix([X,Y,Z], S) = [prefix(X, S),prefix(Y, S),prefix(Z, S)] .
+ eq prefix(Q, S) = prefix&offset(Q, 0, S) .
+ op prefix&offset : Imatrix Nat String -> Imatrix .
+ eq prefix&offset([X,Y,Z], N, S) = [prefix&offset(X, N, S),prefix&offset(Y, N, S),prefix&offset(Z, N, S)] .
 
 endfm
 

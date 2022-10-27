@@ -1,13 +1,13 @@
 in ../shared/BAG-AND-SET
 *** in ../shared/COMP-PAIR-LIST
-in ../shared/COMP-PAIR-LIST-NEW
-in PLACE
+***in ../shared/COMP-PAIR-LIST-NEW
+*** in PLACE
+in LIST-NAT-PLACE
 *** maybe it is convenient to split in two modules: BAGP and BAGP-VLIST
 fmod BAGP is
  pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, op nil to nilP, 
                            sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
- pr COMP-PAIR-LIST{Nat<, Place<} * (sort Pair{Nat<,Place<} to Pair{Nat,Place}, sort NeList{Nat<,Place<} to NeList{Nat,Place},
-                                     sort List{Nat<,Place<} to List{Nat,Place}, op emptyListXY to emptyListNP) .
+ pr LIST-NAT-PLACE .
  
  vars P P' $P : Place . 
  vars K K' : NzNat .
@@ -26,8 +26,11 @@ fmod BAGP is
  eq $extract(K . P + B, W, B') = $extract(B, W, B') [owise] .
  
  op prefix : Pbag String -> Pbag .
- eq prefix(nilP, W) = nilP .
- eq prefix(K . P + B, W) = K . prefix(P, W) + prefix(B, W) .    
+ eq prefix(B, W) = prefix&offset(B, 0, W) . 
+ op prefix&offset : Pbag Nat String -> Pbag .
+ eq prefix&offset(nilP, N, W) = nilP .
+ eq prefix&offset(K . P + B, N, W) = K . prefix&offset(P, N, W) + prefix&offset(B, N, W) .    
+ 
  
  *** canonization part
 

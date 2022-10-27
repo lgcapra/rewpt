@@ -13,10 +13,14 @@ fmod PT-NODE is
  op label : Node -> String .
  eq label(n(N,L)) = L .
 
- op prefix : Node String -> Node .
- eq prefix(n(N,L), L') = n(N,L' + L) .  
  op suffix : Node String -> Node .
  eq suffix(n(N,L), L') = n(N,L + L') .  
+ *** add a prefix and offset to the label and the subscript, respectively
+ op prefix&offset : Node Nat String -> Node .
+ eq prefix&offset(n(N,L), N', L') = n(N + N',L' + L) .  
+ op prefix : Node String -> Node .
+ eq prefix(N1, L) = prefix&offset(N1, 0, L) .  
+ 
 
  *** strict total order(s) -- collapse for equally-labelled nodes
  ops _<_  _<'_ : Node Node -> Bool . *** comparison first based on index than on label and vice-versa (originally deafult was the former)
@@ -26,4 +30,13 @@ fmod PT-NODE is
  ops _<=_  _<='_  : Node Node -> Bool .
  eq N1 <= N2 = N1 == N2 or-else N1 < N2 .
  eq N1 <=' N2 = N1 == N2 or-else N1 <' N2 .
+ *** strict weak order -- like < but restricted to subscripts one of the two less than a given value
+ op lt : Node Node NzNat -> Bool .  
+ var K : NzNat .
+ eq lt(n(N,L), n(N',L'), K) = L < L' or-else L == L' and-then  N < N' and-then (N < K or-else N' < K) .
+ ops _<i_  _<l_ : Node Node -> Bool . 
+ *** strict weak orders considering eiher the subscript or the label
+ eq n(N,L) <i n(N',L') =  N < N' .
+ eq n(N,L) <l n(N',L') =  L < L' .
+ 
 endfm
