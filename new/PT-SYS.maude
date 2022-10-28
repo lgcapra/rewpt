@@ -44,11 +44,11 @@ ceq dead((T |-> Q ; N) S) = false if enabled((T |-> Q ; N) S, T) .
  op replace : System Place Place -> System .
  eq replace(N S, P, P') = replace(N, P, P') replace(S, P, P') . 
 
+***relabelling ops
+ var L : String . var Y : Nat . var Sys : System .
+ op prefix : System String -> System .
+ eq prefix(Sys, L) = prefix&offset(Sys, 0, L) .
+ op prefix&offset : System Nat String -> System .
+ eq prefix&offset(N S, Y, L) = prefix&offset(N, Y, L) prefix&offset(S, Y, L) .
+ 
 endfm
-
-fth PTSYSTH  is 
- pr BAGP .
- pr PT-NET .
- op m0  : -> Pbag .
- op net : -> Net .
-endfth 

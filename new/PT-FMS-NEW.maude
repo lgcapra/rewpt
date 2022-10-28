@@ -1,6 +1,4 @@
-in CAN-PT-SYS-NEW
-*** in CAN-PT-SYS
-*** in PT-SYS
+in CAN-PT-SYS
 
 *** basic net-algebra operators
 fmod NET-OP is

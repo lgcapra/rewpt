@@ -19,6 +19,9 @@ fmod COMPARABLE-LIST{X :: STRICT-WEAK-ORDER+} is
 ceq [cmp4] : cmp(C, E L, E' L') = 1 if lt(C, E , E') .
 ceq [cmp5] : cmp(C, E L, E' L') = 2 if lt(C, E', E) .
  eq [cmp6] : cmp(C, E L, E' L') = cmp(C, L, L') [owise] .
+ *** sort then compare (convenience op)
+ op sort&lex :  Nat List{X} List{X} -> Bool .
+ eq sort&lex(C, L, L') = lex(C, sort(C, L), sort(C, L')) .
 endfm
 
 
