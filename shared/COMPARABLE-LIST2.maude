@@ -1,0 +1,27 @@
+*** "embedded" list definition (useful to define nested lists) by @Lorenzo Capra
+fmod ELIST{X :: TRIV} is
+    pr LIST{X} .
+    sort Elist{X} .
+    op {_} : List{X} -> Elist{X}  [ctor] .
+    op join : Elist{X} Elist{X} -> Elist{X} [assoc] . 
+    vars L L' : List{X} .
+    eq join({L}, {L'}) = {L L'} .
+ endfm
+
+ view Elist{X :: TRIV} from TRIV to ELIST{X} is
+   sort Elt to Elist{X} .
+endv
+
+fmod NESTED-LIST{X :: TRIV} is
+  pr LIST{Elist{X}} * (op nil : -> List{Elist{X}} to {}) .
+endfm
+
+
+fmod COMPARABLE-LIST{X :: STRICT-WEAK-ORDER} is 
+  pr WEAKLY-SORTABLE-LIST{X} .
+  pr NESTED-LIST{STRICT-WEAK-ORDER}{X} * (sort List{STRICT-WEAK-ORDER}{X} to List{X}, sort NeList{STRICT-WEAK-ORDER}{X} to NeList{X}) 
+                                       * (sort List{Elist{STRICT-WEAK-ORDER}{X}} to List{Elist{X}}, sort NeList{Elist{STRICT-WEAK-ORDER}{X}} to NeList{Elist{X}})
+                                       * (sort Elist{STRICT-WEAK-ORDER}{X} to Elist{X})
+                                      .
+  *** op partition : List{X} -> List{Elist{STRICT-WEAK-ORDER}{X}} .  
+endfm

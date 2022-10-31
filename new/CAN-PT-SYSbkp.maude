@@ -1,35 +1,8 @@
-fmod TO-SET{X :: STRICT-TOTAL-ORDER} is
-   pr SET{STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER}{X} * (sort Set{STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER}{X} to Set{X}, 
-                                sort NeSet{STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER}{X} to NeSet{X}) .
-   vars X X' : X$Elt .
-   var S : Set{X} .
-   op min  : NeSet{X} -> X$Elt . 
-   eq min(X) = X .
-   eq min ((X , X' , S)) = min((if X < X' then X else X' fi , S)) .
-endfm
-
-fmod PO-SET{X :: STRICT-WEAK-ORDER+} is
-   pr SET{STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER}{X} * (sort Set{STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER}{X} to Set{X}, 
-                                sort NeSet{STRICT-WEAK-ORDER}{STRICT-TOTAL-ORDER}{X} to NeSet{X}) .
-   vars X X' : X$Elt .
-   var S : Set{X} .
-   op min  : NeSet{X} -> X$Elt . 
-   eq min(X) = X .
-   eq min ((X , X' , S)) = min((if X < X' then X else X' fi , S)) .
-endfm
-
-
-fmod SET-LIST-MAT is 
-  pr TO-SET{NestedMatList<} * (sort Set{NestedMatList<} to SetOfListOfList{Limatrix}, sort NeSet{NestedMatList<} to NeSetOfListOfList{Limatrix},
-                          op empty to emptySetOfNestedQL, op _,_ to _U_)  .
-endfm
-
 in PT-SYS
 
 *** canonization algorithm for PT systems
 fmod CAN-PT-SYS is
- pr PT-SYS .
- pr SET-LIST-MAT .
+ pr PT-SYS . 
  vars I J : Nat .
  vars K K' : NzNat .
  vars P P' P'' : Place .
@@ -68,14 +41,20 @@ fmod CAN-PT-SYS is
 
  *** regroups PT's (list-views of) matrices into similarity blocks prefixed by the marking (convenience op)
  op regroup : System -> ListOfList{Limatrix} .
+ *** eq regroup(N B) = {[toListS(0,B),emptyListNP,emptyListNP]} partition(1, matListS(1, N)) .
  eq regroup(N B) = {[toListS(0,B),emptyListNP,emptyListNP]} reorder(0, partition(1, matListS(1, N))) .
-  *** real top operator : canonizes a list of (list-views of) incidence matrices
- op canonize : NeListOfList{Limatrix} NePlist -> NeListOfList{Limatrix} .
+ op canonize : NeListOfList{Limatrix} NePlist -> NeListOfList{Limatrix} . *** real top operator
  eq canonize(NeLELQL, P) = NeLELQL . *** canonization makes sense if there are at least two places
- eq canonize(NeLELQL, P NeLP) = canonize(min($reorder(canonizeP(NeLELQL, P, NeLP))), NeLP) . 
+ eq canonize(NeLELQL, P NeLP) = canonize(min(canonizeP(NeLELQL, P, NeLP)), NeLP) . 
+ op min : NeSetOfListOfList{Limatrix} -> ListOfList{Limatrix} . *** convenience op
+ eq min(NeSLELQL) = $min($reorder(NeSLELQL)) .
+ op $min : NeSetOfListOfList{Limatrix} -> ListOfList{Limatrix} . *** gets the minimal representative
+ eq $min(LELQL) = LELQL .
+ eq $min (LELQL U LELQL' U SLELQL) = $min(SLELQL U if lex(0, LELQL, LELQL') then LELQL else LELQL' fi) .
  op $reorder : NeSetOfListOfList{Limatrix} ->  NeSetOfListOfList{Limatrix} . *** reorder a lists of lists of matrices (views)
  eq $reorder(LELQL) = reorder(0,LELQL) . 
  eq $reorder(LELQL U NeSLELQL) = $reorder(LELQL) U $reorder(NeSLELQL) . 
+ 
  *** single canonization step (builds on $minGtIdxNet) -- acts recursively (see case 3 below)
  op canonizeP : NeListOfList{Limatrix} Place NePlist -> NeSetOfListOfList{Limatrix} .
  eq canonizeP(NeLELQL, P, NeLP) = canonizeP(NeLELQL, P, $minGtIdxNet(NeLELQL, P), NeLP) .

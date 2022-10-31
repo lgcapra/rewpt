@@ -48,10 +48,6 @@ view Elist{X :: TRIV} from TRIV to ELIST{X} is
    sort Elt to Elist{X} .
 endv
 
-*** fmod NESTED-LIST{X :: TRIV} is
-***  pr LIST{Elist{X}} * (op nil : -> List{Elist{X}} to {}) .
-*** endfm
-
 *** "embedded" comparable list definition
 fmod COMPARABLE-ELIST{X :: STRICT-WEAK-ORDER+} is
   pr ELIST{STRICT-WEAK-ORDER+}{X} * (sort Elist{STRICT-WEAK-ORDER+}{X} to Elist{X},

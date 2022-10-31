@@ -1,0 +1,90 @@
+in CAN-PT-SYS
+
+fmod PT-PL is
+ protecting PT-NET .
+ op plnet  : Nat  -> Net [memo] .
+ *** parametric definition of a PL net
+ var K : Nat .
+ eq plnet(K) = t(K * 7,"") |-> [2 . p(K * 9 + 1,""), 1 . p(K * 9 + 2,"") + 1 . p(K * 9 + 3,""), nilP] ; t(K * 7 + 1,"") |-> [1 . p(K * 9 + 2,""), 1 . p(K * 9 + 4,""), 1 . p(K * 9 + 7,"") ] ; t(K * 7 + 2,"") |-> [1 . p(K * 9 + 3,""), 1 . p(K * 9 + 5,""),
+          1 . p(K * 9 + 8,"") ] ; t(K * 7 + 3,"") |-> [1 . p(K * 9 + 4,"") + 1 . p(K * 9 + 5,"") , 1 . p(K * 9 + 6,""), nilP ] ;
+          t(K * 7 + 4,"") |-> [1 . p(K * 9 + 6,"") , 2 . p(K * 9 + 1,""), nilP ] ; t(K * 7 + 5,"") |-> [1 . p(K * 9 + 0,""), 1 . p(K * 9 + 7,""), nilP ] ; t(K * 7 + 6,"") |-> [1 . p(K * 9 + 0,""), 1 . p(K * 9 + 8,""), nilP].
+ 
+ endfm
+
+*** basic net-algebra operators
+fmod NET-OP is  
+  pr CAN-PT-SYS .
+  op joinP : System System -> [System] [assoc comm] . *** place-based join
+  vars N N' : Net .
+  vars S S' : Pbag .
+  eq joinP(N S, N' S') = (N ; N') join(S, S') .
+  *** op setM : System Place Nat -> System . *** sets the marking of the specified system's place 
+  *** eq setM(N S, P:Place, K:Nat) = N set(S, P:Place, K:Nat) . 
+endfm
+
+mod PT-EMU is
+ pr CAN-PT-SYS .
+ var  T : Tran .
+ vars I O H M : Pbag .
+ vars N N' : Net .
+ *** crl [firing] : N M => N M + O - I if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .  
+ crl [canfire] : N M => canonize(N M + O - I) if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
+endm
+
+mod RWPT-PL is
+ pr PT-PL .
+ pr NET-OP .
+ inc PT-EMU .
+ vars N N' N'' : Net .
+ vars Tload Tfail1 Tfail2 Tass Tline1 Tline2 Trest : Tran .
+ vars P0 P1 P2 P3 P4 P5 P6 P7 P8 : Place .
+ var S : Pbag . var K : Nat . var K' : NzNat .
+ op M   : -> NzNat [memo] . *** PL system's parameter
+ eq M = 1 . 
+ op plsys  : Nat  -> System [memo] . *** parametric definition of a PL system
+ eq plsys(K) = plnet(K) (2 * M) . p(K * 9 + 1,"")  + 1 . p(K * 9,"") .
+ op parpl  : NzNat  -> System [memo] .
+ eq parpl(1) = plsys(0) .
+ceq parpl(K') = joinP(parpl(sd(K',1)), replace(plsys(sd(K',1)), p(1 + 9 * sd(K',1),""), p(1,""))) if K' > 1 . 
+ 
+ *** from nominal PL to faulty PL
+ *** crl [r1] : N S + 1 . P8 => ( N' ; t(0,"") |-> [2 . p(1,""), 2 . P2, nilP] ;  t(3,"") |-> [2 . P4, 1 . p(6,""), nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . p(0,"") 
+ ***             if (N' ; t(0,"") |-> [2 . p(1,""), 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; t(3,"") |-> [1 . P4 + 1 . P5, 1 . p(6,""), nilP ] ; Tfail2 |-> [1 . p(0,""), 1 . P8, nilP]) := N /\ dead(N S + 1 . P8) .
+ 
+ *** "symmetric" versions rules (ok also in case of canonization)
+ *** syr1 is equivalent to r1 but works also in case of many PL
+ *** crl [syr1] : N S + 1 . P8 => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+ ***  if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ dead(N S + 1 . P8)  .
+ *** crl [cansyr1] : N S + 1 . P8 => canonize(( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 ) 
+    *** if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ dead(N S + 1 . P8)  .
+ 
+ *** this version of syr1 triggers the transformation when a (nominal) Pl is "locally" dead --- moreover add an H arc (P7, Tload) 
+*** crl [syr1v2] : N  S + 1 . P8 => (N' ; Tload |-> [2 . P1, 2 . P2, 1 . P7] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 1 . P6, nilP] ;
+***                      Trest |-> [1 . P6 , 2 . P1, nilP ]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+***                     if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Trest |-> [1 . P6 , 2 . P1, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ 
+***                     dead((Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Trest |-> [1 . P6 , 2 . P1, nilP ] ) S + 1 . P8)  .
+*** crl [cansyr1v2] : N  S + 1 . P8 => canonize((N' ; Tload |-> [2 . P1, 2 . P2, 1 . P7] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 1 . P6, nilP] ;
+***                      Trest |-> [1 . P6 , 2 . P1, nilP ]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 ) 
+***                     if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Trest |-> [1 . P6 , 2 . P1, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ 
+***                     dead((Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Trest |-> [1 . P6 , 2 . P1, nilP ] ) S + 1 . P8)  .
+
+*** detaches a faulty PL after a local deadlock (if the rest of the model is not empty)
+*** crl [syr2] : N  S + 1 . P7  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P7, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
+***  dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) S) .
+*** crl [cansyr2] : N  S + 1 . P7  => canonize(N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 ) if (N' ; Tfail1 |-> [1 . P0, 1 . P7, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
+  *** dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) S) .
+
+ *** version of syr2 working with a faulty PL layout with an H arc (P7, Tload)
+*** crl [syr2v2] : N  S + 1 . P7  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P7, nilP] ; Tload |-> [2 . P1, 2 . P2, 1 . P7] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
+***   dead((Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) S) .
+*** crl [cansyr2v2] : N  S + 1 . P7  => canonize(N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 ) if (N' ; Tfail1 |-> [1 . P0, 1 . P7, nilP] ; Tload |-> [2 . P1, 2 . P2, 1 . P7] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
+***   dead((Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) S) .
+
+endm
+
+*** helpful commands
+*** search plsys(0) =>! S:System .
+*** search par2pl =>! S:System .
+*** search par2pl =>* (N:Net S:Pbag) such that (N:Net)[t(0,"")] = undefined  .
+*** search par2pl =>! (N:Net S:Pbag) such that [I:Pbag,O:Pbag,H:Pbag] := (N:Net)[t(7,"")] /\ (I:Pbag =/= 2 . p(1,"") or-else (O:Pbag =/= 2 . p(12, "") and-then O:Pbag =/= 2 . p(11, "")) or-else H:Pbag =/= nilP) .
+*** search par2pl =>! (N:Net S:Pbag) such that [I:Pbag,O:Pbag,H:Pbag] := (N:Net)[t(0,"")] /\ (I:Pbag =/= 2 . p(1,"") or-else (O:Pbag =/= 2 . p(3, "") and-then O:Pbag =/= 2 . p(2, "")) or-else H:Pbag =/= nilP) .

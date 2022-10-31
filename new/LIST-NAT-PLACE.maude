@@ -1,0 +1,35 @@
+in ../shared/SORTED-PAIR
+in PLACE
+
+*** this module defines (sortable) of pairs << Nat ; Place >>> 
+fmod PAIR-NAT-PLACE is 
+  inc SORTED-PAIR{Nat<,Place<} * (sort Pair{Nat<,Place<} to Pair{Nat,Place})  .  *** instead of including we might define lt in STRICT-WEAK-ORDER+ as partial
+  vars P1 P2 : Place .
+  var K : NzNat .
+  vars N N' : Nat .
+  op lt : Nat Pair{Nat,Place} Pair{Nat,Place} -> Bool . *** made total
+*** strict weak order in which weight is considered first and indices >=  K -3 are considered "equivalent". if K is 0,1,2 the usual lt behaviour is inherited 
+ceq  lt(K, < N ; P1 >, < N' ; P2 >) = N < N' or-else ( N == N' and-then lt(P1, P2, sd(K,3)) ) if K > 2 . 
+endfm
+
+*** ordinary view 
+view PairNatP from TRIV to PAIR-NAT-PLACE is 
+ sort Elt to Pair{Nat,Place} .
+endv
+
+*** classical view as strict-total-order 
+view PairNatP< from STRICT-TOTAL-ORDER to PAIR-NAT-PLACE is 
+ sort Elt to Pair{Nat,Place} .
+endv
+
+*** view as strict-weak-order 
+view PairNatP+< from STRICT-WEAK-ORDER+ to PAIR-NAT-PLACE is 
+ sort Elt to Pair{Nat,Place} . 
+endv
+
+in ../shared/COMPARABLE-LIST
+
+*** this module defines comparable lists of pairs < Nat ; Place >
+fmod LIST-NAT-PLACE is 
+  pr COMPARABLE-LIST{PairNatP+<} * (sort List{PairNatP+<} to List{Nat,Place}, sort NeList{PairNatP+<} to NeList{Nat,Place}, op nil to emptyListNP)  .  
+endfm

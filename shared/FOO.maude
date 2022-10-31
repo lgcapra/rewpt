@@ -1,0 +1,17 @@
+fmod FOO-A is 
+ sort Foo . 
+ op a : -> Foo . 
+endfm
+
+fmod FOO is 
+ pr FOO-A .   
+endfm
+
+fmod FOO-2 is 
+ pr FOO-A . 
+ op b : Foo -> Foo . 
+endfm
+
+fmod FOO+ is
+ pr FOO-A + FOO-2 . 
+endfm

@@ -30,9 +30,9 @@ fmod PT-NODE is
  ops _<=_  _<='_  : Node Node -> Bool .
  eq N1 <= N2 = N1 == N2 or-else N1 < N2 .
  eq N1 <=' N2 = N1 == N2 or-else N1 <' N2 .
- *** strict weak order -- like < but restricted to subscripts one of the two less than a given value
- op lt : Node Node NzNat -> Bool .  
- var K : NzNat .
+ *** strict weak order -- like < but restricted to subscripts one of the two less than a given value (if K == 0 it means that subscripts are ignored)
+ op lt : Node Node Nat -> Bool .  
+ var K : Nat .
  eq lt(n(N,L), n(N',L'), K) = L < L' or-else L == L' and-then  N < N' and-then (N < K or-else N' < K) .
  ops _<i_  _<l_ : Node Node -> Bool . 
  *** strict weak orders considering eiher the subscript or the label
