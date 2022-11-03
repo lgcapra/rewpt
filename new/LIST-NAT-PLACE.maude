@@ -8,7 +8,7 @@ fmod PAIR-NAT-PLACE is
   var K : NzNat .
   vars N N' : Nat .
   op lt : Nat Pair{Nat,Place} Pair{Nat,Place} -> Bool . *** made total
-*** strict weak order in which weight is considered first and indices >=  K -3 are considered "equivalent". if K is 0,1,2 the usual lt behaviour is inherited 
+*** strict weak order in which (weights are considered first and) indices >=  K -3 are considered "equivalent". if K is 0,1,2 the usual lt behaviour is inherited 
 ceq  lt(K, < N ; P1 >, < N' ; P2 >) = N < N' or-else ( N == N' and-then lt(P1, P2, sd(K,3)) ) if K > 2 . 
 endfm
 

@@ -19,6 +19,12 @@ view NestedMatList< from STRICT-TOTAL-ORDER to NESTED-MATRIX-LIST is
  op X < Y to term lex(0, X, Y) . 
 endv
 
+view NestedMatList+< from STRICT-WEAK-ORDER+ to NESTED-MATRIX-LIST is 
+ sort Elt to ListOfList{Limatrix} . 
+ op lt to lex .
+endv
+
+
 
 fmod PT-NET is
  inc MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
