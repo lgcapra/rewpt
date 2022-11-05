@@ -19,6 +19,7 @@ fmod COMPARABLE-LIST{X :: STRICT-WEAK-ORDER+} is
 ceq [cmp4] : cmp(C, E L, E' L') = 1 if lt(C, E , E') .
 ceq [cmp5] : cmp(C, E L, E' L') = 2 if lt(C, E', E) .
  eq [cmp6] : cmp(C, E L, E' L') = cmp(C, L, L') [owise] . *** E and E' are "equivalent"
+ 
  *** sort then compare (convenience op)
  op sort&lex :  Nat List{X} List{X} -> Bool .
  eq sort&lex(C, L, L') = lex(C, sort(C, L), sort(C, L')) .
@@ -90,7 +91,8 @@ ceq $headeq(C, E L, NeL) = $headeq(C, L, NeL E) if cmp(C, head(NeL), E) == 0 .
  *** partitions a (assumed sorted) list into similarity" blocks (holding contigous elements for which cmp evaluates to 0) 
  op partition : Nat List{X} ->  ListOfList{X} .
  eq partition(C, nil) = {nil} .
- eq partition(C, NeL) = $partition(C, NeL, {}) .
+ eq partition(C, E) = {E} . *** minor optimization
+ eq partition(C, E NeL) = $partition(C, E NeL, {}) .
  op $partition : Nat List{X} ListOfList{X} ->  ListOfList{X} .
  eq $partition(C, nil, LoL) = LoL .
 ceq $partition(C, NeL, LoL) = $partition(C, pop(NeL, NeL'), LoL {NeL'}) if NeL' := headeq(C, NeL) .
@@ -98,12 +100,6 @@ ceq $partition(C, NeL, LoL) = $partition(C, pop(NeL, NeL'), LoL {NeL'}) if NeL' 
  op reorder : Nat ListOfList{X} ->  ListOfList{X} .
  eq reorder(C, {}) = {} .
  eq reorder(C, {L} LoL) = {sort(C,L)} reorder(C, LoL) .
- *** transforms a nested list into an ordinary one preserving order
- op toOrdList : ListOfList{X} -> List{X} .
- eq toOrdList(LoL) = $toOrdList(LoL, nil) .
- op $toOrdList : ListOfList{X} List{X} -> List{X} .
- eq $toOrdList({}, L) = L .
- eq $toOrdList({L} LoL, L') = $toOrdList(LoL, L' L) .
  *** refines (possibly expanding) a nested list of lists -- retains the disposal of nested lists (builds on partition)
  op refine : Nat ListOfList{X} -> ListOfList{X} .
  eq refine(C, LoL) = $refine(C, LoL, {}) .    
@@ -111,7 +107,12 @@ ceq $partition(C, NeL, LoL) = $partition(C, pop(NeL, NeL'), LoL {NeL'}) if NeL' 
  eq $refine(C, {}, LoL) = LoL .
  eq $refine(C, {L} LoL, LoL') = $refine(C, LoL, LoL' partition(C, L) ) .  
  *** reorder then refine
- op reord&refine : Nat ListOfList{X} -> ListOfList{X} . 
- eq reord&refine(C, LoL) = refine(C, reorder(C, LoL)) .
-
+ op reorder&refine : Nat ListOfList{X} -> ListOfList{X} . 
+ eq reorder&refine(C, LoL) = refine(C, reorder(C, LoL)) .
+ *** transforms a nested list into an ordinary one preserving order
+ op toOrdinaryList : ListOfList{X} -> List{X} .
+ eq toOrdinaryList(LoL) = $toOrdinaryList(LoL, nil) .
+ op $toOrdinaryList : ListOfList{X} List{X} -> List{X} .
+ eq $toOrdinaryList({}, L) = L .
+ eq $toOrdinaryList({L} LoL, L') = $toOrdinaryList(LoL, L' L) .
 endfm
