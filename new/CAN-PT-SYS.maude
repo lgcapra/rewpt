@@ -76,7 +76,7 @@ fmod CAN-PT-SYS is
 
  *** top-level canonization ops
  op canonize : System -> System . 
- eq canonize(N B) = toSys(min(canonize( regroup(N B), placeList(N) )) ) .
+ eq canonize(N B) = toSys(min(canonize( regroup(N B), placeList(N) )) ) . *** forse qui min è ridondante
  *** regroups PT's (list-views of) matrices into similarity blocks prefixed by the marking (convenience op)
  op regroup : System -> ListOfList{Limatrix} .
  eq regroup(N B) = {[toListS(1,B),emptyListNP,emptyListNP]} refine(1, { matListS(1, N) } ) .
