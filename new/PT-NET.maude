@@ -35,7 +35,7 @@ fmod PT-NET is
  pr ATYPE .
  pr PAIR{Pset, Nat} . *** multiple return value (defined for convenience)
 
- var  N : Net .
+ vars  N N'  : Net .
  vars T T' : Tran .
  vars P P' : Place .
  vars Y J  : Nat .
@@ -120,6 +120,8 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
 ceq $matListS(Y, T |-> Q ; N, LQL) = $matListS(Y, N, LQL sort(Y, LQL' )) if LQL' := toList(Q) /\ null(LQL') == false .
  eq $matListS(Y, T |-> Q ; N, LQL) = $matListS(Y, N, LQL) [owise] .
  
+ op _<_ : Net Net -> Bool .
+ eq N < N' = lex(0, matListS(0 ,N),  matListS(0, N')) .
 
  *** operators to swap pairs of elements (various/overloaded versions)
  op swap : Net Place Place -> Net . 

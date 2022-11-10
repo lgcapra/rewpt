@@ -15,6 +15,8 @@ fmod PO-SET{X :: STRICT-WEAK-ORDER+} is
   ceq $min (K, (X , S), (X', S')) = $min(K, S, X) if lt(K, X, X') . *** X less than X': clears up the current minimum
   ceq $min (K, (X , S), (X', S')) = $min(K, S, (X', S')) if lt(K, X', X)  . *** X' less than X
    eq $min (K, (X , S), Y) = $min(K, S, (X, Y))  [owise] . *** X and X' are "equivalent"
+   op min  : NeSet{X} -> NeSet{X} . 
+   eq min(NeS:NeSet{X}) = min(0, NeS:NeSet{X}) .
 endfm
 
 *** p.o. set of lists of lists of incidence matrices  
@@ -62,7 +64,7 @@ fmod CAN-PT-SYS is
  var LELQL : ListOfList{Limatrix} .
  var NeLELQL  : NeListOfList{Limatrix} .
  vars SLL SLL' : SetOfListOfList{Limatrix} .
- 
+ var NeSLL : NeSetOfListOfList{Limatrix} .
  *** basic conversion ops
  op toSys : NeListOfList{Limatrix} -> [System] .
  eq toSys({[LNP, emptyListNP, emptyListNP]} NeLELQL) = toNet(NeLELQL) toBag(LNP) . 
@@ -74,48 +76,47 @@ fmod CAN-PT-SYS is
 
  *** top-level canonization ops
  op canonize : System -> System . 
- *** eq canonize(N B) = toSys(canonize( regroup(N B), placeList(N)) ) .
+ eq canonize(N B) = toSys(min(canonize( regroup(N B), placeList(N) )) ) .
  *** regroups PT's (list-views of) matrices into similarity blocks prefixed by the marking (convenience op)
  op regroup : System -> ListOfList{Limatrix} .
  eq regroup(N B) = {[toListS(1,B),emptyListNP,emptyListNP]} refine(1, { matListS(1, N) } ) .
- 
+ *** real top-operator
+ op canonize  : NeSetOfListOfList{Limatrix} NePlist -> NeSetOfListOfList{Limatrix} . 
+ eq canonize(NeSLL, P) = NeSLL . *** there must be at least two places in the list 
+ eq canonize(NeSLL, P NeLP) = canonize(canonizePAll&refine(NeSLL, P), NeLP) .
  *** new version (for the new, optimized algorithm)
- *** canonizes a nested list of (list-views of) incidence matrices (i.e., a PT) w.r.t. a place -- may result in a set
- op canonizeP : ListOfList{Limatrix} Place   -> SetOfListOfList{Limatrix} . *** in this version, the (tail of the) list of places is missing
- op canonizeP : NeListOfList{Limatrix} Place -> NeSetOfListOfList{Limatrix} .  
- eq canonizeP({}, P) = emptySetOfNestedQL . *** convenience eq (makes canonizeP total)
-ceq canonizeP(NeLELQL, P) = $canonizeP(NeLELQL, P, SP, emptySetOfNestedQL) if SP := $minGtIdxNet(NeLELQL, P) /\ SP =/= emptyPset . *** ATTENZIONE è coerente solo se i posti hanno la stessa lab 
- eq canonizeP(NeLELQL, P) = NeLELQL [owise] . *** base case
- op $canonizeP : NeListOfList{Limatrix} Place Pset SetOfListOfList{Limatrix} -> NeSetOfListOfList{Limatrix} . *** iterates over the Pset
- eq $canonizeP(NeLELQL, P, emptyPset, SLL) = SLL .
- eq $canonizeP(NeLELQL, P, P' U SP, SLL) = $canonizeP(NeLELQL, P, SP, SLL U swap(NeLELQL, P, P'))  . 
- op canonizeP&refine : ListOfList{Limatrix} Place   -> SetOfListOfList{Limatrix} .
- eq canonizeP&refine(LELQL, p(I,W)) = $reorder&refine(I + 4, canonizeP(LELQL, p(I,W))) .  
- *** "set" version of canonizeP (works on a set of nested lists of (list-views of) incidence matrices) -- each nested list represents a (partially canonized) representative
+ *** canonizes a set of nested list of (list-views of) incidence matrices (each representing a PT) w.r.t. a place and filters the minimal element(s)-- may result in a set
+ op canonizePAll&refine : SetOfListOfList{Limatrix} Place   -> SetOfListOfList{Limatrix} .
+ eq canonizePAll&refine(SLL, p(I,W)) = min(I + 4, $reorder&refine(I + 4, canonizePAll(SLL, p(I,W)))) .  
+ *** eq canonizePAll&refine(SLL, p(I,W)) = $reorder&refine(I + 4, canonizePAll(SLL, p(I,W))) .  *** version not filtering the minimal el.
+ *** canonizes a set of nested list of (list-views of) incidence matrices
  op canonizePAll : SetOfListOfList{Limatrix} Place  -> SetOfListOfList{Limatrix} .
  eq canonizePAll(SLL, P) = $canonizePAll(SLL, P, emptySetOfNestedQL) .
  op $canonizePAll : SetOfListOfList{Limatrix} Place SetOfListOfList{Limatrix} -> SetOfListOfList{Limatrix} .
  eq $canonizePAll(emptySetOfNestedQL, P, SLL) = SLL .
  eq $canonizePAll(SLL U LELQL, P, SLL') = $canonizePAll(SLL, P, canonizeP(LELQL, P) U SLL') .
- op canonizePAll&refine : SetOfListOfList{Limatrix} Place   -> SetOfListOfList{Limatrix} .
- eq canonizePAll&refine(SLL, p(I,W)) = $reorder&refine(I + 4, canonizePAll(SLL, p(I,W))) .  
- 
+ *** main op.: canonizes a list of (list-views of) incidence matrices (i.e., a PT) w.r.t. a place -- may result in a set
+ op canonizeP : ListOfList{Limatrix} Place   -> SetOfListOfList{Limatrix} . *** in this version, the (tail of the) list of places is missing
+ op canonizeP : NeListOfList{Limatrix} Place -> NeSetOfListOfList{Limatrix} .  
+ eq canonizeP({}, P) = emptySetOfNestedQL . *** convenience eq (makes canonizeP total)
+*** ceq canonizeP(NeLELQL, P) = $canonizeP(NeLELQL, P, SP, emptySetOfNestedQL) if SP := $minGtIdxNet(NeLELQL, P) /\ SP =/= emptyPset . *** ATTENZIONE è coerente solo se i posti hanno la stessa lab 
+***  eq canonizeP(NeLELQL, P) = NeLELQL [owise] . *** base case
+ eq canonizeP(NeLELQL, P) = $canonizeP(NeLELQL, P, $minGtIdxNet(NeLELQL, P), NeLELQL) . *** all in one (no base cas) ATTENZIONE è coerente solo se i posti hanno la stessa lab 
+ op $canonizeP : NeListOfList{Limatrix} Place Pset SetOfListOfList{Limatrix} -> NeSetOfListOfList{Limatrix} . *** iterates over the Pset
+ eq $canonizeP(NeLELQL, P, emptyPset, SLL) = SLL .
+ eq $canonizeP(NeLELQL, P, P' U SP, SLL) = $canonizeP(NeLELQL, P, SP, SLL U swap(NeLELQL, P, P'))  . 
+ *** op canonizeP&refine : ListOfList{Limatrix} Place   -> SetOfListOfList{Limatrix} . *** version of the main op filtering the minimal el.
+ *** eq canonizeP&refine(LELQL, p(I,W)) = $reorder&refine(I + 4, canonizeP(LELQL, p(I,W))) .  
  *** base ops: find out possible candidates to swap
  op minGtIdxSys : System Place -> Pset . *** convenience op (for debug)
  eq minGtIdxSys(N B, P) = $minGtIdxNet(regroup(N B), P) .
  op $minGtIdxNet : ListOfList{Limatrix} Place -> Pset .
  eq $minGtIdxNet({ }, P) = emptyPset .
 ceq $minGtIdxNet(ELQL LELQL, P) = SP if SP := minGtIdxLM(arg(ELQL), P) /\ SP =/= emptyPset . *** standard
-*** ceq $minGtIdxNet(ELQL LELQL, P) = SP if SP := minGtiIdxLM2(arg(ELQL), P) /\ SP =/= emptyPset . *** new -- considers one element at a time
  eq $minGtIdxNet(ELQL LELQL, P) = $minGtIdxNet(LELQL, P) [owise] .
  *** given a list (block) of assumed similar (list-views of) matrices and a place p, returns the set of places candidate to swap with p
+ *** considers first the i, o, h components in order
  vars NeLQL NeLQL' : NeList{Limatrix} .
- *** new: operates "vertically" considering each Q-list independently from the others of the block -- esploits code reuse INUTILE??
- op minGtiIdxLM2 : List{Limatrix} Place -> Pset . 
- eq minGtiIdxLM2(emptyListQL, P) =  emptyPset .
-ceq minGtiIdxLM2(QL LQL, P) = SP if SP := minGtIdxLM(QL, P) /\ SP =/= emptyPset . *** NOTE "calls" minGtIdxLM passing a single Q-list
- eq minGtiIdxLM2(QL LQL, P) = minGtiIdxLM2(LQL, P) [owise] .
- *** standard: operates "horizontally" vonsidering first the i, then the o, finally the h components
  op minGtIdxLM : List{Limatrix} Place -> Pset . 
 ceq minGtIdxLM(LQL, P) = SP if SP := minGtIdxLM(LQL, i, P) /\ SP =/= emptyPset . *** first the i component
 ceq minGtIdxLM(LQL, P) = SP if SP := minGtIdxLM(LQL, o, P) /\ SP =/= emptyPset [owise] . *** then o
