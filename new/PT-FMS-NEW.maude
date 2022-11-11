@@ -114,9 +114,9 @@ mod PT-EMU is
  vars I O H M : Pbag .
  vars N N' : Net .
  *** firing rule (without canonization)
- ***  crl [firing] : N M => N M + O - I if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
+ *** crl [firing] : N M => N M + O - I if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
  *** including canonization
- crl [canfire] : N M => canonize(N M + O - I) if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
+  crl [canfire] : N M => canonize(N M + O - I) if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
 endm
 
 mod FMS-EMU is
@@ -155,9 +155,9 @@ mod RWPT-FMS is
 
  *** same rules as in PT-FMS-NEWv2
 *** crl [syr1] : N S + 1 . P8 => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-***       if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ dead(N S + 1 . P8)  .
-*** crl [syr2] : N  S + 1 . P7  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P7, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
-***    dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) S) .
+***        if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ dead(N S + 1 . P8)  .
+***  crl [syr2] : N  S + 1 . P7  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P7, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
+***     dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP] ; Trest |-> [1 . P6 , 2 . P1, nilP ]) S) .
 *** including canonization
 *** crl [cansyr1] : N S + 1 . P8 => canonize(( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 1 . P6, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 ) 
 ***   if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 1 . P6, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ dead(N S + 1 . P8)  .
