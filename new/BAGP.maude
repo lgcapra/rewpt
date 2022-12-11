@@ -1,9 +1,7 @@
 in ../shared/BAG-AND-SET
-*** in ../shared/COMP-PAIR-LIST
-***in ../shared/COMP-PAIR-LIST-NEW
-*** in PLACE
+in ../shared/MAP+
 in LIST-NAT-PLACE
-*** maybe it is convenient to split in two modules: BAGP and BAGP-VLIST
+
 fmod BAGP is
  pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, op nil to nilP, 
                            sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
@@ -13,27 +11,24 @@ fmod BAGP is
  vars K K' : NzNat .
  vars N N' : Nat .
  vars B B' : Pbag .
- var W : String .
+ vars W W' : String .
  var S : Pset .
  var LNP : List{Nat,Place} . 
- 
- *** extracts the sub-bag with a certain label out of a bag
- op extract : Pbag String -> Pbag .
- eq extract(B, W) = $extract(B, W, nilP) .
- op $extract : Pbag String Pbag -> Pbag .
- eq $extract(nilP, W, B) = B .
- eq $extract(K . p(N,W) + B, W, B') = $extract(B, W, K . p(N,W) +  B') . 
- eq $extract(K . P + B, W, B') = $extract(B, W, B') [owise] .
- 
+ *** set of places with a given label
+ op support : Pbag String -> Pset . 
+ eq support(B, W) = $support(B, W, emptyPset) .  
+ op $support : Pbag String Pset -> Pset . 
+ eq $support(nilP, W, S) = S . 
+ eq $support(K . p(N,W) + B, W, S) = $support(B, W, S U p(N,W)) .
+ceq $support(K . p(N,W') + B, W, S) = $support(B, W, S) if W =/= W' .
+ *** used in net algebra 
  op prefix : Pbag String -> Pbag .
  eq prefix(B, W) = prefix&offset(B, 0, W) . 
  op prefix&offset : Pbag Nat String -> Pbag .
  eq prefix&offset(nilP, N, W) = nilP .
  eq prefix&offset(K . P + B, N, W) = K . prefix&offset(P, N, W) + prefix&offset(B, N, W) .    
  
- 
  *** canonization part
-
  op replace : Pbag Place Place -> Pbag . *** replaces the first place with the second one
  eq replace(K . P + B, P, P') = K . P' + B .
  op swap : Pbag Place Place -> Pbag .  *** swaps two places
@@ -117,3 +112,30 @@ endv
 view Pset from TRIV to BAGP is
  sort Elt to Pset .
 endv
+
+*** modular definition of a Pbag, based on place labels
+fmod BAGP-MOD is
+ pr MAP+{String,Pbag} * (sort Map{String,Pbag} to PbagMap, sort Entry{String,Pbag} to PbagLab, op emptyM to nilPmap) .
+  *** extracts the sub-bag with a certain label out of a bag
+ vars B B' : Pbag .
+ vars P P' $P : Place . 
+ vars K K' : NzNat .
+ vars N N' : Nat . 
+ var W : String .
+ *** extracts the sub-bag of a given label from a bag
+ op extract : Pbag String -> Pbag .
+ eq extract(B, W) = $extract(B, W, nilP) .
+ op $extract : Pbag String Pbag -> Pbag .
+ eq $extract(nilP, W, B) = B .
+ eq $extract(K . p(N,W) + B, W, B') = $extract(B, W, K . p(N,W) +  B') . 
+ eq $extract(K . P + B, W, B') = $extract(B, W, B') [owise] .
+ var M : PbagMap .
+ *** gets the label map out of a bag -- places in the map have all an empty label (for efficiency)
+ op toLabMap : Pbag -> PbagMap .
+ eq toLabMap(B) = $toLabMap(B, nilPmap) .
+ op $toLabMap : Pbag PbagMap -> PbagMap .
+ eq $toLabMap(nilP, M) = M .
+ eq $toLabMap(K . p(N, W) + B, M ; W |-> B') = $toLabMap(B, M ; W |-> B' + K . p(N, ""))  .  
+ eq $toLabMap(K . p(N, W) + B, M) = $toLabMap(B, M ;  W |-> K . p(N, "")) [owise] .
+
+endfm

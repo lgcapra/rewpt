@@ -1,6 +1,5 @@
-*** redefinition of SET with some operator renaming (to avoid any confusion with MAP operators
+*** simple redefinition of SET with some renaming (to avoid any confusion with MAP operators
 *** when importing a SET from a MAP, and vice-versa)
-
 fmod SET+{X :: TRIV} is
   pr SET{X} * (op _,_ to _U_, op empty to emptyS ) .
 endfm   

@@ -11,7 +11,9 @@ fmod IMATRIX is
  vars X Y Z X' Y' Z' : Pbag .
  vars P P' : Place .
  vars N N' C1 C2 : Nat .
+ vars K K' : NzNat .
  vars Q Q' : Imatrix .
+ var L : String .
  
  op remove : Imatrix Place -> Imatrix .
  eq remove([X,Y,Z], P) = [set(X,P,0),set(Y,P,0),set(Z,P,0)] .
@@ -28,14 +30,19 @@ fmod IMATRIX is
  eq Q(h) = H(Q) .
 
  op in :  Imatrix Place -> Bool . *** test the existence of a place
- var K : NzNat .
  eq in([X + K . P, Y, Z], P) = true .
  eq in([X, Y + K . P, Z], P) = true .
  eq in([X, Y, Z + K . P], P) = true .
  eq in(Q, P) = false [owise] .
 
+ op dead : Imatrix -> Bool .  *** checks for structurally dead transitions 
+ eq dead([K . P + X, Y, K' . P + Z]) = K >= K' [metadata "dead tq"] .
+ eq dead(Q) = false [owise] .
+
  op places : Imatrix -> Pset .
  eq places([X,Y,Z]) = support(X) U support(Y) U support(Z) .
+ op places : Imatrix String -> Pset .
+ eq places([X,Y,Z], L) = support(X,L) U support(Y,L) U support(Z,L) .
 
  *** canonization ops
  op swap : Imatrix Place Place -> Imatrix .
@@ -69,12 +76,12 @@ fmod LIMATRIX is
  vars IL IL' OL OL' HL HL' : List{Nat,Place} .
  vars LX LY LZ LX' LY' LZ' : List{Nat,Place} .
  vars LQ LQ' : Limatrix . 
- *** lists-view 
- op toList : Imatrix String -> Limatrix . *** takes places with a given label
- op toList : Imatrix -> Limatrix . *** takes places with ANY label (previous version: with label "")
+ *** gets the lists-view of an Imatrix 
+ op toLimatrix : Imatrix String -> Limatrix . *** takes places with a given label
+ op toLimatrix : Imatrix -> Limatrix . *** takes places with ANY label (previous version: with label "")
  var  S : String . 
- eq toList([X,Y,Z], S)  = [toList(X,S),  toList(Y,S),  toList(Z,S) ] .
- eq toList([X,Y,Z])  = [toList(X),  toList(Y),  toList(Z) ] .
+ eq toLimatrix([X,Y,Z], S)  = [toList(X,S),  toList(Y,S),  toList(Z,S) ] .
+ eq toLimatrix([X,Y,Z])  = [toList(X),  toList(Y),  toList(Z) ] .
  *** anologous to Imatrix
  ops I O H : Limatrix -> List{Nat,Place} .
  eq I([LX,LY,LZ]) = LX .
@@ -85,10 +92,10 @@ fmod LIMATRIX is
  eq LQ(o) = O(LQ) . 
  eq LQ(h) = H(LQ) .
  
- op toMat : Limatrix String -> Imatrix . *** back conversion
- op toMat : Limatrix -> Imatrix . *** back conversion
- eq toMat([LX,LY,LZ], S)  = [toBag(LX,S),  toBag(LY,S),  toBag(LZ,S) ] .
- eq toMat([LX,LY,LZ])  = [toBag(LX),  toBag(LY),  toBag(LZ) ] .
+ op toImatrix : Limatrix String -> Imatrix . *** back conversion Limatrix -> Imatrix
+ op toImatrix : Limatrix -> Imatrix . *** back conversion
+ eq toImatrix([LX,LY,LZ], S)  = [toBag(LX,S),  toBag(LY,S),  toBag(LZ,S) ] .
+ eq toImatrix([LX,LY,LZ])  = [toBag(LX),  toBag(LY),  toBag(LZ) ] .
 
  op null : Limatrix -> Bool . *** checks that all components are null
  eq null(LQ) = LQ == [emptyListNP,emptyListNP,emptyListNP] .
@@ -109,7 +116,7 @@ ceq cmpQ(N, [LX,LY,LZ], [LX',LY',LZ']) = C1 if C1 := cmp(N, LY ,LY') /\ C1 =/= 0
  eq lt(N, LQ, LQ') = cmpQ(N, LQ, LQ') == 1 .
  *** defined for convenience
  op lt : Nat Imatrix Imatrix -> Bool . *** maps to the lexicographic orders defined on lists of (comparable) pairs
- eq lt(N, Q, Q') = cmpQ(N, sort(N, toList(Q)), sort(N, toList(Q'))) == 1 .
+ eq lt(N, Q, Q') = cmpQ(N, sort(N, toLimatrix(Q)), sort(N, toLimatrix(Q'))) == 1 .
 
  ops _<_  _<1_ : Limatrix Limatrix -> Bool .
  eq LQ < LQ'  = lt(0, LQ , LQ') .
@@ -142,4 +149,70 @@ endv
 *** parametric strict total order
 view Imatrix< from STRICT-TOTAL-ORDER+ to LIMATRIX is 
  sort Elt to Imatrix . 
+endv
+
+*** LIMATRIX prefixed by a transition tag (used in modular canonization algorithm)
+fmod T@LIMATRIX is
+ pr TRAN .
+ pr LIMATRIX .
+ sort T@Limatrix .
+ op _@_ : Tran Limatrix -> T@Limatrix [ctor] .
+ vars Q Q'  : Limatrix .
+ vars T T'  : Tran .
+ var P P' : Place .
+ var N : Nat .
+ op t : T@Limatrix -> Tran .
+ eq t(T @ Q) = T .
+ op q : T@Limatrix -> Limatrix .
+ eq q(T @ Q) = Q .
+ *** canonization (the operators map on the overloaded ones of Imatrix; transitions are ignored)
+ op swap : T@Limatrix Place Place -> T@Limatrix .
+ eq swap(T @ Q, P, P') = T @ swap(Q, P, P') .
+ 
+ op sort : Nat T@Limatrix -> T@Limatrix .
+ eq sort(N, T @ Q) = T @ sort(N, Q) .
+
+ op lt : Nat T@Limatrix T@Limatrix -> Bool .
+ eq lt(N, T @ Q, T' @ Q') = lt(N, Q, Q') .
+ 
+ ops _<_  _<1_ : T@Limatrix T@Limatrix -> Bool .
+ eq T @ Q <  T' @ Q' = lt(0, Q , Q') .
+ eq T @ Q <1 T' @ Q' = lt(1, Q , Q') .
+ 
+endfm
+
+*** strict weak order (maps to Limatrix)
+view T@Limatrix+< from STRICT-WEAK-ORDER+ to T@LIMATRIX is 
+ sort Elt to T@Limatrix . 
+endv
+
+
+*** modular definition of a local incidence matrix, based on labels
+fmod IMATRIX-MOD is
+  pr IMATRIX .
+  pr BAGP-MOD .
+  pr MAP+{String,Imatrix} * (sort Map{String,Imatrix} to LmatMap, sort Entry{String,Imatrix} to Lmat, op emptyM to emptyLQM) .
+  sort LabImatrix . *** auxiliary sort, represents "labelled" matrices (whose elements are maps string -> Imatrix)
+  op [_,_,_] : PbagMap PbagMap PbagMap ->  LabImatrix [ctor] . *** auxiliary constructor
+  vars I O H B : Pbag .
+  vars IM OM HM : PbagMap .
+  var Q : Imatrix .
+  var MQ : LmatMap .
+  vars L S : String . 
+  *** gets the label map out of a local incidence matrix
+  op toLabMap : Imatrix -> LmatMap . *** overloaded (the same as in PBAG-MOD)
+  eq toLabMap(Q) = $toLabMap(toLabImat(Q), emptyLQM) .
+  op $toLabMap : LabImatrix LmatMap -> LmatMap .
+  eq $toLabMap([nilPmap,nilPmap,nilPmap], MQ) = MQ .
+  eq $toLabMap([(L |-> I ; IM), OM, HM], MQ) = $toLabMap([IM, remove(L, OM), remove(L, HM)], (L |-> [I, getOrDefault(L,nilP,OM), getOrDefault(L,nilP,HM)] ; MQ)) .
+  eq $toLabMap([nilPmap, (L |-> O ; OM), HM], MQ) = $toLabMap([nilPmap, OM, remove(L, HM)], (L |-> [nilP, O, getOrDefault(L,nilP,HM)] ; MQ)) .
+  eq $toLabMap([nilPmap, nilPmap, (L |-> H ; HM)], MQ) = $toLabMap([nilPmap, nilPmap, HM], (L |-> [nilP, nilP, H] ; MQ)) .
+   *** auxiliary op (defined for convenience, it builds on BAGP-MOD.toLabMap)
+  op toLabImat : Imatrix -> LabImatrix .
+  eq toLabImat([I,O,H]) = [toLabMap(I),toLabMap(O),toLabMap(H)] .
+endfm
+
+*** default view to IMATRIX-MOD
+view LmatMap from TRIV to IMATRIX-MOD is 
+ sort Elt to LmatMap . 
 endv

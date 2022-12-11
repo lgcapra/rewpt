@@ -39,7 +39,7 @@ endfm
 
 *** canonization algorithm for PT systems
 fmod CAN-PT-SYS is
- pr PT-SYS .
+ pr PT-SYS-MOD .
  pr PO-SET-LIST-MAT .
  vars I J : Nat .
  vars K K' : NzNat .
@@ -65,18 +65,18 @@ fmod CAN-PT-SYS is
  var NeLELQL  : NeListOfList{Limatrix} .
  vars SLL SLL' : SetOfListOfList{Limatrix} .
  var NeSLL : NeSetOfListOfList{Limatrix} .
- *** basic conversion ops
+ *** basic conversion ops (by now, ignore transition labels)
  op toSys : NeListOfList{Limatrix} -> [System] .
  eq toSys({[LNP, emptyListNP, emptyListNP]} NeLELQL) = toNet(NeLELQL) toBag(LNP) . 
  op toNet : NeListOfList{Limatrix} -> Net .
  eq toNet(NeLELQL) = $toNet(toOrdinaryList(NeLELQL), 0, emptyN) .
  op $toNet : List{Limatrix} Nat Net -> Net .
  eq $toNet(emptyListQL, I, N) = N .
- eq $toNet(QL LQL, I, N) = $toNet(LQL, I + 1, t(I,"") |-> toMat(QL) ; N) .
+ eq $toNet(QL LQL, I, N) = $toNet(LQL, I + 1, t(I,"") |-> toImatrix(QL) ; N) .
 
  *** top-level canonization ops
  op canonize : System -> System . 
- eq canonize(N B) = toSys(min(canonize( regroup(N B), placeList(N) )) ) . *** forse qui min è ridondante
+ceq canonize(N B) = toSys(min(reorder&refine(0,NeLELQL) U canonize(NeLELQL, placeList(N) )) ) if NeLELQL := regroup(N B) . *** this way we are sure that the canonized form is not greater than the current one
  *** regroups PT's (list-views of) matrices into similarity blocks prefixed by the marking (convenience op)
  op regroup : System -> ListOfList{Limatrix} .
  eq regroup(N B) = {[toListS(1,B),emptyListNP,emptyListNP]} refine(1, { matListS(1, N) } ) .
@@ -101,15 +101,13 @@ fmod CAN-PT-SYS is
  eq canonizeP({}, P) = emptySetOfNestedQL . *** convenience eq (makes canonizeP total)
 *** ceq canonizeP(NeLELQL, P) = $canonizeP(NeLELQL, P, SP, emptySetOfNestedQL) if SP := $minGtIdxNet(NeLELQL, P) /\ SP =/= emptyPset . *** ATTENZIONE è coerente solo se i posti hanno la stessa lab 
 ***  eq canonizeP(NeLELQL, P) = NeLELQL [owise] . *** base case
- eq canonizeP(NeLELQL, P) = $canonizeP(NeLELQL, P, $minGtIdxNet(NeLELQL, P), NeLELQL) . *** all in one (no base cas) ATTENZIONE è coerente solo se i posti hanno la stessa lab 
+ eq canonizeP(NeLELQL, P) = $canonizeP(NeLELQL, P, $minGtIdxNet(NeLELQL, P), NeLELQL) . *** all in one (no base case) ATTENZIONE è coerente solo se i posti hanno la stessa lab 
  op $canonizeP : NeListOfList{Limatrix} Place Pset SetOfListOfList{Limatrix} -> NeSetOfListOfList{Limatrix} . *** iterates over the Pset
  eq $canonizeP(NeLELQL, P, emptyPset, SLL) = SLL .
  eq $canonizeP(NeLELQL, P, P' U SP, SLL) = $canonizeP(NeLELQL, P, SP, SLL U swap(NeLELQL, P, P'))  . 
  *** op canonizeP&refine : ListOfList{Limatrix} Place   -> SetOfListOfList{Limatrix} . *** version of the main op filtering the minimal el.
  *** eq canonizeP&refine(LELQL, p(I,W)) = $reorder&refine(I + 4, canonizeP(LELQL, p(I,W))) .  
  *** base ops: find out possible candidates to swap
- op minGtIdxSys : System Place -> Pset . *** convenience op (for debug)
- eq minGtIdxSys(N B, P) = $minGtIdxNet(regroup(N B), P) .
  op $minGtIdxNet : ListOfList{Limatrix} Place -> Pset .
  eq $minGtIdxNet({ }, P) = emptyPset .
 ceq $minGtIdxNet(ELQL LELQL, P) = SP if SP := minGtIdxLM(arg(ELQL), P) /\ SP =/= emptyPset . *** standard
@@ -129,10 +127,9 @@ ceq minGtIdxLM(LQL, P) = SP if SP := minGtIdxLM(LQL, o, P) /\ SP =/= emptyPset [
  op $minGtIdxLM : List{Limatrix} Atype Place NzNat Pset -> Pset .
  eq $minGtIdxLM(emptyListQL, A, P, K, SP) = SP .
 ceq $minGtIdxLM(QL LQL, A, P, K, SP) = $minGtIdxLM(LQL, A, P, K', SP') if < SP' ; K' > := $minGtIdx(QL(A), P, K, SP) .
- *** base op. acting on a (list-view of a) bag: this version returns a pair of values (a set of places and a weight)
+ *** base op. acting on a (list-view of a) bag: this version returns a pair of values: a set of places and a weight (representing the "partial" minimum)
  *** Given LNP, P, LP, if A = {P' in B s.t. index(P') >= index(P) and LP != 0 => P' in LP} is not 0 then returns the elements {P'} of A with MINIMAL-weight s.t. if B[P] > 0 then B[P'] <= B[P] (possibly including P).
  *** If A is empty returns P if B[P] > 0, otherwise 0 .
- *** If the retuned list's size is > 1 the 2nd el. is that with the greatest idx (also if P is not in the list!) 
  op $minGtIdx : List{Nat,Place} Place NzNat Pset -> Pair{Pset,Nat} . *** base op.: works on a single list (bag) *** THIS VERSION TAKES LABELS INTO ACCOUNT
  eq $minGtIdx(emptyListNP, P, K, SP) = < SP ; K > .
 ceq $minGtIdx(< K' ; p(I,W') > LNP, p(J, W), K, SP) = < SP ; K > if K' > K or-else K == K' and-then W' > W . *** we assume that the list's weights (and secondly labels) are in increasing order 
@@ -140,11 +137,9 @@ ceq $minGtIdx(< K  ; p(I,W) > LNP, p(J,W), K, SP) = $minGtIdx(LNP, p(J,W), K, SP
 ceq $minGtIdx(< K' ; p(I,W) > LNP, p(J,W), K, SP) = $minGtIdx(LNP, p(J,W), K', p(I,W))  if K' <  K /\ I >= J .
  eq $minGtIdx(NP:Pair{Nat,Place} LNP, P, K, SP) = $minGtIdx(LNP, P, K, SP) [owise] .
  
- *** RICONTROLLARE (per ora non usato)
  *** the following operators replace place indices so that they lie in 0...n-1
- *** assume that the list of places holds all and only the nodes with a certain label, sorted in increasing order
- *** DOMANDA: SI POSSONO DEFINIRE SENZA USARE Plist? ANOCORA NECESSARI? 
- op replacePindices : System String -> System . *** replace the place indices (with a given label) so that they range throug 0..n-1 
+ op replaceIndexP : System String -> System .
+ eq replaceIndexP(Sy, W) = replaceIndexP(Sy, placeList(Sy, W)) .
  op replaceIndexP : System Plist -> System . 
  eq replaceIndexP(Sy, emptyPlist) = Sy .
 ceq replaceIndexP(Sy, NeLP) = Sy if subscript(last(NeLP)) + 1 == size(NeLP) .
@@ -153,7 +148,4 @@ ceq replaceIndexP(Sy, NeLP) = Sy if subscript(last(NeLP)) + 1 == size(NeLP) .
  eq $replaceIndexP(Sy, emptyPlist, I) = Sy .
  eq $replaceIndexP(Sy, p(I, W) LP, I) = $replaceIndexP(Sy, LP, I + 1) . 
 ceq $replaceIndexP(Sy, p(J, W) LP, I) = $replaceIndexP(replace(Sy, p(J, W), p(I, W)), LP, I + 1) if I =/= J .
- op replaceIndexP : System -> System .
- eq replaceIndexP(Sy) = replaceIndexP(Sy, placeList(Sy)) .
-
 endfm

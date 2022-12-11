@@ -27,13 +27,13 @@ endv
 
 
 fmod PT-NET is
- inc MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
- 
+ pr MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) . *** ImatrixM is a view on IMATRIX-MOD (like Imatrix on IMATRIX)
  pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
  pr SORTABLE-LIST{Place<} * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
  pr NESTED-MATRIX-LIST .
  pr ATYPE .
  pr PAIR{Pset, Nat} . *** multiple return value (defined for convenience)
+ pr SET+{Imatrix} * (sort Set{Imatrix} to Snet, sort NeSet{Imatrix} to neSnet, op emptyS to emptySnet) . *** simple net-representation as a set of local inc. matrices
 
  vars  N N'  : Net .
  vars T T' : Tran .
@@ -48,29 +48,23 @@ fmod PT-NET is
  vars W W' :  String .
  var F :  Bool .
  
- *** vars QL QL' : List{Imatrix} .
- vars QL QL' : Limatrix .
- vars LQL LQL'  : List{Limatrix} .
- vars ELQL ELQL' : Elist{Limatrix} .
- vars LELQL LELQL' : ListOfList{Limatrix} .
+ var QL    : Limatrix .
+ var LQL   : List{Limatrix} .
+ var LELQL : ListOfList{Limatrix} .
  var A :  Atype .
- *** vars BL BL' : List{Pbag} . 
- var E : ImatrixT .
- var LB :  List{Nat,Place} .
  
  *** eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 
  op welldef : Net -> Bool .
- eq welldef(N) = N =/= emptyN and-then repeatedKeys?(N) == false . 
+ eq welldef(N) = repeatedKeys?(N) == false . ***  and-then N =/= emptyN  . leaves the comment to consider empty nets as invalid 
  
  ops In Out Inh : Net Tran -> [Pbag] . 
- eq In(T |-> Q ; N, T) = I(Q) .
+ eq In(T |-> Q ; N, T)  = I(Q) .
  eq Out(T |-> Q ; N, T) = O(Q) .
  eq Inh(T |-> Q ; N, T) = H(Q) .
 
  op dead : ImatrixT -> Bool .  *** checks for structurally dead transitions 
- eq dead(T |-> [K . P + I, O, K' . P + H]) = K >= K' [metadata "dead t"] .
- eq dead(Q:ImatrixT) = false [owise] .
+ eq dead(T |-> Q) = dead(Q) .
 
  op in :  Net Place -> Bool . *** test the existence of a place
 ceq in(T |-> Q ; N, P) = true if in (Q, P) .
@@ -80,13 +74,12 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq in(N, T) = $hasMapping(N, T) .
 
  op places : Net -> Pset .
- eq places(N) = $places(N, emptyPset) .  
- op $places : Net Pset -> Pset . 
- eq $places(emptyN, S) = S . 
- eq $places(T |-> Q ; N, S) = $places(N, S U places(Q)) .
+ eq places(N) = places(toSimpleNet(N)) .
+ op places : Net String -> Pset .
+ eq places(N, W) = places(toSimpleNet(N), W) .
 
  op placeList : Net -> Plist . *** returns the sorted list of places of a net
- eq placeList(N) = $makePlist(places(N),emptyPlist) .
+ eq placeList(N) = $makePlist(places(N), emptyPlist) .
  op $makePlist : Pset Plist -> Plist . 
  eq $makePlist(emptyPset, L) = sort(L) . 
  eq $makePlist(P U S, L) = $makePlist(S, P L) . 
@@ -98,12 +91,13 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq $makeTlist(emptyN, TL) = sort(TL) . 
  eq $makeTlist(T |-> Q ; N, TL) = $makeTlist(N, T TL) . 
 
- op places : Net Atype -> Pset . *** return the places of a given type 
- eq places(N, A) = $places(N, A, emptyPset) .
- op $places : Net Atype Pset -> Pset .
- eq $places(emptyN, A, S) = S .
- eq $places(T |-> Q ; N, A, S) = $places(N, A, S U support(Q(A)) ) . 
+ *** op places : Net Atype -> Pset . *** return the places of a given type 
+ *** eq places(N, A) = $places(N, A, emptyPset) .
+ *** op $places : Net Atype Pset -> Pset .
+ *** eq $places(emptyN, A, S) = S .
+ *** eq $places(T |-> Q ; N, A, S) = $places(N, A, S U support(Q(A)) ) . 
 
+ *** usato per algebra composizionale (?? utile ??)
  op prefix : Net String -> Net .
  eq prefix(N, W) = prefix&offset(N, 0, W) .
  op prefix&offset : Net Nat String -> Net .
@@ -114,19 +108,15 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
 
  *** gets a sorted list of matrices (better, list-views of matrices) out of a net by sorting on the basis of bag weights
  op matListS : Nat Net  -> List{Limatrix} .  
- eq matListS(Y, N) = sort(Y, $matListS(Y, N, emptyListQL)) .
- op $matListS : Nat Net List{Limatrix} -> List{Limatrix} .
- eq $matListS(Y, emptyN, LQL) = LQL .
-ceq $matListS(Y, T |-> Q ; N, LQL) = $matListS(Y, N, LQL sort(Y, LQL' )) if LQL' := toList(Q) /\ null(LQL') == false .
- eq $matListS(Y, T |-> Q ; N, LQL) = $matListS(Y, N, LQL) [owise] .
+ eq matListS(Y, N) = matListS(Y, toSimpleNet(N)) .
  
  op _<_ : Net Net -> Bool .
  eq N < N' = lex(0, matListS(0 ,N),  matListS(0, N')) .
 
- *** operators to swap pairs of elements (various/overloaded versions)
- op swap : Net Place Place -> Net . 
-ceq swap(T |-> Q ; N, P, P') = T |-> swap(Q, P, P') ; swap(N, P, P') if P =/= P' .
- eq swap(N, P, P') = N [owise] .
+ *** operators to swap pairs of elements (various/overloaded versions) -- commented those possibly redundant
+ *** op swap : Net Place Place -> Net . 
+ *** ceq swap(T |-> Q ; N, P, P') = T |-> swap(Q, P, P') ; swap(N, P, P') if P =/= P' .
+ *** eq swap(N, P, P') = N [owise] .
 
  op replace : Net Place Place -> Net .  *** replace the first places with the 2nd one in a net
  eq replace(T |-> Q ; N, P, P') = T |-> replace(Q, P, P') ; replace(N, P, P') .
@@ -141,13 +131,76 @@ ceq swap(T |-> Q ; N, P, P') = T |-> swap(Q, P, P') ; swap(N, P, P') if P =/= P'
  eq swap({LQL} LELQL, P, P') = {swapLM(LQL, P, P')} swap(LELQL, P, P') .
 
  *** transitions
- op swap : Net Tran Tran -> Net .  *** swaps two transitions in a net
- eq swap(T |-> Q ; N, T, T') = T' |-> Q ; swap(N, T, T') . 
- eq swap(T |-> Q ; N, T', T) = T' |-> Q ; swap(N, T', T) .
- eq swap(N, T, T') = N [owise] .
+ *** op swap : Net Tran Tran -> Net .  *** swaps two transitions in a net
+ *** eq swap(T |-> Q ; N, T, T') = T' |-> Q ; swap(N, T, T') . 
+ *** eq swap(T |-> Q ; N, T', T) = T' |-> Q ; swap(N, T', T) .
+ *** eq swap(N, T, T') = N [owise] .
  
- op replace : Net Tran Tran -> [Net] .  *** replace the first transition with the 2nd one in a net
- eq replace(T |-> Q ; N, T, T') = T' |-> Q ; N .
- eq replace(N, T, T') = N [owise] .
- 
+ *** op replace : Net Tran Tran -> [Net] .  *** replace the first transition with the 2nd one in a net
+ *** eq replace(T |-> Q ; N, T, T') = T' |-> Q ; N .
+ *** eq replace(N, T, T') = N [owise] .
+
+ *** simple net representation uniquely based on local inc. matrices
+ var Sn : Snet .
+ op toSimpleNet : Net -> Snet .
+ eq toSimpleNet(N) = $toSimpleNet(N, emptySnet) .
+ op $toSimpleNet : Net Snet -> Snet .
+ eq $toSimpleNet(emptyN, Sn) = Sn .
+ eq $toSimpleNet(T |-> Q ; N, Sn) = $toSimpleNet(N, Q U Sn) .
+ *** same operators defined for Net
+ op dead : Imatrix -> Bool .  *** checks for structurally dead transitions 
+ eq dead([K . P + I, O, K' . P + H]) = K >= K' [metadata "dead tq"] .
+ eq dead(Q) = false [owise] .
+ *** set of places of the (simple) net
+ op places : Snet -> Pset .
+ eq places(Sn) = $places(Sn, emptyPset) .  
+ op $places : Snet Pset -> Pset . 
+ eq $places(emptySnet, S) = S . 
+ eq $places(Q U Sn, S) = $places(Sn, S U places(Q)) .
+ *** set of places with a given label
+ op places : Snet String -> Pset .
+ eq places(Sn, W) = $places(Sn, W, emptyPset) .  
+ op $places : Snet String Pset -> Pset . 
+ eq $places(emptySnet, W, S) = S . 
+ eq $places(Q U Sn, W, S) = $places(Sn, W, S U places(Q, W)) .
+ *** list of places of the (simple) net
+ op placeList : Snet -> Plist . 
+ eq placeList(Sn) = $makePlist(places(Sn),emptyPlist) .
+ op placeList : Snet String -> Plist . 
+ eq placeList(Sn, W) = $makePlist(places(Sn, W),emptyPlist) .
+ *** gets a sorted list of matrices (better, list-views of matrices) out of a (simple) net by sorting on the basis of bag weights
+ op matListS : Nat Snet  -> List{Limatrix} .  
+ eq matListS(Y, Sn) = sort(Y, $matListS(Y, Sn, emptyListQL)) .
+ op $matListS : Nat Snet List{Limatrix} -> List{Limatrix} .
+ eq $matListS(Y, emptySnet, LQL) = LQL .
+ceq $matListS(Y, Q U Sn, LQL) = $matListS(Y, Sn, LQL sort(Y, QL )) if QL := toLimatrix(Q) /\ null(QL) == false .
+ eq $matListS(Y, Q U Sn, LQL) = $matListS(Y, Sn, LQL) [owise] .
+endfm
+
+*** trivial view to a PT-NET
+view PTnet from TRIV to PT-NET is 
+ sort Elt to Net .
+endv
+
+*** modular definition of a PT net, based on node labels
+fmod PT-NET-MOD is
+  pr MAP+{String,PTnet} * (sort Map{String,PTnet} to LnetMap,  sort Entry{String,PTnet} to Lnet, op emptyM to emptyLnetMap, op undefined to undefinedN) .
+  pr IMATRIX-MOD .
+  var L :  String .
+  var T :  Tran .
+  var Q :  Imatrix .
+  var N :  Net .
+  var M :  LnetMap .
+  var LQ : LmatMap .
+  *** maps a net to a map of entries (place) label -> net (ignoring transition labels)
+  op toPlabMap : Net -> LnetMap .
+  eq toPlabMap(N) = $toPlabMap(N, emptyLnetMap) .
+  op $toPlabMap : Net LnetMap -> LnetMap . 
+  eq $toPlabMap(emptyN, M) = M .
+  eq $toPlabMap(T |-> Q ; N, M) = $toPlabMap(N, $AddToPlabMap(T, toLabMap(Q), M)) .
+  *** auxiliary op : add a "labelled" transition matrix to a "labelled" net representation  
+  op $AddToPlabMap : Tran LmatMap LnetMap -> LnetMap .
+  eq $AddToPlabMap(T, emptyLQM, M) = M .
+  eq $AddToPlabMap(T, (L |-> Q ; LQ), (L |-> N ; M)) = $AddToPlabMap(T, LQ, (L |-> (N ; T |-> Q) ; M)) . *** label L is already in the map-result
+  eq $AddToPlabMap(T, (L |-> Q ; LQ), M) = $AddToPlabMap(T, LQ, (L |-> (T |-> Q) ; M)) [owise] .
 endfm

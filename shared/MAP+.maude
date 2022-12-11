@@ -1,4 +1,4 @@
-*** enriched MAP definition (with some renaming)
+*** enriched MAP definition (with renaming)
 
 fmod MAP+{X :: TRIV, Y :: TRIV} is 
   pr MAP{X,Y} * (op empty to emptyM, op _,_ to _;_ [prec 71])  .
@@ -8,20 +8,24 @@ fmod MAP+{X :: TRIV, Y :: TRIV} is
   var E : Entry{X,Y} .
   var M : Map{X,Y} .
   var K : Nat .
-
-  op remove : X$Elt Map{X,Y} -> Map{X,Y} . *** removes a key from a map 
+  *** removes a key from a map
+  op remove : X$Elt Map{X,Y} -> [Map{X,Y}] . 
   eq remove (D, (M ; D |-> R)) = remove(D, M) .
   eq remove (D, M) = M [owise] .
-    
-  op repeatedKeys? : Map{X,Y}  -> Bool . *** cheks for repeated keys
-  eq repeatedKeys?((D |-> R ; D |-> R' ; M)) = true .
-  eq repeatedKeys?(M) = false [owise] .
-
+  *** gives the size of a map
   op msize : Map{X,Y} -> Nat .
   op $msize : Map{X,Y} Nat -> Nat . 
   eq msize(M) = $msize(M, 0) .  
   eq $msize(emptyM, K) = K . 
   eq $msize((E ; M), K) = $msize(M, K + 1) .
+  *** look-up version, returning a default value if the key is not mapped
+  op getOrDefault : X$Elt Y$Elt Map{X,Y} -> Y$Elt .
+ceq getOrDefault(D, R, M) = R' if R' := M[D] /\ R' =/= undefined .
+  eq getOrDefault(D, R, M) = R [owise] .
+  *** cheks for repeated keys  
+  op repeatedKeys? : Map{X,Y}  -> Bool . 
+  eq repeatedKeys?((D |-> R ; D |-> R' ; M)) = true .
+  eq repeatedKeys?(M) = false [owise] .
 endfm
 
 *** trivial view to MAP+

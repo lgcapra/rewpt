@@ -1,7 +1,8 @@
 in PT-NET
 
 fmod PT-SYS is
- pr PT-NET .
+ *** pr PT-NET.
+ pr PT-NET-MOD .
  sort System .
  op __ : Net Pbag -> [System] [ctor] .
  vars N N' : Net .
@@ -10,6 +11,7 @@ fmod PT-SYS is
  vars I O H S S' : Pbag .
  vars Q Q' : Imatrix .
  vars K K' : NzNat .
+ var W : String .
  
  op net : System -> Net . 
  op marking : System -> Pbag .
@@ -34,21 +36,51 @@ ceq dead((T |-> Q ; N) S) = false if enabled((T |-> Q ; N) S, T) .
 
  op places : System -> NePset .
  eq places(N S) = places(N) U support(S) .
+ op places : System String -> NePset .
+ eq places(N S, W) = places(N, W) U support(S, W) .
 
  op placeList : System -> Plist .
  eq placeList(N S) = $makePlist(places(N S), emptyPlist) .
-
- op swap : System Place Place -> System .
- eq swap(N S, P, P') = swap(N, P, P') swap(S, P, P') . 
+ op placeList : System String -> Plist .
+ eq placeList(N S, W) = $makePlist(places(N S, W), emptyPlist) .
+ 
+ *** possibly redundant op are commented
+ *** op swap : System Place Place -> System .
+ *** eq swap(N S, P, P') = swap(N, P, P') swap(S, P, P') . 
 
  op replace : System Place Place -> System .
  eq replace(N S, P, P') = replace(N, P, P') replace(S, P, P') . 
 
-***relabelling ops
+***relabelling ops (helpful??)
  var L : String . var Y : Nat . var Sys : System .
  op prefix : System String -> System .
  eq prefix(Sys, L) = prefix&offset(Sys, 0, L) .
  op prefix&offset : System Nat String -> System .
  eq prefix&offset(N S, Y, L) = prefix&offset(N, Y, L) prefix&offset(S, Y, L) .
- 
+endfm
+
+*** trivial view to a PT-SYS
+view System from TRIV to PT-SYS is 
+ sort Elt to System .
+endv
+
+*** modular (P-labelled) definition of a PT system 
+fmod PT-SYS-MOD is
+ pr MAP+{String,System} * (sort Map{String,System} to LsysMap,  sort Entry{String,System} to Lsys, op emptyM to emptyLsysMap, op undefined to undefinedS) .
+ var L :  String .
+ var T :  Tran .
+ var B :  Pbag .
+ var Q :  Imatrix .
+ var N :  Net .
+ var S : System .
+ var MB : PbagMap .
+ var MN : LnetMap .
+ var MS : LsysMap .
+ *** maps a PT system to a map of entries (place) label -> system (ignoring transition labels) (overloaded) 
+ op toPlabMap : System -> LsysMap .
+ eq toPlabMap(N B) = $toPlabMap(toPlabMap(N), toLabMap(B), emptyLsysMap) .
+ op $toPlabMap : LnetMap PbagMap LsysMap -> LsysMap .
+ eq $toPlabMap(emptyLnetMap, nilPmap, MS) = MS .
+ eq $toPlabMap(L |-> N ; MN, MB, MS) = $toPlabMap(MN, remove(L, MB), L |-> (N getOrDefault(L, nilP, MB)) ; MS) . *** main rule
+ eq $toPlabMap(emptyLnetMap, L |-> B ; MB, MS) = $toPlabMap(emptyLnetMap, MB, L |-> (emptyN B) ; MS) .
 endfm
