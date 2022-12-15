@@ -67,13 +67,14 @@ ceq $support(K . p(N,W') + B, W, S) = $support(B, W, S) if W =/= W' .
  eq swap(< K ; P > L, P , P') = < K ; P' > replace(L, P', P) .
  eq swap(< K ; P' > L, P , P') = < K ; P > replace(L, P, P') .
  eq swap(X L, P, P') = X swap(L, P, P') [owise] .
- *** back conversion
+ *** back conversion (places with a given label)
  op toBag : List{Nat,Place} String -> Pbag .
  eq toBag(LNP, W) = $toBag(LNP, W, nilP) .
  op $toBag : List{Nat,Place} String Pbag  -> Pbag  .
  eq $toBag(emptyListNP, W, B) = B .
  eq $toBag(< K ; p(N,W) > LNP, W, B) = $toBag(LNP, W, B + K . p(N,W)) . 
  eq $toBag(< K ; P > LNP, W, B) = $toBag(LNP, W, B) [owise] .
+ *** back conversion 
  op toBag : List{Nat,Place}  -> Pbag . 
  eq toBag(LNP) = $toBag(LNP, nilP) .
  op $toBag : List{Nat,Place} Pbag  -> Pbag  .

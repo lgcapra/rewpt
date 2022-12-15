@@ -91,10 +91,10 @@ fmod LIMATRIX is
  eq LQ(i) = I(LQ) .
  eq LQ(o) = O(LQ) . 
  eq LQ(h) = H(LQ) .
- 
+ *** back conversion
  op toImatrix : Limatrix String -> Imatrix . *** back conversion Limatrix -> Imatrix
- op toImatrix : Limatrix -> Imatrix . *** back conversion
  eq toImatrix([LX,LY,LZ], S)  = [toBag(LX,S),  toBag(LY,S),  toBag(LZ,S) ] .
+ op toImatrix : Limatrix -> Imatrix . *** back conversion
  eq toImatrix([LX,LY,LZ])  = [toBag(LX),  toBag(LY),  toBag(LZ) ] .
 
  op null : Limatrix -> Bool . *** checks that all components are null

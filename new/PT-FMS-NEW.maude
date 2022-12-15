@@ -1,5 +1,5 @@
 *** in CAN-PT-SYS-M
-in CAN-PT-SYS
+in CAN-PT-SYS-M
 
 
 *** basic net-algebra operators
@@ -50,7 +50,7 @@ fmod PT-FMS is
  ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag . 
  op M   : -> NzNat . *** MS model's parameter
  eq M = 2 . 
- ops sys sys2 sys2' sys2'' sys2new sys2m1 sys2m2 sys4 : -> System .
+ ops sys0 sys sys2 sys2' sys2'' sys2new sys2m1 sys2m2 sys4 : -> System .
  *** only the product line structure (without faults)
  eq pline = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
           nilP ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ; t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] .
@@ -85,6 +85,8 @@ fmod PT-FMS is
           t(4,"rest") |-> [1 . p(0,"end") , 2 . p(0,"start"), nilP ] ; t(5,"fault") |-> [1 . p(0,"focc") , 1 . p(0,"faulty"), nilP ] ; t(6,"fault") |-> [1 . p(0,"focc") , 1 . p(1,"faulty"), nilP].
  eq sym0  = (2 * M) . p(0,"start") +  1 . p(0,"focc") .
 
+ eq sys0 = symnet sym0 .
+ 
  eq sys2 = pmerge(par(symnet sym0, 2, "PL"), p(0, "PL_1start"), p(0, "PL_2start"), 0, "start") .
  eq sys2' =  pmerge(parv2(symnet sym0, 2), p(0, "start"),  p(9, "start"), 0, "start") .
  eq sys2'' =  pmerge(parv2(net m0, 2), p(1, ""),  p(10, ""), 1, "") .
