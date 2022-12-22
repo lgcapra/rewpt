@@ -1,0 +1,174 @@
+*** "modular" version of canonization, based on decomposing a net into subnets with the same (place) labels
+in PT-SYS-M
+
+*** this module defines a "special" set of tran-labelled (list views) of local incidence matrices where labels are ignored in set operations  
+fmod SET-NESTEDLIST-T@M is
+  pr NESTED-MATRIX-LIST .
+  sorts NeSetOfNestListT@M SetOfNestListT@M . 
+  subsort ListOfList{T@Limatrix} < NeSetOfNestListT@M < SetOfNestListT@M . 
+ 
+  op  emptySetOfNestT@M : -> SetOfNestListT@M [ctor] . 
+  op _U_ : SetOfNestListT@M SetOfNestListT@M -> SetOfNestListT@M [ctor assoc comm id: emptySetOfNestT@M prec 121 format (d r os d)] . 
+  op _U_ : NeSetOfNestListT@M SetOfNestListT@M -> NeSetOfNestListT@M [ctor ditto] . 
+ 
+  vars LE LE' : ListOfList{T@Limatrix} . 
+  var N : NeSetOfNestListT@M . 
+  vars A S S’ : SetOfNestListT@M . 
+  var C : Nat . 
+ 
+  ceq LE U LE' = LE if idemp2(LE, LE') . *** idempotence means that two embedded lists are the same, disregarding T-tags
+endfm
+
+*** partially ordered set
+fmod PO-SET{X :: STRICT-WEAK-ORDER+} is
+   pr SET{STRICT-WEAK-ORDER+}{X} * (sort Set{STRICT-WEAK-ORDER+}{X} to Set{X}, sort NeSet{STRICT-WEAK-ORDER+}{X} to NeSet{X}) .
+   vars X X' : X$Elt .
+   vars S S' : Set{X} .
+   var K : Nat .
+   *** calculates the minimum (set) w.r.t. a given partial order (better, swo); in the case of a total order, the minimum is a singleton
+   op min  : Nat NeSet{X} -> NeSet{X} . 
+   eq min(K, (X , S)) =  $min(K, S, X) .
+   op $min : Nat Set{X} NeSet{X} -> NeSet{X} .
+   var Y : NeSet{X} .
+   eq $min(K, empty, Y) = Y .
+  ceq $min (K, (X , S), (X', S')) = $min(K, S, X) if lt(K, X, X') . *** X less than X': clears up the current minimum
+  ceq $min (K, (X , S), (X', S')) = $min(K, S, (X', S')) if lt(K, X', X)  . *** X' less than X
+   eq $min (K, (X , S), Y) = $min(K, S, (X, Y))  [owise] . *** X and X' are "equivalent"
+   op min  : NeSet{X} -> NeSet{X} . 
+   eq min(NeS:NeSet{X}) = min(0, NeS:NeSet{X}) .
+endfm
+
+*** p.o. set of lists of lists of incidence matrices  
+fmod PO-SET-LIST-MAT is 
+  pr PO-SET{NestedMatList+<} * (sort Set{NestedMatList+<} to SetOfListOfList{T@Limatrix}, sort NeSet{NestedMatList+<} to NeSetOfListOfList{T@Limatrix},
+                          op empty to emptySetOfNestT@M, op _,_ to _U_)  .
+  
+  vars ELQL  : Elist{T@Limatrix} .
+  vars LELQL : ListOfList{T@Limatrix} .
+  vars SLELQL SLELQL' :  SetOfListOfList{T@Limatrix} . 
+  var I : Nat .
+  op $reorder&refine  : Nat SetOfListOfList{T@Limatrix} ->  SetOfListOfList{T@Limatrix} . *** reorder&refine a set of lists of lists of matrices (views) -- naming it $reorder&refine instead of reorder&refine avoids inf. rec.
+  op $reorder&refine  : Nat NeSetOfListOfList{T@Limatrix} ->  NeSetOfListOfList{T@Limatrix} . 
+  eq $reorder&refine (I, SLELQL) = $reorder&refine (I, SLELQL, emptySetOfNestT@M) .  
+  op $reorder&refine : Nat SetOfListOfList{T@Limatrix} SetOfListOfList{T@Limatrix} ->  SetOfListOfList{T@Limatrix} . *** reorder&refine a lists of lists of matrices (views)
+  eq $reorder&refine(I, emptySetOfNestT@M, SLELQL) = SLELQL . 
+  eq $reorder&refine(I, LELQL U SLELQL, SLELQL') = $reorder&refine(I, SLELQL, reorder&refine(I, LELQL) U SLELQL') . 
+endfm
+
+*** canonization algorithm for PT systems
+fmod CAN-PT-SYS is
+ pr PT-SYS-MOD .
+ pr PO-SET-LIST-MAT .
+ vars I J : Nat .
+ vars K K' : NzNat .
+ vars P P' P'' : Place .
+ vars T T' : Tran .
+ vars B M0 M0' : Pbag .
+ vars Q Q' : Imatrix .
+ vars SYS  SYS' Sy Sy' Sy'' : System .
+ vars N  N' : Net .
+ vars SP SP' : Pset .
+ vars LP LP' : Plist .
+ vars LT LT'  : Tlist .
+ var NeB  : NePbag .
+ var NeSP : NePset .
+ var NeLP : NePlist .
+ var NeLT : NeTlist .
+ var A : Atype .
+ vars W W' : String .
+ var  LNP : List{Nat,Place} .
+ var  NeLNP : NeList{Nat,Place} .
+ vars QL QL' : T@Limatrix .
+ vars LQL LQL'  : List{T@Limatrix} .
+ var ELQL  : Elist{T@Limatrix} .
+ var LELQL : ListOfList{T@Limatrix} .
+ var NeLELQL  : NeListOfList{T@Limatrix} .
+ vars SLL SLL' : SetOfListOfList{T@Limatrix} .
+ var NeSLL : NeSetOfListOfList{T@Limatrix} .
+ *** basic conversion ops (by now, ignoring transition labels)
+ op toSys : NeListOfList{T@Limatrix} -> [System] .
+ eq toSys({t(0,"nil") @ [NeLNP, emptyListNP, emptyListNP]} LELQL) = toNet(LELQL) toBag(NeLNP) . 
+ op toNet : ListOfList{T@Limatrix} -> Net .
+ eq toNet(LELQL) = $toNet(toOrdinaryList(LELQL), 0, emptyN) .
+ op $toNet : List{T@Limatrix} Nat Net -> Net .
+ eq $toNet(emptyListT@QL, I, N) = N .
+ eq $toNet(QL LQL, I, N) = $toNet(LQL, I + 1, t(I,"") |-> toImatrix(q(QL)) ; N) . *** da sistemare? per ora le transition-label sono ignorate
+ *** top-level canonization ops
+ op canonize : System -> System . 
+ceq canonize(N NeB)  = toSys(min(reorder&refine(0,NeLELQL) U canonize(NeLELQL, placeList(N NeB) ))) if NeLELQL := regroup(N NeB) . *** this way we are sure that the canonized form is not greater than the current one
+ceq canonize(N nilP) = toNet(min(reorder&refine(0,LELQL) U canonize(LELQL, placeList(N) ))) nilP if LELQL := regroup(N) . *** slight optimization
+ *** regroups PT's (list-views of) matrices into similarity blocks prefixed by the marking (convenience op)
+ op regroup : System -> NeListOfList{T@Limatrix} .
+ eq regroup(N B) = {t(0,"nil") @ [toListS(1,B),emptyListNP,emptyListNP]} regroup(N) .
+ op regroup : Net -> ListOfList{T@Limatrix} . 
+ eq regroup(N) = refine(1, { matListS(1, N) } ) .
+ 
+ *** real top-operator
+ op canonize  : NeSetOfListOfList{T@Limatrix} NePlist -> NeSetOfListOfList{T@Limatrix} . 
+ eq canonize(NeSLL, P) = NeSLL . *** there must be at least two places in the list 
+ eq canonize(NeSLL, P NeLP) = canonize(canonizePAll&refine(NeSLL, P), NeLP) .
+ *** new version (for the new, optimized algorithm)
+ *** canonizes a set of nested list of (list-views of) incidence matrices (each representing a PT) w.r.t. a place and filters the minimal element(s)-- may result in a set
+ op canonizePAll&refine : SetOfListOfList{T@Limatrix} Place   -> SetOfListOfList{T@Limatrix} .
+ eq canonizePAll&refine(SLL, p(I,W)) = min(I + 4, $reorder&refine(I + 4, canonizePAll(SLL, p(I,W)))) .  
+ *** eq canonizePAll&refine(SLL, p(I,W)) = $reorder&refine(I + 4, canonizePAll(SLL, p(I,W))) .  *** version not filtering the minimal el.
+ *** canonizes a set of nested list of (list-views of) incidence matrices
+ op canonizePAll : SetOfListOfList{T@Limatrix} Place  -> SetOfListOfList{T@Limatrix} .
+ eq canonizePAll(SLL, P) = $canonizePAll(SLL, P, emptySetOfNestT@M) .
+ op $canonizePAll : SetOfListOfList{T@Limatrix} Place SetOfListOfList{T@Limatrix} -> SetOfListOfList{T@Limatrix} .
+ eq $canonizePAll(emptySetOfNestT@M, P, SLL) = SLL .
+ eq $canonizePAll(SLL U LELQL, P, SLL') = $canonizePAll(SLL, P, canonizeP(LELQL, P) U SLL') .
+ *** main op.: canonizes a list of (list-views of) incidence matrices (i.e., a PT) w.r.t. a place -- may result in a set
+ op canonizeP : ListOfList{T@Limatrix} Place   -> SetOfListOfList{T@Limatrix} . *** in this version, the (tail of the) list of places is missing
+ op canonizeP : NeListOfList{T@Limatrix} Place -> NeSetOfListOfList{T@Limatrix} .  
+ eq canonizeP({}, P) = emptySetOfNestT@M . *** convenience eq (makes canonizeP total)
+*** ceq canonizeP(NeLELQL, P) = $canonizeP(NeLELQL, P, SP, emptySetOfNestT@M) if SP := $minGtIdxNet(NeLELQL, P) /\ SP =/= emptyPset . *** ATTENZIONE è coerente solo se i posti hanno la stessa lab 
+***  eq canonizeP(NeLELQL, P) = NeLELQL [owise] . *** base case
+ eq canonizeP(NeLELQL, P) = $canonizeP(NeLELQL, P, $minGtIdxNet(NeLELQL, P), NeLELQL) . *** all in one (no base case) ATTENZIONE è coerente solo se i posti hanno la stessa lab 
+ op $canonizeP : NeListOfList{T@Limatrix} Place Pset SetOfListOfList{T@Limatrix} -> NeSetOfListOfList{T@Limatrix} . *** iterates over the Pset
+ eq $canonizeP(NeLELQL, P, emptyPset, SLL) = SLL .
+ eq $canonizeP(NeLELQL, P, P' U SP, SLL) = $canonizeP(NeLELQL, P, SP, SLL U swap(NeLELQL, P, P'))  . 
+ *** op canonizeP&refine : ListOfList{T@Limatrix} Place   -> SetOfListOfList{T@Limatrix} . *** version of the main op filtering the minimal el.
+ *** eq canonizeP&refine(LELQL, p(I,W)) = $reorder&refine(I + 4, canonizeP(LELQL, p(I,W))) .  
+ *** base ops: find out possible candidates to swap
+ op $minGtIdxNet : ListOfList{T@Limatrix} Place -> Pset .
+ eq $minGtIdxNet({ }, P) = emptyPset .
+ceq $minGtIdxNet(ELQL LELQL, P) = SP if SP := minGtIdxLM(arg(ELQL), P) /\ SP =/= emptyPset . *** standard
+ eq $minGtIdxNet(ELQL LELQL, P) = $minGtIdxNet(LELQL, P) [owise] .
+ *** given a list (block) of assumed similar (list-views of) matrices and a place p, returns the set of places candidate to swap with p
+ *** considers first the i, o, h components in order
+ vars NeLQL NeLQL' : NeList{T@Limatrix} .
+ op minGtIdxLM : List{T@Limatrix} Place -> Pset . 
+ceq minGtIdxLM(LQL, P) = SP if SP := minGtIdxLM(LQL, i, P) /\ SP =/= emptyPset . *** first the i component
+ceq minGtIdxLM(LQL, P) = SP if SP := minGtIdxLM(LQL, o, P) /\ SP =/= emptyPset [owise] . *** then o
+ eq minGtIdxLM(LQL, P) = minGtIdxLM(LQL, h, P) [owise] . *** finally h
+ *** separately considers the i,o,h components of each matrix
+ op maxint : -> NzNat [memo] .
+ eq maxint = 10000000000000 .
+ op minGtIdxLM : List{T@Limatrix} Atype Place -> Pset . 
+ eq minGtIdxLM(LQL, A, P) = $minGtIdxLM(LQL, A, P, maxint, emptyPset) .  *** start-up
+ op $minGtIdxLM : List{T@Limatrix} Atype Place NzNat Pset -> Pset .
+ eq $minGtIdxLM(emptyListT@QL, A, P, K, SP) = SP .
+ceq $minGtIdxLM(QL LQL, A, P, K, SP) = $minGtIdxLM(LQL, A, P, K', SP') if < SP' ; K' > := $minGtIdx(q(QL)(A), P, K, SP) .
+ *** base op. acting on a (list-view of a) bag: this version returns a pair of values: a set of places and a weight (representing the "partial" minimum)
+ *** Given LNP, P, LP, if A = {P' in B s.t. index(P') >= index(P) and LP != 0 => P' in LP} is not 0 then returns the elements {P'} of A with MINIMAL-weight s.t. if B[P] > 0 then B[P'] <= B[P] (possibly including P).
+ *** If A is empty returns P if B[P] > 0, otherwise 0 .
+ op $minGtIdx : List{Nat,Place} Place NzNat Pset -> Pair{Pset,Nat} . *** base op.: works on a single list (bag) *** THIS VERSION assumes they places have the same label
+ eq $minGtIdx(emptyListNP, P, K, SP) = < SP ; K > .
+ceq $minGtIdx(< K' ; p(I,W) > LNP, p(J, W), K, SP) = < SP ; K > if K' > K . *** we assume that list's weights are in increasing order 
+ceq $minGtIdx(< K  ; p(I,W) > LNP, p(J,W), K, SP) = $minGtIdx(LNP, p(J,W), K, SP U p(I,W))  if I >= J .
+ceq $minGtIdx(< K' ; p(I,W) > LNP, p(J,W), K, SP) = $minGtIdx(LNP, p(J,W), K', p(I,W))  if K' <  K /\ I >= J .
+ eq $minGtIdx(NP:Pair{Nat,Place} LNP, P, K, SP) = $minGtIdx(LNP, P, K, SP) [owise] .
+ 
+ *** the following operators replace place indices so that they lie in 0...n-1
+ op replaceIndexP : System String -> System .
+ eq replaceIndexP(Sy, W) = replaceIndexP(Sy, placeList(Sy, W)) .
+ op replaceIndexP : System Plist -> System . 
+ eq replaceIndexP(Sy, emptyPlist) = Sy .
+ceq replaceIndexP(Sy, NeLP) = Sy if subscript(last(NeLP)) + 1 == size(NeLP) .
+ eq replaceIndexP(Sy, NeLP) = $replaceIndexP(Sy, NeLP, 0) [owise] .
+ op $replaceIndexP : System Plist Nat -> System . 
+ eq $replaceIndexP(Sy, emptyPlist, I) = Sy .
+ eq $replaceIndexP(Sy, p(I, W) LP, I) = $replaceIndexP(Sy, LP, I + 1) . 
+ceq $replaceIndexP(Sy, p(J, W) LP, I) = $replaceIndexP(replace(Sy, p(J, W), p(I, W)), LP, I + 1) if I =/= J .
+endfm

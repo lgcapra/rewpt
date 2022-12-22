@@ -1,0 +1,191 @@
+*** modular (label-based) definition of a PT-NET
+in IMATRIX
+in ../shared/MAP+
+
+*** defines (possibly nested) sortable lists of local incidence matrices (representing a PT systems, when abstracting from T names)
+fmod NESTED-MATRIX-LIST is 
+  pr COMP-NESTED-LIST{T@Limatrix+<}  * (sort List{T@Limatrix+<}  to List{T@Limatrix}, sort NeList{T@Limatrix+<}  to NeList{T@Limatrix},  op nil to emptyListT@QL ,
+                                    sort ListOfList{T@Limatrix+<} to ListOfList{T@Limatrix}, sort NeListOfList{T@Limatrix+<} to NeListOfList{T@Limatrix},
+                                    sort Elist{T@Limatrix+<} to  Elist{T@Limatrix}) .
+
+  vars E E' : List{T@Limatrix} . 
+  vars LE LE' : ListOfList{T@Limatrix} . 
+  vars T T' : Tran .
+  vars Q Q' : Limatrix .
+  vars L L' : String .
+  vars N N' : Nat .
+  *** we should assume that in an (embedded) list the elements have been ordered also w.r.t. tag-T labels (so that similar tag-T are contigous)
+  op idemp : Elist{T@Limatrix} Elist{T@Limatrix} -> Bool . *** checks a sort of "idempotence" between (embedded) lists of T-labelled (list-views) of matrices
+  eq idemp({E}, {E}) = true .
+  eq idemp({(t(N,L) @ Q) E}, {(t(N',L) @ Q) E'}) = idemp({E}, {E'}) [owise] .
+  eq idemp({E}, {E'}) = false [owise] . 
+  op idemp2 : ListOfList{T@Limatrix} ListOfList{T@Limatrix} -> Bool . *** checks a sort of "idempotence" between lists of (embedded) lists of T-labelled (list-views) of matrices
+  eq idemp2(LE, LE) = true .
+  eq idemp2({E} LE, {E'} LE') = idemp({E}, {E'}) and-then idemp2(LE, LE') .
+  eq idemp2(LE, LE') = false [owise] .
+ endfm 
+
+*** trivial view to a nested list of matrices
+view NestedMatList from TRIV to NESTED-MATRIX-LIST is 
+ sort Elt to ListOfList{T@Limatrix} .
+endv
+
+view NestedMatList< from STRICT-TOTAL-ORDER to NESTED-MATRIX-LIST is 
+ sort Elt to ListOfList{T@Limatrix} .
+ vars X Y : Elt .
+ op X < Y to term lex(0, X, Y) . 
+endv
+
+view NestedMatList+< from STRICT-WEAK-ORDER+ to NESTED-MATRIX-LIST is 
+ sort Elt to ListOfList{T@Limatrix} . 
+ op lt to lex .
+endv
+
+
+fmod PT-NET is
+ pr MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) . *** ImatrixM is a view on IMATRIX-MOD (like Imatrix on IMATRIX)
+ pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
+ pr SORTABLE-LIST{Place<} * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
+ pr NESTED-MATRIX-LIST .
+ pr ATYPE .
+ pr PAIR{Pset, Nat} . *** multiple return value (defined for convenience)
+ pr SET+{Imatrix} * (sort Set{Imatrix} to Snet, sort NeSet{Imatrix} to neSnet, op emptyS to emptySnet) . *** simple net-representation as a set of local inc. matrices
+
+ vars  N N'  : Net .
+ vars T T' : Tran .
+ vars P P' : Place .
+ vars Y J  : Nat .
+ vars K K' : NzNat .
+ vars I O H B : Pbag .
+ var S : Pset . 
+ var L : Plist .
+ var W :  String .
+ var Q : Imatrix .
+ var QL : Limatrix .
+ var TQ : T@Limatrix .
+ var LQL  : List{T@Limatrix} .
+ var LELQL : ListOfList{T@Limatrix} .
+ var A : Atype .
+ 
+ *** eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
+
+ op welldef : Net -> Bool .
+ eq welldef(N) = repeatedKeys?(N) == false . ***  and-then N =/= emptyN  . leaves the comment to consider empty nets as invalid 
+ 
+ ops In Out Inh : Net Tran -> [Pbag] . 
+ eq In(T |-> Q ; N, T)  = I(Q) .
+ eq Out(T |-> Q ; N, T) = O(Q) .
+ eq Inh(T |-> Q ; N, T) = H(Q) .
+
+ op in :  Net Place -> Bool . *** test the existence of a place
+ceq in(T |-> Q ; N, P) = true if in (Q, P) .
+ eq in(N, P) = false [owise] .
+
+ op in :  Net Tran -> Bool . *** test the existence of a transition
+ eq in(N, T) = $hasMapping(N, T) .
+
+ *** set of places of the  net
+ op places : Net -> Pset .
+ eq places(N) = $places(N, emptyPset) .  
+ op $places : Net Pset -> Pset . 
+ eq $places(emptyN, S) = S . 
+ eq $places((T |-> Q ; N), S) = $places(N, S U places(Q)) .
+ *** set of places with a given label
+ op places : Net String -> Pset .
+ eq places(N, W) = $places(N, W, emptyPset) .  
+ op $places : Net String Pset -> Pset . 
+ eq $places(emptyN, W, S) = S . 
+ eq $places((T |-> Q ; N), W, S) = $places(N, W, S U places(Q, W)) .
+ *** sorted list of places of the net
+ op placeList : Net -> Plist . *** returns the sorted list of places of a net
+ eq placeList(N) = $makePlist(places(N), emptyPlist) .
+ *** sorted set of places with a given label
+ op placeList : Net String -> Plist . 
+ eq placeList(N, W) = $makePlist(places(N, W), emptyPlist) .
+ *** makes a list out of a set
+ op $makePlist : Pset Plist -> Plist . 
+ eq $makePlist(emptyPset, L) = sort(L) . 
+ eq $makePlist(P U S, L) = $makePlist(S, P L) .
+ *** sorted list of transitions 
+ var TL : Tlist .
+ op tranList : Net -> Tlist .  *** returns the sorted list of transitions
+ eq tranList(N) = $makeTlist(N,emptyTlist) .
+ op $makeTlist : Net Tlist -> Tlist . 
+ eq $makeTlist(emptyN, TL) = sort(TL) . 
+ eq $makeTlist((T |-> Q ; N), TL) = $makeTlist(N, T TL) . 
+
+ *** usato per algebra composizionale (?? utile ??)
+ op prefix : Net String -> Net .
+ eq prefix(N, W) = prefix&offset(N, 0, W) .
+ op prefix&offset : Net Nat String -> Net .
+ eq prefix&offset(emptyN, Y, W) = emptyN .
+ eq prefix&offset(N ; T |-> Q, Y, W) = prefix&offset(T, Y, W) |-> prefix&offset(Q, Y, W) ; prefix&offset(N, Y, W) .
+ 
+ **** canonization part
+ *** gets a sorted list of T-labelled matrices (better, list-views of matrices) out of a net by sorting on the basis of bag weights
+ op matListS : Nat Net  -> List{T@Limatrix} .  
+ eq matListS(Y, N) = sort(Y, $matListS(Y, N, emptyListT@QL)) .
+ op $matListS : Nat Net List{T@Limatrix} -> List{T@Limatrix} .
+ eq $matListS(Y, emptyN, LQL) = LQL .
+ceq $matListS(Y, (T |-> Q ; N), LQL) = $matListS(Y, N, LQL (T @ sort(Y, QL ))) if QL := toLimatrix(Q) /\ null(QL) == false .
+ eq $matListS(Y, (T |-> Q ; N), LQL) = $matListS(Y, N, LQL) [owise] .
+
+ op _<_ : Net Net -> Bool .
+ eq N < N' = lex(0, matListS(0 ,N),  matListS(0, N')) .
+
+ *** operators to swap pairs of elements (various/overloaded versions) -- commented those possibly redundant
+ *** op swap : Net Place Place -> Net . 
+ *** ceq swap(T |-> Q ; N, P, P') = T |-> swap(Q, P, P') ; swap(N, P, P') if P =/= P' .
+ *** eq swap(N, P, P') = N [owise] .
+
+ op replace : Net Place Place -> Net .  *** replace the first places with the 2nd one in a net
+ eq replace(T |-> Q ; N, P, P') = T |-> replace(Q, P, P') ; replace(N, P, P') .
+ eq replace(emptyN, P, P') = emptyN .
+
+ op swapLM : List{T@Limatrix} Place Place -> List{T@Limatrix} . *** note that "renaming" swap is necessary 
+ eq swapLM(emptyListT@QL, P, P') = emptyListT@QL .
+ eq swapLM(TQ LQL, P, P') = swap(TQ, P, P') swapLM(LQL, P, P') .
+
+ op swap : ListOfList{T@Limatrix} Place Place -> ListOfList{T@Limatrix} .
+ eq swap({ }, P, P') = { } .
+ eq swap({LQL} LELQL, P, P') = {swapLM(LQL, P, P')} swap(LELQL, P, P') .
+
+ *** transitions
+ *** op swap : Net Tran Tran -> Net .  *** swaps two transitions in a net
+ *** eq swap(T |-> Q ; N, T, T') = T' |-> Q ; swap(N, T, T') . 
+ *** eq swap(T |-> Q ; N, T', T) = T' |-> Q ; swap(N, T', T) .
+ *** eq swap(N, T, T') = N [owise] .
+ 
+ *** op replace : Net Tran Tran -> [Net] .  *** replace the first transition with the 2nd one in a net
+ *** eq replace(T |-> Q ; N, T, T') = T' |-> Q ; N .
+ *** eq replace(N, T, T') = N [owise] .
+
+endfm
+
+*** trivial view to a PT-NET
+view PTnet from TRIV to PT-NET is 
+ sort Elt to Net .
+endv
+
+*** modular definition of a PT net, based on node labels
+fmod PT-NET-MOD is
+  pr MAP+{String,PTnet} * (sort Map{String,PTnet} to LnetMap,  sort Entry{String,PTnet} to Lnet, op emptyM to emptyLnetMap, op undefined to undefinedN) .
+  pr IMATRIX-MOD .
+  var L :  String .
+  var T :  Tran .
+  var Q :  Imatrix .
+  var N :  Net .
+  var M :  LnetMap .
+  var LQ : LmatMap .
+  *** maps a net to a map of entries (place) label -> net (ignoring transition labels)
+  op toPlabMap : Net -> LnetMap .
+  eq toPlabMap(N) = $toPlabMap(N, emptyLnetMap) .
+  op $toPlabMap : Net LnetMap -> LnetMap . 
+  eq $toPlabMap(emptyN, M) = M .
+  eq $toPlabMap(T |-> Q ; N, M) = $toPlabMap(N, $AddToPlabMap(T, toLabMap(Q), M)) .
+  *** auxiliary op : add a "labelled" transition matrix to a "labelled" net representation  
+  op $AddToPlabMap : Tran LmatMap LnetMap -> LnetMap .
+  eq $AddToPlabMap(T, emptyLQM, M) = M .
+  eq $AddToPlabMap(T, (L |-> Q ; LQ), (L |-> N ; M)) = $AddToPlabMap(T, LQ, (L |-> (N ; T |-> Q) ; M)) . *** label L is already in the map-result
+  eq $AddToPlabMap(T, (L |-> Q ; LQ), M) = $AddToPlabMap(T, LQ, (L |-> (T |-> Q) ; M)) [owise] .
+endfm

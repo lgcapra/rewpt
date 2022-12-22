@@ -1,0 +1,21 @@
+Maude> red tail(canonizePAll&refine(canonizePAll&refine(canonizePAll&refine(regroup(sys2m2), p(0,"")), p(1,"")), p(2,""))) .
+
+result NeListOfList{Limatrix}: {[< 1 ; p(0, "") >,< 1 ; p(6, "") >,emptyListNP] [< 1 ; p(0, "") >,< 1 ; p(7, "") >,emptyListNP]} {[< 1 ; p(8, "")
+    >,< 1 ; p(1, "") >,emptyListNP]} {[< 1 ; p(8, "") >,< 1 ; p(9, "") >,emptyListNP]} {[< 1 ; p(2, "") >,< 1 ; p(11, "") >,< 1 ; p(1, "") >]} {[
+    < 1 ; p(3, "") >,< 1 ; p(12, "") >,< 1 ; p(6, "") >] [< 1 ; p(4, "") >,< 1 ; p(13, "") >,< 1 ; p(7, "") >] [< 1 ; p(5, "") >,< 1 ; p(14, "")
+    >,< 1 ; p(9, "") >]} {[< 1 ; p(15, "") >,< 2 ; p(16, "") >,emptyListNP] [< 1 ; p(17, "") >,< 2 ; p(16, "") >,emptyListNP]} {[< 1 ; p(14, "")
+    > < 1 ; p(11, "") >,< 1 ; p(15, "") >,emptyListNP] [< 1 ; p(13, "") > < 1 ; p(12, "") >,< 1 ; p(17, "") >,emptyListNP]} {[< 2 ; p(16, "") >,<
+    1 ; p(2, "") > < 1 ; p(5, "") >,emptyListNP]} {[< 2 ; p(16, "") >,< 1 ; p(4, "") > < 1 ; p(3, "") >,emptyListNP]}
+
+
+
+
+
+Maude> red tail(canonizePAll&refine(canonizePAll&refine(canonizePAll&refine(canonizePAll&refine(regroup(sys2m2), p(0,"")), p(1,"")), p(2,"")), p(3,""))) .
+
+result NeListOfList{Limatrix}: {[< 1 ; p(0, "") >,< 1 ; p(6, "") >,emptyListNP] [< 1 ; p(0, "") >,< 1 ; p(7, "") >,emptyListNP]} {[< 1 ; p(8, "")
+    >,< 1 ; p(1, "") >,emptyListNP]} {[< 1 ; p(8, "") >,< 1 ; p(9, "") >,emptyListNP]} {[< 1 ; p(2, "") >,< 1 ; p(11, "") >,< 1 ; p(1, "") >]} {[
+    < 1 ; p(3, "") >,< 1 ; p(14, "") >,< 1 ; p(9, "") >]} {[< 1 ; p(5, "") >,< 1 ; p(12, "") >,< 1 ; p(6, "") >] [< 1 ; p(4, "") >,< 1 ; p(13,
+    "") >,< 1 ; p(7, "") >]} {[< 1 ; p(15, "") >,< 2 ; p(16, "") >,emptyListNP] [< 1 ; p(17, "") >,< 2 ; p(16, "") >,emptyListNP]} {[< 1 ; p(14,
+    "") > < 1 ; p(11, "") >,< 1 ; p(15, "") >,emptyListNP] [< 1 ; p(13, "") > < 1 ; p(12, "") >,< 1 ; p(17, "") >,emptyListNP]} {[< 2 ; p(16, "")
+    >,< 1 ; p(2, "") > < 1 ; p(3, "") >,emptyListNP]} {[< 2 ; p(16, "") >,< 1 ; p(4, "") > < 1 ; p(5, "") >,emptyListNP]}
