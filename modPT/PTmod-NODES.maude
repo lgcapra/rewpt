@@ -1,0 +1,64 @@
+in ../shared/SORTED-PAIR.maude
+in ../shared/COMPARABLE-LIST.maude
+
+fmod PTmod-NODE is
+ protecting NAT .
+ protecting EXT-BOOL .
+ protecting COMPARABLE-LIST{SortedPair+<{String<,Nat<}} * (sort Pair{String<,Nat<} to  Pair{String,Nat},  
+                                                           sort NeList{SortedPair+<{String<,Nat<}} to NeModLab,
+                                                           sort List{SortedPair+<{String<,Nat<}} to ModLab,
+                                                           op nil to emptyLab).
+ sort Node .
+ op n : ModLab -> Node [ctor] .
+ vars L L' : ModLab .
+ vars N1 N2 : Node .
+ *** get the label
+ op lab : Node -> ModLab .
+ eq lab (n(L)) = L .
+ var W : String .
+ var I : Nat .
+ *** add a new label
+ op addLab : Node ModLab -> Node . 
+ eq addLab(n(L), L') = n(L' L) .
+ *** order relations
+ op _<_ : Node Node -> Bool . *** strict total order
+ eq n(L) < n(L') = lex(0, L, L') .
+ op _<=_ : Node Node -> Bool . *** total order
+ eq N1 <= N2 = N1 == N2 or-else N1 < N2 .
+endfm
+
+*** places
+fmod PLACE is
+ protecting PTmod-NODE * (sort Node to Place, op n to p) .
+endfm
+
+*** default view
+view Place from TRIV to PLACE is 
+ sort Elt to Place . 
+endv
+
+*** strict total-order view to PLACE
+view Place< from STRICT-TOTAL-ORDER to PLACE is 
+ sort Elt to Place . 
+endv
+
+*** total-order view to PLACE
+view Place<= from TOTAL-ORDER to PLACE is 
+ sort Elt to Place . 
+endv
+
+
+*** transitions
+fmod TRAN is
+ protecting PTmod-NODE * (sort Node to Tran, op n to t) .
+endfm
+
+*** default view
+view Tran from TRIV to TRAN is 
+ sort Elt to Tran . 
+endv
+
+*** standard total-order view to TRAN
+view Tran< from STRICT-TOTAL-ORDER to TRAN is 
+ sort Elt to Tran . 
+endv

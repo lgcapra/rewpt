@@ -1,0 +1,109 @@
+in IMATRIX
+in ../shared/MAP+
+
+
+fmod PT-NET is
+ pr MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) . *** ImatrixM is a view on IMATRIX-MOD (like Imatrix on IMATRIX)
+ pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
+ pr SORTABLE-LIST{Place<} * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
+ pr PAIR{Pset, Nat} . *** multiple return value (defined for convenience)
+ pr SET+{Imatrix} * (sort Set{Imatrix} to Snet, sort NeSet{Imatrix} to neSnet, op emptyS to emptySnet) . *** simple net-representation as a set of local inc. matrices
+
+ vars  N N'  : Net .
+ vars T T' : Tran .
+ vars P P' : Place .
+ vars Y J  : Nat .
+ vars K K' : NzNat .
+ vars I O H B : Pbag .
+ vars Q Q' : Imatrix .
+ 
+ vars S S' SP : Pset . 
+ vars L L1 : Plist .
+ vars W W' :  String .
+ var F :  Bool .
+ 
+ 
+ *** eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
+
+ op welldef : Net -> Bool .
+ eq welldef(N) = repeatedKeys?(N) == false . ***  and-then N =/= emptyN  . leaves the comment to consider empty nets as invalid 
+ 
+ ops In Out Inh : Net Tran -> [Pbag] . 
+ eq In(T |-> Q ; N, T)  = I(Q) .
+ eq Out(T |-> Q ; N, T) = O(Q) .
+ eq Inh(T |-> Q ; N, T) = H(Q) .
+
+ op dead : ImatrixT -> Bool .  *** checks for structurally dead transitions 
+ eq dead(T |-> Q) = dead(Q) .
+
+ op in :  Net Place -> Bool . *** test the existence of a place
+ceq in(T |-> Q ; N, P) = true if in (Q, P) .
+ eq in(N, P) = false [owise] .
+
+ op in :  Net Tran -> Bool . *** test the existence of a transition
+ eq in(N, T) = $hasMapping(N, T) .
+
+ op places : Net -> Pset .
+ eq places(N) = places(toSimpleNet(N)) .
+ op places : Net String -> Pset .
+ eq places(N, W) = places(toSimpleNet(N), W) .
+
+ op placeList : Net -> Plist . *** returns the sorted list of places of a net
+ eq placeList(N) = $makePlist(places(N), emptyPlist) .
+ op $makePlist : Pset Plist -> Plist . 
+ eq $makePlist(emptyPset, L) = sort(L) . 
+ eq $makePlist(P U S, L) = $makePlist(S, P L) . 
+
+ var TL : Tlist .
+ op tranList : Net -> Tlist .  *** returns the sorted list of transitions
+ eq tranList(N) = $makeTlist(N,emptyTlist) .
+ op $makeTlist : Net Tlist -> Tlist . 
+ eq $makeTlist(emptyN, TL) = sort(TL) . 
+ eq $makeTlist(T |-> Q ; N, TL) = $makeTlist(N, T TL) . 
+
+ op replace : Net Place Place -> Net .  *** replace the first places with the 2nd one in a net
+ eq replace(T |-> Q ; N, P, P') = T |-> replace(Q, P, P') ; replace(N, P, P') .
+ eq replace(emptyN, P, P') = emptyN .
+ 
+ *** add a new label to the net's places (not to transitions)
+ var Lab : ModLab .
+ op addLab : Net ModLab -> Net . 
+ eq addLab(N, Lab) = $addLab(N, emptyN, Lab) .
+ op $addLab : Net Net ModLab -> Net .
+ eq $addLab(emptyN, N, Lab) = N .
+ eq $addLab(T |-> Q ; N', N, Lab) = $addLab(N', T |-> addLab(Q, Lab) ; N, Lab) .
+ 
+ *** simple net representation uniquely based on local inc. matrices
+ var Sn : Snet .
+ op toSimpleNet : Net -> Snet .
+ eq toSimpleNet(N) = $toSimpleNet(N, emptySnet) .
+ op $toSimpleNet : Net Snet -> Snet .
+ eq $toSimpleNet(emptyN, Sn) = Sn .
+ eq $toSimpleNet(T |-> Q ; N, Sn) = $toSimpleNet(N, Q U Sn) .
+ *** same operators defined for Net
+ op dead : Imatrix -> Bool .  *** checks for structurally dead transitions 
+ eq dead([K . P + I, O, K' . P + H]) = K >= K' [metadata "dead tq"] .
+ eq dead(Q) = false [owise] .
+ *** set of places of the (simple) net
+ op places : Snet -> Pset .
+ eq places(Sn) = $places(Sn, emptyPset) .  
+ op $places : Snet Pset -> Pset . 
+ eq $places(emptySnet, S) = S . 
+ eq $places(Q U Sn, S) = $places(Sn, S U places(Q)) .
+ *** set of places with a given label
+ op places : Snet String -> Pset .
+ eq places(Sn, W) = $places(Sn, W, emptyPset) .  
+ op $places : Snet String Pset -> Pset . 
+ eq $places(emptySnet, W, S) = S . 
+ eq $places(Q U Sn, W, S) = $places(Sn, W, S U places(Q, W)) .
+ *** list of places of the (simple) net
+ op placeList : Snet -> Plist . 
+ eq placeList(Sn) = $makePlist(places(Sn),emptyPlist) .
+ op placeList : Snet String -> Plist . 
+ eq placeList(Sn, W) = $makePlist(places(Sn, W),emptyPlist) .
+endfm
+
+*** trivial view to a PT-NET
+view PTnet from TRIV to PT-NET is 
+ sort Elt to Net .
+endv

@@ -1,0 +1,118 @@
+*** qui e altrove usiamo il preludio modificato anche se si potrebbe usare quello originale (nuova versione)
+in ../shared/BAG-AND-SET
+in ../shared/MAP+
+in PTmod-NODES
+
+*** this module defines (sortable) of pairs << Nat ; Place >>> (much simpler definition than the original one)
+fmod PAIR-NAT-PLACE is 
+  pr  SORTED-PAIR{Nat<,Place<} * (sort Pair{Nat<,Place<} to Pair{Nat,Place})  .  
+endfm
+
+*** ordinary view 
+view PairNatP from TRIV to PAIR-NAT-PLACE is 
+ sort Elt to Pair{Nat,Place} .
+endv
+
+*** classical view as strict-total-order 
+view PairNatP< from STRICT-TOTAL-ORDER to PAIR-NAT-PLACE is 
+ sort Elt to Pair{Nat,Place} .
+endv
+
+*** view as strict-weak-order 
+view PairNatP+< from STRICT-WEAK-ORDER+ to PAIR-NAT-PLACE is 
+ sort Elt to Pair{Nat,Place} . 
+endv
+
+*** this module defines comparable lists of pairs < Nat ; Place >
+fmod LIST-NAT-PLACE is 
+  pr COMPARABLE-LIST{PairNatP+<} * (sort List{PairNatP+<} to List{Nat,Place}, sort NeList{PairNatP+<} to NeList{Nat,Place}, op nil to emptyListNP)  .  
+endfm
+
+fmod BAGP is
+ pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, op nil to nilP, 
+                           sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
+ pr LIST-NAT-PLACE .
+ 
+ vars P P' $P : Place . 
+ vars K K' : NzNat .
+ vars B B' : Pbag .
+ vars L L' : ModLab .
+ var S : Pset .
+ var LNP : List{Nat,Place} . 
+ *** add a new label to a bag's elements
+ op addLab : Pbag ModLab -> Pbag .
+ eq addLab(B, L) = $addLab(B, nilP, L) .
+ op $addLab : Pbag Pbag ModLab -> Pbag .
+ eq $addLab(nilP, B, L) = B .
+ eq $addLab(K . P + B', B, L) = $addLab(B', K . addLab(P, L) + B, L) .
+ 
+
+ *** I seguenti operatori sono stati adattati dalla definizione originale, alcuni potrebbero non servire più
+ 
+ *** set of places with a given label (helpful?)
+ op support : Pbag ModLab -> Pset . 
+ eq support(B, L) = $support(B, L, emptyPset) .  
+ op $support : Pbag ModLab Pset -> Pset . 
+ eq $support(nilP, L, S) = S . 
+ eq $support(K . p(L) + B, L, S) = $support(B, L, S U p(L)) .
+ceq $support(K . p(L') + B, L, S) = $support(B, L, S) if L =/= L' .
+ *** replaces the first place with the second one
+ op replace : Pbag Place Place -> Pbag .
+ eq replace(K . P + B, P, P') = K . P' + B .
+ eq replace(B, P, P') = B [owise] .
+ *** swaps two places
+ op swap : Pbag Place Place -> Pbag .  
+ eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
+ eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
+ eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
+ *** eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P')  . *** slightly less efficient
+ *** eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P')  .
+ eq swap(B, P, P')  = B [owise] .
+ *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with a certain label
+ op toList : Pbag ModLab -> List{Nat,Place} . 
+ eq toList(B, L) = $toList(B, L, emptyListNP) .
+ op $toList : Pbag ModLab List{Nat,Place} -> List{Nat,Place} .
+ eq $toList(nilP, L, LNP) = LNP .
+ eq $toList(K . p(L) + B, L, LNP) = $toList(B, L, < K ; p(L) > LNP) . 
+ eq $toList(K . P + B, L, LNP) = $toList(B, L, LNP) [owise] .
+ *** builds (un)ordered list of pairs < weight ; el > out of a bag, by considering places with ANY (before empty) label
+ op toList  : Pbag -> List{Nat,Place} .     
+ eq toList(B) = $toList(B, emptyListNP) .
+ op $toList : Pbag List{Nat,Place} -> List{Nat,Place} .
+ eq $toList(nilP, LNP) = LNP .
+ eq $toList(K . P + B, LNP) = $toList(B, < K ; P > LNP) . 
+ 
+ var C : Nat .
+ op toListS : Nat Pbag -> List{Nat,Place} . *** the 1st arg identifies the sorting 
+ eq toListS(C, B)  = sort(C, toList(B)) .   *** builds an ordered list of pairs out of a bag  using the usual list lex order (0) ([memo] ?) or the lex order based on weights (1)
+ 
+ *** defined for convenience (and to satisfy th STRICT-WEAK-ORDER+)
+ op lt : Nat Pbag Pbag -> Bool . *** maps to the lexicographic orders defined on lists of (comparable) pairs
+ eq lt(C, B , B') = lex(C, toListS(C, B), toListS(C, B')) .
+ *** defined for convenience 
+ op cmp : Nat Pbag Pbag -> Nat . *** maps to the lexicographic orders defined on lists of (comparable) pairs
+ eq cmp(C, B , B') = cmp(C, toListS(C, B), toListS(C, B')) .
+ *** defined for convenience
+ ops _<_  : Pbag Pbag -> Bool .
+ eq B <  B' = lt(0, B, B') .
+endfm
+
+
+view Pbag from TRIV to BAGP is 
+ sort Elt to Pbag .
+endv
+
+*** strict-total-order view
+*** view Pbag< from STRICT-TOTAL-ORDER to BAGP is 
+***  sort Elt to Pbag . 
+*** endv
+
+*** strict-weak-order view
+*** view Pbag+< from STRICT-WEAK-ORDER+ to BAGP is 
+*** sort Elt to Pbag . 
+*** endv
+
+*** set-view of a bag (defined for convenience)
+view Pset from TRIV to BAGP is
+ sort Elt to Pset .
+endv

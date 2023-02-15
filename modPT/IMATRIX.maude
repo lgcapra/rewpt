@@ -1,0 +1,58 @@
+in BAGP
+in ATYPE
+
+fmod IMATRIX is
+ pr BAGP .
+ pr ATYPE .
+ sort Imatrix .
+ op [_,_,_] : Pbag Pbag Pbag -> Imatrix [ctor] .
+ 
+ vars X Y Z X' Y' Z' : Pbag .
+ vars P P' : Place .
+ vars N N' C1 C2 : Nat .
+ vars K K' : NzNat .
+ vars Q Q' : Imatrix .
+ var L : ModLab .
+ 
+ op remove : Imatrix Place -> Imatrix .
+ eq remove([X,Y,Z], P) = [set(X,P,0),set(Y,P,0),set(Z,P,0)] .
+ 
+ ops I O H : Imatrix -> Pbag .
+ eq I([X,Y,Z]) = X .
+ eq O([X,Y,Z]) = Y .
+ eq H([X,Y,Z]) = Z .
+
+ op _(_) : Imatrix Atype -> Pbag [prec 23] . *** introduced for convenience
+ var a : Atype .
+ eq Q(i) = I(Q) .
+ eq Q(o) = O(Q) . 
+ eq Q(h) = H(Q) .
+
+ op in :  Imatrix Place -> Bool . *** test the existence of a place
+ eq in([X + K . P, Y, Z], P) = true .
+ eq in([X, Y + K . P, Z], P) = true .
+ eq in([X, Y, Z + K . P], P) = true .
+ eq in(Q, P) = false [owise] .
+
+ op dead : Imatrix -> Bool .  *** checks for structurally dead transitions 
+ eq dead([K . P + X, Y, K' . P + Z]) = K >= K' [metadata "dead tq"] .
+ eq dead(Q) = false [owise] .
+
+ op places : Imatrix -> Pset .
+ eq places([X,Y,Z]) = support(X) U support(Y) U support(Z) .
+
+ op swap : Imatrix Place Place -> Imatrix .
+ eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
+
+ op replace : Imatrix Place Place -> Imatrix .
+ eq replace([X,Y,Z], P, P') = [replace(X,P,P'),replace(Y,P,P'),replace(Z,P,P')] .
+ 
+ *** add a new label to a matrix' elements
+ op addLab : Imatrix ModLab -> Imatrix .
+ eq addLab([X,Y,Z], L) = [addLab(X, L), addLab(Y, L), addLab(Z, L)] .
+ 
+endfm
+
+view Imatrix from TRIV to IMATRIX is 
+ sort Elt to Imatrix . 
+endv
