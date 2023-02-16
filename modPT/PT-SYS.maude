@@ -1,9 +1,12 @@
 in PT-NET
 
+*** PT system's signature (including a simple(r) one with an implicit representation of transition)
 fmod PT-SYS is
  pr PT-NET .
- sort System .
+ sorts System SimpleSys .
  op __ : Net Pbag -> [System] [ctor] .
+ op __ : Snet Pbag -> SimpleSys [ctor] .
+ *** op __ : Snet Pbag -> [SimpleSys] [ctor] .
  vars N N' : Net .
  vars T T' : Tran .
  vars P P' : Place .
@@ -11,38 +14,60 @@ fmod PT-SYS is
  vars Q Q' : Imatrix .
  vars K K' : NzNat .
  var W : String .
- 
+ vars Sn Sn' : Snet .
+ *** all the ops are duplicated to consider simple nets
  op net : System -> Net . 
  op marking : System -> Pbag .
  eq net(N S) = N .
  eq marking(N S) = S .
- 
+ op net : SimpleSys -> Snet .
+ op marking : SimpleSys -> Pbag .
+ eq net(Sn S) = Sn .
+ eq marking(Sn S) = S .
+
+ op toSimpleSys : System -> SimpleSys .
+ eq toSimpleSys(N S) = toSimpleNet(N) S .
+
  op enabled : System Tran -> [Bool] .
  eq enabled((T |-> [I,O,H] ; N) S, T) = I <= S and-then H >' S .
+ op enabled : SimpleSys Imatrix -> [Bool] .
+ eq enabled((Q U Sn) S, Q) = I(Q) <= S and-then H(Q) >' S .
 
- *** step-enabling
- op enabled : System Tran NzNat -> [Bool] .
- eq enabled((T |-> [I,O,H] ; N) S, T, K) = K * I <= S and-then H >' S .
+ *** step-enabling (helpful?)
+ *** op enabled : System Tran NzNat -> [Bool] .
+ *** eq enabled((T |-> [I,O,H] ; N) S, T, K) = K * I <= S and-then H >' S .
 
-cmb N S : System if welldef(N) . *** /\ support(S) subset places(N) . *** the net of a PT system cannot be empty
- 
+cmb N S : System if welldef(N) . *** /\ support(S) subset places(N) . 
+*** cmb Sn S : SimpleSys if welldef(Sn) . *** /\ support(S) subset places(Sn) .
+
  op dead : System -> Bool . *** checks for a deadlock state
 ceq dead((T |-> Q ; N) S) = false if enabled((T |-> Q ; N) S, T) .
  eq dead(N S) = true [owise] .
+op dead : SimpleSys -> Bool .
+ceq dead((Q U Sn) S) = false if enabled((Q U Sn) S, Q) .
+ eq dead(Sn S) = true [owise] .
 
  op in :  System Place -> Bool . *** tests the existence of a place
  eq in(N S, P) =  S[P] =/= 0 or-else in(N, P).
+ op in :  SimpleSys Place -> Bool .
+ eq in(Sn S, P) =  S[P] =/= 0 or-else in(Sn, P).
 
- op places : System -> NePset .
+ op places : System -> Pset .
  eq places(N S) = places(N) U support(S) .
+ op places : SimpleSys -> Pset .
+ eq places(Sn S) = places(Sn) U support(S) .
 
  op placeList : System -> Plist .
  eq placeList(N S) = $makePlist(places(N S), emptyPlist) .
+ op placeList : SimpleSys -> Plist .
+ eq placeList(Sn S) = $makePlist(places(Sn S), emptyPlist) .
 
  var Lab : ModLab .
  *** add a new label to a system's places (not to transitions)
  op addLab : System ModLab -> System .
  eq  addLab(N S, Lab) = addLab(N, Lab) addLab(S, Lab) .
+ op addLab : SimpleSys ModLab -> SimpleSys .
+ eq  addLab(Sn S, Lab) = addLab(Sn, Lab) addLab(S, Lab) .
 endfm
 
 *** trivial view to a PT-SYS

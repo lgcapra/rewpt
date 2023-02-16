@@ -3291,6 +3291,6 @@ mod CONFIGURATION is
 endm
 
 set include BOOL on .
-set omod include CONFIGURATION on .
+*** set omod include CONFIGURATION on .
 
 select CONVERSION .

@@ -36,7 +36,7 @@ fmod BAGP is
  vars P P' $P : Place . 
  vars K K' : NzNat .
  vars B B' : Pbag .
- vars L L' : ModLab .
+ vars L L' L'' : ModLab .
  var S : Pset .
  var LNP : List{Nat,Place} . 
  *** add a new label to a bag's elements
@@ -45,8 +45,11 @@ fmod BAGP is
  op $addLab : Pbag Pbag ModLab -> Pbag .
  eq $addLab(nilP, B, L) = B .
  eq $addLab(K . P + B', B, L) = $addLab(B', K . addLab(P, L) + B, L) .
+  *** replace the specified (1st) place with the 2nd one
+ op replace : Pbag Place Place -> Pbag .
+ eq replace(K . P + B, P, P') = K . P' + B .
+ eq replace(B, P, P') = B  [owise] .
  
-
  *** I seguenti operatori sono stati adattati dalla definizione originale, alcuni potrebbero non servire più
  
  *** set of places with a given label (helpful?)

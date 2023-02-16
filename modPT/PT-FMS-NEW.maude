@@ -1,39 +1,24 @@
 in PT-EMU
 
-*** basic net-algebra operators
-fmod NET-OP is
- pr PT-SYS .
- protecting CONVERSION .
- vars P P' : Place .
- vars N N' : Net .
- vars S S' : Pbag .
- var Sys Sys' : System .
- var I : Nat .
- vars K K' : NzNat .
- var L : String .
-*** similar to the op defined in PT-FMS-NEWv2 but more general
- *** juxtapose two systems (NOTE identical places are implicitly merged their marking is summed map)
- op join : System System -> [System] [assoc comm] . 
- eq join(N S, N' S') = (N ; N') S + S' .
- *** juxtapose two systems (NOTE identical places are implicitly merged if their marking is the same, in that case it is retained)
- op joinP : System System -> [System] [assoc comm] . *** place-based join
- eq joinP(N S, N' S') = (N ; N') join(S, S') . 
- *** symmetric juxtapostion: creates K disjoint copies of a net each one with suitably-prefixed node labels
- op par  : System NzNat String -> [System] .
- op parv2  : System NzNat String -> [System] .
- 
- *** merge two places of a PT system giving the merged place a new label (Note assumes that merged places hold the same marking, which is retained) .     
- op pmerge : System Place Place Nat String  -> [System] .
- op pmerge : System Place System Place Nat String  -> [System] .
-endfm
-
 fmod PT-FMS is
  protecting NET-OP .
- ops net pline net' symnet symnet2 : -> Net .
- ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag . 
+ ops net pline line fault faultyline net' symnet symnet2  : -> Net .
+ ops snet spline sline sfault sfaultyline  snet' ssymnet ssymnet2 : -> Snet .
+ ops 2faultylines  : -> System .
+ ops 2sfaultylines : -> SimpleSys .
+ ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag .
  op M   : -> NzNat . *** MS model's parameter
  eq M = 4 . 
  ops sys0 sys sys2 sys2' sys2'' sys2new sys2m1 sys2m2 sys4 : -> System .
+
+ eq sline =  [1 . p(< "line" ; 1 >) , 1 . p(< "ass" ; 1 >), 1 . p(< "faulty" ; 1 >) ] .
+ eq line = t(< "line" ; 1 >) |-> sline .
+ eq sfault =  [1 . p(< "focc" ; 1 >) , 1 . p(< "faulty" ; 1 >), nilP ] .
+ eq fault = t(< "fault" ; 1 >) |-> sfault .
+ eq sfaultyline = sline U sfault .
+ eq faultyline =  line ; fault .
+ eq 2faultylines = replica(faultyline  1 . p(< "focc" ; 1 >) , 2, "||") .
+ eq 2sfaultylines = replica(sfaultyline  1 . p(< "focc" ; 1 >) , 2, "||") .
  *** only the product line structure (without faults)
  *** eq pline = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
  ***          nilP ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ; t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] .

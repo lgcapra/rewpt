@@ -1,7 +1,7 @@
 in IMATRIX
 in ../shared/MAP+
 
-
+*** signature of a PT net -- includes a simple(r) net-representation in which transitions are implicitly represented
 fmod PT-NET is
  pr MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) . *** ImatrixM is a view on IMATRIX-MOD (like Imatrix on IMATRIX)
  pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
@@ -28,6 +28,9 @@ fmod PT-NET is
  op welldef : Net -> Bool .
  eq welldef(N) = repeatedKeys?(N) == false . ***  and-then N =/= emptyN  . leaves the comment to consider empty nets as invalid 
  
+ op welldef : Snet -> Bool .
+ eq welldef(Sn) = true . ***  and Sn =/= emptySnet  . *** leaves the comment to consider empty nets as invalid 
+
  ops In Out Inh : Net Tran -> [Pbag] . 
  eq In(T |-> Q ; N, T)  = I(Q) .
  eq Out(T |-> Q ; N, T) = O(Q) .
@@ -65,16 +68,19 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq replace(T |-> Q ; N, P, P') = T |-> replace(Q, P, P') ; replace(N, P, P') .
  eq replace(emptyN, P, P') = emptyN .
  
- *** add a new label to the net's places (not to transitions)
+ *** add a new label to the net's places (and transitions, only to avoid "duplicated" transitions)
  var Lab : ModLab .
+ op addLab : ImatrixT ModLab -> ImatrixT . 
+ eq addLab(T |-> Q, Lab) = addLab(T, Lab) |-> addLab(Q, Lab) .
  op addLab : Net ModLab -> Net . 
  eq addLab(N, Lab) = $addLab(N, emptyN, Lab) .
  op $addLab : Net Net ModLab -> Net .
  eq $addLab(emptyN, N, Lab) = N .
- eq $addLab(T |-> Q ; N', N, Lab) = $addLab(N', T |-> addLab(Q, Lab) ; N, Lab) .
+ var TQ : ImatrixT .
+ eq $addLab(TQ ; N', N, Lab) = $addLab(N', addLab(TQ, Lab) ; N, Lab) .
  
  *** simple net representation uniquely based on local inc. matrices
- var Sn : Snet .
+ vars Sn Sn' : Snet .
  op toSimpleNet : Net -> Snet .
  eq toSimpleNet(N) = $toSimpleNet(N, emptySnet) .
  op $toSimpleNet : Net Snet -> Snet .
@@ -101,6 +107,14 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq placeList(Sn) = $makePlist(places(Sn),emptyPlist) .
  op placeList : Snet String -> Plist . 
  eq placeList(Sn, W) = $makePlist(places(Sn, W),emptyPlist) .
+
+ *** add a new label to a simple-net's places
+ op addLab : Snet ModLab -> Snet . 
+ eq addLab(Sn, Lab) = $addLab(Sn, emptySnet, Lab) .
+ op $addLab : Snet Snet ModLab -> Snet .
+ eq $addLab(emptySnet, Sn, Lab) = Sn .
+ eq $addLab(Q U Sn', Sn, Lab) = $addLab(Sn', addLab(Q, Lab) U Sn, Lab) .
+ 
 endfm
 
 *** trivial view to a PT-NET

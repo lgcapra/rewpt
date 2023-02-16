@@ -8,27 +8,53 @@ fmod NET-OP is
  vars N N' : Net .
  vars S S' : Pbag .
  var Sys Sys' : System .
+ var Ssys Ssys' : SimpleSys .
+ vars Sn Sn' : Snet .
+ 
+ 
  var I : Nat .
  vars K K' : NzNat .
  var W : String .
- *** juxtapose two systems (NOTE identical places are implicitly merged, their markings are summed map)
- op join : System System -> [System] [assoc comm] . 
+ *** juxtapose two systems, by merging identical places (whose markings are summed up)
+ op join : System System -> [System] [assoc comm] . *** we use a kind because of possible duplicate keys (transitions)
  eq join(N S, N' S') = (N ; N') S + S' .
- *** juxtapose two systems (NOTE identical places are implicitly merged if their marking is the same, in that case it is retained)
- op joinP : System System -> [System] [assoc comm] . *** place-based join
+ *** simple system version
+ op join : SimpleSys SimpleSys -> SimpleSys [assoc comm] . *** safe
+ eq join(Sn S, Sn' S') = (Sn U Sn') S + S' .
+ 
+ *** juxtapose two systems: identical places are merged only if their marking is the same, in that case it is retained
+ op joinP : System System -> [System] [assoc comm] .
  eq joinP(N S, N' S') = (N ; N') join(S, S') . 
- *** symmetric juxtapostion: creates K disjoint copies of a net each one with suitably-prefixed node labels
- op par  : System NzNat String -> [System] . *** chiamare symjoin o nreplica ?
- *** eq par(Sys, 1, W) = prefix(Sys, 1, W) .
-*** ceq par(Sys, K, W) = join(par(Sys, sd(K,1), W), prefix(Sys, K, W)) if K > 1 .
- *** version 2: doesn't insert indices in the prefix -- sets indices modulo the system's size (|P|)
- op parv2  : System NzNat String -> [System] .
- eq parv2(Sys, K, W) = $parv2(Sys, K, | places(Sys) |, W)  .
- op $parv2 : System NzNat NzNat String -> [System] . 
- *** eq $parv2(Sys, 1, K', W) = prefix(Sys, W) .
-*** ceq $parv2(Sys, K, K', W) = join($parv2(Sys, sd(K,1), K', W), prefix&offset(Sys, sd(K,1) * K', W)) if K > 1 . 
- op parv2  : System NzNat  -> [System] . *** doesnt'modify the label
- eq parv2(Sys, K) = parv2(Sys, K, "") .
+ *** simple system version
+ op joinP : SimpleSys SimpleSys -> SimpleSys [assoc comm] .
+ eq joinP(Sn S, Sn' S') = (Sn U Sn') join(S, S') . 
+ 
+ *** "symmetric" juxtapostion: creates K (disjoint) replica of a system each one with suitably added labels denoting the "nesting" level
+ op replica  : System NzNat String -> System . 
+ eq replica(Sys, 1, W) = Sys . *** does nothing
+ceq replica(Sys, K, W) = $replica(Sys, K - 1, W, addLab(Sys, < W ; K >)) if K > 1 .
+ op $replica  : System Nat String System -> System .
+ eq $replica(Sys, 0, W, Sys') = Sys' .
+ eq $replica(Sys, K, W, Sys') = $replica(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K >))) .
+ *** version for simple net representation
+ op replica  : SimpleSys NzNat String -> SimpleSys . 
+ eq replica(Ssys, 1, W) = Ssys . *** does nothing
+ceq replica(Ssys, K, W) = $replica(Ssys, K - 1, W, addLab(Ssys, < W ; K >)) if K > 1 .
+ op $replica  : SimpleSys Nat String SimpleSys -> SimpleSys .
+ eq $replica(Ssys, 0, W, Ssys') = Ssys' .
+ eq $replica(Ssys, K, W, Ssys') = $replica(Ssys, K - 1, W, join(Ssys', addLab(Ssys, < W ; K >))) .
+ 
+ *** replaces the specified (1st) place with the 2nd place
+ op replace : System Place Place -> System .
+ op replace : SimpleSys Place Place -> SimpleSys .
+ *** relabels the nodes whose labels match the specified (1st) suffix by replcing it with the 2nd one
+ op relabsuf : System ModLab ModLab -> System .
+ op relabsuf : SimpleSys ModLab ModLab -> SimpleSys .
+ *** does the same by considering prefix
+ op relabpre : System ModLab ModLab -> System .
+ op relabpre : SimpleSys ModLab ModLab -> SimpleSys .
+ 
+ 
  
  *** merge two places of a PT system giving the merged place a new label (Note assumes that merged places hold the same marking, which is retained) .     
  var L : ModLab .
