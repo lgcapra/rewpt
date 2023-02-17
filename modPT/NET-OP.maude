@@ -10,8 +10,6 @@ fmod NET-OP is
  var Sys Sys' : System .
  var Ssys Ssys' : SimpleSys .
  vars Sn Sn' : Snet .
- 
- 
  var I : Nat .
  vars K K' : NzNat .
  var W : String .
@@ -21,14 +19,13 @@ fmod NET-OP is
  *** simple system version
  op join : SimpleSys SimpleSys -> SimpleSys [assoc comm] . *** safe
  eq join(Sn S, Sn' S') = (Sn U Sn') S + S' .
- 
- *** juxtapose two systems: identical places are merged only if their marking is the same, in that case it is retained
- op joinP : System System -> [System] [assoc comm] .
+ *** juxtapose two systems: identical places are merged if their marking is the same, in that case it is retained
+ op joinP : System System -> [System] [assoc comm] . *** again, the range is a kind (due to possible duplicates and the reason above)
  eq joinP(N S, N' S') = (N ; N') join(S, S') . 
  *** simple system version
  op joinP : SimpleSys SimpleSys -> SimpleSys [assoc comm] .
  eq joinP(Sn S, Sn' S') = (Sn U Sn') join(S, S') . 
- 
+
  *** "symmetric" juxtapostion: creates K (disjoint) replica of a system each one with suitably added labels denoting the "nesting" level
  op replica  : System NzNat String -> System . 
  eq replica(Sys, 1, W) = Sys . *** does nothing
@@ -44,24 +41,21 @@ ceq replica(Ssys, K, W) = $replica(Ssys, K - 1, W, addLab(Ssys, < W ; K >)) if K
  eq $replica(Ssys, 0, W, Ssys') = Ssys' .
  eq $replica(Ssys, K, W, Ssys') = $replica(Ssys, K - 1, W, join(Ssys', addLab(Ssys, < W ; K >))) .
  
- *** replaces the specified (1st) place with the 2nd place
+ *** replaces the specified (1st) place with the 2nd one in a system
  op replace : System Place Place -> System .
+ eq replace(Sys, P, P) = Sys .
+ceq replace(N S, P, P') = replace(N, P, P') replace(S, P, P') if P =/= P' .
  op replace : SimpleSys Place Place -> SimpleSys .
- *** relabels the nodes whose labels match the specified (1st) suffix by replcing it with the 2nd one
- op relabsuf : System ModLab ModLab -> System .
- op relabsuf : SimpleSys ModLab ModLab -> SimpleSys .
- *** does the same by considering prefix
- op relabpre : System ModLab ModLab -> System .
- op relabpre : SimpleSys ModLab ModLab -> SimpleSys .
+ eq replace(Ssys, P, P) = Ssys .
+ceq replace(Sn S, P, P') = replace(Sn, P, P') replace(S, P, P') if P =/= P' .
  
- 
- 
- *** merge two places of a PT system giving the merged place a new label (Note assumes that merged places hold the same marking, which is retained) .     
+ *** merge two places of a PT system giving the merged place a new label (the merge result holds the sum of the places' markings) .     
+ *** does nothing if either place doesn't exist
  var L : ModLab .
- op pmerge : System Place Place ModLab  -> [System] .
-ceq pmerge(N S, P, P', L) = replace(replace(N, P, p(L)), P', p(L)) replace(set(S, P', 0), P, p(L)) if P =/= P' /\ S[P] == S[P'] .
- eq pmerge(N S, P, P, L) = N S .
- *** version taking two systems as arguments (exploits ;)
- op pmerge : System Place System Place ModLab  -> [System] .
- eq pmerge(N S, P, N' S', P', L) = (replace(N, P, p(L)) ; replace(N', P', p(L))) join(replace(S, P, p(L)), replace(S', P', p(L) )) .
+ op merge : System Place Place ModLab  -> System .
+*** ceq pmerge(N S, P, P', L) = replace(replace(N, P, p(L)), P', p(L)) replace(set(S, P', 0), P, p(L)) if P =/= P' /\ S[P] == S[P'] .
+ eq merge(Sys, P, P, L) = Sys .
+ *** merge version operating on two systems (builds on the previous merge)
+ op merge : System Place System Place ModLab  -> [System] .
+ eq merge(Sys, P, Sys', P', L) = merge(join(Sys, Sys'), P, P', L) .
 endfm

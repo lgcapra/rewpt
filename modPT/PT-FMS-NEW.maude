@@ -47,6 +47,8 @@ fmod PT-FMS is
           t(< "rest" ; 4 >) |-> [1 . p(< "end" ; 6 >) , 2 . p(< "start" ; 1 >), nilP ] ; t(< "fault" ; 5 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 7 >), nilP ] ; t(< "fault" ; 6 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 8 >), nilP].
  eq m0  = (2 * M) . p(< "start" ; 1 >) +  1 . p(< "focc" ; 0 >) .
 
+ eq snet = toSimpleNet(net) .
+
  *** "symmetric" specification using node labels (obtained using net-algebra operators) -- transition labels do not matter 
  *** eq symnet = t(< "load" ; 0 >) |-> [2 . p(0,"start"), 1 . p(0,"line") + 1 . p(< "line" ; 1 >), nilP ] ; t(< "line" ; 1 >) |-> [1 . p(0,"line") , 1 . p(0,"ass"), 1 . p(0,"faulty") ] ; t(< "line" ; 2 >) |-> [1 . p(< "line" ; 1 >) , 1 . p(1,"ass"),
  ***          1 . p(1,"faulty") ] ; t(< "ass" ; 3 >) |-> [1 . p(0,"ass") + 1 . p(1,"ass") , 1 . p(0,"end"), nilP ] ;

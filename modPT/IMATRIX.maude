@@ -40,7 +40,11 @@ fmod IMATRIX is
 
  op places : Imatrix -> Pset .
  eq places([X,Y,Z]) = support(X) U support(Y) U support(Z) .
-
+ *** set of places whose label's suffix matches the given one
+ var W : List{String} .
+ op places : List{String} Imatrix -> Pset .
+ eq places(W, [X,Y,Z]) = support(X, W) U support(Y, W) U support(Z, W) .
+ 
  op swap : Imatrix Place Place -> Imatrix .
  eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
 

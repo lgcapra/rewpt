@@ -9,23 +9,23 @@ fmod BAG{X :: TRIV} is
 
  vars N M : NzNat .
  var K : Nat .
- vars X Y : X$Elt .
+ vars X Y Z : X$Elt .
  var B B' : Bag{X} .
-
+ *** constructors
  op nil : -> Bag{X} [ctor] .
  op _._  : NzNat X$Elt ->  NeBag{X} [prec 35 ctor] .
-
+ *** bag operations
  op _`[_`] : Bag{X} X$Elt -> Nat [prec 23] .
  op _+_  : Bag{X} Bag{X} -> Bag{X} [prec 39 ctor assoc comm id: nil] .
  op _+_  : NeBag{X} Bag{X} -> NeBag{X} [ctor ditto] .
  eq (N . X + B)[X] = N .
  eq B[X] = 0 [owise] .
  eq N . X + M . X = (N + M) . X .
- 
+ *** difference
  op _-_  : Bag{X} Bag{X} -> Bag{X} [prec 41 gather (E e) right id: nil] .
  eq N . X + B - M . X + B' = if N > M then N - M . X + (B - B') else B - B' fi  .
  eq B - M . X + B' = B - B' [owise] .
-
+*** intersection
  op _∩_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection
  eq B ∩ B = B .
  eq B ∩ nil = nil .
@@ -33,62 +33,62 @@ fmod BAG{X :: TRIV} is
  eq N . X + B ∩ B' = B ∩ B' [owise] .
  op _I_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection (aliasing)
  eq B I B' = B ∩ B' .
- 
-
 *** scalar product
  op _*_ : Nat Bag{X} -> Bag{X}  [prec 37] . *** higher priority than the sum (in any case parenthese needed to disambiguate)
  eq 0 * B = nil .
  eq M * nil = nil .
  eq M * (N . X + B) = (M * N) . X + M * B .
- 
  *** scalar division (by a nonzero nat) 
  op _/_ : Bag{X} NzNat -> Bag{X} [prec 37]. *** higher priority than the sum (for symmetry with *)
  eq nil / M = nil .  
 ceq (N . X + B) / M = B / M if N quo M == 0 .
  eq (N . X + B) / M = N quo M . X + B / M [owise] .
-
+ *** relational ops
  op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
  ceq N . X + B <= B' = false if N > B'[X] .
  eq B <= B' = true [owise] . 
  *** eq nil <= B = true .
  *** eq N . X + B <= M . X + B' = N <= M and-then B <= B' .
  *** eq B <= B' = false [owise] . 
- 
  op _>'_ : Bag{X} Bag{X} -> Bool [prec 43] .
  ceq N . X + B >' B' = false if N <= B'[X] .
  eq B >' B' = true [owise] .
  *** eq nil >' B = true .
  *** eq N . X + B >' M . X +  B' = N > M and-then B >' B' .
  *** eq B >' B' = true [owise] .
- 
+ *** sets an element's multiplicity (if zero removes it from the bag)
  op set  : Bag{X} X$Elt Nat -> Bag{X} . 
  eq set(B + N . X, X, K) = if K == 0 then B else B + K . X fi . 
- eq set(B, X, K) =  if K == 0 then B else B + K . X fi [owise] .
-
+ eq set(B, X, K) =  if K == 0 then B else B + K . X fi [owise] . 
+ *** bag's cardinality
  op ||_|| : Bag{X} -> Nat . 
  op ||_|| : NeBag{X} -> NzNat . 
  eq || B || = $bcard(B, 0) . 
  op $bcard : Bag{X} Nat -> Nat . 
  eq $bcard(nil, K) = K . 
  eq $bcard(N . X + B, K) = $bcard(B, K + N) .
- 
- op bsize : Bag{X} -> Nat . *** bag's size 
+ *** bag's size (n. of elements)
+ op bsize : Bag{X} -> Nat . 
  op bsize : NeBag{X} -> NzNat . 
  eq bsize(B) = $bsize(B, 0) .  
  op $bsize : Bag{X} Nat -> Nat . 
  eq $bsize(nil, K) = K . 
  eq $bsize(N . X + B, K) = $bsize(B, K + 1) .
-
  *** checks whether two bags have the same multiplicities
  op _eqw_ : Bag{X} Bag{X} -> Bool [ comm ] .
  eq B eqw B = true .
  eq N . X + B eqw N . Y + B' = B eqw B' .
  eq B eqw B' = false [owise] . 
-
- op join : Bag{X} Bag{X} -> [Bag{X}] [assoc comm id: nil] . *** join two bags: elements present in both must have equal multeplicity (otherwise the result in unfefined) 
+*** join two bags: elements present in both must have equal multeplicity, otherwise the result in undefined
+ op join : Bag{X} Bag{X} -> [Bag{X}] [assoc comm id: nil] . 
  vars NeB NeB' : NeBag{X} .
  eq join(NeB, NeB) = NeB .
 ceq join(N . X + B, NeB) = N . X + join(B, NeB)  if NeB[X] == 0 .
+*** merges two elements (the 2nd and 3rd args) by giving the merge outcome (the 4th arg) the sum of multiplicities
+*** does nothing if the 4th arg does already exist or neither of the other two do or they coincide
+ op merge : Bag{X} X$Elt X$Elt X$Elt -> Bag{X}
+ceq merge(B, X, Y, Z) = B if X == Y or-else B[Z] =/= 0 .***  or-else (B[X] == 0 and-then B[Y] == 0) .
+ceq merge(B, X, Y, Z) = set(set(B',X, 0), Y, 0) if B' := set(B, Z, B[X] + B[Y]) [owise] .
 endfm
 
 *** parameterized trivial view to BAG{X}

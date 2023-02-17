@@ -4,10 +4,11 @@ in ../shared/COMPARABLE-LIST.maude
 fmod PTmod-NODE is
  protecting NAT .
  protecting EXT-BOOL .
- protecting COMPARABLE-LIST{SortedPair+<{String<,Nat<}} * (sort Pair{String<,Nat<} to  Pair{String,Nat},  
+ pr COMPARABLE-LIST{SortedPair+<{String<,Nat<}} * (sort Pair{String<,Nat<} to  Pair{String,Nat},  
                                                            sort NeList{SortedPair+<{String<,Nat<}} to NeModLab,
                                                            sort List{SortedPair+<{String<,Nat<}} to ModLab,
                                                            op nil to emptyLab).
+ pr LIST{String} * (op nil to emptyLs) .
  sort Node .
  op n : ModLab -> Node [ctor] .
  vars L L' : ModLab .
@@ -15,7 +16,7 @@ fmod PTmod-NODE is
  *** get the label
  op lab : Node -> ModLab .
  eq lab (n(L)) = L .
- var W : String .
+ vars W W' : String .
  var I : Nat .
  *** add a new label
  op addLab : Node ModLab -> Node . 
@@ -25,6 +26,12 @@ fmod PTmod-NODE is
  eq n(L) < n(L') = lex(0, L, L') .
  op _<=_ : Node Node -> Bool . *** total order
  eq N1 <= N2 = N1 == N2 or-else N1 < N2 .
+ *** checks that the node's label's suffix matches the given one
+ var Ls : List{String} .
+ op hasSuffix : Node List{String} -> Bool .
+ eq hasSuffix(N1, emptyLs) = true . *** base case
+ eq hasSuffix(n(L < W ; I >), Ls W) = hasSuffix(n(L), Ls) .
+ eq hasSuffix(N1, Ls) = false [owise] .
 endfm
 
 *** places

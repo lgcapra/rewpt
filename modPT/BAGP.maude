@@ -45,20 +45,15 @@ fmod BAGP is
  op $addLab : Pbag Pbag ModLab -> Pbag .
  eq $addLab(nilP, B, L) = B .
  eq $addLab(K . P + B', B, L) = $addLab(B', K . addLab(P, L) + B, L) .
-  *** replace the specified (1st) place with the 2nd one
- op replace : Pbag Place Place -> Pbag .
- eq replace(K . P + B, P, P') = K . P' + B .
- eq replace(B, P, P') = B  [owise] .
  
  *** I seguenti operatori sono stati adattati dalla definizione originale, alcuni potrebbero non servire più
- 
- *** set of places with a given label (helpful?)
- op support : Pbag ModLab -> Pset . 
- eq support(B, L) = $support(B, L, emptyPset) .  
- op $support : Pbag ModLab Pset -> Pset . 
- eq $support(nilP, L, S) = S . 
- eq $support(K . p(L) + B, L, S) = $support(B, L, S U p(L)) .
-ceq $support(K . p(L') + B, L, S) = $support(B, L, S) if L =/= L' .
+ var W : List{String} .
+ *** gives the set of places whose labes match a given suffix
+ op support : Pbag List{String} -> Pset . 
+ eq support(B, W) = $support(B, W, emptyPset) .  
+ op $support : Pbag List{String} Pset -> Pset . 
+ceq $support(K . P + B, W, S) = $support(B, W, S U P) if hasSuffix(P, W) .
+ eq $support(B, W, S) = S [owise] .
  *** replaces the first place with the second one
  op replace : Pbag Place Place -> Pbag .
  eq replace(K . P + B, P, P') = K . P' + B .
@@ -71,24 +66,16 @@ ceq $support(K . p(L') + B, L, S) = $support(B, L, S) if L =/= L' .
  *** eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P')  . *** slightly less efficient
  *** eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P')  .
  eq swap(B, P, P')  = B [owise] .
- *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with a certain label
- op toList : Pbag ModLab -> List{Nat,Place} . 
- eq toList(B, L) = $toList(B, L, emptyListNP) .
- op $toList : Pbag ModLab List{Nat,Place} -> List{Nat,Place} .
- eq $toList(nilP, L, LNP) = LNP .
- eq $toList(K . p(L) + B, L, LNP) = $toList(B, L, < K ; p(L) > LNP) . 
- eq $toList(K . P + B, L, LNP) = $toList(B, L, LNP) [owise] .
- *** builds (un)ordered list of pairs < weight ; el > out of a bag, by considering places with ANY (before empty) label
+ *** builds an (un)ordered list of pairs < weight ; el > out of a bag
  op toList  : Pbag -> List{Nat,Place} .     
  eq toList(B) = $toList(B, emptyListNP) .
  op $toList : Pbag List{Nat,Place} -> List{Nat,Place} .
  eq $toList(nilP, LNP) = LNP .
  eq $toList(K . P + B, LNP) = $toList(B, < K ; P > LNP) . 
- 
+ *** builds an ordered list of pairs out of a bag  using the usual list lex order (0) ([memo] ?) or the lex order based on weights (1)
  var C : Nat .
  op toListS : Nat Pbag -> List{Nat,Place} . *** the 1st arg identifies the sorting 
- eq toListS(C, B)  = sort(C, toList(B)) .   *** builds an ordered list of pairs out of a bag  using the usual list lex order (0) ([memo] ?) or the lex order based on weights (1)
- 
+ eq toListS(C, B)  = sort(C, toList(B)) .   
  *** defined for convenience (and to satisfy th STRICT-WEAK-ORDER+)
  op lt : Nat Pbag Pbag -> Bool . *** maps to the lexicographic orders defined on lists of (comparable) pairs
  eq lt(C, B , B') = lex(C, toListS(C, B), toListS(C, B')) .

@@ -19,9 +19,8 @@ fmod PT-NET is
  
  vars S S' SP : Pset . 
  vars L L1 : Plist .
- vars W W' :  String .
+ vars W :  List{String} .
  var F :  Bool .
- 
  
  *** eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 
@@ -48,7 +47,8 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
 
  op places : Net -> Pset .
  eq places(N) = places(toSimpleNet(N)) .
- op places : Net String -> Pset .
+ *** gets out the places whose labels match the given suffix 
+ op places : Net List{String} -> Pset .
  eq places(N, W) = places(toSimpleNet(N), W) .
 
  op placeList : Net -> Plist . *** returns the sorted list of places of a net
@@ -96,17 +96,16 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $places : Snet Pset -> Pset . 
  eq $places(emptySnet, S) = S . 
  eq $places(Q U Sn, S) = $places(Sn, S U places(Q)) .
- *** set of places with a given label
- op places : Snet String -> Pset .
+ *** set of places whose label's suffix matches the given one
+ op places : Snet List{String} -> Pset .
  eq places(Sn, W) = $places(Sn, W, emptyPset) .  
- op $places : Snet String Pset -> Pset . 
+ op $places : Snet List{String} Pset -> Pset . 
  eq $places(emptySnet, W, S) = S . 
- eq $places(Q U Sn, W, S) = $places(Sn, W, S U places(Q, W)) .
+ eq $places(Q U Sn, W, S) = $places(Sn, W, S U places(W, Q)) . *** places in Imatrix has the args in reverse order to avoid looping
  *** list of places of the (simple) net
  op placeList : Snet -> Plist . 
  eq placeList(Sn) = $makePlist(places(Sn),emptyPlist) .
- op placeList : Snet String -> Plist . 
- eq placeList(Sn, W) = $makePlist(places(Sn, W),emptyPlist) .
+ 
 
  *** add a new label to a simple-net's places
  op addLab : Snet ModLab -> Snet . 
