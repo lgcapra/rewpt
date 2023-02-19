@@ -11,7 +11,7 @@ fmod PT-NET is
 
  vars  N N'  : Net .
  vars T T' : Tran .
- vars P P' : Place .
+ vars P P' P'' : Place .
  vars Y J  : Nat .
  vars K K' : NzNat .
  vars I O H B : Pbag .
@@ -63,21 +63,28 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $makeTlist : Net Tlist -> Tlist . 
  eq $makeTlist(emptyN, TL) = sort(TL) . 
  eq $makeTlist(T |-> Q ; N, TL) = $makeTlist(N, T TL) . 
-
- op replace : Net Place Place -> Net .  *** replace the first places with the 2nd one in a net
- eq replace(T |-> Q ; N, P, P') = T |-> replace(Q, P, P') ; replace(N, P, P') .
- eq replace(emptyN, P, P') = emptyN .
- 
+  *** replace the first places with the 2nd one in a net
+ op replace : Net Place Place -> Net . 
+ eq replace(N, P, P') = $replace(N, emptyN, P, P') .
+ op $replace : Net Net Place Place  -> Net .
+ eq $replace(emptyN, N, P, P') = N .
+ eq $replace((T |-> Q ; N'), N, P, P') = $replace(N', (T |-> replace(Q, P, P') ; N), P, P') .
  *** add a new label to the net's places (and transitions, only to avoid "duplicated" transitions)
  var Lab : ModLab .
- op addLab : ImatrixT ModLab -> ImatrixT . 
- eq addLab(T |-> Q, Lab) = addLab(T, Lab) |-> addLab(Q, Lab) .
  op addLab : Net ModLab -> Net . 
  eq addLab(N, Lab) = $addLab(N, emptyN, Lab) .
  op $addLab : Net Net ModLab -> Net .
  eq $addLab(emptyN, N, Lab) = N .
- var TQ : ImatrixT .
- eq $addLab(TQ ; N', N, Lab) = $addLab(N', addLab(TQ, Lab) ; N, Lab) .
+ eq $addLab((T |-> Q ; N'), N, Lab) = $addLab(N', (addLab(T, Lab) |-> addLab(Q, Lab) ; N), Lab) .
+ *** merge two places in a fresh new one (builds on replace)
+ op merge : Net Place Place Place  -> [Net] .
+ *** eq merge(N, P, P', P'') = $merge(N, emptyN, P, P', P'') .
+ *** op $merge : Net Net Place Place Place -> [Net] .
+ *** eq $merge(emptyN, N, P, P', P'') = N .
+ *** eq $merge((T |-> Q ; N'), N, P, P', P'') = $merge(N', (T |-> merge(Q, P, P', P'') ; N), P, P', P'') .
+ eq merge(N, P, P', P'') = replace(replace(N, P, P''), P', P'')  .
+
+ 
  
  *** simple net representation uniquely based on local inc. matrices
  vars Sn Sn' : Snet .
@@ -113,6 +120,8 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $addLab : Snet Snet ModLab -> Snet .
  eq $addLab(emptySnet, Sn, Lab) = Sn .
  eq $addLab(Q U Sn', Sn, Lab) = $addLab(Sn', addLab(Q, Lab) U Sn, Lab) .
+ *** merge two places into a fresh new one (builds on BAG.merge) 
+ op merge : Snet Place Place Place  -> [Snet] .
  
 endfm
 

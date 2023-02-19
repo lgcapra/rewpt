@@ -4,7 +4,7 @@ in PT-SYS
 fmod NET-OP is
  pr PT-SYS .  
  protecting CONVERSION .
- vars P P' : Place .
+ vars P P' P'' : Place .
  vars N N' : Net .
  vars S S' : Pbag .
  var Sys Sys' : System .
@@ -13,19 +13,12 @@ fmod NET-OP is
  var I : Nat .
  vars K K' : NzNat .
  var W : String .
- *** juxtapose two systems, by merging identical places (whose markings are summed up)
+ *** juxtapose two systems, by implicitly merging identical places (if any) by summing up their whose markings
  op join : System System -> [System] [assoc comm] . *** we use a kind because of possible duplicate keys (transitions)
  eq join(N S, N' S') = (N ; N') S + S' .
  *** simple system version
  op join : SimpleSys SimpleSys -> SimpleSys [assoc comm] . *** safe
  eq join(Sn S, Sn' S') = (Sn U Sn') S + S' .
- *** juxtapose two systems: identical places are merged if their marking is the same, in that case it is retained
- op joinP : System System -> [System] [assoc comm] . *** again, the range is a kind (due to possible duplicates and the reason above)
- eq joinP(N S, N' S') = (N ; N') join(S, S') . 
- *** simple system version
- op joinP : SimpleSys SimpleSys -> SimpleSys [assoc comm] .
- eq joinP(Sn S, Sn' S') = (Sn U Sn') join(S, S') . 
-
  *** "symmetric" juxtapostion: creates K (disjoint) replica of a system each one with suitably added labels denoting the "nesting" level
  op replica  : System NzNat String -> System . 
  eq replica(Sys, 1, W) = Sys . *** does nothing
@@ -49,13 +42,10 @@ ceq replace(N S, P, P') = replace(N, P, P') replace(S, P, P') if P =/= P' .
  eq replace(Ssys, P, P) = Ssys .
 ceq replace(Sn S, P, P') = replace(Sn, P, P') replace(S, P, P') if P =/= P' .
  
- *** merge two places of a PT system giving the merged place a new label (the merge result holds the sum of the places' markings) .     
- *** does nothing if either place doesn't exist
+ *** merge two places of a PT system into a fresh new one (builds on BAG.merge) .     
  var L : ModLab .
- op merge : System Place Place ModLab  -> System .
-*** ceq pmerge(N S, P, P', L) = replace(replace(N, P, p(L)), P', p(L)) replace(set(S, P', 0), P, p(L)) if P =/= P' /\ S[P] == S[P'] .
- eq merge(Sys, P, P, L) = Sys .
+ op merge : System Place Place Place  -> [System] .
  *** merge version operating on two systems (builds on the previous merge)
- op merge : System Place System Place ModLab  -> [System] .
- eq merge(Sys, P, Sys', P', L) = merge(join(Sys, Sys'), P, P', L) .
+ op merge : System Place System Place Place  -> [System] .
+ eq merge(Sys, P, Sys', P', P'') = merge(join(Sys, Sys'), P, P', P'') .
 endfm

@@ -8,7 +8,7 @@ fmod IMATRIX is
  op [_,_,_] : Pbag Pbag Pbag -> Imatrix [ctor] .
  
  vars X Y Z X' Y' Z' : Pbag .
- vars P P' : Place .
+ vars P P' P'' : Place .
  vars N N' C1 C2 : Nat .
  vars K K' : NzNat .
  vars Q Q' : Imatrix .
@@ -54,6 +54,9 @@ fmod IMATRIX is
  *** add a new label to a matrix' elements
  op addLab : Imatrix ModLab -> Imatrix .
  eq addLab([X,Y,Z], L) = [addLab(X, L), addLab(Y, L), addLab(Z, L)] .
+ *** merge two places into a fresh new one (builds on BAG.merge) 
+ op merge : Imatrix Place Place Place  -> [Imatrix] .
+ eq merge([X,Y,Z], P, P', P'') = [merge(X, P, P', P''), merge(Y, P, P', P''), merge(Z, P, P', P'')] .
  
 endfm
 

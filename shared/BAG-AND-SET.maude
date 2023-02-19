@@ -20,7 +20,10 @@ fmod BAG-AND-SET{X :: TRIV} is
  eq $support(nil, S) = S . 
  eq $support(N . X + B, S) = $support(B, S U X) .
  
- op asbag : Set{X} -> Bag{X} . *** to define
+ *** bulk remove (build on set op)
+ *** op remove :  Bag{X} Set{X} -> Bag{X} .
+ *** eq remove(B, X) = set(B, X, 0) . 
+ 
 endfm
 
 *** parameterized trivial view to BAG{X}

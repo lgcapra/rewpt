@@ -1,5 +1,3 @@
-in SET+
-
 fmod BAG{X :: TRIV} is
  protecting INT .
  protecting EXT-BOOL .
@@ -79,16 +77,15 @@ ceq (N . X + B) / M = B / M if N quo M == 0 .
  eq B eqw B = true .
  eq N . X + B eqw N . Y + B' = B eqw B' .
  eq B eqw B' = false [owise] . 
-*** join two bags: elements present in both must have equal multeplicity, otherwise the result in undefined
- op join : Bag{X} Bag{X} -> [Bag{X}] [assoc comm id: nil] . 
- vars NeB NeB' : NeBag{X} .
- eq join(NeB, NeB) = NeB .
-ceq join(N . X + B, NeB) = N . X + join(B, NeB)  if NeB[X] == 0 .
-*** merges two elements (the 2nd and 3rd args) by giving the merge outcome (the 4th arg) the sum of multiplicities
-*** does nothing if the 4th arg does already exist or neither of the other two do or they coincide
- op merge : Bag{X} X$Elt X$Elt X$Elt -> Bag{X}
-ceq merge(B, X, Y, Z) = B if X == Y or-else B[Z] =/= 0 .***  or-else (B[X] == 0 and-then B[Y] == 0) .
-ceq merge(B, X, Y, Z) = set(set(B',X, 0), Y, 0) if B' := set(B, Z, B[X] + B[Y]) [owise] .
+
+**** operators used for net algebra -- may be better to move in BAGP
+ *** creates a new el as the sum of two existing ones (if the fresh element is not already present)
+ op sumup : Bag{X} X$Elt X$Elt X$Elt -> [Bag{X}] .
+ceq sumup(B, X, Y, Z) = B + (N + M) . Z if B[Z] == 0 /\ B' + N . X + M . Y := B .
+ *** merges two elements (the 2nd and 3rd args) into a fresh new one (the 4th arg); sumup then remove
+ op merge : Bag{X} X$Elt X$Elt X$Elt -> [Bag{X}] .
+ceq merge(B, X, Y, Z) = B' + (N + M) . Z if B[Z] == 0 /\ B' + N . X + M . Y := B .
+
 endfm
 
 *** parameterized trivial view to BAG{X}
