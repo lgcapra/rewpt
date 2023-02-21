@@ -5,6 +5,7 @@ fmod NET-OP is
  pr PT-SYS .  
  protecting CONVERSION .
  vars P P' P'' : Place .
+ vars T T' T'' : Tran .
  vars N N' : Net .
  vars S S' : Pbag .
  var Sys Sys' : System .
@@ -13,7 +14,7 @@ fmod NET-OP is
  var I : Nat .
  vars K K' : NzNat .
  var W : String .
- *** juxtapose two systems, by implicitly merging identical places (if any) by summing up their whose markings
+ *** juxtapose two systems, by implicitly merging identical places (if any) by summing up their markings
  op join : System System -> [System] [assoc comm] . *** we use a kind because of possible duplicate keys (transitions)
  eq join(N S, N' S') = (N ; N') S + S' .
  *** simple system version
@@ -21,7 +22,7 @@ fmod NET-OP is
  eq join(Sn S, Sn' S') = (Sn U Sn') S + S' .
  *** "symmetric" juxtapostion: creates K (disjoint) replica of a system each one with suitably added labels denoting the "nesting" level
  op replica  : System NzNat String -> System . 
- eq replica(Sys, 1, W) = Sys . *** does nothing
+ eq replica(Sys, 1, W) = Sys . 
 ceq replica(Sys, K, W) = $replica(Sys, K - 1, W, addLab(Sys, < W ; K >)) if K > 1 .
  op $replica  : System Nat String System -> System .
  eq $replica(Sys, 0, W, Sys') = Sys' .
@@ -33,19 +34,36 @@ ceq replica(Ssys, K, W) = $replica(Ssys, K - 1, W, addLab(Ssys, < W ; K >)) if K
  op $replica  : SimpleSys Nat String SimpleSys -> SimpleSys .
  eq $replica(Ssys, 0, W, Ssys') = Ssys' .
  eq $replica(Ssys, K, W, Ssys') = $replica(Ssys, K - 1, W, join(Ssys', addLab(Ssys, < W ; K >))) .
- 
- *** replaces the specified (1st) place with the 2nd one in a system
- op replace : System Place Place -> System .
- eq replace(Sys, P, P) = Sys .
-ceq replace(N S, P, P') = replace(N, P, P') replace(S, P, P') if P =/= P' .
- op replace : SimpleSys Place Place -> SimpleSys .
- eq replace(Ssys, P, P) = Ssys .
-ceq replace(Sn S, P, P') = replace(Sn, P, P') replace(S, P, P') if P =/= P' .
- 
- *** merge two places of a PT system into a fresh new one (builds on BAG.merge) .     
- var L : ModLab .
+ *** merge two places of a marking into a fresh new one (builds on rename) -- not defined if the third place does exist
+ op merge : Pbag Place Place Place  -> [Pbag] .
+ceq merge(S, P, P', P'') = rename(S', P', P'') if S[P''] == 0 /\ S' := rename(S, P, P'') .
+ *** merge two places of a net into a fresh new one (builds on rename) -- not defined if the third place does exist
+ op merge : Net Place Place Place  -> [Net] .
+ceq merge(N, P, P', P'') = rename(N', P', P'') if in(N, P'') == false /\ N' := rename(N, P, P'') .
+ op merge : Snet Place Place Place  -> [Snet] .
+ceq merge(Sn, P, P', P'') = rename(Sn', P', P'') if in(Sn, P'') == false /\ Sn' := rename(Sn, P, P'') .
+ *** merge two places of a PT system into a fresh new one -- not defined if the third place does exist .     
  op merge : System Place Place Place  -> [System] .
- *** merge version operating on two systems (builds on the previous merge)
+ eq merge(N S, P, P', P'') = merge(N, P, P', P'') merge(S, P, P', P'') .
+ op merge : SimpleSys Place Place Place  -> [SimpleSys] .
+ eq merge(Sn S, P, P', P'') = merge(Sn, P, P', P'') merge(S, P, P', P'') .
+ *** merge version operating on two PT (builds on join and the previous merge)
+ op merge : Net Place Net Place Place  -> [Net] .
+ eq merge(N, P, N', P', P'') = merge(N ; N', P, P', P'') .
+ op merge : Snet Place Snet Place Place  -> [Snet] .
+ eq merge(Sn, P, Sn', P', P'') = merge(Sn U Sn', P, P', P'') .
+ *** merge version operating on two systems
  op merge : System Place System Place Place  -> [System] .
  eq merge(Sys, P, Sys', P', P'') = merge(join(Sys, Sys'), P, P', P'') .
+ op merge : SimpleSys Place SimpleSys Place Place  -> [SimpleSys] .
+ eq merge(Ssys, P, Ssys', P', P'') = merge(join(Ssys, Ssys'), P, P', P'') .
+ 
+ *** merge two transitions of a net (behaves exactly as place merge)
+ vars Q Q' : Imatrix .
+ op merge : Net Tran Tran Tran  -> [Net] .
+ceq merge((T |-> Q ; T' |-> Q' ; N), T, T', T'') = (T'' |-> Q + Q' ; N) if T'' =/= T and-then T'' =/= T' and-then N[T''] == undefined .
+*** version for simple nets
+ op merge : Snet Imatrix Imatrix  -> Snet .
+ eq merge(Sn U Q U Q', Q, Q') = Sn U Q + Q' . 
+ *** ...
 endfm

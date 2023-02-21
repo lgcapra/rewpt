@@ -11,19 +11,21 @@ fmod BAG-AND-SET{X :: TRIV} is
  var K : Nat .
  var X : X$Elt .
  var B : Bag{X} .
- var S : Set{X} .
-
+ vars S S' : Set{X} .
+ *** bag's support
  op support : Bag{X} -> Set{X} .
  op support : NeBag{X} -> NeSet{X} .
  eq support(B) = $support(B, emptyS) .  
  op $support : Bag{X} Set{X} -> Set{X} . 
  eq $support(nil, S) = S . 
  eq $support(N . X + B, S) = $support(B, S U X) .
- 
- *** bulk remove (build on set op)
- *** op remove :  Bag{X} Set{X} -> Bag{X} .
- *** eq remove(B, X) = set(B, X, 0) . 
- 
+ *** bulk remove (build on set)
+ op remove :  Bag{X} Set{X} -> Bag{X} .
+ eq remove(B, emptyS) = B .
+ eq remove(nil, Ne:NeSet{X}) = nil .
+ var NeB : NeBag{X} .
+ eq remove(NeB, X U S) = remove(set(NeB, X, 0), S) .  
+
 endfm
 
 *** parameterized trivial view to BAG{X}

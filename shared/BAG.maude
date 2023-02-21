@@ -78,14 +78,6 @@ ceq (N . X + B) / M = B / M if N quo M == 0 .
  eq N . X + B eqw N . Y + B' = B eqw B' .
  eq B eqw B' = false [owise] . 
 
-**** operators used for net algebra -- may be better to move in BAGP
- *** creates a new el as the sum of two existing ones (if the fresh element is not already present)
- op sumup : Bag{X} X$Elt X$Elt X$Elt -> [Bag{X}] .
-ceq sumup(B, X, Y, Z) = B + (N + M) . Z if B[Z] == 0 /\ B' + N . X + M . Y := B .
- *** merges two elements (the 2nd and 3rd args) into a fresh new one (the 4th arg); sumup then remove
- op merge : Bag{X} X$Elt X$Elt X$Elt -> [Bag{X}] .
-ceq merge(B, X, Y, Z) = B' + (N + M) . Z if B[Z] == 0 /\ B' + N . X + M . Y := B .
-
 endfm
 
 *** parameterized trivial view to BAG{X}

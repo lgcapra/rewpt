@@ -48,16 +48,15 @@ fmod IMATRIX is
  op swap : Imatrix Place Place -> Imatrix .
  eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
 
- op replace : Imatrix Place Place -> Imatrix .
- eq replace([X,Y,Z], P, P') = [replace(X,P,P'),replace(Y,P,P'),replace(Z,P,P')] .
+ op rename : Imatrix Place Place -> Imatrix .
+ eq rename([X,Y,Z], P, P') = [rename(X,P,P'),rename(Y,P,P'),rename(Z,P,P')] .
  
- *** add a new label to a matrix' elements
+ *** net-algebra ops: add a new label to a matrix' elements
  op addLab : Imatrix ModLab -> Imatrix .
  eq addLab([X,Y,Z], L) = [addLab(X, L), addLab(Y, L), addLab(Z, L)] .
- *** merge two places into a fresh new one (builds on BAG.merge) 
- op merge : Imatrix Place Place Place  -> [Imatrix] .
- eq merge([X,Y,Z], P, P', P'') = [merge(X, P, P', P''), merge(Y, P, P', P''), merge(Z, P, P', P'')] .
- 
+ *** sums up incidence matrices
+ op _+_  : Imatrix Imatrix -> Imatrix [prec 41 assoc comm] .
+ eq [X,Y,Z] + [X',Y',Z'] = [X' + X, Y' + Y, Z' + Z] . 
 endfm
 
 view Imatrix from TRIV to IMATRIX is 

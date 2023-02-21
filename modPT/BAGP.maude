@@ -33,7 +33,7 @@ fmod BAGP is
                            sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
  pr LIST-NAT-PLACE .
  
- vars P P' $P : Place . 
+ vars P P' P'' : Place . 
  vars K K' : NzNat .
  vars B B' : Pbag .
  vars L L' L'' : ModLab .
@@ -54,17 +54,19 @@ fmod BAGP is
  op $support : Pbag List{String} Pset -> Pset . 
 ceq $support(K . P + B, W, S) = $support(B, W, S U P) if hasSuffix(P, W) .
  eq $support(B, W, S) = S [owise] .
- *** replaces the first place with the second one
- op replace : Pbag Place Place -> Pbag .
- eq replace(K . P + B, P, P') = K . P' + B .
- eq replace(B, P, P') = B [owise] .
+ *** -- operators used for net algebra -- 
+ *** renames the first place as the second one; note that if the latter does exist, the effect is to merge the 1st into it
+ op rename : Pbag Place Place -> Pbag .
+ eq rename(K . P + B, P, P') = K . P' + B .
+ eq rename(B, P, P') = B [owise] .
+ *** creates a third place as the union of two (if the third place does not exist)
+ op sumup : Pbag Place Place Place -> [Pbag] .
+ceq sumup(B, P, P', P'') = B + (B[P] + B[P']) . P'' if B[P''] == 0  .
  *** swaps two places
  op swap : Pbag Place Place -> Pbag .  
  eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
  eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
  eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
- *** eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P')  . *** slightly less efficient
- *** eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P')  .
  eq swap(B, P, P')  = B [owise] .
  *** builds an (un)ordered list of pairs < weight ; el > out of a bag
  op toList  : Pbag -> List{Nat,Place} .     
