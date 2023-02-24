@@ -2,23 +2,23 @@ in PT-EMU
 
 fmod PT-FMS is
  protecting NET-OP .
- ops net pline line fault faultyline net' symnet symnet2  : -> Net .
- ops snet spline sline sfault sfaultyline  snet' ssymnet ssymnet2 : -> Snet .
- ops sys0 2faultylines  : -> System .
- ops 2sfaultylines : -> SimpleSys .
+ ops net pline line fault net' symnet symnet2  : -> Net .
+ ops snet spline sline sfault   snet' ssymnet ssymnet2 : -> Snet .
+ ops sys0 faultyline 2faultylines  : -> System .
+ ops sfaultyline 2sfaultylines : -> SimpleSys .
  ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag .
  op M   : -> NzNat . *** MS model's parameter
  eq M = 4 . 
  ops sys0 sys sys2 sys2' sys2'' sys2new sys2m1 sys2m2 sys4 : -> System .
 
- eq sline =  [1 . p(< "line" ; 1 >) , 1 . p(< "ass" ; 1 >), 1 . p(< "faulty" ; 1 >) ] .
+ eq sline =  [1 . p(< "in" ; 1 >) , 1 . p(< "out" ; 1 >), 1 . p(< "faulty" ; 1 >) ] .
  eq line = t(< "line" ; 1 >) |-> sline .
  eq sfault =  [1 . p(< "focc" ; 1 >) , 1 . p(< "faulty" ; 1 >), nilP ] .
  eq fault = t(< "fault" ; 1 >) |-> sfault .
- eq sfaultyline = sline U sfault .
- eq faultyline =  line ; fault .
- eq 2faultylines = replica(faultyline  1 . p(< "focc" ; 1 >) , 2, "||") .
- eq 2sfaultylines = replica(sfaultyline  1 . p(< "focc" ; 1 >) , 2, "||") .
+ eq sfaultyline = (sline U sfault)  1 . p(< "focc" ; 1 >) .
+ eq faultyline =  (line ; fault)  1 . p(< "focc" ; 1 >).
+ eq 2faultylines = replica(faultyline , 2, "line") .
+ eq 2sfaultylines = replica(sfaultyline, 2, "line") .
  *** only the product line structure (without faults)
  *** eq pline = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
  ***          nilP ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ; t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] .

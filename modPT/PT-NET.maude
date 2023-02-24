@@ -45,7 +45,7 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  *** gets out the places of the net
  op places : Net -> Pset .
  eq places(N) = places(toSimpleNet(N)) .
- *** gets out the places whose labels match the given suffix 
+ *** gets out the places whose labels match the given prefix 
  op places : Net List{String} -> Pset .
  eq places(N, W) = places(toSimpleNet(N), W) .
  *** returns the sorted list of places of a netop placeList : Net -> Plist .
@@ -79,7 +79,15 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $addLab : Net Net ModLab -> Net .
  eq $addLab(emptyN, N, Lab) = N .
  eq $addLab((T |-> Q ; N'), N, Lab) = $addLab(N', (addLab(T, Lab) |-> addLab(Q, Lab) ; N), Lab) .
- 
+ *** remove some places
+ var X : NePset .
+ op remove :  Net Pset -> Net .
+ eq remove(N, emptyPset) = N .
+ eq remove(N, X) = $remove(N, emptyN, X) .
+ op $remove : Net Net NePset -> Net .
+ eq $remove(emptyN, N, X) = N .
+ eq $remove(T |-> Q ; N', N, X) = $remove(N', T |-> remove(Q, X) ; N, X).
+  
  *** simple net representation uniquely based on local inc. matrices (these operators are duplicates)
  vars Sn Sn' : Snet .
  op toSimpleNet : Net -> Snet .
@@ -113,7 +121,7 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq $rename(emptySn, Sn, P, P') = Sn .
  eq $rename(Q U Sn', Sn, P, P') = $rename(Sn', rename(Q, P, P') U Sn, P, P') .
  *** rename a transition with another in a net
- 
+
  *** add a new label to a simple-net's places
  op addLab : Snet ModLab -> Snet . 
  eq addLab(Sn, Lab) = $addLab(Sn, emptySn, Lab) .

@@ -84,6 +84,10 @@ ceq rename(Sn S, P, P') = rename(Sn, P, P') rename(S, P, P') if P =/= P' .
  *** rename a transition
  op rename : System Tran Tran -> [System] .
  eq rename(N S, T, T') = rename(N, T, T') S .
+ *** remove some places
+ op remove :  System Pset -> [System] .
+ var X : Pset .
+ eq remove(N S, X) = remove(N, X) remove(S, X) .
 endfm
 
 *** trivial view to a PT-SYS

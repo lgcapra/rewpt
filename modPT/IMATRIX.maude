@@ -40,8 +40,8 @@ fmod IMATRIX is
 
  op places : Imatrix -> Pset .
  eq places([X,Y,Z]) = support(X) U support(Y) U support(Z) .
- *** set of places whose label's suffix matches the given one
  var W : List{String} .
+ *** set of places whose label's prefix matches the given one
  op places : List{String} Imatrix -> Pset .
  eq places(W, [X,Y,Z]) = support(X, W) U support(Y, W) U support(Z, W) .
  
@@ -50,7 +50,11 @@ fmod IMATRIX is
 
  op rename : Imatrix Place Place -> Imatrix .
  eq rename([X,Y,Z], P, P') = [rename(X,P,P'),rename(Y,P,P'),rename(Z,P,P')] .
- 
+
+ var S : Pset .
+ op remove :  Imatrix Pset -> Imatrix .
+ eq remove([X,Y,Z], S) = [remove(X, S),remove(Y, S),remove(Z, S)] .
+
  *** net-algebra ops: add a new label to a matrix' elements
  op addLab : Imatrix ModLab -> Imatrix .
  eq addLab([X,Y,Z], L) = [addLab(X, L), addLab(Y, L), addLab(Z, L)] .

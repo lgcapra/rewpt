@@ -48,11 +48,11 @@ fmod BAGP is
  
  *** I seguenti operatori sono stati adattati dalla definizione originale, alcuni potrebbero non servire più
  var W : List{String} .
- *** gives the set of places whose labes match a given suffix
+ *** gives the set of places whose labes match a given prefix
  op support : Pbag List{String} -> Pset . 
  eq support(B, W) = $support(B, W, emptyPset) .  
  op $support : Pbag List{String} Pset -> Pset . 
-ceq $support(K . P + B, W, S) = $support(B, W, S U P) if hasSuffix(P, W) .
+ceq $support(K . P + B, W, S) = $support(B, W, S U P) if hasPrefix(P, W) .
  eq $support(B, W, S) = S [owise] .
  *** -- operators used for net algebra -- 
  *** renames the first place as the second one; note that if the latter does exist, the effect is to merge the 1st into it
