@@ -67,6 +67,13 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $rename : Net Net Place Place  -> Net .
  eq $rename(emptyN, N, P, P') = N .
  eq $rename((T |-> Q ; N'), N, P, P') = $rename(N', (T |-> rename(Q, P, P') ; N), P, P') .
+ *** merge two places 
+ op merge : Net Place Place Place -> Net . 
+ eq merge(N, P, P',P'') = $merge(N, emptyN, P, P',P'') .
+ op $merge : Net Net Place Place Place  -> Net .
+ eq $merge(emptyN, N, P, P',P'') = N .
+ eq $merge((T |-> Q ; N'), N, P, P',P'') = $merge(N', (T |-> merge(Q, P, P',P'') ; N), P, P',P'') .
+ 
  *** rename a transition
  op rename : Net Tran Tran -> Net .
  eq rename((T |-> Q ; N), T, T') = T' |-> Q ; N .

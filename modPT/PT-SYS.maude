@@ -9,7 +9,7 @@ fmod PT-SYS is
  *** op __ : Snet Pbag -> [SimpleSys] [ctor] .
  vars N N' : Net .
  vars T T' : Tran .
- vars P P' : Place .
+ vars P P' P'' : Place .
  vars I O H S S' : Pbag .
  vars Q Q' : Imatrix .
  vars K K' : NzNat .
@@ -77,6 +77,9 @@ ceq dead((Q U Sn) S) = false if enabled((Q U Sn) S, Q) .
  op rename : System Place Place -> System .
  eq rename(Sys, P, P) = Sys .
 ceq rename(N S, P, P') = rename(N, P, P') rename(S, P, P') if P =/= P' .
+ op merge : System Place Place Place -> [System] .
+ eq merge(N S, P, P', P'') = merge(N, P, P', P'') merge(S, P, P', P'') .
+
  var Ssys : System .
  op rename : SimpleSys Place Place -> SimpleSys .
  eq rename(Ssys, P, P) = Ssys .

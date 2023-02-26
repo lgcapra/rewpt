@@ -35,8 +35,8 @@ ceq replica(Ssys, K, W) = $replica(Ssys, K - 1, W, addLab(Ssys, < W ; K >)) if K
  eq $replica(Ssys, 0, W, Ssys') = Ssys' .
  eq $replica(Ssys, K, W, Ssys') = $replica(Ssys, K - 1, W, join(Ssys', addLab(Ssys, < W ; K >))) .
  *** merge two places of a marking into a fresh new one (builds on rename) -- not defined if the third place does exist
- op merge : Pbag Place Place Place  -> [Pbag] .
-ceq merge(B, P, P', P'') = rename(B', P', P'') if B[P''] == 0 /\ B' := rename(B, P, P'') .
+ *** op merge : Pbag Place Place Place  -> [Pbag] .
+**** ceq merge(B, P, P', P'') = rename(B', P', P'') if B[P''] == 0 /\ B' := rename(B, P, P'') .
  *** merge two places of a net into a fresh new one (builds on rename) -- not defined if the third place does exist
  op merge : Net Place Place Place  -> [Net] .
 ceq merge(N, P, P', P'') = rename(N', P', P'') if in(N, P'') == false /\ N' := rename(N, P, P'') .

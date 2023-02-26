@@ -60,8 +60,8 @@ ceq $support(K . P + B, W, S) = $support(B, W, S U P) if hasPrefix(P, W) .
  eq rename(K . P + B, P, P') = K . P' + B .
  eq rename(B, P, P') = B [owise] .
  *** creates a third place as the union of two (if the third place does not exist)
- op sumup : Pbag Place Place Place -> [Pbag] .
-ceq sumup(B, P, P', P'') = B + (B[P] + B[P']) . P'' if B[P''] == 0  .
+ op merge : Pbag Place Place Place -> [Pbag] .
+ceq merge(B, P, P', P'') = B + (B[P] + B[P']) . P'' if B[P''] == 0  .
  *** swaps two places
  op swap : Pbag Place Place -> Pbag .  
  eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .

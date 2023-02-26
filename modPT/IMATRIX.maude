@@ -51,6 +51,9 @@ fmod IMATRIX is
  op rename : Imatrix Place Place -> Imatrix .
  eq rename([X,Y,Z], P, P') = [rename(X,P,P'),rename(Y,P,P'),rename(Z,P,P')] .
 
+ op merge : Imatrix Place Place Place -> Imatrix .
+ eq merge([X,Y,Z], P, P', P'') = [merge(X,P,P', P''),merge(Y,P,P', P''),merge(Z,P,P', P'')] .
+
  var S : Pset .
  op remove :  Imatrix Pset -> Imatrix .
  eq remove([X,Y,Z], S) = [remove(X, S),remove(Y, S),remove(Z, S)] .
