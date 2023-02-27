@@ -72,25 +72,24 @@ ceq dead((Q U Sn) S) = false if enabled((Q U Sn) S, Q) .
  eq addLab(N S, Lab) = addLab(N, Lab) addLab(S, Lab) .
  op addLab : SimpleSys ModLab -> SimpleSys .
  eq addLab(Sn S, Lab) = addLab(Sn, Lab) addLab(S, Lab) .
-*** renames the specified place as another 
- var Sys : System .
- op rename : System Place Place -> System .
- eq rename(Sys, P, P) = Sys .
-ceq rename(N S, P, P') = rename(N, P, P') rename(S, P, P') if P =/= P' .
- op merge : System Place Place Place -> [System] .
- eq merge(N S, P, P', P'') = merge(N, P, P', P'') merge(S, P, P', P'') .
+ 
+ var X : Pset .
+ *** remove some places
+ op remove :  System Pset -> [System] .
+ eq remove(N S, X) = remove(N, X) remove(S, X) .
+ op remove :  SimpleSys Pset -> SimpleSys .
+ eq remove(Sn S, X) = remove(Sn, X) remove(S, X) .
 
- var Ssys : System .
- op rename : SimpleSys Place Place -> SimpleSys .
- eq rename(Ssys, P, P) = Ssys .
-ceq rename(Sn S, P, P') = rename(Sn, P, P') rename(S, P, P') if P =/= P' .
+ *** overloaded
+ op makecopy : System Place Place Place -> [System] .
+ eq makecopy(N S, P, P', P'') = makecopy(N, P, P', P'') makecopy(S, P, P', P'') .
+ op makecopy : SimpleSys Place Place Place -> [SimpleSys] .
+ eq makecopy(Sn S, P, P', P'') = makecopy(Sn, P, P', P'') makecopy(S, P, P', P'') .
+ 
  *** rename a transition
  op rename : System Tran Tran -> [System] .
  eq rename(N S, T, T') = rename(N, T, T') S .
- *** remove some places
- op remove :  System Pset -> [System] .
- var X : Pset .
- eq remove(N S, X) = remove(N, X) remove(S, X) .
+
 endfm
 
 *** trivial view to a PT-SYS

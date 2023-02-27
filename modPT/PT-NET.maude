@@ -61,24 +61,21 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $makeTlist : Net Tlist -> Tlist . 
  eq $makeTlist(emptyN, TL) = sort(TL) . 
  eq $makeTlist(T |-> Q ; N, TL) = $makeTlist(N, T TL) . 
- *** rename a place as another
- op rename : Net Place Place -> Net . 
- eq rename(N, P, P') = $rename(N, emptyN, P, P') .
- op $rename : Net Net Place Place  -> Net .
- eq $rename(emptyN, N, P, P') = N .
- eq $rename((T |-> Q ; N'), N, P, P') = $rename(N', (T |-> rename(Q, P, P') ; N), P, P') .
- *** merge two places 
- op merge : Net Place Place Place -> Net . 
- eq merge(N, P, P',P'') = $merge(N, emptyN, P, P',P'') .
- op $merge : Net Net Place Place Place  -> Net .
- eq $merge(emptyN, N, P, P',P'') = N .
- eq $merge((T |-> Q ; N'), N, P, P',P'') = $merge(N', (T |-> merge(Q, P, P',P'') ; N), P, P',P'') .
  
- *** rename a transition
- op rename : Net Tran Tran -> Net .
- eq rename((T |-> Q ; N), T, T') = T' |-> Q ; N .
- eq rename(N, T, T') = N [owise] .  
-
+ var X : NePset .
+ *** remove places
+ op remove :  Net Pset -> Net .
+ eq remove(N, emptyPset) = N .
+ eq remove(N, X) = $remove(N, emptyN, X) .
+ op $remove : Net Net NePset -> Net .
+ eq $remove(emptyN, N, X) = N .
+ eq $remove(T |-> Q ; N', N, X) = $remove(N', T |-> remove(Q, X) ; N, X).
+ *** overloaded 
+ op makecopy : Net Place Place Place -> Net . 
+ eq makecopy(N, P, P',P'') = $makecopy(N, emptyN, P, P',P'') .
+ op $makecopy : Net Net Place Place Place  -> Net .
+ eq $makecopy(emptyN, N, P, P',P'') = N .
+ eq $makecopy((T |-> Q ; N'), N, P, P',P'') = $makecopy(N', (T |-> makecopy(Q, P, P',P'') ; N), P, P',P'') .
  *** add a new label to the net's places (and transitions, only to avoid "duplicated" transitions)
  var Lab : ModLab .
  op addLab : Net ModLab -> Net . 
@@ -86,14 +83,10 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $addLab : Net Net ModLab -> Net .
  eq $addLab(emptyN, N, Lab) = N .
  eq $addLab((T |-> Q ; N'), N, Lab) = $addLab(N', (addLab(T, Lab) |-> addLab(Q, Lab) ; N), Lab) .
- *** remove some places
- var X : NePset .
- op remove :  Net Pset -> Net .
- eq remove(N, emptyPset) = N .
- eq remove(N, X) = $remove(N, emptyN, X) .
- op $remove : Net Net NePset -> Net .
- eq $remove(emptyN, N, X) = N .
- eq $remove(T |-> Q ; N', N, X) = $remove(N', T |-> remove(Q, X) ; N, X).
+ *** rename a transition (helpful?)
+ op rename : Net Tran Tran -> Net .
+ eq rename((T |-> Q ; N), T, T') = T' |-> Q ; N .
+ eq rename(N, T, T') = N [owise] .  
   
  *** simple net representation uniquely based on local inc. matrices (these operators are duplicates)
  vars Sn Sn' : Snet .
@@ -121,20 +114,20 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  *** list of places of the (simple) net
  op placeList : Snet -> Plist . 
  eq placeList(Sn) = $makePlist(places(Sn),emptyPlist) .
- *** rename a place as another one in a net
- op rename : Snet Place Place -> Snet . 
- eq rename(Sn, P, P') = $rename(Sn, emptySn, P, P') .
- op $rename : Snet Snet Place Place  -> Snet .
- eq $rename(emptySn, Sn, P, P') = Sn .
- eq $rename(Q U Sn', Sn, P, P') = $rename(Sn', rename(Q, P, P') U Sn, P, P') .
- *** rename a transition with another in a net
-
+ 
  *** add a new label to a simple-net's places
  op addLab : Snet ModLab -> Snet . 
  eq addLab(Sn, Lab) = $addLab(Sn, emptySn, Lab) .
  op $addLab : Snet Snet ModLab -> Snet .
  eq $addLab(emptySn, Sn, Lab) = Sn .
  eq $addLab(Q U Sn', Sn, Lab) = $addLab(Sn', addLab(Q, Lab) U Sn, Lab) .
+ *** overloaded 
+ op makecopy : Snet Place Place Place -> Snet . 
+ eq makecopy(Sn, P, P',P'') = $makecopy(Sn, emptySn, P, P',P'') .
+ op $makecopy : Snet Snet Place Place Place  -> Snet .
+ eq $makecopy(emptySn, Sn, P, P',P'') = Sn .
+ eq $makecopy(Q U Sn', Sn, P, P',P'') = $makecopy(Sn', makecopy(Q, P, P',P'') U Sn, P, P',P'') .
+ 
 endfm
 
 *** trivial view to a PT-NET

@@ -33,7 +33,7 @@ fmod BAGP is
                            sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
  pr LIST-NAT-PLACE .
  
- vars P P' P'' : Place . 
+ vars P P' P'' P''' : Place . 
  vars K K' : NzNat .
  vars B B' : Pbag .
  vars L L' L'' : ModLab .
@@ -54,15 +54,7 @@ fmod BAGP is
  op $support : Pbag List{String} Pset -> Pset . 
 ceq $support(K . P + B, W, S) = $support(B, W, S U P) if hasPrefix(P, W) .
  eq $support(B, W, S) = S [owise] .
- *** -- operators used for net algebra -- 
- *** renames the first place as the second one; note that if the latter does exist, the effect is to merge the 1st into it
- op rename : Pbag Place Place -> Pbag .
- eq rename(K . P + B, P, P') = K . P' + B .
- eq rename(B, P, P') = B [owise] .
- *** creates a third place as the union of two (if the third place does not exist)
- op merge : Pbag Place Place Place -> [Pbag] .
-ceq merge(B, P, P', P'') = B + (B[P] + B[P']) . P'' if B[P''] == 0  .
- *** swaps two places
+  *** swaps two places
  op swap : Pbag Place Place -> Pbag .  
  eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
  eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
@@ -87,6 +79,12 @@ ceq merge(B, P, P', P'') = B + (B[P] + B[P']) . P'' if B[P''] == 0  .
  *** defined for convenience
  ops _<_  : Pbag Pbag -> Bool .
  eq B <  B' = lt(0, B, B') .
+
+ *** -- used for net algebra -- 
+ *** given two places creates a third one (if it does not exist) as a copy of either one of the two
+ op makecopy : Pbag Place Place Place -> [Pbag] .
+ceq makecopy(B, P, P', P'') = B + K . P'' if B' + K . P''' := B /\ (P == P''' or-else P' == P''') and-then B'[P''] == 0  .
+ceq makecopy(B, P, P', P'') = B if B[P''] == 0  [owise] .
 endfm
 
 

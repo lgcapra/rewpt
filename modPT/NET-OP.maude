@@ -34,42 +34,19 @@ ceq replica(Ssys, K, W) = $replica(Ssys, K - 1, W, addLab(Ssys, < W ; K >)) if K
  op $replica  : SimpleSys Nat String SimpleSys -> SimpleSys .
  eq $replica(Ssys, 0, W, Ssys') = Ssys' .
  eq $replica(Ssys, K, W, Ssys') = $replica(Ssys, K - 1, W, join(Ssys', addLab(Ssys, < W ; K >))) .
- *** merge two places of a marking into a fresh new one (builds on rename) -- not defined if the third place does exist
- *** op merge : Pbag Place Place Place  -> [Pbag] .
-**** ceq merge(B, P, P', P'') = rename(B', P', P'') if B[P''] == 0 /\ B' := rename(B, P, P'') .
- *** merge two places of a net into a fresh new one (builds on rename) -- not defined if the third place does exist
- op merge : Net Place Place Place  -> [Net] .
-ceq merge(N, P, P', P'') = rename(N', P', P'') if in(N, P'') == false /\ N' := rename(N, P, P'') .
- op merge : Snet Place Place Place  -> [Snet] .
-ceq merge(Sn, P, P', P'') = rename(Sn', P', P'') if in(Sn, P'') == false /\ Sn' := rename(Sn, P, P'') .
- *** merge two places of a PT system into a fresh new one -- not defined if the third place does exist .     
- op merge : System Place Place Place  -> [System] .
- eq merge(N B, P, P', P'') = merge(N, P, P', P'') merge(B, P, P', P'') .
- op merge : SimpleSys Place Place Place  -> [SimpleSys] .
- eq merge(Sn B, P, P', P'') = merge(Sn, P, P', P'') merge(B, P, P', P'') .
- *** merge version operating on two PT (builds on join and the previous merge)
- op merge : Net Place Net Place Place  -> [Net] .
- eq merge(N, P, N', P', P'') = merge(N ; N', P, P', P'') .
- op merge : Snet Place Snet Place Place  -> [Snet] .
- eq merge(Sn, P, Sn', P', P'') = merge(Sn U Sn', P, P', P'') .
- *** merge version operating on two systems
- op merge : System Place System Place Place  -> [System] .
- eq merge(Sys, P, Sys', P', P'') = merge(join(Sys, Sys'), P, P', P'') .
- op merge : SimpleSys Place SimpleSys Place Place  -> [SimpleSys] .
- eq merge(Ssys, P, Ssys', P', P'') = merge(join(Ssys, Ssys'), P, P', P'') .
- *** bulk version of merge: performs a kind of cartesian product between places; new places hold the label's tail of those in the 2nd set -- new indices are assigned
+ *** performs a kind of cartesian product between places; new places hold the label's tail of those in the 2nd set -- new indices are assigned
  vars S S' : Pset .
- op merge : System Pset Pset String  -> [System] .
- eq merge(Sys, S, S', W) = remove($merge(Sys, S, S', W, size(S)), S U S') .
- op $merge : System Pset Pset String Nat -> [System] .
- eq $merge(Sys, emptyPset, S, W, I) = Sys .
- eq $merge(Sys, P U S, S', W, I) = $merge($$merge(Sys, P, S', W, I), S, S', W, I + I) .
- op $$merge : System Place Pset String Nat -> [System] . *** merge a place with a set (the merge result is assigned an arbitrary index)
- eq $$merge(Sys, P, emptyPset, W, I) = Sys .
- eq $$merge(Sys, P, P' U S, W, I) = $$merge(merge(Sys, P, P',p(< W ; I > tail(lab(P') ) ) ), P, S, W, sd(I, 1)) . 
+ op product : System Pset Pset String  -> [System] .
+ eq product(Sys, S, S', W) = remove($product(Sys, S, S', W, size(S)), S U S') .
+ op $product : System Pset Pset String Nat -> [System] .
+ eq $product(Sys, emptyPset, S, W, I) = Sys .
+ eq $product(Sys, P U S, S', W, I) = $product($$product(Sys, P, S', W, I), S, S', W, I + I) .
+ op $$product : System Place Pset String Nat -> [System] . *** product a place with a set (the product result is assigned an arbitrary index)
+ eq $$product(Sys, P, emptyPset, W, I) = Sys .
+ eq $$product(Sys, P, P' U S, W, I) = $$product(makecopy(Sys, P, P',p(< W ; I > tail(lab(P') ) ) ), P, S, W, sd(I, 1)) . 
  *** creates n symmetric task synchronizing over a fork transitions; 1st string: the nesting level of components, 2nd string: the name of merged in-out places
  op fork  : System NzNat String String  -> System . 
-ceq fork(Sys, K, W, W') = merge(join(t(< "fork" ; 1 >) |-> [nilP, 1 . p(< "out" ; 1 >), nilP] nilP, Sys'), p(< "out" ; 1 >),  places(Sys', "in"), W') if Sys' := replica(Sys, K, W) .
+ceq fork(Sys, K, W, W') = product(join(t(< "fork" ; 1 >) |-> [nilP, 1 . p(< "out" ; 1 >), nilP] nilP, Sys'), p(< "out" ; 1 >),  places(Sys', "in"), W') if Sys' := replica(Sys, K, W) .
 
  *** merge two transitions of a net (behaves exactly as place merge)
  vars Q Q' : Imatrix .
