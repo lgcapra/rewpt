@@ -20,13 +20,14 @@ fmod NET-OP is
  *** simple system version
  op join : SimpleSys SimpleSys -> SimpleSys [assoc comm] . *** safe
  eq join(Sn B, Sn' B') = (Sn U Sn') B + B' .
- *** "symmetric" juxtapostion: creates K (disjoint) replica of a system each one with suitably added labels denoting the "nesting" level
+ *** "symmetric" juxtapostion: creates K (disjoint) replica of a system each one with a suitably added label suffix (with index 0..K-1) denoting the "nesting" level
  op replica  : System NzNat String -> System . 
  eq replica(Sys, 1, W) = Sys . 
-ceq replica(Sys, K, W) = $replica(Sys, K - 1, W, addLab(Sys, < W ; K >)) if K > 1 .
+*** ceq replica(Sys, K, W) = $replica(Sys, K - 1, W, addLab(Sys, < W ; K >)) if K > 1 .
+ceq replica(Sys, K, W) = $replica(Sys, K, W, emptyN nilP) if K > 1 .
  op $replica  : System Nat String System -> System .
  eq $replica(Sys, 0, W, Sys') = Sys' .
- eq $replica(Sys, K, W, Sys') = $replica(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K >))) .
+ eq $replica(Sys, K, W, Sys') = $replica(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >))) .
  *** version for simple net representation
  op replica  : SimpleSys NzNat String -> SimpleSys . 
  eq replica(Ssys, 1, W) = Ssys . *** does nothing
@@ -46,9 +47,18 @@ ceq replica(Ssys, K, W) = $replica(Ssys, K - 1, W, addLab(Ssys, < W ; K >)) if K
  eq $$product(Sys, P, P' U S, W, I) = $$product(makecopy(Sys, P, P',p(< W ; I > tail(lab(P') ) ) ), P, S, W, sd(I, 1)) . 
  *** creates n symmetric task synchronizing over a fork transitions; 1st string: the nesting level of components, 2nd string: the name of merged in-out places
  op fork  : System NzNat String String  -> System . 
-ceq fork(Sys, K, W, W') = product(join(t(< "fork" ; 1 >) |-> [nilP, 1 . p(< "out" ; 1 >), nilP] nilP, Sys'), p(< "out" ; 1 >),  places(Sys', "in"), W') if Sys' := replica(Sys, K, W) .
-
- *** merge two transitions of a net (behaves exactly as place merge)
+ceq fork(Sys, K, W, W') = product(join(t(< "fork" ; 0 >) |-> [nilP, 1 . p(< "out" ; 0 >), nilP] nilP, Sys'), p(< "out" ; 0 >),  places(Sys', "in"), W') if Sys' := replica(Sys, K, W) .
+ *** 2nd version, not using product
+ op forkv2  : System NzNat String String  -> System . 
+ eq forkv2(N S, K, W, W') = N ; tout(places(N', "W"), t(W')) ....  
+ op tout : Pset Tran  -> ImatrixT .
+ var TQ : ImatrixT .
+ eq tout(S, T) = $tout(S, T |-> [nilP, nilP, nilP]) .
+ op $tout : Pset ImatrixT  -> Net .
+ eq $tout(emptyPset, TQ) = TQ .
+ eq $tout(P U S, T |-> [nilP, O:Pbag, nilP]) = $tout(S, T |-> [nilP, O:Pbag + 1 . P, nilP]) .
+ 
+ *** merge two transitions of a net
  vars Q Q' : Imatrix .
  op merge : Net Tran Tran Tran  -> [Net] .
 ceq merge((T |-> Q ; T' |-> Q' ; N), T, T', T'') = (T'' |-> Q + Q' ; N) if T'' =/= T and-then T'' =/= T' and-then N[T''] == undefined .
