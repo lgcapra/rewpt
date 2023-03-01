@@ -55,6 +55,9 @@ fmod IMATRIX is
  eq makecopy([X,Y,Z], P, P', P'') = [makecopy(X,P,P', P''),makecopy(Y,P,P', P''),makecopy(Z,P,P', P'')] .
  op addLab : Imatrix ModLab -> Imatrix . *** overloaded
  eq addLab([X,Y,Z], L) = [addLab(X, L), addLab(Y, L), addLab(Z, L)] .
+ *** rename a place (build on BAGP.rename)
+ op rename : Imatrix Place Place -> [Imatrix] .
+ eq rename([X,Y,Z], P, P') = [rename(X, P, P'),rename(Y, P, P'),rename(Z, P, P')] . 
  *** set of places whose label's prefix matches the given one
  op places : List{String} Imatrix -> Pset .
  eq places(W, [X,Y,Z]) = support(X, W) U support(Y, W) U support(Z, W) .

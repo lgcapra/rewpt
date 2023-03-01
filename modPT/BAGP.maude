@@ -81,6 +81,11 @@ ceq $support(K . P + B, W, S) = $support(B, W, S U P) if hasPrefix(P, W) .
  eq B <  B' = lt(0, B, B') .
 
  *** -- used for net algebra -- 
+ *** rename a place, if the renamed place (when different) doesn't exist -- partial op 
+ op rename : Pbag Place Place -> [Pbag] .
+ceq rename(B + K . P, P, P') = B + K . P' if B[P'] == 0 .
+ceq rename(B, P, P') = B if B[P] == 0 .   
+ 
  *** given two places creates a third one (if it does not exist) as a copy of either one of the two
  op makecopy : Pbag Place Place Place -> [Pbag] .
 ceq makecopy(B, P, P', P'') = B + K . P'' if B' + K . P''' := B /\ (P == P''' or-else P' == P''') and-then B'[P''] == 0  .

@@ -83,10 +83,17 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $addLab : Net Net ModLab -> Net .
  eq $addLab(emptyN, N, Lab) = N .
  eq $addLab((T |-> Q ; N'), N, Lab) = $addLab(N', (addLab(T, Lab) |-> addLab(Q, Lab) ; N), Lab) .
- *** rename a transition (helpful?)
- op rename : Net Tran Tran -> Net .
- eq rename((T |-> Q ; N), T, T') = T' |-> Q ; N .
- eq rename(N, T, T') = N [owise] .  
+ *** rename a place (build on Imatrix.rename)
+ op rename : Net Place Place -> [Net] .
+ eq rename(N, P, P') = $rename(N, emptyN, P, P') .
+ op $rename : Net Net Place Place -> [Net] .
+ eq $rename(emptyN, N, P, P') = N .
+ eq $rename(T |-> Q ; N', N, P, P') = $rename(N',  T |-> rename(Q, P, P') ; N, P, P') .
+ 
+ *** rename a transition (helpful?) -- same semantics as place rename 
+ op rename : Net Tran Tran -> [Net] . *** partial op
+ceq rename(T |-> Q ; N, T, T') = T' |-> Q ; N if N[T'] == undefined .
+ceq rename(N, T, T') = N if N[T] == undefined .  
   
  *** simple net representation uniquely based on local inc. matrices (these operators are duplicates)
  vars Sn Sn' : Snet .
@@ -121,6 +128,12 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $addLab : Snet Snet ModLab -> Snet .
  eq $addLab(emptySn, Sn, Lab) = Sn .
  eq $addLab(Q U Sn', Sn, Lab) = $addLab(Sn', addLab(Q, Lab) U Sn, Lab) .
+ *** rename a place (build on Imatrix.rename)
+ op rename : Snet Place Place -> [Snet] .
+ eq rename(Sn, P, P') = $rename(Sn, emptySn, P, P') .
+ op $rename : Snet Snet Place Place -> [Snet] .
+ eq $rename(emptySn, Sn, P, P') = Sn .
+ eq $rename(Q U Sn', Sn, P, P') = $rename(Sn',  rename(Q, P, P') U Sn, P, P') .
  *** overloaded 
  op makecopy : Snet Place Place Place -> Snet . 
  eq makecopy(Sn, P, P',P'') = $makecopy(Sn, emptySn, P, P',P'') .
