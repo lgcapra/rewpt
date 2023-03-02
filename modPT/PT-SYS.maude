@@ -7,9 +7,9 @@ fmod PT-SYS is
  op __ : Net Pbag -> [System] [ctor] .
  op __ : Snet Pbag -> SimpleSys [ctor] .
  *** op __ : Snet Pbag -> [SimpleSys] [ctor] .
- op emptySys  : -> System [ctor] .
+ op emptySys  : -> System . *** alias
  eq emptySys = emptyN nilP .
- op emptySsys : -> SimpleSys [ctor] .
+ op emptySsys : -> SimpleSys . *** alias
  eq emptySsys = emptySn nilP .
  vars N N' : Net .
  vars T T' : Tran .

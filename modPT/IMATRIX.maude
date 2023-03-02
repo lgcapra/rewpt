@@ -6,6 +6,8 @@ fmod IMATRIX is
  pr ATYPE .
  sort Imatrix .
  op [_,_,_] : Pbag Pbag Pbag -> Imatrix [ctor] .
+ op nilQ : -> Imatrix . *** alias
+ eq nilQ = [nilP, nilP, nilP] .
  
  vars X Y Z X' Y' Z' : Pbag .
  vars P P' P'' : Place .
@@ -43,6 +45,11 @@ fmod IMATRIX is
  *** pair-wise sum
  op _+_  : Imatrix Imatrix -> Imatrix [prec 41 assoc comm] .
  eq [X,Y,Z] + [X',Y',Z'] = [X' + X, Y' + Y, Z' + Z] .
+ *** set a given place's arc type
+ op set : Imatrix Atype Place Nat -> Imatrix .
+ eq set([X,Y,Z], i, P, N) = [set(X,P,N), Y, Z] .
+ eq set([X,Y,Z], o, P, N) = [X, set(Y,P,N), Z] .
+ eq set([X,Y,Z], h, P, N) = [X, Y, set(Z,P,N)] .
  *** removes all places from a set
  op remove :  Imatrix Pset -> Imatrix .
  eq remove([X,Y,Z], S) = [remove(X, S),remove(Y, S),remove(Z, S)] .

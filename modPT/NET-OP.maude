@@ -14,7 +14,7 @@ fmod NET-OP is
  var I : Nat .
  vars K K' : NzNat .
  vars W W' W'' : String .
- *** new version: join two nets by "merging" identical transitions (if any) and (implicitly) places of the two -- total op
+ *** total join (new): join two nets by "merging" identical transitions (if any) and (implicitly) places of the two -- total op
  op join : Net Net -> Net [assoc comm] .
  eq join(N ; T |-> Q , N' ; T |-> Q') = T |-> Q + Q' ; join(N, N') .
  eq join(N, N') = N ; N' [owise] .
@@ -24,6 +24,12 @@ fmod NET-OP is
  *** simple system version of join (NOTE not defined for simple nets because equivalent to 'U')
  op join : SimpleSys SimpleSys -> SimpleSys [assoc comm] . *** safe
  eq join(Sn B, Sn' B') = (Sn U Sn') B + B' .
+*** version of join for simple nets merging two transitions (partial op)
+ op join : Snet Imatrix Snet Imatrix -> [Snet] . 
+ eq join(Sn U Q, Q, Sn' U Q', Q') = Sn U Sn' U Q + Q' .
+ *** version for simple systems
+ op join : SimpleSys Imatrix SimpleSys Imatrix -> [SimpleSys] . 
+ eq join(Sn B, Q, Sn' B', Q') = join(Sn, Q, Sn', Q') B + B' . 
  *** "symmetric" juxtapostion: creates K (disjoint) replica of a system each one with a suitably added label suffix (with index 0..K-1) denoting the "nesting" level
  op replica  : System NzNat String -> System . 
  eq replica(Sys, 1, W) = Sys . 
@@ -31,6 +37,9 @@ ceq replica(Sys, K, W) = $replica(Sys, K, W, emptySys) if K > 1 .
  op $replica  : System Nat String System -> System .
  eq $replica(Sys, 0, W, Sys') = Sys' .
  eq $replica(Sys, K, W, Sys') = $replica(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >))) .
+ *** "symmetric" juxtapostion: net version
+ op replica  : Net NzNat String -> Net .
+ eq replica(N, K, W) = net(replica(N nilP, K, W)) .
  *** version for simple net representation
  op replica  : SimpleSys NzNat String -> SimpleSys . 
  eq replica(Ssys, 1, W) = Ssys . *** does nothing
@@ -48,22 +57,23 @@ ceq replica(Ssys, K, W) = $replica(Ssys, K, W, emptySsys) if K > 1 .
  op $$product : System Place Pset String Nat -> [System] . *** product a place with a set (the product result is assigned an arbitrary index)
  eq $$product(Sys, P, emptyPset, W, I) = Sys .
  eq $$product(Sys, P, P' U S, W, I) = $$product(makecopy(Sys, P, P',p(< W ; I > tail(lab(P') ) ) ), P, S, W, sd(I, 1)) . 
- *** creates n symmetric task synchronizing over a fork transitions; 1st string: the nesting level of components, 2nd string: the name of merged in-out places
- op fork  : System NzNat String String  -> System .  *** ELIMINARE
-ceq fork(Sys, K, W, W') = product(join(t(< "fork" ; 0 >) |-> [nilP, 1 . p(< "out" ; 0 >), nilP] nilP, Sys'), p(< "out" ; 0 >),  places(Sys', "in"), W') if Sys' := replica(Sys, K, W) .
- *** 2nd version, not using product   -- DA SISTEMARE
- op forkv2  : System NzNat String String  -> System . 
-ceq forkv2(N B, K, W, W') = join(Sys', tout(places(Sys', "in"), 1, t(< W' ; 0 >)) nilP) if Sys' := replica(N B, K, W) .
+ *** creates n symmetric task synchronizing over a fork transitions; 1st string: denotes the nesting level of components, 2nd string: name of out places
+ op fork  : System NzNat String String  -> System . 
+ceq fork(N B, K, W, W') = join(Sys', tnew(t(< W' ; 0 >), o, places(Sys', W), 1) nilP) if Sys' := replica(N B, K, "||") .
  *** elementary operators
- op tout : String NzNat NzNat  -> ImatrixT . *** builds an output transition with a postset of K (0..K-1) places of weight K' and with a fiven label
-*** builds an "output transition" with a given postset of places each of weight K
- op tout : Pset NzNat Tran  -> ImatrixT .
  var TQ : ImatrixT .
- eq tout(S, K, T) = $tout(S, K, T |-> [nilP, nilP, nilP]) .
- op $tout : Pset NzNat ImatrixT  -> Net .
- eq $tout(emptyPset, K, TQ) = TQ .
- eq $tout(P U S, K, T |-> [nilP, O:Pbag, nilP]) = $tout(S, K, T |-> [nilP, O:Pbag + K . P, nilP]) .
- 
+ var A : Atype .
+ *** builds a transition with a pre/post/inhibitor set of K (0..K-1) places of weight K' and with a given label
+ op tnew : String Atype NzNat NzNat  -> ImatrixT . 
+ *** builds a "transition" with a given pre/post/inhibitor set of weight K
+ op tnew : Tran Atype Pset NzNat   -> ImatrixT .
+ eq tnew(T, A, S, K) = $tnew(T |-> nilQ, A, S, K) .
+ op $tnew : ImatrixT Atype Pset NzNat   -> Net .
+ eq $tnew(TQ, A, emptyPset, K) = TQ .
+ eq $tnew(T |-> Q, A, P U S, K) = $tnew(T |-> set(Q, A, P, K), A, S, K) .
+ *** base connection patterns between a net and a newly created fresh transition
+ op newconnt : Net Tran Atype Pset NzNat -> [Net] . *** partial op
+ eq newconnt(N, T, A, S, K) = N ; tnew(T, A, S, K) .
  *** joins two nets by merging two transitions (builds on rename/join)
  op merge : Net Tran Net Tran Tran  -> [Net] .
  eq merge(N, T, N', T', T'') = join(rename(N, T, T''), rename(N', T', T'') ) .
