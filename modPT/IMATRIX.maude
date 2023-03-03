@@ -50,7 +50,7 @@ fmod IMATRIX is
  eq set([X,Y,Z], i, P, N) = [set(X,P,N), Y, Z] .
  eq set([X,Y,Z], o, P, N) = [X, set(Y,P,N), Z] .
  eq set([X,Y,Z], h, P, N) = [X, Y, set(Z,P,N)] .
- *** removes all places from a set
+ *** removes all places from a local matrix
  op remove :  Imatrix Pset -> Imatrix .
  eq remove([X,Y,Z], S) = [remove(X, S),remove(Y, S),remove(Z, S)] .
  *** used in old canonization
