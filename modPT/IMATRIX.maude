@@ -58,10 +58,11 @@ fmod IMATRIX is
  eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
  
  *** net-algebra ops: add a new label to a matrix' elements
- op makecopy : Imatrix Place Place Place -> Imatrix . *** overloaded
- eq makecopy([X,Y,Z], P, P', P'') = [makecopy(X,P,P', P''),makecopy(Y,P,P', P''),makecopy(Z,P,P', P'')] .
  op addLab : Imatrix ModLab -> Imatrix . *** overloaded
  eq addLab([X,Y,Z], L) = [addLab(X, L), addLab(Y, L), addLab(Z, L)] .
+ *** version specifying elements to share
+ op addLab : Imatrix ModLab Pset -> Imatrix . 
+ eq addLab([X,Y,Z], L, S) = [addLab(X, L, S), addLab(Y, L, S), addLab(Z, L, S)] .
  *** rename a place (build on BAGP.rename)
  op rename : Imatrix Place Place -> [Imatrix] .
  eq rename([X,Y,Z], P, P') = [rename(X, P, P'),rename(Y, P, P'),rename(Z, P, P')] . 

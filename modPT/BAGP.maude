@@ -39,12 +39,6 @@ fmod BAGP is
  vars L L' L'' : ModLab .
  var S : Pset .
  var LNP : List{Nat,Place} . 
- *** add a new label to a bag's elements
- op addLab : Pbag ModLab -> Pbag .
- eq addLab(B, L) = $addLab(B, nilP, L) .
- op $addLab : Pbag Pbag ModLab -> Pbag .
- eq $addLab(nilP, B, L) = B .
- eq $addLab(K . P + B', B, L) = $addLab(B', K . addLab(P, L) + B, L) .
  
  *** I seguenti operatori sono stati adattati dalla definizione originale, alcuni potrebbero non servire più
  var W : List{String} .
@@ -81,15 +75,21 @@ ceq $support(K . P + B, W, S) = $support(B, W, S U P) if hasPrefix(P, W) .
  eq B <  B' = lt(0, B, B') .
 
  *** -- used for net algebra -- 
+ *** add a new label to bag's elements -- version specifying elements to share (i.e., to which not to add the label)
+ op addLab : Pbag ModLab Pset -> Pbag . 
+ eq addLab(B, L, S) = $addLab(B, nilP, L, S) .
+ op $addLab : Pbag Pbag ModLab Pset -> Pbag .
+ eq $addLab(nilP, B, L, S) = B .
+ceq $addLab(K . P + B', B, L, S) = $addLab(B', K . P + B, L, S) if P in S .
+ eq $addLab(K . P + B', B, L, S) = $addLab(B', K . addLab(P, L) + B, L, S) [owise].
+ *** add a new label to every bag element
+ op addLab : Pbag ModLab -> Pbag .
+ eq addLab(B, L) = addLab(B, L, emptyPset) .
  *** rename a place, if the renamed place (when different) doesn't exist -- partial op 
  op rename : Pbag Place Place -> [Pbag] .
 ceq rename(B + K . P, P, P') = B + K . P' if B[P'] == 0 .
 ceq rename(B, P, P') = B if B[P] == 0 .   
- 
- *** given two places creates a third one (if it does not exist) as a copy of either one of the two
- op makecopy : Pbag Place Place Place -> [Pbag] .
-ceq makecopy(B, P, P', P'') = B + K . P'' if B' + K . P''' := B /\ (P == P''' or-else P' == P''') and-then B'[P''] == 0  .
-ceq makecopy(B, P, P', P'') = B if B[P''] == 0  [owise] .
+
 endfm
 
 

@@ -1,14 +1,16 @@
 in IMATRIX
-in ../shared/MAP+
+*** in ../shared/MAP+
+in ../shared/MAP-SET
 
 *** signature of a PT net -- includes a simple(r) net-representation in which transitions are implicitly represented
 fmod PT-NET is
- pr MAP+{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) . *** ImatrixM is a view on IMATRIX-MOD (like Imatrix on IMATRIX)
+ pr MAP-SET{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN,
+                             sort Set{Tran} to Tset, sort NeSet{Tran} to NeTset, op emptyS to emptyTset) . *** ImatrixM is a view on IMATRIX-MOD (like Imatrix on IMATRIX)
  pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
  pr SORTABLE-LIST{Place<} * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
  pr PAIR{Pset, Nat} . *** multiple return value (defined for convenience)
- pr SET+{Imatrix} * (sort Set{Imatrix} to Snet, sort NeSet{Imatrix} to neSnet, op emptyS to emptySn) . *** simple net-representation as a set of local inc. matrices
-
+ pr SET+{Imatrix} * (sort Set{Imatrix} to Snet, sort NeSet{Imatrix} to NeSnet, op emptyS to emptySn) . *** simple net-representation as a set of local inc. matrices
+ 
  vars  N N'  : Net .
  vars T T' : Tran .
  vars P P' P'' : Place .
@@ -17,7 +19,8 @@ fmod PT-NET is
  vars I O H B : Pbag .
  vars Q Q' : Imatrix .
  
- vars S S' SP : Pset . 
+ vars S S' PS : Pset .
+ var TS TS' : Tset .  
  vars L L1 : Plist .
  vars W :  List{String} .
  var F :  Bool .
@@ -60,7 +63,16 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq tranList(N) = $makeTlist(N,emptyTlist) .
  op $makeTlist : Net Tlist -> Tlist . 
  eq $makeTlist(emptyN, TL) = sort(TL) . 
- eq $makeTlist(T |-> Q ; N, TL) = $makeTlist(N, T TL) . 
+ eq $makeTlist(T |-> Q ; N, TL) = $makeTlist(N, T TL) .
+ *** defined for convenience (just a renaming) 
+ op transitions : Net -> Tset . 
+ eq transitions(N) = keySet(N) .
+ *** transitions with a given suffix in their labels
+ op transitions : Net List{String} -> Tset . 
+ eq transitions(N, W) = $transitions(keySet(N), W, emptyTset) .  
+ op $transitions : Tset List{String} Tset -> Tset . 
+ceq $transitions(T U TS, W, TS') = $transitions(TS, W, T U TS') if hasPrefix(T, W) .
+ eq $transitions(TS, W, TS') = TS' [owise] .
  
  var X : NePset .
  *** remove places
@@ -70,19 +82,17 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $remove : Net Net NePset -> Net .
  eq $remove(emptyN, N, X) = N .
  eq $remove(T |-> Q ; N', N, X) = $remove(N', T |-> remove(Q, X) ; N, X).
- *** overloaded 
- op makecopy : Net Place Place Place -> Net . 
- eq makecopy(N, P, P',P'') = $makecopy(N, emptyN, P, P',P'') .
- op $makecopy : Net Net Place Place Place  -> Net .
- eq $makecopy(emptyN, N, P, P',P'') = N .
- eq $makecopy((T |-> Q ; N'), N, P, P',P'') = $makecopy(N', (T |-> makecopy(Q, P, P',P'') ; N), P, P',P'') .
  *** add a new label to the net's places (and transitions, only to avoid "duplicated" transitions)
+ *** version including elements to share (i.e., to which not to add the label)
  var Lab : ModLab .
+ op addLab : Net ModLab Pset Tset -> Net . 
+ eq addLab(N, Lab, S, TS) = $addLab(N, emptyN, Lab, S, TS) .
+ op $addLab : Net Net ModLab Pset Tset -> Net .
+ eq $addLab(emptyN, N, Lab, S, TS) = N .
+ eq $addLab(T |-> Q ; N', N, Lab, S, TS) = $addLab(N', (if T in TS then T else addLab(T, Lab) fi) |-> addLab(Q, Lab, S) ; N, Lab, S, TS) .
+ *** simple (default) version
  op addLab : Net ModLab -> Net . 
- eq addLab(N, Lab) = $addLab(N, emptyN, Lab) .
- op $addLab : Net Net ModLab -> Net .
- eq $addLab(emptyN, N, Lab) = N .
- eq $addLab((T |-> Q ; N'), N, Lab) = $addLab(N', (addLab(T, Lab) |-> addLab(Q, Lab) ; N), Lab) .
+ eq addLab(N, Lab) = addLab(N, Lab, emptyPset, emptyTset) .
  *** rename a place (build on Imatrix.rename)
  op rename : Net Place Place -> [Net] .
  eq rename(N, P, P') = $rename(N, emptyN, P, P') .
@@ -122,25 +132,23 @@ ceq rename(N, T, T') = N if N[T] == undefined .
  op placeList : Snet -> Plist . 
  eq placeList(Sn) = $makePlist(places(Sn),emptyPlist) .
  
- *** add a new label to a simple-net's places
- op addLab : Snet ModLab -> Snet . 
- eq addLab(Sn, Lab) = $addLab(Sn, emptySn, Lab) .
- op $addLab : Snet Snet ModLab -> Snet .
- eq $addLab(emptySn, Sn, Lab) = Sn .
- eq $addLab(Q U Sn', Sn, Lab) = $addLab(Sn', addLab(Q, Lab) U Sn, Lab) .
+ *** add a new label to a simple-net's places (specifies places in which not to apply)
+ op addLab : Snet ModLab Pset -> Snet . 
+ eq addLab(Sn, Lab, S) = $addLab(Sn, emptySn, Lab, S) .
+ op $addLab : Snet Snet ModLab Pset -> Snet .
+ eq $addLab(emptySn, Sn, Lab, S) = Sn .
+ eq $addLab(Q U Sn', Sn, Lab, S) = $addLab(Sn', addLab(Q, Lab, S) U Sn, Lab, S) .
+ *** simple version
+ op addLab : Snet ModLab Pset -> Snet . 
+ eq addLab(Sn, Lab, S) = addLab(Sn, Lab, emptyPset) .
+ 
  *** rename a place (build on Imatrix.rename)
  op rename : Snet Place Place -> [Snet] .
  eq rename(Sn, P, P') = $rename(Sn, emptySn, P, P') .
  op $rename : Snet Snet Place Place -> [Snet] .
  eq $rename(emptySn, Sn, P, P') = Sn .
  eq $rename(Q U Sn', Sn, P, P') = $rename(Sn',  rename(Q, P, P') U Sn, P, P') .
- *** overloaded 
- op makecopy : Snet Place Place Place -> Snet . 
- eq makecopy(Sn, P, P',P'') = $makecopy(Sn, emptySn, P, P',P'') .
- op $makecopy : Snet Snet Place Place Place  -> Snet .
- eq $makecopy(emptySn, Sn, P, P',P'') = Sn .
- eq $makecopy(Q U Sn', Sn, P, P',P'') = $makecopy(Sn', makecopy(Q, P, P',P'') U Sn, P, P',P'') .
- 
+
 endfm
 
 *** trivial view to a PT-NET
