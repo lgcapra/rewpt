@@ -17,14 +17,12 @@ fmod PT-FMS is
  eq line = t(< "line" ; 0 >) |-> sline .
  eq sfault =  [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 0 >), nilP ] .
  eq fault = t(< "fault" ; 0 >) |-> sfault .
- eq sload = [2 . p(< "PLstart" ; 0 >) , 1 . p(< "working" ; 0 >) , nilP ] .
+ eq sload = [1 . p(< "PLstart" ; 0 >) , 1 . p(< "working" ; 0 >) , nilP ] .
  eq load = t(< "load" ; 0 >) |-> sload .
- eq sass =  [1 . p(< "ass" ; 0 >) , 2 . p(< "PLstart" ; 0 >)  , nilP ] .
+ eq sass =  [1 . p(< "ass" ; 0 >) , 1 . p(< "PLstart" ; 0 >)  , nilP ] .
  eq ass  = t(< "ass" ; 0 >) |-> sass .
  eq sfaultyline = (sline U sfault)  1 . p(< "focc" ; 0 >) .
  eq faultyline =  (line ; fault)  1 . p(< "focc" ; 0 >).
- eq 2faultylines = replica@share(faultyline , 2, "line", "focc", "") .
- eq 2sfaultylines = replica@share(sfaultyline, 2, "line", "focc") .
  eq PLfaulty = (load ; line ; ass ; fault)  1 . p(< "focc" ; 0 >) + 2 . p(< "PLstart" ; 0 >) .
  *** only the product line structure (without faults)
  *** eq pline = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
@@ -49,9 +47,14 @@ fmod PT-FMS is
  
  
  *** specification using node labels 
- eq net = t(< "load" ; 0 >) |-> [2 . p(< "start" ; 1 >), 1 . p(< "line" ; 2 >) + 1 . p(< "line" ; 3 >), nilP ] ; t(< "line" ; 1 >) |-> [1 . p(< "line" ; 2 >) , 1 . p(< "ass" ; 4 >), 1 . p(< "faulty" ; 7 >) ] ; t(< "line" ; 2 >) |-> [1 . p(< "line" ; 3 >) , 1 . p(< "ass" ; 5 >),
+ *** versione originale (con "rest")
+ eq net' = t(< "load" ; 0 >) |-> [2 . p(< "start" ; 1 >), 1 . p(< "line" ; 2 >) + 1 . p(< "line" ; 3 >), nilP ] ; t(< "line" ; 1 >) |-> [1 . p(< "line" ; 2 >) , 1 . p(< "ass" ; 4 >), 1 . p(< "faulty" ; 7 >) ] ; t(< "line" ; 2 >) |-> [1 . p(< "line" ; 3 >) , 1 . p(< "ass" ; 5 >),
           1 . p(< "faulty" ; 8 >) ] ; t(< "ass" ; 3 >) |-> [1 . p(< "ass" ; 4 >) + 1 . p(< "ass" ; 5 >) , 1 . p(< "end" ; 6 >), nilP ] ;
           t(< "rest" ; 4 >) |-> [1 . p(< "end" ; 6 >) , 2 . p(< "start" ; 1 >), nilP ] ; t(< "fault" ; 5 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 7 >), nilP ] ; t(< "fault" ; 6 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 8 >), nilP].
+ *** versione "compatta" ("rest" assorbito da "ass")
+ eq net = t(< "load" ; 0 >) |-> [2 . p(< "start" ; 1 >), 1 . p(< "line" ; 2 >) + 1 . p(< "line" ; 3 >), nilP ] ; t(< "line" ; 1 >) |-> [1 . p(< "line" ; 2 >) , 1 . p(< "ass" ; 4 >), 1 . p(< "faulty" ; 7 >) ] ; t(< "line" ; 2 >) |-> [1 . p(< "line" ; 3 >) , 1 . p(< "ass" ; 5 >),
+          1 . p(< "faulty" ; 8 >) ] ; t(< "ass" ; 3 >) |-> [1 . p(< "ass" ; 4 >) + 1 . p(< "ass" ; 5 >) , 2 . p(< "start" ; 1 >), nilP ] ;
+          t(< "fault" ; 5 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 7 >), nilP ] ; t(< "fault" ; 6 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 8 >), nilP].
  eq m0  = (2 * M) . p(< "start" ; 1 >) +  1 . p(< "focc" ; 0 >) .
 
  eq sys0 = net m0 .

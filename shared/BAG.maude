@@ -41,23 +41,17 @@ fmod BAG{X :: TRIV} is
  eq nil / M = nil .  
 ceq (N . X + B) / M = B / M if N quo M == 0 .
  eq (N . X + B) / M = N quo M . X + B / M [owise] .
- *** relational ops
- op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
- ceq N . X + B <= B' = false if N > B'[X] .
- eq B <= B' = true [owise] . 
- *** eq nil <= B = true .
- *** eq N . X + B <= M . X + B' = N <= M and-then B <= B' .
- *** eq B <= B' = false [owise] . 
- op _>'_ : Bag{X} Bag{X} -> Bool [prec 43] .
- ceq N . X + B >' B' = false if N <= B'[X] .
- eq B >' B' = true [owise] .
- *** eq nil >' B = true .
- *** eq N . X + B >' M . X +  B' = N > M and-then B >' B' .
- *** eq B >' B' = true [owise] .
  *** sets an element's multiplicity (if zero removes it from the bag)
  op set  : Bag{X} X$Elt Nat -> Bag{X} . 
  eq set(B + N . X, X, K) = if K == 0 then B else B + K . X fi . 
  eq set(B, X, K) =  if K == 0 then B else B + K . X fi [owise] . 
+ *** relational ops
+ op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
+ ceq N . X + B <= B' = false if N > B'[X] .
+ eq B <= B' = true [owise] . 
+ op _>'_ : Bag{X} Bag{X} -> Bool [prec 43] .
+ ceq N . X + B >' B' = false if N <= B'[X] .
+ eq B >' B' = true [owise] .
  *** bag's cardinality
  op ||_|| : Bag{X} -> Nat . 
  op ||_|| : NeBag{X} -> NzNat . 
@@ -72,6 +66,10 @@ ceq (N . X + B) / M = B / M if N quo M == 0 .
  op $bsize : Bag{X} Nat -> Nat . 
  eq $bsize(nil, K) = K . 
  eq $bsize(N . X + B, K) = $bsize(B, K + 1) .
+ *** checks whether two bags are disjoint
+ op disjoint : Bag{X} Bag{X} -> Bool [ comm ] .
+ eq disjoint(N . X + B, M . X + B') = false .
+ eq disjoint(B, B') = true [owise] .
  *** checks whether two bags have the same multiplicities
  op _eqw_ : Bag{X} Bag{X} -> Bool [ comm ] .
  eq B eqw B = true .

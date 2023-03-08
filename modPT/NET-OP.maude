@@ -3,7 +3,6 @@ in PT-SYS
 *** basic net-algebra operators
 fmod NET-OP is
  pr PT-SYS .  
- protecting CONVERSION .
  vars P P' P'' : Place .
  vars T T' T'' : Tran .
  vars N N' : Net .
@@ -42,9 +41,13 @@ ceq replica@share(Sys, K, W, S, TS) = $replica@share(Sys, K, W, emptySys, S, TS)
  op $replica@share  : System Nat String System Pset Tset -> System .
  eq $replica@share(Sys, 0, W, Sys', S, TS) = Sys' .
  eq $replica@share(Sys, K, W, Sys', S, TS) = $replica@share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S, TS)), S, TS) .
- *** versions in which shared elements are specified through a suffix
+ *** versions in which shared elements are specified through a prefix
  op replica@share : System NzNat String List{String} List{String} -> System .
  eq replica@share(Sys, K, W, L, L') = replica@share(Sys, K, W, places(Sys, L), transitions(net(Sys), L')) .
+ *** versions in which shared elements are specified through a set of (first elements of) prefixes
+ op replica@share : System NzNat String Set{String} Set{String} -> System .
+ vars WS WS' : Set{String} .
+ eq replica@share(Sys, K, W, WS, WS') = replica@share(Sys, K, W, places(Sys, WS), transitions(net(Sys), WS')) .
  *** simple version
  op replica  : System NzNat String -> System . 
  eq replica(Sys, K, W) =  replica@share(Sys, K, W, emptyPset, emptyTset) .
@@ -77,13 +80,21 @@ ceq replica@share(Ssys, K, W, S) = $replica@share(Ssys, K, W, S, emptySsys) if K
  var TQ : ImatrixT .
  var A : Atype .
  *** builds a transition's incidence matrix with a pre/post/inhibitor set of K (0..K-1) places of weight K' and with a given label
- op tnew : String Atype NzNat NzNat  -> ImatrixT . 
+ op tnew : Tran String Atype NzNat NzNat  -> ImatrixT . 
+ eq tnew(T, W, A, K, K') = $tnew(T |-> nilQ, W, A, K, K') . 
+ op $tnew : ImatrixT String Atype Nat NzNat   -> ImatrixT .
+ eq $tnew(TQ, W, A, 0, K) = TQ .
+ eq $tnew(T |-> Q, W, A, K', K) = $tnew(T |-> set(Q, A, p(< W ; K' - 1 >), K), W, A, K' - 1, K) .
+ *** default version
+ op tnew : String String Atype NzNat NzNat  -> ImatrixT . 
+ eq tnew(W, W', A, K, K') = tnew(t(< W ; 0 >), W', A, K, K') .
  *** builds a "transition" with a given pre/post/inhibitor set of weight K
- op tnew : Tran Atype Pset NzNat   -> ImatrixT .
- eq tnew(T, A, S, K) = $tnew(T |-> nilQ, A, S, K) .
- op $tnew : ImatrixT Atype Pset NzNat   -> Net .
+ op tnew : Tran Atype NePset NzNat   -> ImatrixT .
+ eq tnew(T, A, NeS:NePset, K) = $tnew(T |-> nilQ, A, NeS:NePset, K) .
+ op $tnew : ImatrixT Atype Pset NzNat   -> ImatrixT .
  eq $tnew(TQ, A, emptyPset, K) = TQ .
  eq $tnew(T |-> Q, A, P U S, K) = $tnew(T |-> set(Q, A, P, K), A, S, K) .
+ 
  *** "connect" a net to a fresh, newly created transition: the transition's arcs type/weight and the net's places to connect are given 
  op connect : Net Pset Tran Atype NzNat -> [Net] . *** partial op
  eq connect(N, S, T, A, K) = N ; tnew(T, A, S, K) .
