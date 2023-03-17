@@ -77,7 +77,7 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $transitions : Tset List{String} Tset -> Tset . 
 ceq $transitions(T U TS, WL, TS') = $transitions(TS, WL, T U TS') if hasPrefix(T, WL) .
  eq $transitions(TS, WL, TS') = TS' [owise] .
- *** gets out the transitions whose labels match the given prefix (first elements) set - NOTE reuse $transitions
+ *** gets out the transitions whose labels match the given prefix (first elements) set - NOTE reuse of $transitions
  op transitions : Net Set{String} -> Tset .
  eq transitions(N, W) = $transitions(keySet(N), W, emptyTset) . *** avoid recursion (W is both a set and a list)
  eq transitions(N, WS) = $$transitions(keySet(N), WS, emptyTset) [owise] .

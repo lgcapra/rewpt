@@ -48,17 +48,19 @@ ceq replica@share(Sys, K, W, S, TS) = $replica@share(Sys, K, W, emptySys, S, TS)
  op replica@share : System NzNat String Set{String} Set{String} -> System .
  vars WS WS' : Set{String} .
  eq replica@share(Sys, K, W, WS, WS') = replica@share(Sys, K, W, places(Sys, WS), transitions(net(Sys), WS')) .
- *** simple version
+ *** default vesrion
  op replica  : System NzNat String -> System . 
  eq replica(Sys, K, W) =  replica@share(Sys, K, W, emptyPset, emptyTset) .
- *** net version (builds on net-replica)
+ *** net versions (builds on system-replica)
  op replica@share : Net NzNat String Pset Tset -> Net .
  eq replica@share(N, K, W, S, TS) = net(replica@share(N nilP, K, W, S, TS)) .
  op replica@share : Net NzNat String List{String} List{String} -> Net .
  eq replica@share(N, K, W, L, L') = net(replica@share(N nilP, K, W, L, L')) .
  op replica  : Net NzNat String -> Net .
  eq replica(N, K, W) = replica@share(N, K, W, emptyPset, emptyTset) .
-
+ op replica@share : Net NzNat String Set{String} Set{String} -> Net .
+ eq replica@share(N, K, W, WS, WS') = replica@share(N, K, W, places(N, WS), transitions(N, WS')) .
+ 
  *** general version for simple net representation
  op replica@share : SimpleSys NzNat String Pset -> SimpleSys .
  eq replica@share(Ssys, 1, W, S) = Ssys . *** does nothing
@@ -85,7 +87,7 @@ ceq replica@share(Ssys, K, W, S) = $replica@share(Ssys, K, W, S, emptySsys) if K
  op $tnew : ImatrixT String Atype Nat NzNat   -> ImatrixT .
  eq $tnew(TQ, W, A, 0, K) = TQ .
  eq $tnew(T |-> Q, W, A, K', K) = $tnew(T |-> set(Q, A, p(< W ; K' - 1 >), K), W, A, K' - 1, K) .
- *** default version
+ *** symmetric version
  op tnew : String String Atype NzNat NzNat  -> ImatrixT . 
  eq tnew(W, W', A, K, K') = tnew(t(< W ; 0 >), W', A, K, K') .
  *** builds a "transition" with a given pre/post/inhibitor set of weight K
@@ -94,6 +96,16 @@ ceq replica@share(Ssys, K, W, S) = $replica@share(Ssys, K, W, S, emptySsys) if K
  op $tnew : ImatrixT Atype Pset NzNat   -> ImatrixT .
  eq $tnew(TQ, A, emptyPset, K) = TQ .
  eq $tnew(T |-> Q, A, P U S, K) = $tnew(T |-> set(Q, A, P, K), A, S, K) .
+ *** set a marking for places with label with a given prefix
+ op setMark : System List{String} Nat -> System .
+ eq setMark(N B, L, I) = N set(B, L, I) . 
+ op setMark : Net List{String} NzNat -> [System] .
+ eq setMark(N, L, K) = N set(nilP, L, K) . 
+ *** version for simple systems
+ op setMark : SimpleSys List{String} Nat -> SimpleSys .
+ eq setMark(Sn B, L, I) = Sn set(B, L, I) .
+ op setMark : Snet List{String} NzNat -> SimpleSys .
+ eq setMark(Sn, L, K) = Sn set(nilP, L, K) .  
  
  *** "connect" a net to a fresh, newly created transition: the transition's arcs type/weight and the net's places to connect are given 
  op connect : Net Pset Tran Atype NzNat -> [Net] . *** partial op

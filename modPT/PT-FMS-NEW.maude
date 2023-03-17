@@ -2,12 +2,12 @@ in PT-EMU
 
 fmod PT-FMS is
  protecting NET-OP .
- ops net pline net' symnet symnet2 : -> Net .
- ops line load ass fault : -> ImatrixT .
- ops snet spline snet' ssymnet ssymnet2 : -> Snet .
  ops sline sload sass sfault : -> Imatrix .
- ops PLfaulty sys0 faultyline 2faultylines  : -> System .
- ops sfaultyline 2sfaultylines : -> SimpleSys .
+ ops line load ass fault : -> ImatrixT . 
+ ops net plcycle plcyclef net' symnet symnet2 PLf 2PLf : -> Net .
+ ops snet splcycle splcyclef snet' ssymnet ssymnet2 : -> Snet .
+ ops sys0  PLsys 2PLsys : -> System .
+ ops slinef 2sfaultylines : -> SimpleSys .
  ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag .
  op M : -> NzNat . *** MS model's parameter
  eq M = 4 . 
@@ -17,17 +17,20 @@ fmod PT-FMS is
  eq line = t(< "line" ; 0 >) |-> sline .
  eq sfault =  [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 0 >), nilP ] .
  eq fault = t(< "fault" ; 0 >) |-> sfault .
- eq sload = [1 . p(< "PLstart" ; 0 >) , 1 . p(< "working" ; 0 >) , nilP ] .
+ eq sload = [1 . p(< "start" ; 0 >) , 1 . p(< "working" ; 0 >) , nilP ] .
  eq load = t(< "load" ; 0 >) |-> sload .
- eq sass =  [1 . p(< "ass" ; 0 >) , 1 . p(< "PLstart" ; 0 >)  , nilP ] .
+ eq sass =  [1 . p(< "ass" ; 0 >) , 1 . p(< "start" ; 0 >)  , nilP ] .
  eq ass  = t(< "ass" ; 0 >) |-> sass .
- eq sfaultyline = (sline U sfault)  1 . p(< "focc" ; 0 >) .
- eq faultyline =  (line ; fault)  1 . p(< "focc" ; 0 >).
- eq PLfaulty = (load ; line ; ass ; fault)  1 . p(< "focc" ; 0 >) + 2 . p(< "PLstart" ; 0 >) .
+ eq plcycle = load ; line ; ass .
+ eq plcyclef = plcycle ; fault .
+ eq PLf = replica@share(plcyclef, 2, "PL", "focc" U "start", "ass" U "load") .
+ eq PLsys = setMark(setMark(PLf, "focc", 1), "start", 8) . 
+ eq 2PLf = replica@share(PLf, 2, "sys", "start", "load") .
+ eq 2PLsys = setMark(setMark(2PLf, "focc" "sys", 1), "start", 8) . 
  *** only the product line structure (without faults)
- *** eq pline = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
+ *** eq plcycle = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
  ***          nilP ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ; t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] .
- *** the FMS (pl + faults; cannot be obtained from pline using ';' because of the inhibitor arcs to t1,t2)
+ *** the FMS (pl + faults; cannot be obtained from plcycle using ';' because of the inhibitor arcs to t1,t2)
  *** eq net = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), 1 . p(7,"") ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
  ***          1 . p(8,"") ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ;
  ***          t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] ; t(5,"") |-> [1 . p(0,""), 1 . p(7,""), nilP ] ; t(6,"") |-> [1 . p(0,""), 1 . p(8,""), nilP].

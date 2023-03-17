@@ -35,6 +35,7 @@ fmod BAGP is
  
  vars P P' P'' P''' : Place . 
  vars K K' : NzNat .
+ var I : Nat .
  vars B B' : Pbag .
  vars L L' L'' : ModLab .
  var S : Pset .
@@ -42,7 +43,7 @@ fmod BAGP is
  
  *** I seguenti operatori sono stati adattati dalla definizione originale, alcuni potrebbero non servire più
  var W : List{String} .
- *** gives the set of places whose labes match a given prefix
+ *** gives the set of places whose labes match a given prefix (NOTE a String is also a List{String})
  op support : Pbag List{String} -> Pset . 
  eq support(B, W) = $support(B, W, emptyPset) .  
  op $support : Pbag List{String} Pset -> Pset . 
@@ -85,7 +86,14 @@ ceq $addLab(K . P + B', B, L, S) = $addLab(B', K . P + B, L, S) if P in S .
  *** add a new label to every bag element
  op addLab : Pbag ModLab -> Pbag .
  eq addLab(B, L) = addLab(B, L, emptyPset) .
- *** rename a place, if the renamed place (when different) doesn't exist -- partial op 
+ *** set a weight for places with a given prefix
+ op set : Pbag List{String} Nat -> Pbag .
+ceq set(B, W, I) = set(B, S, I) if S := support(B, W) /\ S =/= emptyPset .
+ eq set(B, W, I) = if I == 0 then B else B + I . p(< W ; 0 >) fi [owise] .
+ *** set a weight for a (non-empty) set of places
+ op set : Pbag NePset Nat -> Pbag .
+ eq set(B, S U P U P', I) = set(set(B, P, I), S U P', I) . *** NOTE set(B, P, I) is already defined in BAG module
+ *** rename a place, if the renamed place (when different) doesn't exist -- partial op (still helpful?)
  op rename : Pbag Place Place -> [Pbag] .
 ceq rename(B + K . P, P, P') = B + K . P' if B[P'] == 0 .
 ceq rename(B, P, P') = B if B[P] == 0 .   

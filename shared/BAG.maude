@@ -43,8 +43,15 @@ ceq (N . X + B) / M = B / M if N quo M == 0 .
  eq (N . X + B) / M = N quo M . X + B / M [owise] .
  *** sets an element's multiplicity (if zero removes it from the bag)
  op set  : Bag{X} X$Elt Nat -> Bag{X} . 
- eq set(B + N . X, X, K) = if K == 0 then B else B + K . X fi . 
- eq set(B, X, K) =  if K == 0 then B else B + K . X fi [owise] . 
+ *** eq set(B + N . X, X, K) = if K == 0 then B else B + K . X fi . 
+ *** eq set(B, X, K) =  if K == 0 then B else B + K . X fi [owise] . 
+ eq set(B, X, 0) = remove(B, X) .
+ eq set(B + N . X, X, M) =  B + M . X  .
+ eq set(B, X, M) = B + M . X [owise] .
+ *** remove a given element from a bag
+ op remove :  Bag{X} X$Elt -> Bag{X} .
+ eq remove(B + N . X, X) = B .
+ eq remove(B, X) = B [owise] .
  *** relational ops
  op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
  ceq N . X + B <= B' = false if N > B'[X] .

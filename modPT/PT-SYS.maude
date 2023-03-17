@@ -43,7 +43,6 @@ cmb N S : System if welldef(N) . *** /\ support(S) subset places(N) .
  *** step-enabling (helpful?)
  *** op enabled : System Tran NzNat -> [Bool] .
  *** eq enabled((T |-> [I,O,H] ; N) S, T, K) = K * I <= S and-then H >' S .
-
 *** checks for a deadlock
  op dead : System -> Bool . 
 ceq dead((T |-> Q ; N) S) = false if enabled((T |-> Q ; N) S, T) .
@@ -68,7 +67,7 @@ ceq dead((Q U Sn) S) = false if enabled((Q U Sn) S, Q) .
  eq places(Sn S, W) = places(Sn, W) U support(S, W) .
  *** gets out places whose label suffixes fall in the specified set 
  op places : System Set{String} -> Pset .
- eq places(N S, WS) = places(N, WS) U support(S, WS) .
+ eq places(N S, WS) = places(N, WS) U places(t(< "" ; 0 >) |-> [S, nilP, nilP], WS) . *** we use an escamotage for resusing existing places
  *** system's oredered list of places
  op placeList : System -> Plist .
  eq placeList(N S) = $makePlist(places(N S), emptyPlist) .
@@ -80,14 +79,13 @@ ceq dead((Q U Sn) S) = false if enabled((Q U Sn) S, Q) .
  eq addLab(N S, Lab) = addLab(N, Lab) addLab(S, Lab) .
  op addLab : SimpleSys ModLab -> SimpleSys .
  eq addLab(Sn S, Lab) = addLab(Sn, Lab) addLab(S, Lab) .
- *** version specifying shared elements
+ *** version specifying shared elements (helpful!)
+ op addLab : System ModLab Pset Tset -> System .
  var PS : Pset .
  var TS : Tset .
- op addLab : System ModLab Pset Tset -> System .
  eq addLab(N S, Lab, PS, TS) = addLab(N, Lab, PS, TS) addLab(S, Lab, PS) .
  op addLab : SimpleSys ModLab Pset -> SimpleSys .
  eq addLab(Sn S, Lab, PS) = addLab(Sn, Lab, PS) addLab(S, Lab, PS) .
- 
  *** remove some places
  op remove :  System Pset -> [System] .
  eq remove(N S, PS) = remove(N, PS) remove(S, PS) .
