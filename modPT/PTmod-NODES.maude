@@ -34,7 +34,7 @@ fmod PTmod-NODE is
  eq hasSuffix(N1, Ls) = false [owise] .
  op hasPrefix : Node List{String} -> Bool .
  eq hasPrefix(N1, emptyLs) = true . *** base case
- eq hasPrefix(n(< W ; I > L), Ls W) = hasPrefix(n(L), Ls) .
+ eq hasPrefix(n(< W ; I > L), W Ls) = hasPrefix(n(L), Ls) .
  eq hasPrefix(N1, Ls) = false [owise] .
 endfm
 

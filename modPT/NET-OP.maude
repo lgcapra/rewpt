@@ -96,14 +96,13 @@ ceq replica@share(Ssys, K, W, S) = $replica@share(Ssys, K, W, S, emptySsys) if K
  op $tnew : ImatrixT Atype Pset NzNat   -> ImatrixT .
  eq $tnew(TQ, A, emptyPset, K) = TQ .
  eq $tnew(T |-> Q, A, P U S, K) = $tnew(T |-> set(Q, A, P, K), A, S, K) .
- *** set a marking for places with label with a given prefix
- op setMark : System List{String} Nat -> System .
- eq setMark(N B, L, I) = N set(B, L, I) . 
- op setMark : Net List{String} NzNat -> [System] .
- eq setMark(N, L, K) = N set(nilP, L, K) . 
+ *** set a marking for net places with label with a given prefix
+ op setMark : Net List{String} NzNat -> System .
+ eq setMark(N, L, K) = setMark(N nilP, L, K) . 
+ op setMark : System List{String} NzNat -> System .
+ eq setMark(N B, L, K) = N set(B, places(N B, L), K) . 
+ 
  *** version for simple systems
- op setMark : SimpleSys List{String} Nat -> SimpleSys .
- eq setMark(Sn B, L, I) = Sn set(B, L, I) .
  op setMark : Snet List{String} NzNat -> SimpleSys .
  eq setMark(Sn, L, K) = Sn set(nilP, L, K) .  
  

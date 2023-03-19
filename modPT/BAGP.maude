@@ -40,8 +40,6 @@ fmod BAGP is
  vars L L' L'' : ModLab .
  var S : Pset .
  var LNP : List{Nat,Place} . 
- 
- *** I seguenti operatori sono stati adattati dalla definizione originale, alcuni potrebbero non servire più
  var W : List{String} .
  *** gives the set of places whose labes match a given prefix (NOTE a String is also a List{String})
  op support : Pbag List{String} -> Pset . 
