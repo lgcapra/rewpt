@@ -17,8 +17,8 @@ fmod PTmod-NODE is
  op lab : Node -> ModLab .
  eq lab (n(L)) = L .
  vars W W' : String .
- var I : Nat .
- *** add a new label to the tail
+ var I J : Nat .
+ *** add a new label entry to the tail
  op addLab : Node ModLab -> Node . 
  eq addLab(n(L), L') = n(L L') .
  *** order relations
@@ -32,10 +32,19 @@ fmod PTmod-NODE is
  eq hasSuffix(N1, emptyLs) = true . *** base case
  eq hasSuffix(n(L < W ; I >), Ls W) = hasSuffix(n(L), Ls) .
  eq hasSuffix(N1, Ls) = false [owise] .
+ *** checks that the node's label's prefix matches the given one
  op hasPrefix : Node List{String} -> Bool .
  eq hasPrefix(N1, emptyLs) = true . *** base case
  eq hasPrefix(n(< W ; I > L), W Ls) = hasPrefix(n(L), Ls) .
  eq hasPrefix(N1, Ls) = false [owise] .
+ 
+ op sameLab : ModLab ModLab -> Bool [comm] .
+ eq sameLab(L, L) = true .
+ eq sameLab(NeL:NeModLab, emptyLab) = false .
+ eq sameLab(< W ; I > L, < W ; J > L') = sameLab(L, L') [owise] .
+ *** checks that two nodes share a label
+ op sameLab : Node Node -> Bool .
+ eq sameLab(n(L), n(L')) = sameLab(L, L') .
 endfm
 
 *** places

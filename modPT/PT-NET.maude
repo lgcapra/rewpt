@@ -139,7 +139,7 @@ ceq rename(N, T, T') = N if N[T] == undefined .
  op $places : Snet List{String} Pset -> Pset . 
  eq $places(emptySn, WL, S) = S . 
  eq $places(Q U Sn, WL, S) = $places(Sn, WL, S U places(WL, Q)) . *** places in Imatrix has the args in reverse order to avoid looping
- *** gets out the places whose labels match the given set of prefixes (first elements) -- NOTE reuse $places (recall that W is both a list and a set)
+ *** gets out the places whose labels match the given set of prefixes (first elements) -- NOTE reuse $places (recall that W is both a List{String} and a Set{String})
  op places : Snet Set{String} -> Pset .
  eq places(Sn, W) = $places(Sn, W, emptyPset) .
  eq places(Sn, WS) = $$places(Sn, WS, emptyPset) [owise] .
