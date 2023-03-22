@@ -37,7 +37,7 @@ fmod BAGP is
  vars K K' : NzNat .
  var I : Nat .
  vars B B' : Pbag .
- vars L L' L'' : ModLab .
+ vars L L' L'' : Lab .
  var S : Pset .
  var LNP : List{Nat,Place} . 
  var W : List{String} .
@@ -75,14 +75,14 @@ ceq $support(K . P + B, W, S) = $support(B, W, S U P) if hasPrefix(P, W) .
 
  *** -- used for net algebra -- 
  *** add a new label to bag's elements -- version specifying elements to share (i.e., to which not to add the label)
- op addLab : Pbag ModLab Pset -> Pbag . 
+ op addLab : Pbag Lab Pset -> Pbag . 
  eq addLab(B, L, S) = $addLab(B, nilP, L, S) .
- op $addLab : Pbag Pbag ModLab Pset -> Pbag .
+ op $addLab : Pbag Pbag Lab Pset -> Pbag .
  eq $addLab(nilP, B, L, S) = B .
 ceq $addLab(K . P + B', B, L, S) = $addLab(B', K . P + B, L, S) if P in S .
  eq $addLab(K . P + B', B, L, S) = $addLab(B', K . addLab(P, L) + B, L, S) [owise].
  *** add a new label to every bag element
- op addLab : Pbag ModLab -> Pbag .
+ op addLab : Pbag Lab -> Pbag .
  eq addLab(B, L) = addLab(B, L, emptyPset) .
  *** set a weight for places with a given prefix
  op set : Pbag List{String} Nat -> Pbag .

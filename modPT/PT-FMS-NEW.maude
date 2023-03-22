@@ -24,9 +24,9 @@ fmod PT-FMS is
  eq plcycle = load ; line ; ass .
  eq plcyclef = plcycle ; fault .
  eq PLf = replica@share(plcyclef, 2, "PL", "focc" U "start", "ass" U "load") .
- eq PLsys = setMark(setMark(PLf, "focc", 1), "start", 8) . 
+ eq PLsys = setMark(setMark(PLf, "focc", 1), "start", 4) . 
  eq 2PLf = replica@share(PLf, 2, "sys", "start", emptyStr) .
- eq 2PLsys = setMark(setMark(2PLf, "focc" "sys", 1), "start", 8) . 
+ eq 2PLsys = setMark(setMark(2PLf, "focc" "sys", 1), "start", 4) . 
  *** only the product line structure (without faults)
  *** eq plcycle = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
  ***          nilP ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ; t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] .

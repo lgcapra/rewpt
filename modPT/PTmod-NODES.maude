@@ -5,21 +5,21 @@ fmod PTmod-NODE is
  protecting NAT .
  protecting EXT-BOOL .
  pr COMPARABLE-LIST{SortedPair+<{String<,Nat<}} * (sort Pair{String<,Nat<} to  Pair{String,Nat},  
-                                                           sort NeList{SortedPair+<{String<,Nat<}} to NeModLab,
-                                                           sort List{SortedPair+<{String<,Nat<}} to ModLab,
+                                                           sort NeList{SortedPair+<{String<,Nat<}} to NeLab,
+                                                           sort List{SortedPair+<{String<,Nat<}} to Lab,
                                                            op nil to emptyLab).
  pr LIST{String} * (op nil to emptyLs) .
  sort Node .
- op n : ModLab -> Node [ctor] .
- vars L L' : ModLab .
+ op n : Lab -> Node [ctor] .
+ vars L L' : Lab .
  vars N1 N2 : Node .
  *** get the label
- op lab : Node -> ModLab .
+ op lab : Node -> Lab .
  eq lab (n(L)) = L .
  vars W W' : String .
  var I J : Nat .
  *** add a new label entry to the tail
- op addLab : Node ModLab -> Node . 
+ op addLab : Node Lab -> Node . 
  eq addLab(n(L), L') = n(L L') .
  *** order relations
  op _<_ : Node Node -> Bool . *** strict total order
@@ -37,14 +37,14 @@ fmod PTmod-NODE is
  eq hasPrefix(N1, emptyLs) = true . *** base case
  eq hasPrefix(n(< W ; I > L), W Ls) = hasPrefix(n(L), Ls) .
  eq hasPrefix(N1, Ls) = false [owise] .
- 
- op sameLab : ModLab ModLab -> Bool [comm] .
- eq sameLab(L, L) = true .
- eq sameLab(NeL:NeModLab, emptyLab) = false .
- eq sameLab(< W ; I > L, < W ; J > L') = sameLab(L, L') [owise] .
- *** checks that two nodes share a label
+ *** checks that two nodes share a label (doesn't consider indices)
  op sameLab : Node Node -> Bool .
- eq sameLab(n(L), n(L')) = sameLab(L, L') .
+ eq sameLab(n(L), n(L')) = sameLab(L, L') . 
+ op sameLab : Lab Lab -> Bool [comm].
+ eq sameLab(L, L) = true .
+ eq sameLab(NeL:NeLab, emptyLab) = false .
+ eq sameLab(< W ; I > L, < W' ; J > L') = W == W' and-then sameLab(L, L') [owise] .
+ 
 endfm
 
 *** places
@@ -70,7 +70,7 @@ endv
 
 *** transitions
 fmod TRAN is
- protecting PTmod-NODE * (sort Node to Tran, op n to t) .
+ protecting PTmod-NODE * (sort Node to Tran, op n to t) * (op sameLab : Tran Tran -> Bool to sameTlab) .
 endfm
 
 *** default view

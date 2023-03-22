@@ -14,7 +14,7 @@ fmod IMATRIX is
  vars N N' C1 C2 : Nat .
  vars K K' : NzNat .
  vars Q Q' : Imatrix .
- var L : ModLab .
+ var L : Lab .
  var S : Pset .
  
  ops I O H : Imatrix -> Pbag .
@@ -58,10 +58,10 @@ fmod IMATRIX is
  eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
  
  *** net-algebra ops: add a new label to a matrix' elements
- op addLab : Imatrix ModLab -> Imatrix . *** overloaded
+ op addLab : Imatrix Lab -> Imatrix . *** overloaded
  eq addLab([X,Y,Z], L) = [addLab(X, L), addLab(Y, L), addLab(Z, L)] .
  *** version specifying elements to share
- op addLab : Imatrix ModLab Pset -> Imatrix . 
+ op addLab : Imatrix Lab Pset -> Imatrix . 
  eq addLab([X,Y,Z], L, S) = [addLab(X, L, S), addLab(Y, L, S), addLab(Z, L, S)] .
  *** rename a place (build on BAGP.rename)
  op rename : Imatrix Place Place -> [Imatrix] .

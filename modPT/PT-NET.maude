@@ -6,9 +6,8 @@ in ../shared/MAP-SET
 fmod PT-NET is
  pr MAP-SET{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN,
                              sort Set{Tran} to Tset, sort NeSet{Tran} to NeTset, op emptyS to emptyTset) . *** ImatrixM is a view on IMATRIX-MOD (like Imatrix on IMATRIX)
- pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist ) .
+ pr SORTABLE-LIST{Tran<}  * (sort List{Tran<} to Tlist, sort NeList{Tran<} to NeTlist, op nil to emptyTlist) .
  pr SORTABLE-LIST{Place<} * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
- pr PAIR{Pset, Nat} . *** multiple return value (defined for convenience)
  pr SET+{Imatrix} * (sort Set{Imatrix} to Snet, sort NeSet{Imatrix} to NeSnet, op emptyS to emptySn) . *** simple net-representation as a set of local inc. matrices
  pr SET+{String}  * (op emptyS to emptyStr) .
  vars  N N'  : Net .
@@ -95,14 +94,14 @@ ceq $transitions(T U TS, WL, TS') = $transitions(TS, WL, T U TS') if hasPrefix(T
  eq $remove(T |-> Q ; N', N, X) = $remove(N', T |-> remove(Q, X) ; N, X).
  *** add a new label to the net's places (and transitions, only to avoid "duplicated" transitions)
  *** version including elements to share (i.e., to which not to add the label)
- var Lab : ModLab .
- op addLab : Net ModLab Pset Tset -> Net . 
+ var Lab : Lab .
+ op addLab : Net Lab Pset Tset -> Net . 
  eq addLab(N, Lab, S, TS) = $addLab(N, emptyN, Lab, S, TS) .
- op $addLab : Net Net ModLab Pset Tset -> Net .
+ op $addLab : Net Net Lab Pset Tset -> Net .
  eq $addLab(emptyN, N, Lab, S, TS) = N .
  eq $addLab(T |-> Q ; N', N, Lab, S, TS) = $addLab(N', (if T in TS then T else addLab(T, Lab) fi) |-> addLab(Q, Lab, S) ; N, Lab, S, TS) .
  *** simple (default) version
- op addLab : Net ModLab -> Net . 
+ op addLab : Net Lab -> Net . 
  eq addLab(N, Lab) = addLab(N, Lab, emptyPset, emptyTset) .
  *** rename a place (build on Imatrix.rename)
  op rename : Net Place Place -> [Net] .
@@ -152,13 +151,13 @@ ceq rename(N, T, T') = N if N[T] == undefined .
  eq placeList(Sn) = $makePlist(places(Sn),emptyPlist) .
  
  *** add a new label to a simple-net's places (specifies places in which not to apply)
- op addLab : Snet ModLab Pset -> Snet . 
+ op addLab : Snet Lab Pset -> Snet . 
  eq addLab(Sn, Lab, S) = $addLab(Sn, emptySn, Lab, S) .
- op $addLab : Snet Snet ModLab Pset -> Snet .
+ op $addLab : Snet Snet Lab Pset -> Snet .
  eq $addLab(emptySn, Sn, Lab, S) = Sn .
  eq $addLab(Q U Sn', Sn, Lab, S) = $addLab(Sn', addLab(Q, Lab, S) U Sn, Lab, S) .
  *** simple version
- op addLab : Snet ModLab Pset -> Snet . 
+ op addLab : Snet Lab Pset -> Snet . 
  eq addLab(Sn, Lab, S) = addLab(Sn, Lab, emptyPset) .
  
  *** rename a place (build on Imatrix.rename)
