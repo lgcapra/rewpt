@@ -70,7 +70,9 @@ endv
 
 *** transitions
 fmod TRAN is
- protecting PTmod-NODE * (sort Node to Tran, op n to t) * (op sameLab : Tran Tran -> Bool to sameTlab) .
+ protecting PTmod-NODE * (sort Node to Tran, op n to t) * 
+                        (op sameLab : Tran Tran -> Bool to sameTlab,
+                         op sameLab : Lab Lab -> Bool to sameTlab) .
 endfm
 
 *** default view
