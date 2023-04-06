@@ -4,13 +4,13 @@ fmod PT-FMS is
  protecting NET-OP .
  ops sline sload sass sfault : -> Imatrix .
  ops line load ass fault : -> ImatrixT . 
- ops net plcycle plcyclef net' symnet symnet2 PLf 2PLf : -> Net .
+ ops net plcycle plcyclef net' symnet symnet2 PLf 2PLf NPLf : -> Net .
  ops snet splcycle splcyclef snet' ssymnet ssymnet2 : -> Snet .
- ops sys0  PLsys 2PLsys : -> System .
+ ops sys0  PLsys 2PLsys NPLsys : -> System .
  ops slinef 2sfaultylines : -> SimpleSys .
  ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag .
  op M : -> NzNat . *** MS model's parameter
- eq M = 4 . 
+ eq M = 8 . 
  ops sys0 sys sys2 sys2' sys2'' sys2new sys2m1 sys2m2 sys4 : -> System .
 
  eq sline =  [1 . p(< "working" ; 0 >) , 1 . p(< "ass" ; 0 >), 1 . p(< "faulty" ; 0 >) ] .
@@ -24,9 +24,12 @@ fmod PT-FMS is
  eq plcycle = load ; line ; ass .
  eq plcyclef = plcycle ; fault .
  eq PLf = replica@share(plcyclef, 2, "PL", "focc" U "start", "ass" U "load") .
- eq PLsys = setMark(setMark(PLf, "focc", 1), "start", 4) . 
+ eq PLsys = setMark(setMark(PLf, "focc", 1), "start", M) . 
  eq 2PLf = replica@share(PLf, 2, "sys", "start", emptyStr) .
- eq 2PLsys = setMark(setMark(2PLf, "focc" "sys", 1), "start", 4) . 
+ eq 2PLsys = setMark(setMark(2PLf, "focc" "sys", 1), "start", M) . 
+ eq NPLf = replica@share(PLf, 5, "sys", "start", emptyStr) .
+ eq NPLsys = setMark(setMark(NPLf, "focc" "sys", 1), "start", M) . 
+ 
  *** only the product line structure (without faults)
  *** eq plcycle = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
  ***          nilP ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ; t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] .

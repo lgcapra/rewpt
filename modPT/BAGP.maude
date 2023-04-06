@@ -1,7 +1,7 @@
 *** qui e altrove usiamo il preludio modificato anche se si potrebbe usare quello originale (nuova versione)
 in ../shared/BAG-AND-SET
 in ../shared/MAP+
-in PTmod-NODES
+in PT-NODE
 
 *** this module defines (sortable) of pairs << Nat ; Place >>> (much simpler definition than the original one)
 fmod PAIR-NAT-PLACE is 
