@@ -1,0 +1,58 @@
+*** this module defines the operators to bring a Net (System) to a minimal/canonical form
+*** should be used in combination with NET-OP: i.e., assumes that models are built according
+*** to the net-operators there dfined
+
+fmod MINIMIZATION is
+ pr PT-SYS .
+ *** pr MAP+{List{String},Place} * (sort Map{List{String},Place} to Labmap, sort Entry{List{String},Place} to entryL,
+ ***                              op emptyM to emptyLabM, op nil to emptyLs) .
+ vars P P' P'' : Place .
+ vars T T' T'' : Tran .
+ vars N N' : Net .
+ vars B B' B'' : Pbag .
+ var Sys Sys' : System .
+ var Ssys Ssys' : SimpleSys .
+ vars Sn Sn' : Snet .
+ vars I J : Nat .
+ vars K K' : NzNat .
+ vars W W' W'' W''' : String .
+ vars L L' L'' : Lab .
+ *** var Lm : Labmap .
+ vars Ls Ls' : List{String} .
+ var NeL : NeList{String} .
+ 
+ op minimize : Pbag -> Pbag .
+ *** simple version
+ceq minimize(B) = minimize(B'') if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) + B' := B /\ J =/= I
+                        /\ B'' := swapLab(B, W, L, I, J) /\ B'' < B .    
+ eq minimize(B) = B [owise] .
+ op minimize : System -> System .
+ eq minimize(N B) = N minimize(B) .
+ *** given a marking, a label suffix and two indices, possibly rewrites the marking into a lesser way by swapping the suffix index
+ op swapLab : Pbag String Lab Nat Nat -> Pbag .
+ eq swapLab(B, W, L, I, I) = B .
+ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J . 
+ op $swapLab : Pbag Pbag String Lab Nat Nat -> Pbag .
+ eq $swapLab(nilP, B, W, L, I, J) = B .
+ eq $swapLab(K . p(L' < W ; I > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; J > L) + B', W, L, I, J) .
+ eq $swapLab(K . p(L' < W ; J > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; I > L) + B', W, L, I, J) .
+ eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
+*** makes name (index) abstraction in a marking
+ op abstract : Pbag -> Pbag .
+ceq abstract(K . p(L' < W ; K' > L) + B) = abstract(K . p(L' < W ; K' - 1 > L) + replaceWithPrec(B, W, K, Ls)) 
+        if Ls := strLab(L) /\ exists(B, W, K' - 1, Ls) == false .
+ eq abstract(B) = B [owise] .
+ *** replaces in a bag all the occurrences of places whose label matches the given prefix (whose last element's index K' is given) and suffix using K' - 1 in place of K' 
+ op replaceWithPrec : Pbag String NzNat List{String} -> Pbag . 
+ eq replaceWithPrec(B, W, K, Ls) = $replaceWithPrec(B, nilP, W, K, Ls) .
+ op $replaceWithPrec : Pbag Pbag String NzNat List{String} -> Pbag .
+ceq $replaceWithPrec(K . p(L' < W ; K' > L) + B, B', W, K', Ls) = $replaceWithPrec(B, K . p(L' < W ; K' - 1 > L) + B', W, K', Ls)
+       if Ls == strLab(L) .
+ eq $replaceWithPrec(nilP, B, W, K, Ls) = B .
+ eq $replaceWithPrec(K . P + B', B, W, K', Ls) = $replaceWithPrec(B', K . P + B, W, K', Ls) [owise] .
+ 
+ *** checks for the existence in bag of a place whose label matches the given prefix (whose last element's index is given) and suffix
+ op exists : Pbag String Nat List{String} -> Bool .
+ceq exists(K . p(L' < W ; I > L) + B, W, I, Ls) = true if Ls == strLab(L) .
+ eq exists(B,  W, I, Ls) = false [owise] .
+endfm 

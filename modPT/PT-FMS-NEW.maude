@@ -10,25 +10,33 @@ fmod PT-FMS is
  ops slinef 2sfaultylines : -> SimpleSys .
  ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag .
  op M : -> NzNat . *** MS model's parameter
- eq M = 8 . 
+ eq M = 2 . 
  ops sys0 sys sys2 sys2' sys2'' sys2new sys2m1 sys2m2 sys4 : -> System .
 
- eq sline =  [1 . p(< "working" ; 0 >) , 1 . p(< "ass" ; 0 >), 1 . p(< "faulty" ; 0 >) ] .
+ eq sline =  [1 . p(< "work" ; 0 >) , 1 . p(< "ass" ; 0 >), 1 . p(< "faulty" ; 0 >) ] .
  eq line = t(< "line" ; 0 >) |-> sline .
  eq sfault =  [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 0 >), nilP ] .
  eq fault = t(< "fault" ; 0 >) |-> sfault .
- eq sload = [1 . p(< "start" ; 0 >) , 1 . p(< "working" ; 0 >) , nilP ] .
+ eq sload = [1 . p(< "start" ; 0 >) , 1 . p(< "work" ; 0 >) , nilP ] .
  eq load = t(< "load" ; 0 >) |-> sload .
  eq sass =  [1 . p(< "ass" ; 0 >) , 1 . p(< "start" ; 0 >)  , nilP ] .
  eq ass  = t(< "ass" ; 0 >) |-> sass .
  eq plcycle = load ; line ; ass .
  eq plcyclef = plcycle ; fault .
- eq PLf = replica@share(plcyclef, 2, "PL", "focc" U "start", "ass" U "load") .
+ eq PLf = replica@share(plcyclef, 2, "L", "focc" U "start", "ass" U "load") .
  eq PLsys = setMark(setMark(PLf, "focc", 1), "start", M) . 
- eq 2PLf = replica@share(PLf, 2, "sys", "start", emptyStr) .
- eq 2PLsys = setMark(setMark(2PLf, "focc" "sys", 1), "start", M) . 
- eq NPLf = replica@share(PLf, 5, "sys", "start", emptyStr) .
- eq NPLsys = setMark(setMark(NPLf, "focc" "sys", 1), "start", M) . 
+ eq 2PLf = replica@share(PLf, 2, "PL", "start", emptyStr) .
+ eq 2PLsys = setMark(setMark(2PLf, "focc" "PL", 1), "start", M) . 
+ eq NPLf = replica@share(PLf, 6, "PL", "start", emptyStr) .
+ eq NPLsys = setMark(setMark(NPLf, "focc" "PL", 1), "start", M) . 
+ *** sono i tre stati finali di 2PLSYS ottenuti minimizzando (dovrebbero essere equivalenti) 
+ ops d1 d2 d3 : -> Pbag .
+ eq d1 = 1 . p(< "ass" ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "faulty" ; 0 > < "L" ; 0 > < "PL" ; 1 >) +
+         1 . p(< "faulty" ; 0 > < "L" ; 1 > < "PL" ; 0 >) + 1 . p(< "work" ; 0 > < "L" ; 1 > < "PL" ; 0 >) .
+ eq d2 = 1 . p(< "ass" ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "faulty" ; 0 > < "L" ; 1 > < "PL" ; 0 >) + 
+         1 . p(< "faulty" ; 0 > < "L" ; 1 > < "PL" ; 1 >) + 1 . p(< "work" ; 0 > < "L" ; 1 > < "PL" ; 0 >) .
+ eq d3 = 1 . p(< "ass" ; 0 > < "L" ; 0 > < "PL" ; 1 >) + 1 . p(< "faulty" ; 0 > < "L" ; 0 > < "PL" ; 0 >) +
+         1 . p(< "faulty" ; 0 > < "L" ; 1 > < "PL" ; 1 >) + 1 . p(< "work" ; 0 > < "L" ; 1 > < "PL" ; 1 >) .
  
  *** only the product line structure (without faults)
  *** eq plcycle = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),

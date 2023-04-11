@@ -1,0 +1,99 @@
+in ../shared/SORTED-PAIR.maude
+in ../shared/COMPARABLE-LIST.maude
+
+*** defines label-structures for moudular nets
+fmod NODE-LAB is 
+ pr NAT .
+ pr LIST{String} * (op nil to emptyLs) .
+ pr COMPARABLE-LIST{SortedPair+<{String<,Nat<}} * (sort Pair{String<,Nat<} to  Pair{String,Nat},  
+                                                           sort NeList{SortedPair+<{String<,Nat<}} to NeLab,
+                                                           sort List{SortedPair+<{String<,Nat<}} to Lab,
+                                                           op nil to emptyLab).
+
+ var I J : Nat .
+ vars W W' : String .
+ var Ls Ls' Ls'' : List{String} .
+ vars L L' : Lab .
+ *** gets the text out of a lab
+ op strLab : Lab -> List{String} .
+ eq strLab(L) = $strLab(L, emptyLs) .
+ op $strLab : Lab List{String} -> List{String} .
+ eq $strLab(emptyLab, Ls) = Ls .
+ eq $strLab(< W ; I > L, Ls) = $strLab(L, Ls W) .
+ *** checks that the label's suffix matches the given one
+ op hasSuffix : Lab List{String} -> Bool .
+ceq hasSuffix(L, Ls) = true  if Ls' Ls := strLab(L) .
+ eq hasSuffix(L, Ls) = false [owise] .
+ *** checks that the label's prefix matches the given one
+op hasPrefix : Lab List{String} -> Bool .
+ceq hasPrefix(L, Ls) = true  if Ls Ls' := strLab(L) .
+ eq hasPrefix(L, Ls) = false [owise] .
+
+endfm 
+
+fmod PT-NODE is
+ pr NODE-LAB .
+ sort Node .
+ op n : Lab -> Node [ctor] .
+ vars L L' : Lab .
+ vars N1 N2 : Node .
+ *** get the label
+ op lab : Node -> Lab .
+ eq lab (n(L)) = L .
+ *** gets the text out of a node's lab
+ op strLab : Node -> List{String} .
+ eq strLab(n(L)) = strLab(L) .
+ vars W W' : String .
+ var I J : Nat .
+ *** add a new label entry to the tail
+ op addLab : Node Lab -> Node . 
+ eq addLab(n(L), L') = n(L L') .
+ *** order relations
+ op _<_ : Node Node -> Bool . *** strict total order
+ eq n(L) < n(L') = lex(0, L, L') .
+ op _<=_ : Node Node -> Bool . *** total order
+ eq N1 <= N2 = N1 == N2 or-else N1 < N2 .
+ *** checks that the node's label's suffix matches the given one
+ var Ls : List{String} .
+ op hasSuffix : Node List{String} -> Bool .
+ eq hasSuffix(n(L), Ls) = hasSuffix(L, Ls) .
+ *** checks that the node's label's prefix matches the given one
+ op hasPrefix : Node List{String} -> Bool .
+ eq hasPrefix(n(L), Ls) = hasPrefix(L, Ls) .
+endfm
+
+*** places
+fmod PLACE is
+ protecting PT-NODE * (sort Node to Place, op n to p) .
+endfm
+
+*** default view
+view Place from TRIV to PLACE is 
+ sort Elt to Place . 
+endv
+
+*** strict total-order view to PLACE
+view Place< from STRICT-TOTAL-ORDER to PLACE is 
+ sort Elt to Place . 
+endv
+
+*** total-order view to PLACE
+view Place<= from TOTAL-ORDER to PLACE is 
+ sort Elt to Place . 
+endv
+
+
+*** transitions
+fmod TRAN is
+ protecting PT-NODE * (sort Node to Tran, op n to t) .
+endfm
+
+*** default view
+view Tran from TRIV to TRAN is 
+ sort Elt to Tran . 
+endv
+
+*** standard total-order view to TRAN
+view Tran< from STRICT-TOTAL-ORDER to TRAN is 
+ sort Elt to Tran . 
+endv
