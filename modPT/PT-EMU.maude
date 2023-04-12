@@ -8,9 +8,9 @@ mod PT-EMU is
  vars I O H M : Pbag .
  vars N N' : Net .
  *** firing rule (without canonization)
- *** crl [firing] : N M => N M + O - I if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
+ crl [firing] : N M => N M + O - I if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
  *** including canonization
- crl [firing] : N M => N minimize(abstract(M + O - I)) if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
+ *** crl [firing] : N M => N minimize(abstract(M + O - I)) if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
  *** crl [canfire] : N M => canonize(N M + O - I) if  T |-> [I,O,H] ; N' := N /\ I  =/= O /\ I <= M /\ H >' M .
 
  *** version for simple PT-system representation (transitions are implicit)

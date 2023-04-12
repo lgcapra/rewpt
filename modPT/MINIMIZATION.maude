@@ -17,9 +17,8 @@ fmod MINIMIZATION is
  vars K K' : NzNat .
  vars W W' W'' W''' : String .
  vars L L' L'' : Lab .
- *** var Lm : Labmap .
+ var NeL : NeLab .
  vars Ls Ls' : List{String} .
- var NeL : NeList{String} .
  
  op minimize : Pbag -> Pbag .
  *** simple version
@@ -37,11 +36,13 @@ ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J .
  eq $swapLab(K . p(L' < W ; I > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; J > L) + B', W, L, I, J) .
  eq $swapLab(K . p(L' < W ; J > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; I > L) + B', W, L, I, J) .
  eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
-*** makes name (index) abstraction in a marking
+*** makes the name (index) abstraction in a marking
  op abstract : Pbag -> Pbag .
-ceq abstract(K . p(L' < W ; K' > L) + B) = abstract(K . p(L' < W ; K' - 1 > L) + replaceWithPrec(B, W, K, Ls)) 
-        if Ls := strLab(L) /\ exists(B, W, K' - 1, Ls) == false .
+*** ceq abstract(B) = abstract(replaceWithPrec(B, W, K', Ls)) if K . p(L' < W ; K' > L) + B' := B /\                                                              Ls := strLab(L) /\ exists(B', W, K' - 1, Ls) == false .
+ *** this version consider the suffix exactly as it is 
+ ceq abstract(B) = abstract(replaceWithPrec(B, < W ; K' > L)) if K . p(L' < W ; K' > L) + B' := B /\ exists(B', < W ; K' - 1 > L) == false .
  eq abstract(B) = B [owise] .
+
  *** replaces in a bag all the occurrences of places whose label matches the given prefix (whose last element's index K' is given) and suffix using K' - 1 in place of K' 
  op replaceWithPrec : Pbag String NzNat List{String} -> Pbag . 
  eq replaceWithPrec(B, W, K, Ls) = $replaceWithPrec(B, nilP, W, K, Ls) .
@@ -50,9 +51,20 @@ ceq $replaceWithPrec(K . p(L' < W ; K' > L) + B, B', W, K', Ls) = $replaceWithPr
        if Ls == strLab(L) .
  eq $replaceWithPrec(nilP, B, W, K, Ls) = B .
  eq $replaceWithPrec(K . P + B', B, W, K', Ls) = $replaceWithPrec(B', K . P + B, W, K', Ls) [owise] .
+ *** this version consider the suffix exactly as it is 
+ op replaceWithPrec : Pbag NeLab -> Pbag . 
+ eq replaceWithPrec(B, NeL) = $replaceWithPrec(B, nilP, NeL) .
+ op $replaceWithPrec : Pbag Pbag NeLab -> Pbag .
+ceq $replaceWithPrec(K . p(L' NeL) + B, B', NeL) = $replaceWithPrec(B, K . p(L' < W ; K' - 1 > L) + B', NeL) if < W ; K' > L := NeL .
+ eq $replaceWithPrec(nilP, B, NeL) = B .
+ eq $replaceWithPrec(K . P + B', B, NeL) = $replaceWithPrec(B', K . P + B, NeL) [owise] .
  
- *** checks for the existence in bag of a place whose label matches the given prefix (whose last element's index is given) and suffix
+ *** checks for the existence in bag of a place whose label matches the given suffix (whose last element's index is given) and suffix
  op exists : Pbag String Nat List{String} -> Bool .
 ceq exists(K . p(L' < W ; I > L) + B, W, I, Ls) = true if Ls == strLab(L) .
  eq exists(B,  W, I, Ls) = false [owise] .
+ *** this version consider the suffix exactly as it is
+ op exists : Pbag NeLab -> Bool .
+ eq exists(K . p(L' NeL) + B, NeL) = true  .
+ eq exists(B, NeL) = false [owise] .
 endfm 

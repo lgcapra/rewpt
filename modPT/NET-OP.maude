@@ -35,45 +35,45 @@ fmod NET-OP is
  var TS : Tset .
  *** "symmetric" juxtaposition: creates K (disjoint) replica of a system each one with a suitably added label suffix (with index 0..K-1) denoting the "nesting" level
  ***  general version specifying elements to be shared among replicas
- op replica@share : System NzNat String Pset Tset -> System .
- eq replica@share(Sys, 1, W, S, TS) = Sys . 
-ceq replica@share(Sys, K, W, S, TS) = $replica@share(Sys, K, W, emptySys, S, TS) if K > 1 .
- op $replica@share  : System Nat String System Pset Tset -> System .
- eq $replica@share(Sys, 0, W, Sys', S, TS) = Sys' .
- eq $replica@share(Sys, K, W, Sys', S, TS) = $replica@share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S, TS)), S, TS) .
+ op replica&share : System NzNat String Pset Tset -> System .
+ eq replica&share(Sys, 1, W, S, TS) = Sys . 
+ceq replica&share(Sys, K, W, S, TS) = $replica&share(Sys, K, W, emptySys, S, TS) if K > 1 .
+ op $replica&share  : System Nat String System Pset Tset -> System .
+ eq $replica&share(Sys, 0, W, Sys', S, TS) = Sys' .
+ eq $replica&share(Sys, K, W, Sys', S, TS) = $replica&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S, TS)), S, TS) .
  *** versions in which shared elements are specified through a prefix
- op replica@share : System NzNat String List{String} List{String} -> System .
- eq replica@share(Sys, K, W, L, L') = replica@share(Sys, K, W, places(Sys, L), transitions(net(Sys), L')) .
+ op replica&share : System NzNat String List{String} List{String} -> System .
+ eq replica&share(Sys, K, W, L, L') = replica&share(Sys, K, W, places(Sys, L), transitions(net(Sys), L')) .
  *** versions in which shared elements are specified through a set of (first elements of) prefixes
- op replica@share : System NzNat String Set{String} Set{String} -> System .
+ op replica&share : System NzNat String Set{String} Set{String} -> System .
  vars WS WS' : Set{String} .
- eq replica@share(Sys, K, W, WS, WS') = replica@share(Sys, K, W, places(Sys, WS), transitions(net(Sys), WS')) .
+ eq replica&share(Sys, K, W, WS, WS') = replica&share(Sys, K, W, places(Sys, WS), transitions(net(Sys), WS')) .
  *** default vesrion
  op replica  : System NzNat String -> System . 
- eq replica(Sys, K, W) =  replica@share(Sys, K, W, emptyPset, emptyTset) .
+ eq replica(Sys, K, W) =  replica&share(Sys, K, W, emptyPset, emptyTset) .
  *** net versions (builds on system-replica)
- op replica@share : Net NzNat String Pset Tset -> Net .
- eq replica@share(N, K, W, S, TS) = net(replica@share(N nilP, K, W, S, TS)) .
- op replica@share : Net NzNat String List{String} List{String} -> Net .
- eq replica@share(N, K, W, L, L') = net(replica@share(N nilP, K, W, L, L')) .
+ op replica&share : Net NzNat String Pset Tset -> Net .
+ eq replica&share(N, K, W, S, TS) = net(replica&share(N nilP, K, W, S, TS)) .
+ op replica&share : Net NzNat String List{String} List{String} -> Net .
+ eq replica&share(N, K, W, L, L') = net(replica&share(N nilP, K, W, L, L')) .
  op replica  : Net NzNat String -> Net .
- eq replica(N, K, W) = replica@share(N, K, W, emptyPset, emptyTset) .
- op replica@share : Net NzNat String Set{String} Set{String} -> Net .
- eq replica@share(N, K, W, WS, WS') = replica@share(N, K, W, places(N, WS), transitions(N, WS')) .
+ eq replica(N, K, W) = replica&share(N, K, W, emptyPset, emptyTset) .
+ op replica&share : Net NzNat String Set{String} Set{String} -> Net .
+ eq replica&share(N, K, W, WS, WS') = replica&share(N, K, W, places(N, WS), transitions(N, WS')) .
  
  *** general version for simple net representation
- op replica@share : SimpleSys NzNat String Pset -> SimpleSys .
- eq replica@share(Ssys, 1, W, S) = Ssys . *** does nothing
-ceq replica@share(Ssys, K, W, S) = $replica@share(Ssys, K, W, S, emptySsys) if K > 1 .
- op $replica@share  : SimpleSys Nat String Pset SimpleSys -> SimpleSys .
- eq $replica@share(Ssys, 0, W, S, Ssys') = Ssys' .
- eq $replica@share(Ssys, K, W, S, Ssys') = $replica@share(Ssys, K - 1, W, S, join(Ssys', addLab(Ssys, < W ; K - 1 >, S) )) .
+ op replica&share : SimpleSys NzNat String Pset -> SimpleSys .
+ eq replica&share(Ssys, 1, W, S) = Ssys . *** does nothing
+ceq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, S, emptySsys) if K > 1 .
+ op $replica&share  : SimpleSys Nat String Pset SimpleSys -> SimpleSys .
+ eq $replica&share(Ssys, 0, W, S, Ssys') = Ssys' .
+ eq $replica&share(Ssys, K, W, S, Ssys') = $replica&share(Ssys, K - 1, W, S, join(Ssys', addLab(Ssys, < W ; K - 1 >, S) )) .
  *** shared elements are specified through a suffix
- op replica@share : SimpleSys NzNat String List{String}  -> SimpleSys .
- eq replica@share(Ssys, K, W, L) = replica@share(Ssys, K, W, places(Ssys, L)) . 
+ op replica&share : SimpleSys NzNat String List{String}  -> SimpleSys .
+ eq replica&share(Ssys, K, W, L) = replica&share(Ssys, K, W, places(Ssys, L)) . 
  *** default version
  op replica  : SimpleSys NzNat String -> SimpleSys . 
- eq replica(Ssys, 1, W) = replica@share(Ssys, 1, W, emptyPset) .
+ eq replica(Ssys, 1, W) = replica&share(Ssys, 1, W, emptyPset) .
  *** simple-net version
  op replica  : Snet NzNat String -> Snet .
  eq replica(Sn, K, W) = net(replica(Sn nilP, K, W)) .

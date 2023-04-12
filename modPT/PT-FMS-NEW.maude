@@ -4,15 +4,16 @@ fmod PT-FMS is
  protecting NET-OP .
  ops sline sload sass sfault : -> Imatrix .
  ops line load ass fault : -> ImatrixT . 
- ops net plcycle plcyclef net' symnet symnet2 PLf 2PLf NPLf : -> Net .
+ ops net plcycle PLf NPLf : -> Net .
  ops snet splcycle splcyclef snet' ssymnet ssymnet2 : -> Snet .
- ops sys0  PLsys 2PLsys NPLsys : -> System .
- ops slinef 2sfaultylines : -> SimpleSys .
- ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag .
- op M : -> NzNat . *** MS model's parameter
- eq M = 2 . 
- ops sys0 sys sys2 sys2' sys2'' sys2new sys2m1 sys2m2 sys4 : -> System .
-
+ ops PLsys NPLsys : -> System .
+ *** ops sys0 sys sys2 sys2' sys2'' sys2new sys2m1 sys2m2 sys4 : -> System .
+ *** ops slinef 2sfaultylines : -> SimpleSys .
+ *** ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag .
+ ops M N : -> NzNat . *** model's parameters: pieces worked at each cycle, number of replicated PLs
+ eq M = 2 .
+ eq N = 2 . 
+ 
  eq sline =  [1 . p(< "work" ; 0 >) , 1 . p(< "ass" ; 0 >), 1 . p(< "faulty" ; 0 >) ] .
  eq line = t(< "line" ; 0 >) |-> sline .
  eq sfault =  [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 0 >), nilP ] .
@@ -21,74 +22,11 @@ fmod PT-FMS is
  eq load = t(< "load" ; 0 >) |-> sload .
  eq sass =  [1 . p(< "ass" ; 0 >) , 1 . p(< "start" ; 0 >)  , nilP ] .
  eq ass  = t(< "ass" ; 0 >) |-> sass .
- eq plcycle = load ; line ; ass .
- eq plcyclef = plcycle ; fault .
- eq PLf = replica@share(plcyclef, 2, "L", "focc" U "start", "ass" U "load") .
+ eq plcycle = load ; line ; ass ; fault .
+ eq PLf = replica&share(plcycle, 2, "L", "focc" U "start", "ass" U "load") .
  eq PLsys = setMark(setMark(PLf, "focc", 1), "start", M) . 
- eq 2PLf = replica@share(PLf, 2, "PL", "start", emptyStr) .
- eq 2PLsys = setMark(setMark(2PLf, "focc" "PL", 1), "start", M) . 
- eq NPLf = replica@share(PLf, 6, "PL", "start", emptyStr) .
+ eq NPLf = replica&share(PLf, N, "PL", "start", emptyStr) .
  eq NPLsys = setMark(setMark(NPLf, "focc" "PL", 1), "start", M) . 
- *** sono i tre stati finali di 2PLSYS ottenuti minimizzando (dovrebbero essere equivalenti) 
- ops d1 d2 d3 : -> Pbag .
- eq d1 = 1 . p(< "ass" ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "faulty" ; 0 > < "L" ; 0 > < "PL" ; 1 >) +
-         1 . p(< "faulty" ; 0 > < "L" ; 1 > < "PL" ; 0 >) + 1 . p(< "work" ; 0 > < "L" ; 1 > < "PL" ; 0 >) .
- eq d2 = 1 . p(< "ass" ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "faulty" ; 0 > < "L" ; 1 > < "PL" ; 0 >) + 
-         1 . p(< "faulty" ; 0 > < "L" ; 1 > < "PL" ; 1 >) + 1 . p(< "work" ; 0 > < "L" ; 1 > < "PL" ; 0 >) .
- eq d3 = 1 . p(< "ass" ; 0 > < "L" ; 0 > < "PL" ; 1 >) + 1 . p(< "faulty" ; 0 > < "L" ; 0 > < "PL" ; 0 >) +
-         1 . p(< "faulty" ; 0 > < "L" ; 1 > < "PL" ; 1 >) + 1 . p(< "work" ; 0 > < "L" ; 1 > < "PL" ; 1 >) .
- 
- *** only the product line structure (without faults)
- *** eq plcycle = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), nilP ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
- ***          nilP ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ; t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] .
- *** the FMS (pl + faults; cannot be obtained from plcycle using ';' because of the inhibitor arcs to t1,t2)
- *** eq net = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), 1 . p(7,"") ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
- ***          1 . p(8,"") ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ;
- ***          t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] ; t(5,"") |-> [1 . p(0,""), 1 . p(7,""), nilP ] ; t(6,"") |-> [1 . p(0,""), 1 . p(8,""), nilP].
- *** eq m0'  = (2 * M) . p(1,"")  .
- *** eq m0  = m0' +  1 . p(0,"") .
-
- *** symmetric markings (used fir debug)
- *** eq m1  = (2 * (sd(M,1))) . p(1,"") + 1 . p(2,"") + 1 . p(5,"") .  *** M > 1
- *** eq m1' = (2 * (sd(M,1))) . p(1,"") + 1 . p(4,"") + 1 . p(3,"") .  *** M > 1
- *** eq d1 = M . p(3,"") + 1 . p(4,"") + 1 . p(8,"") .
- *** eq d2 = M . p(2,"") + 1 . p(5,"") + 1 . p(7,"") .
-
-
- *** eq net' = t(0,"") |-> [2 . p(1,""), 1 . p(2,"") + 1 . p(3,""), nilP] ; t(1,"") |-> [1 . p(2,""), 1 . p(4,""), 1 . p(7,"") ] ; t(2,"") |-> [1 . p(3,""), 1 . p(5,""),
- ***          1 . p(8,"") ] ; t(3,"") |-> [1 . p(4,"") + 1 . p(5,"") , 1 . p(6,""), nilP ] ;
- ***          t(4,"") |-> [1 . p(6,"") , 2 . p(1,""), nilP ] ; t(5,"") |-> [1 . p(0,"") + 1 . p(3,""), 1 . p(7,""), nilP ] ; t(6,"") |-> [1 . p(0,""), 1 . p(8,""), nilP].
- 
- 
- *** specification using node labels 
- *** versione originale (con "rest")
- eq net' = t(< "load" ; 0 >) |-> [2 . p(< "start" ; 1 >), 1 . p(< "line" ; 2 >) + 1 . p(< "line" ; 3 >), nilP ] ; t(< "line" ; 1 >) |-> [1 . p(< "line" ; 2 >) , 1 . p(< "ass" ; 4 >), 1 . p(< "faulty" ; 7 >) ] ; t(< "line" ; 2 >) |-> [1 . p(< "line" ; 3 >) , 1 . p(< "ass" ; 5 >),
-          1 . p(< "faulty" ; 8 >) ] ; t(< "ass" ; 3 >) |-> [1 . p(< "ass" ; 4 >) + 1 . p(< "ass" ; 5 >) , 1 . p(< "end" ; 6 >), nilP ] ;
-          t(< "rest" ; 4 >) |-> [1 . p(< "end" ; 6 >) , 2 . p(< "start" ; 1 >), nilP ] ; t(< "fault" ; 5 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 7 >), nilP ] ; t(< "fault" ; 6 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 8 >), nilP].
- *** versione "compatta" ("rest" assorbito da "ass")
- eq net = t(< "load" ; 0 >) |-> [2 . p(< "start" ; 1 >), 1 . p(< "line" ; 2 >) + 1 . p(< "line" ; 3 >), nilP ] ; t(< "line" ; 1 >) |-> [1 . p(< "line" ; 2 >) , 1 . p(< "ass" ; 4 >), 1 . p(< "faulty" ; 7 >) ] ; t(< "line" ; 2 >) |-> [1 . p(< "line" ; 3 >) , 1 . p(< "ass" ; 5 >),
-          1 . p(< "faulty" ; 8 >) ] ; t(< "ass" ; 3 >) |-> [1 . p(< "ass" ; 4 >) + 1 . p(< "ass" ; 5 >) , 2 . p(< "start" ; 1 >), nilP ] ;
-          t(< "fault" ; 5 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 7 >), nilP ] ; t(< "fault" ; 6 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(< "faulty" ; 8 >), nilP].
- eq m0  = (2 * M) . p(< "start" ; 1 >) +  1 . p(< "focc" ; 0 >) .
-
- eq sys0 = net m0 .
-
- eq snet = toSimpleNet(net) .
-
- *** "symmetric" specification using node labels (obtained using net-algebra operators) -- transition labels do not matter 
- *** eq symnet = t(< "load" ; 0 >) |-> [2 . p(0,"start"), 1 . p(0,"line") + 1 . p(< "line" ; 1 >), nilP ] ; t(< "line" ; 1 >) |-> [1 . p(0,"line") , 1 . p(0,"ass"), 1 . p(0,"faulty") ] ; t(< "line" ; 2 >) |-> [1 . p(< "line" ; 1 >) , 1 . p(1,"ass"),
- ***          1 . p(1,"faulty") ] ; t(< "ass" ; 3 >) |-> [1 . p(0,"ass") + 1 . p(1,"ass") , 1 . p(0,"end"), nilP ] ;
- ***          t(< "rest" ; 4 >) |-> [1 . p(0,"end") , 2 . p(0,"start"), nilP ] ; t(< "fault" ; 5 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(0,"faulty"), nilP ] ; t(< "fault" ; 6 >) |-> [1 . p(< "focc" ; 0 >) , 1 . p(1,"faulty"), nilP].
- *** eq sym0  = (2 * M) . p(0,"start") +  1 . p(< "focc" ; 0 >) .
-
- *** eq sys0 = symnet sym0 .
- 
- *** eq sys2 = pmerge(par(symnet sym0, 2, "PL"), p(0, "PL_1start"), p(0, "PL_2start"), 0, "start") .
- *** eq sys2' =  pmerge(parv2(symnet sym0, 2), p(0, "start"),  p(9, "start"), 0, "start") .
- *** eq sys2'' =  pmerge(parv2(net m0, 2), p(1, ""),  p(10, ""), 1, "") .
-
- *** eq sys4 =  pmerge(parv2(sys2'', 2), p(1, ""),  p(18, ""), 1, "") .
-
 endfm
 
 
