@@ -19,7 +19,13 @@ fmod MINIMIZATION is
  vars L L' L'' : Lab .
  var NeL : NeLab .
  vars Ls Ls' : List{String} .
- 
+ *** minimization plus name abstraction
+ op normalize : Pbag -> Pbag .
+ eq normalize(B) = minimize(abstract(B)) .
+ *** simple extension to systems
+ op normalize : System -> System .
+ eq normalize(N B) = N normalize(B) .
+ *** brings a marking (of a symmetric net) to a minimal form
  op minimize : Pbag -> Pbag .
  *** simple version
 ceq minimize(B) = minimize(B'') if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) + B' := B /\ J =/= I

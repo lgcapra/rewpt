@@ -25,6 +25,8 @@ fmod PT-NET is
  var WS :  Set{String} .
  var F :  Bool .
  
+ eq T  |-> [I, I, H] = emptyN .
+
  op welldef : Net -> Bool .
  eq welldef(N) = repeatedKeys?(N) == false . ***  and-then N =/= emptyN  . leaves the comment to consider empty nets as invalid 
  
