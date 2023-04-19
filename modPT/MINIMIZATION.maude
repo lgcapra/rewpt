@@ -21,7 +21,7 @@ fmod MINIMIZATION is
  vars Ls Ls' : List{String} .
  *** minimization plus name abstraction
  op normalize : Pbag -> Pbag .
- eq normalize(B) = minimize(abstract(B)) .
+ eq normalize(B) = abstract(minimize(B)) .
  *** simple extension to systems
  op normalize : System -> System .
  eq normalize(N B) = N normalize(B) .
@@ -29,11 +29,12 @@ fmod MINIMIZATION is
  op minimize : Pbag -> Pbag .
  *** simple version
 ceq minimize(B) = minimize(B'') if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) + B' := B /\ J =/= I
-                        /\ B'' := swapLab(B, W, L, I, J) /\ B'' < B .    
+                         /\ B'' := swapLab(B, W, L, I, J) /\ B'' < B . *** versione originale: solo questa senza owise
+                     
  eq minimize(B) = B [owise] .
  op minimize : System -> System .
  eq minimize(N B) = N minimize(B) .
- *** given a marking, a label suffix and two indices, possibly rewrites the marking into a lesser way by swapping the suffix index
+ *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
  op swapLab : Pbag String Lab Nat Nat -> Pbag .
  eq swapLab(B, W, L, I, I) = B .
 ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J . 
@@ -44,20 +45,11 @@ ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J .
  eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
 *** makes the name (index) abstraction in a marking
  op abstract : Pbag -> Pbag .
-*** ceq abstract(B) = abstract(replaceWithPrec(B, W, K', Ls)) if K . p(L' < W ; K' > L) + B' := B /\                                                              Ls := strLab(L) /\ exists(B', W, K' - 1, Ls) == false .
  *** this version consider the suffix exactly as it is 
- ceq abstract(B) = abstract(replaceWithPrec(B, < W ; K' > L)) if K . p(L' < W ; K' > L) + B' := B /\ exists(B', < W ; K' - 1 > L) == false .
+ceq abstract(B) = abstract(replaceWithPrec(B, < W ; K' > L)) if K . p(L' < W ; K' > L) + B' := B /\ exists(B', < W ; K' - 1 > L) == false .
  eq abstract(B) = B [owise] .
-
+ 
  *** replaces in a bag all the occurrences of places whose label matches the given prefix (whose last element's index K' is given) and suffix using K' - 1 in place of K' 
- op replaceWithPrec : Pbag String NzNat List{String} -> Pbag . 
- eq replaceWithPrec(B, W, K, Ls) = $replaceWithPrec(B, nilP, W, K, Ls) .
- op $replaceWithPrec : Pbag Pbag String NzNat List{String} -> Pbag .
-ceq $replaceWithPrec(K . p(L' < W ; K' > L) + B, B', W, K', Ls) = $replaceWithPrec(B, K . p(L' < W ; K' - 1 > L) + B', W, K', Ls)
-       if Ls == strLab(L) .
- eq $replaceWithPrec(nilP, B, W, K, Ls) = B .
- eq $replaceWithPrec(K . P + B', B, W, K', Ls) = $replaceWithPrec(B', K . P + B, W, K', Ls) [owise] .
- *** this version consider the suffix exactly as it is 
  op replaceWithPrec : Pbag NeLab -> Pbag . 
  eq replaceWithPrec(B, NeL) = $replaceWithPrec(B, nilP, NeL) .
  op $replaceWithPrec : Pbag Pbag NeLab -> Pbag .
@@ -65,12 +57,14 @@ ceq $replaceWithPrec(K . p(L' NeL) + B, B', NeL) = $replaceWithPrec(B, K . p(L' 
  eq $replaceWithPrec(nilP, B, NeL) = B .
  eq $replaceWithPrec(K . P + B', B, NeL) = $replaceWithPrec(B', K . P + B, NeL) [owise] .
  
- *** checks for the existence in bag of a place whose label matches the given suffix (whose last element's index is given) and suffix
- op exists : Pbag String Nat List{String} -> Bool .
-ceq exists(K . p(L' < W ; I > L) + B, W, I, Ls) = true if Ls == strLab(L) .
- eq exists(B,  W, I, Ls) = false [owise] .
- *** this version consider the suffix exactly as it is
+ *** checks for the existence in bag of a place whose label matches the given suffix (whose last element's index is given)
  op exists : Pbag NeLab -> Bool .
  eq exists(K . p(L' NeL) + B, NeL) = true  .
  eq exists(B, NeL) = false [owise] .
+ *** slightly different version checking for a suffix with a given header label
+ op exists : Pbag String Lab -> Bool .
+ eq exists(K . p(L' < W ; I > L) + B, W, L) = true .
+ eq exists(B, W, L) = false [owise] .
+ 
+
 endfm 

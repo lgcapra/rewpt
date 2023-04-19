@@ -11,8 +11,8 @@ fmod PT-FMS is
  *** ops slinef 2sfaultylines : -> SimpleSys .
  *** ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag .
  ops M N : -> NzNat . *** model's parameters: pieces worked at each cycle, number of replicated PLs
- eq M = 2 .
- eq N = 2 . 
+ eq M = 4 .
+ eq N = 7 . 
  
  eq sline =  [1 . p(< "work" ; 0 >) , 1 . p(< "ass" ; 0 >), 1 . p(< "faulty" ; 0 >) ] .
  eq line = t(< "line" ; 0 >) |-> sline .
@@ -29,24 +29,19 @@ fmod PT-FMS is
  eq NPLsys = setMark(setMark(NPLf, "focc" "PL", 1), "start", M) . 
 endfm
 
-
-mod FMS-EMU is
- pr PT-FMS .
- inc PT-EMU . 
-endm
-
 mod RWPT-FMS is
- inc FMS-EMU .
+ pr  PT-FMS .
+ inc PT-EMU .
  vars N N' : Net .
  vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : Tran .
- vars P0 P1 P2 P3 P4 P5 P6 P7 P8 PF : Place .
+ vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
  var S : Pbag .
  var K : NzNat .
  
-crl [syr1] : N S + 1 . P8 => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-        if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P8] ; Tass |-> [1 . P4 + 1 . P5, 2 . P1, nilP ] ; Tfail2 |-> [1 . P0, 1 . P8, nilP]) := N /\ dead(N S + 1 . P8)  .
-crl [syr2] : N  S + 1 . P7  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P7, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P7] ; Tass |-> [2 . P4, 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
-     dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP ]) S) .
+*** crl [syr1] : N S + 1 . P7 => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+***          if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P7] ; Tass |-> [1 . P4 + 1 . P5, 2 . P1, nilP ] ; Tfail2 |-> [1 . P0, 1 . P7, nilP]) := N /\ dead(N S + 1 . P7)  .
+*** crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P6, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P6] ; Tass |-> [2 . P4, 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
+***             dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP ]) S) .
 *** including minimization
 
 endm
