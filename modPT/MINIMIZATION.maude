@@ -28,9 +28,12 @@ fmod MINIMIZATION is
  *** brings a marking (of a symmetric net) to a minimal form
  op minimize : Pbag -> Pbag .
  *** simple version
-ceq minimize(B) = minimize(B'') if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) + B' := B /\ J =/= I
+ ceq minimize(B) = minimize(B'') if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) + B' := B /\ J =/= I
                          /\ B'' := swapLab(B, W, L, I, J) /\ B'' < B . *** versione originale: solo questa senza owise
-                     
+ *** ceq minimize(B) = minimize(B'') if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) + B' := B /\ J =/= I
+ ***                        /\ K' . p(L'' < W ; J > L) + B' + extract(B', W, L) < K . p(L' < W ; I > L) + extract(B', W, L) /\
+ ***                         B'' := swapLab(B, W, L, I, J) /\ B'' < B . *** versione originale: solo questa senza owise
+                  
  eq minimize(B) = B [owise] .
  op minimize : System -> System .
  eq minimize(N B) = N minimize(B) .
@@ -65,6 +68,12 @@ ceq $replaceWithPrec(K . p(L' NeL) + B, B', NeL) = $replaceWithPrec(B, K . p(L' 
  op exists : Pbag String Lab -> Bool .
  eq exists(K . p(L' < W ; I > L) + B, W, L) = true .
  eq exists(B, W, L) = false [owise] .
- 
+ *** extracts the element with a given suffix
+ op extract : Pbag String Lab ->  Pbag .
+ eq extract(B, W, L) = $extract(B, nilP, W, L) .
+ op $extract : Pbag Pbag String Lab ->  Pbag .
+ eq $extract(nilP, B, W, L) = B .
+ eq $extract(K . p(L' < W ; I > L) + B, B', W, L) = $extract(B, B' + K . p(L' < W ; I > L) , W, L) . 
+ eq $extract(K . P + B, B', W, L) = $extract(B, B' , W, L) [owise] . 
 
 endfm 

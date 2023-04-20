@@ -71,8 +71,8 @@ ceq $support(K . P + B, W, S) = $support(B, W, S U P) if hasPrefix(P, W) .
  eq cmp(C, B , B') = cmp(C, toListS(C, B), toListS(C, B')) .
  *** defined for convenience
  ops _<_  : Pbag Pbag -> Bool .
- eq B <  B' = lt(0, B, B') .
-
+ eq B <  B' = B =/= B' and-then lt(0, B, B') .
+ 
  *** -- used for net algebra -- 
  *** add a new label to bag's elements -- version specifying elements to share (i.e., to which not to add the label)
  op addLab : Pbag Lab Pset -> Pbag . 
