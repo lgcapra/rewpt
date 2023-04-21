@@ -12,7 +12,7 @@ fmod PT-FMS is
  *** ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag .
  ops M N : -> NzNat . *** model's parameters: pieces worked at each cycle, number of replicated PLs
  eq M = 4 .
- eq N = 10 . 
+ eq N = 6 . 
  
  eq sline =  [1 . p(< "work" ; 0 >) , 1 . p(< "ass" ; 0 >), 1 . p(< "faulty" ; 0 >) ] .
  eq line = t(< "line" ; 0 >) |-> sline .

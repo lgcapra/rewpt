@@ -4,12 +4,11 @@
 
 fmod MINIMIZATION is
  pr PT-SYS .
- *** pr MAP+{List{String},Place} * (sort Map{List{String},Place} to Labmap, sort Entry{List{String},Place} to entryL,
- ***                              op emptyM to emptyLabM, op nil to emptyLs) .
+ pr SET+{Nat} * (op emptyS to emptyNat) .
  vars P P' P'' : Place .
  vars T T' T'' : Tran .
  vars N N' : Net .
- vars B B' B'' : Pbag .
+ vars B B' B'' B0 B1 B2 : Pbag .
  var Sys Sys' : System .
  var Ssys Ssys' : SimpleSys .
  vars Sn Sn' : Snet .
@@ -28,12 +27,12 @@ fmod MINIMIZATION is
  *** brings a marking (of a symmetric net) to a minimal form
  op minimize : Pbag -> Pbag .
  *** simple version
- ceq minimize(B) = minimize(B'') if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) + B' := B /\ J =/= I
-                         /\ B'' := swapLab(B, W, L, I, J) /\ B'' < B . *** versione originale: solo questa senza owise
  *** ceq minimize(B) = minimize(B'') if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) + B' := B /\ J =/= I
- ***                        /\ K' . p(L'' < W ; J > L) + B' + extract(B', W, L) < K . p(L' < W ; I > L) + extract(B', W, L) /\
- ***                         B'' := swapLab(B, W, L, I, J) /\ B'' < B . *** versione originale: solo questa senza owise
-                  
+ ***                        /\ (K =/= K' or-else L' =/= L'') /\ B'' := swapLab(B, W, L, I, J) /\ B'' < B .              
+ ceq minimize(B) = minimize(B'' + (B' - B2 )) if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B' := B  /\ J =/= I /\ 
+                        (K =/= K' or-else L' =/= L'') /\  B0 := K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\ 
+                        B1 := extract(B', W, I U J, L)  /\ B2 := B1 + B0 /\ B'' := swapLab(B2, W, L, I, J) /\ B'' < B2 .            
+ 
  eq minimize(B) = B [owise] .
  op minimize : System -> System .
  eq minimize(N B) = N minimize(B) .
@@ -65,15 +64,22 @@ ceq $replaceWithPrec(K . p(L' NeL) + B, B', NeL) = $replaceWithPrec(B, K . p(L' 
  eq exists(K . p(L' NeL) + B, NeL) = true  .
  eq exists(B, NeL) = false [owise] .
  *** slightly different version checking for a suffix with a given header label
- op exists : Pbag String Lab -> Bool .
- eq exists(K . p(L' < W ; I > L) + B, W, L) = true .
- eq exists(B, W, L) = false [owise] .
- *** extracts the element with a given suffix
+ *** op exists : Pbag String Lab -> Bool .
+ *** eq exists(K . p(L' < W ; I > L) + B, W, L) = true .
+ *** eq exists(B, W, L) = false [owise] .
+ *** extracts the elements with a given suffix
  op extract : Pbag String Lab ->  Pbag .
  eq extract(B, W, L) = $extract(B, nilP, W, L) .
  op $extract : Pbag Pbag String Lab ->  Pbag .
  eq $extract(nilP, B, W, L) = B .
  eq $extract(K . p(L' < W ; I > L) + B, B', W, L) = $extract(B, B' + K . p(L' < W ; I > L) , W, L) . 
  eq $extract(K . P + B, B', W, L) = $extract(B, B' , W, L) [owise] . 
-
+ *** extracts the elements with a given suffix and the suffix header's index in a set
+ var A : Set{Nat} .
+ op extract : Pbag String Set{Nat} Lab ->  Pbag .
+ eq extract(B, W, A, L) = $extract(B, nilP, W, A, L) .
+ op $extract : Pbag Pbag String Set{Nat} Lab ->  Pbag .
+ eq $extract(nilP, B, W, A, L) = B .
+ceq $extract(K . p(L' < W ; I > L) + B, B', W, A, L) = $extract(B, B' + K . p(L' < W ; I > L) , W, A, L) if I in A . 
+ eq $extract(K . P + B, B', W, A, L) = $extract(B, B' , W, A, L) [owise] . 
 endfm 
