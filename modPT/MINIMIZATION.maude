@@ -20,18 +20,22 @@ fmod MINIMIZATION is
  vars Ls Ls' : List{String} .
  *** minimization plus name abstraction
  op normalize : Pbag -> Pbag .
- eq normalize(B) = abstract(minimize(B)) .
+ *** eq normalize(B) = abstract(minimize(B)) .
+ eq normalize(B) = minimize(abstract(B)) . *** seems slightly better 
+ 
  *** simple extension to systems
  op normalize : System -> System .
  eq normalize(N B) = N normalize(B) .
  *** brings a marking (of a symmetric net) to a minimal form
- op minimize : Pbag -> Pbag .
+ op minimize : Pbag -> Pbag [memo] .
  *** simple version
  *** ceq minimize(B) = minimize(B'') if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) + B' := B /\ J =/= I
  ***                        /\ (K =/= K' or-else L' =/= L'') /\ B'' := swapLab(B, W, L, I, J) /\ B'' < B .              
+ *** optimized version
  ceq minimize(B) = minimize(B'' + (B' - B2 )) if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B' := B  /\ J =/= I /\ 
-                        (K =/= K' or-else L' =/= L'') /\  B0 := K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\ 
-                        B1 := extract(B', W, I U J, L)  /\ B2 := B1 + B0 /\ B'' := swapLab(B2, W, L, I, J) /\ B'' < B2 .            
+                        (K =/= K' or-else L' =/= L'')  /\ B1 := extract(B', W, I U J, L)  /\ 
+                        B2 := B1 + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\ 
+                        B'' := swapLab(B1, W, L, I, J) + K . p(L' < W ; J > L) + K' . p(L'' < W ; I > L) /\ B'' < B2 .            
  
  eq minimize(B) = B [owise] .
  op minimize : System -> System .
