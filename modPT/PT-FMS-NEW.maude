@@ -11,8 +11,8 @@ fmod PT-FMS is
  *** ops slinef 2sfaultylines : -> SimpleSys .
  *** ops m0 m0' m1 m1' d1 d2 sym0 : -> Pbag .
  ops M N : -> NzNat . *** model's parameters: pieces worked at each cycle, number of replicated PLs
- eq M = 4 .
- eq N = 9 . 
+ eq M = 6 .
+ eq N = 10 . 
  
  eq sline =  [1 . p(< "work" ; 0 >) , 1 . p(< "ass" ; 0 >), 1 . p(< "faulty" ; 0 >) ] .
  eq line = t(< "line" ; 0 >) |-> sline .
@@ -37,11 +37,16 @@ mod RWPT-FMS is
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
  var S : Pbag .
  var K : NzNat .
+ var I : Nat .
+ var W : String .
+ vars L L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
  
-*** crl [syr1] : N S + 1 . P7 => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-***          if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P7] ; Tass |-> [1 . P4 + 1 . P5, 2 . P1, nilP ] ; Tfail2 |-> [1 . P0, 1 . P7, nilP]) := N /\ dead(N S + 1 . P7)  .
-*** crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P6, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P6] ; Tass |-> [2 . P4, 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
-***             dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP ]) S) .
+ crl [syr1] : N S + 1 . P7 => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+          if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P7] ; Tass |-> [1 . P4 + 1 . P5, 2 . P1, nilP ] ; Tfail2 |-> [1 . P0, 1 . P7, nilP]) := N /\ dead(N S + 1 . P7)  .
+ crl [syr1new] : N S + 1 . p(L7 < "faulty" ; I >) => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+          if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P7] ; Tass |-> [1 . P4 + 1 . P5, 2 . P1, nilP ] ; Tfail2 |-> [1 . P0, 1 . P7, nilP]) := N /\ dead(N S + 1 . P7)  .
+ crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P6, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P6] ; Tass |-> [2 . P4, 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
+             dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP ]) S) .
 *** including minimization
 
 endm
