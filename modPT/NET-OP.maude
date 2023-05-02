@@ -36,8 +36,7 @@ fmod NET-OP is
  *** "symmetric" juxtaposition: creates K (disjoint) replica of a system each one with a suitably added label suffix (with index 0..K-1) denoting the "nesting" level
  ***  general version specifying elements to be shared among replicas
  op replica&share : System NzNat String Pset Tset -> System .
- eq replica&share(Sys, 1, W, S, TS) = Sys . 
-ceq replica&share(Sys, K, W, S, TS) = $replica&share(Sys, K, W, emptySys, S, TS) if K > 1 .
+ eq replica&share(Sys, K, W, S, TS) = $replica&share(Sys, K, W, emptySys, S, TS)  .
  op $replica&share  : System Nat String System Pset Tset -> System .
  eq $replica&share(Sys, 0, W, Sys', S, TS) = Sys' .
  eq $replica&share(Sys, K, W, Sys', S, TS) = $replica&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S, TS)), S, TS) .
