@@ -50,12 +50,15 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  *** gets out the places of the net
  op places : Net -> Pset .
  eq places(N) = places(toSimpleNet(N)) .
- *** gets out the places whose labels match the given prefix 
+ *** gets out the places whose labels match the given suffix 
  op places : Net List{String} -> Pset .
  eq places(N, WL) = places(toSimpleNet(N), WL) .
- *** gets out the places whose labels match the given prefix (first elements) set 
+ *** gets out the places whose labels match the given suffix' headers 
  op places : Net Set{String} -> Pset .
  eq places(N, WS) = places(toSimpleNet(N), WS) .
+*** set of places whose label's suffix matches the given one --- the suffix header is specified exactly
+ op places : Snet Elab List{String} -> Pset .
+ eq places(N, E, WS) = places(toSimpleNet(N), E, WS) .
  *** returns the sorted list of places of a netop placeList : Net -> Plist .
  op placeList : Net -> Plist . 
  eq placeList(N) = $makePlist(places(N), emptyPlist) .
@@ -76,15 +79,21 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op transitions : Net List{String} -> Tset . 
  eq transitions(N, WL) = $transitions(keySet(N), WL, emptyTset) .  
  op $transitions : Tset List{String} Tset -> Tset . 
-ceq $transitions(T U TS, WL, TS') = $transitions(TS, WL, T U TS') if hasPrefix(T, WL) .
+ceq $transitions(T U TS, WL, TS') = $transitions(TS, WL, T U TS') if hasSuffix(T, WL) .
  eq $transitions(TS, WL, TS') = TS' [owise] .
- *** gets out the transitions whose labels match the given prefix (first elements) set - NOTE reuse of $transitions
+ *** gets out the transitions whose labels match the given suffix (first elements) set - NOTE reuse of $transitions
  op transitions : Net Set{String} -> Tset .
  eq transitions(N, W) = $transitions(keySet(N), W, emptyTset) . *** avoid recursion (W is both a set and a list)
  eq transitions(N, WS) = $$transitions(keySet(N), WS, emptyTset) [owise] .
  op $$transitions : Tset Set{String} Tset -> Tset .
  eq $$transitions(TS', emptyStr, TS) = TS .
  eq $$transitions(TS', W U WS, TS) = $$transitions(TS', WS, TS U $transitions(TS', W, emptyTset)) .
+ *** transitions with a given suffix in their labels --- the suffix header is specified exactly
+ op transitions : Net Elab List{String} -> Tset . 
+ eq transitions(N, E, WL) = $transitions(keySet(N), E, WL, emptyTset) .  
+ op $transitions : Tset Elab List{String} Tset -> Tset . 
+ceq $transitions(T U TS, E, WL, TS') = $transitions(TS, E, WL, T U TS') if hasSuffix(T, E, WL) .
+ eq $transitions(TS, E, WL, TS') = TS' [owise] .
  
  var X : NePset .
  *** remove places
@@ -128,6 +137,7 @@ ceq rename(N, T, T') = N if N[T] == undefined .
  op dead : Imatrix -> Bool .  *** checks for structurally dead transitions 
  eq dead([K . P + I, O, K' . P + H]) = K >= K' [metadata "dead tq"] .
  eq dead(Q) = false [owise] .
+ 
  *** set of places of the (simple) net
  op places : Snet -> Pset .
  eq places(Sn) = $places(Sn, emptyPset) .  
@@ -147,6 +157,13 @@ ceq rename(N, T, T') = N if N[T] == undefined .
  op $$places : Snet Set{String} Pset -> Pset .
  eq $$places(Sn, emptyStr, S) = S .
  eq $$places(Sn, W U WS, S) = $$places(Sn, WS, S U $places(Sn, W, emptyPset)) .
+ *** set of places whose label's suffix matches the given one --- the suffix header is specified exactly
+ var E : Elab .
+ op places : Snet Elab List{String} -> Pset .
+ eq places(Sn, E, WL) = $places(Sn, E, WL, emptyPset) .  
+ op $places : Snet Elab List{String} Pset -> Pset . 
+ eq $places(emptySn, E, WL, S) = S . 
+ eq $places(Q U Sn, E, WL, S) = $places(Sn, E, WL, S U places(WL, Q)) .
  
  *** list of places of the (simple) net
  op placeList : Snet -> Plist . 

@@ -3,10 +3,14 @@ in PT-NET
 *** PT system's signature (including a simple(r) one with an implicit representation of transition)
 fmod PT-SYS is
  pr PT-NET .
- sorts System SimpleSys .
- op __ : Net Pbag -> [System] [ctor] .
- op __ : Snet Pbag -> SimpleSys [ctor] .
- *** op __ : Snet Pbag -> [SimpleSys] [ctor] .
+ sorts ElSys System ElSimpSys SimpleSys .
+ subsorts ElSys < System . *** PT system built of one transition 
+ subsorts ElSimpSys < SimpleSys .
+ op __ : Net Pbag  -> [System]      [ctor] .
+ op __ : ImatrixT Pbag  -> ElSys    [ctor] .
+ op __ : Snet Pbag -> SimpleSys     [ctor] .
+ op __ : Imatrix Pbag -> ElSimpSys [ctor] .
+ 
  op emptySys  : -> System . *** alias
  eq emptySys = emptyN nilP .
  op emptySsys : -> SimpleSys . *** alias

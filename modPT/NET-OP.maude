@@ -10,10 +10,12 @@ fmod NET-OP is
  var Sys Sys' : System .
  var Ssys Ssys' : SimpleSys .
  vars Sn Sn' : Snet .
- var I : Nat .
+ vars I J : Nat .
  vars K K' : NzNat .
  vars W W' W'' W''' : String .
  vars L L' : List{String} .
+ vars Q Q' : Imatrix .
+
  *** join two nets by "merging" identical transitions and (implicitly) places, if any -- total op
  op join : Net Net -> Net [assoc comm] .
  eq join(N ; T |-> Q , N' ; T |-> Q') = T |-> Q + Q' ; join(N, N') .
@@ -40,14 +42,14 @@ fmod NET-OP is
  op $replica&share  : System Nat String System Pset Tset -> System .
  eq $replica&share(Sys, 0, W, Sys', S, TS) = Sys' .
  eq $replica&share(Sys, K, W, Sys', S, TS) = $replica&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S, TS)), S, TS) .
- *** versions in which shared elements are specified through a prefix
+ *** versions in which shared elements are specified through a suffix
  op replica&share : System NzNat String List{String} List{String} -> System .
  eq replica&share(Sys, K, W, L, L') = replica&share(Sys, K, W, places(Sys, L), transitions(net(Sys), L')) .
- *** versions in which shared elements are specified through a set of (first elements of) prefixes
+ *** versions in which shared elements are specified through a set of suffix headers
  op replica&share : System NzNat String Set{String} Set{String} -> System .
  vars WS WS' : Set{String} .
  eq replica&share(Sys, K, W, WS, WS') = replica&share(Sys, K, W, places(Sys, WS), transitions(net(Sys), WS')) .
- *** default vesrion
+ *** default version
  op replica  : System NzNat String -> System . 
  eq replica(Sys, K, W) =  replica&share(Sys, K, W, emptyPset, emptyTset) .
  *** net versions (builds on system-replica)
@@ -77,7 +79,7 @@ ceq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, S, emptySsys) if K
  op replica  : Snet NzNat String -> Snet .
  eq replica(Sn, K, W) = net(replica(Sn nilP, K, W)) .
  
- *** elementary operators
+ *** elementary operators/operators acting on elementary nets
  var TQ : ImatrixT .
  var A : Atype .
  *** builds a transition's incidence matrix with a pre/post/inhibitor set of K (0..K-1) places of weight K' and with a given label
@@ -95,7 +97,7 @@ ceq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, S, emptySsys) if K
  op $tnew : ImatrixT Atype Pset NzNat   -> ImatrixT .
  eq $tnew(TQ, A, emptyPset, K) = TQ .
  eq $tnew(T |-> Q, A, P U S, K) = $tnew(T |-> set(Q, A, P, K), A, S, K) .
- *** set a marking for net places with label with a given prefix
+ *** set a marking for net places with label with a given suffix
  op setMark : Net List{String} NzNat -> System .
  eq setMark(N, L, K) = setMark(N nilP, L, K) . 
  op setMark : System List{String} NzNat -> System .
@@ -123,13 +125,25 @@ ceq synch(Sys, K, A, W, W', W'') = connect(Sys', W, W', A, 1) if Sys' := replica
  *** parallelize K replica of a system 
  op par  : System NzNat String String String String  -> System . 
  eq par(Sys, K, W, W', W'', W''') = connect(synch(Sys, K, o, W, W', "||"), W'',  W''', i, 1) . 
+
+ *** replica of elementary nets (systems)
+ op replica&share : ElSys NzNat Set{String} -> [System] .
+ var E : ElSys .
+ op replicable : ElSys -> Bool .
+ceq replicable(E) = true if S := places(E) /\ elemLabs(S) /\ simiLabs(S) == false .
+ eq replicable(E) = false [owise] .
+ op elemLabs : Pset -> Bool .
+ eq elemLabs(p(L:NeLab El:Elab) U S) = false .
+ eq elemLabs(S) = true [owise] .
+ op simiLabs : Pset -> Bool .
+ eq simiLabs(p(L:Lab < W ; I >) U p(L:Lab < W ; J >) U S) = true .
+ eq simiLabs(S) = false [owise] .
  
  *** joins two nets by merging two transitions (builds on rename/join) -- helpful?
- op merge : Net Tran Net Tran Tran  -> [Net] .
- eq merge(N, T, N', T', T'') = join(rename(N, T, T''), rename(N', T', T'') ) .
-*** version for simple nets
- vars Q Q' : Imatrix .
- op merge : Snet Imatrix Imatrix  -> Snet .
- eq merge(Sn U Q U Q', Q, Q') = Sn U Q + Q' . 
+ *** op merge : Net Tran Net Tran Tran  -> [Net] .
+ *** eq merge(N, T, N', T', T'') = join(rename(N, T, T''), rename(N', T', T'') ) .
+ *** version for simple nets
+ *** op merge : Snet Imatrix Imatrix  -> Snet .
+ *** eq merge(Sn U Q U Q', Q, Q') = Sn U Q + Q' . 
  
 endfm

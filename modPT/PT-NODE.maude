@@ -5,16 +5,17 @@ in ../shared/COMPARABLE-LIST.maude
 fmod NODE-LAB is 
  pr NAT .
  pr LIST{String} * (op nil to emptyLs) .
- pr COMPARABLE-LIST{SortedPair+<{String<,Nat<}} * (sort Pair{String<,Nat<} to  Pair{String,Nat},  
-                                                           sort NeList{SortedPair+<{String<,Nat<}} to NeLab,
-                                                           sort List{SortedPair+<{String<,Nat<}} to Lab,
-                                                           op nil to emptyLab).
+ pr COMPARABLE-LIST{SortedPair+<{String<,Nat<}} * (sort Pair{String<,Nat<} to Elab, *** elementary lab  
+                                                    sort NeList{SortedPair+<{String<,Nat<}} to NeLab,
+                                                    sort List{SortedPair+<{String<,Nat<}} to Lab,
+                                                    op nil to emptyLab).
 
  var I J : Nat .
  vars W W' : String .
  var Ls Ls' Ls'' : List{String} .
- vars L L' : Lab .
- *** gets the text out of a lab
+ vars L L' L'' : Lab .
+ var E : Elab .
+ *** gets the text tags out of a lab
  op strLab : Lab -> List{String} .
  eq strLab(L) = $strLab(L, emptyLs) .
  op $strLab : Lab List{String} -> List{String} .
@@ -22,12 +23,16 @@ fmod NODE-LAB is
  eq $strLab(< W ; I > L, Ls) = $strLab(L, Ls W) .
  *** checks that the label's suffix matches the given one
  op hasSuffix : Lab List{String} -> Bool .
-ceq hasSuffix(L, Ls) = true  if Ls' Ls := strLab(L) .
+ceq hasSuffix(L, Ls) = true if Ls' Ls := strLab(L) . *** particular case: Ls empty
  eq hasSuffix(L, Ls) = false [owise] .
- *** checks that the label's prefix matches the given one
-op hasPrefix : Lab List{String} -> Bool .
-ceq hasPrefix(L, Ls) = true  if Ls Ls' := strLab(L) .
- eq hasPrefix(L, Ls) = false [owise] .
+ *** overloaded version, in which the suffix header (an elementary lab) has to be exactly matched
+ op hasSuffix : Lab Elab List{String} -> Bool .
+ceq hasSuffix(L E L', E, Ls) = true if Ls := strLab(L') .
+ eq hasSuffix(L, E, Ls) = false [owise] .
+*** checks that the label's prefix matches the given one (ever used?)
+*** op hasPrefix : Lab List{String} -> Bool .
+*** ceq hasPrefix(L, Ls) = true  if Ls Ls' := strLab(L) .
+*** eq hasPrefix(L, Ls) = false [owise] .
 
 endfm 
 
@@ -55,11 +60,18 @@ fmod PT-NODE is
  eq N1 <= N2 = N1 == N2 or-else N1 < N2 .
  *** checks that the node's label's suffix matches the given one
  var Ls : List{String} .
+ var E : Elab .
  op hasSuffix : Node List{String} -> Bool .
  eq hasSuffix(n(L), Ls) = hasSuffix(L, Ls) .
+ op hasSuffix : Node Elab List{String} -> Bool .
+ eq hasSuffix(n(L), E, Ls) = hasSuffix(L, E, Ls) .
+ *** checks that the node's suffix starts with the given Elabel
+ op hasSuffix : Node Elab  -> Bool .
+ eq hasSuffix(N1, E) = hasSuffix(N1, E, emptyLs) .
+ 
  *** checks that the node's label's prefix matches the given one
- op hasPrefix : Node List{String} -> Bool .
- eq hasPrefix(n(L), Ls) = hasPrefix(L, Ls) .
+ *** op hasPrefix : Node List{String} -> Bool .
+ *** eq hasPrefix(n(L), Ls) = hasPrefix(L, Ls) .
 endfm
 
 *** places

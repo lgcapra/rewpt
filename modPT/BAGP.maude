@@ -38,21 +38,28 @@ fmod BAGP is
  var I : Nat .
  vars B B' : Pbag .
  vars L L' L'' : Lab .
+ var E : Elab .
  var S : Pset .
  var LNP : List{Nat,Place} . 
- var W : List{String} .
- *** gives the set of places whose labes match a given prefix (NOTE a String is also a List{String})
+ var Ws : List{String} .
+ *** gives the set of places whose labes match a given suffix (NOTE a String is also a List{String})
  op support : Pbag List{String} -> Pset . 
- eq support(B, W) = $support(B, W, emptyPset) .  
+ eq support(B, Ws) = $support(B, Ws, emptyPset) .  
  op $support : Pbag List{String} Pset -> Pset . 
-ceq $support(K . P + B, W, S) = $support(B, W, S U P) if hasPrefix(P, W) .
- eq $support(B, W, S) = S [owise] .
-  *** swaps two places
- op swap : Pbag Place Place -> Pbag .  
- eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
- eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
- eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
- eq swap(B, P, P')  = B [owise] .
+ceq $support(K . P + B, Ws, S) = $support(B, Ws, S U P) if hasSuffix(P, Ws) .
+ eq $support(B, Ws, S) = S [owise] .
+ *** overloaded version (the suffix' header is exactly specified)
+ op support : Pbag Elab List{String} -> Pset . 
+ eq support(B, E, Ws) = $support(B, E, Ws, emptyPset) .  
+ op $support : Pbag Elab List{String} Pset -> Pset . 
+ceq $support(K . P + B, E, Ws, S) = $support(B, E, Ws, S U P) if hasSuffix(P, E, Ws) .
+ eq $support(B, E, Ws, S) = S [owise] .
+  *** swaps two places (ever used?)
+ *** op swap : Pbag Place Place -> Pbag .  
+ *** eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
+ *** eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
+ *** eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
+ *** eq swap(B, P, P')  = B [owise] .
  *** builds an (un)ordered list of pairs < weight ; el > out of a bag
  op toList  : Pbag -> List{Nat,Place} .     
  eq toList(B) = $toList(B, emptyListNP) .
@@ -86,8 +93,8 @@ ceq $addLab(K . P + B', B, L, S) = $addLab(B', K . P + B, L, S) if P in S .
  eq addLab(B, L) = addLab(B, L, emptyPset) .
  *** set a weight for places with a given prefix
  op set : Pbag List{String} Nat -> Pbag .
-ceq set(B, W, I) = set(B, S, I) if S := support(B, W) /\ S =/= emptyPset .
- eq set(B, W, I) = if I == 0 then B else B + I . p(< W ; 0 >) fi [owise] .
+ceq set(B, Ws, I) = set(B, S, I) if S := support(B, Ws) /\ S =/= emptyPset .
+ eq set(B, Ws, I) = if I == 0 then B else B + I . p(< Ws ; 0 >) fi [owise] .
  *** set a weight for a (non-empty) set of places
  op set : Pbag NePset Nat -> Pbag .
  eq set(B, S U P U P', I) = set(set(B, P, I), S U P', I) . *** NOTE set(B, P, I) is already defined in BAG module
