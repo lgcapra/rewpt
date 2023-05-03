@@ -99,10 +99,9 @@ ceq set(B, Ws, I) = set(B, S, I) if S := support(B, Ws) /\ S =/= emptyPset .
  op set : Pbag NePset Nat -> Pbag .
  eq set(B, S U P U P', I) = set(set(B, P, I), S U P', I) . *** NOTE set(B, P, I) is already defined in BAG module
  *** rename a place, if the renamed place (when different) doesn't exist -- partial op (still helpful?)
- op rename : Pbag Place Place -> [Pbag] .
-ceq rename(B + K . P, P, P') = B + K . P' if B[P'] == 0 .
-ceq rename(B, P, P') = B if B[P] == 0 .   
-
+ *** op rename : Pbag Place Place -> [Pbag] .
+*** ceq rename(B + K . P, P, P') = B + K . P' if B[P'] == 0 .
+*** ceq rename(B, P, P') = B if B[P] == 0 .   
 endfm
 
 

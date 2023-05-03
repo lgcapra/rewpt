@@ -65,8 +65,8 @@ fmod IMATRIX is
  op addLab : Imatrix Lab Pset -> Imatrix . 
  eq addLab([X,Y,Z], L, S) = [addLab(X, L, S), addLab(Y, L, S), addLab(Z, L, S)] .
  *** rename a place (build on BAGP.rename)
- op rename : Imatrix Place Place -> [Imatrix] .
- eq rename([X,Y,Z], P, P') = [rename(X, P, P'),rename(Y, P, P'),rename(Z, P, P')] . 
+ *** op rename : Imatrix Place Place -> [Imatrix] .
+ *** eq rename([X,Y,Z], P, P') = [rename(X, P, P'),rename(Y, P, P'),rename(Z, P, P')] . 
  *** set of places whose label's suffix matches the given one
  op places : List{String} Imatrix -> Pset .
  eq places(Ws, [X,Y,Z]) = support(X, Ws) U support(Y, Ws) U support(Z, Ws) .

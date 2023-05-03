@@ -53,11 +53,8 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  *** gets out the places whose labels match the given suffix 
  op places : Net List{String} -> Pset .
  eq places(N, WL) = places(toSimpleNet(N), WL) .
- *** gets out the places whose labels match the given suffix' headers 
- op places : Net Set{String} -> Pset .
- eq places(N, WS) = places(toSimpleNet(N), WS) .
 *** set of places whose label's suffix matches the given one --- the suffix header is specified exactly
- op places : Snet Elab List{String} -> Pset .
+ op places : Net Elab List{String} -> Pset .
  eq places(N, E, WS) = places(toSimpleNet(N), E, WS) .
  *** returns the sorted list of places of a netop placeList : Net -> Plist .
  op placeList : Net -> Plist . 
@@ -81,13 +78,6 @@ ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  op $transitions : Tset List{String} Tset -> Tset . 
 ceq $transitions(T U TS, WL, TS') = $transitions(TS, WL, T U TS') if hasSuffix(T, WL) .
  eq $transitions(TS, WL, TS') = TS' [owise] .
- *** gets out the transitions whose labels match the given suffix (first elements) set - NOTE reuse of $transitions
- op transitions : Net Set{String} -> Tset .
- eq transitions(N, W) = $transitions(keySet(N), W, emptyTset) . *** avoid recursion (W is both a set and a list)
- eq transitions(N, WS) = $$transitions(keySet(N), WS, emptyTset) [owise] .
- op $$transitions : Tset Set{String} Tset -> Tset .
- eq $$transitions(TS', emptyStr, TS) = TS .
- eq $$transitions(TS', W U WS, TS) = $$transitions(TS', WS, TS U $transitions(TS', W, emptyTset)) .
  *** transitions with a given suffix in their labels --- the suffix header is specified exactly
  op transitions : Net Elab List{String} -> Tset . 
  eq transitions(N, E, WL) = $transitions(keySet(N), E, WL, emptyTset) .  
@@ -150,13 +140,6 @@ ceq rename(N, T, T') = N if N[T] == undefined .
  op $places : Snet List{String} Pset -> Pset . 
  eq $places(emptySn, WL, S) = S . 
  eq $places(Q U Sn, WL, S) = $places(Sn, WL, S U places(WL, Q)) . *** places in Imatrix has the args in reverse order to avoid looping
- *** gets out the places whose labels match the given set of prefixes (first elements) -- NOTE reuse $places (recall that W is both a List{String} and a Set{String})
- op places : Snet Set{String} -> Pset .
- eq places(Sn, W) = $places(Sn, W, emptyPset) .
- eq places(Sn, WS) = $$places(Sn, WS, emptyPset) [owise] .
- op $$places : Snet Set{String} Pset -> Pset .
- eq $$places(Sn, emptyStr, S) = S .
- eq $$places(Sn, W U WS, S) = $$places(Sn, WS, S U $places(Sn, W, emptyPset)) .
  *** set of places whose label's suffix matches the given one --- the suffix header is specified exactly
  var E : Elab .
  op places : Snet Elab List{String} -> Pset .

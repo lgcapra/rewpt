@@ -45,10 +45,6 @@ fmod NET-OP is
  *** versions in which shared elements are specified through a suffix
  op replica&share : System NzNat String List{String} List{String} -> System .
  eq replica&share(Sys, K, W, L, L') = replica&share(Sys, K, W, places(Sys, L), transitions(net(Sys), L')) .
- *** versions in which shared elements are specified through a set of suffix headers
- op replica&share : System NzNat String Set{String} Set{String} -> System .
- vars WS WS' : Set{String} .
- eq replica&share(Sys, K, W, WS, WS') = replica&share(Sys, K, W, places(Sys, WS), transitions(net(Sys), WS')) .
  *** default version
  op replica  : System NzNat String -> System . 
  eq replica(Sys, K, W) =  replica&share(Sys, K, W, emptyPset, emptyTset) .
@@ -59,8 +55,6 @@ fmod NET-OP is
  eq replica&share(N, K, W, L, L') = net(replica&share(N nilP, K, W, L, L')) .
  op replica  : Net NzNat String -> Net .
  eq replica(N, K, W) = replica&share(N, K, W, emptyPset, emptyTset) .
- op replica&share : Net NzNat String Set{String} Set{String} -> Net .
- eq replica&share(N, K, W, WS, WS') = replica&share(N, K, W, places(N, WS), transitions(N, WS')) .
  
  *** general version for simple net representation
  op replica&share : SimpleSys NzNat String Pset -> SimpleSys .
