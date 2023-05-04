@@ -6,14 +6,14 @@ fmod NET-OP is
  vars P P' P'' : Place .
  vars T T' T'' : Tran .
  vars N N' : Net .
- vars B B' : Pbag .
+ vars B B' B'' : Pbag .
  var Sys Sys' : System .
  var Ssys Ssys' : SimpleSys .
  vars Sn Sn' : Snet .
  vars I J : Nat .
  vars K K' : NzNat .
  vars W W' W'' W''' : String .
- vars L L' : List{String} .
+ vars Lw Lw' : List{String} .
  vars Q Q' : Imatrix .
 
  *** join two nets by "merging" identical transitions and (implicitly) places, if any -- total op
@@ -44,7 +44,7 @@ fmod NET-OP is
  eq $replica&share(Sys, K, W, Sys', S, TS) = $replica&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S, TS)), S, TS) .
  *** versions in which shared elements are specified through a suffix
  op replica&share : System NzNat String List{String} List{String} -> System .
- eq replica&share(Sys, K, W, L, L') = replica&share(Sys, K, W, places(Sys, L), transitions(net(Sys), L')) .
+ eq replica&share(Sys, K, W, Lw, Lw') = replica&share(Sys, K, W, places(Sys, Lw), transitions(net(Sys), Lw')) .
  *** default version
  op replica  : System NzNat String -> System . 
  eq replica(Sys, K, W) =  replica&share(Sys, K, W, emptyPset, emptyTset) .
@@ -52,7 +52,7 @@ fmod NET-OP is
  op replica&share : Net NzNat String Pset Tset -> Net .
  eq replica&share(N, K, W, S, TS) = net(replica&share(N nilP, K, W, S, TS)) .
  op replica&share : Net NzNat String List{String} List{String} -> Net .
- eq replica&share(N, K, W, L, L') = net(replica&share(N nilP, K, W, L, L')) .
+ eq replica&share(N, K, W, Lw, Lw') = net(replica&share(N nilP, K, W, Lw, Lw')) .
  op replica  : Net NzNat String -> Net .
  eq replica(N, K, W) = replica&share(N, K, W, emptyPset, emptyTset) .
  
@@ -65,7 +65,7 @@ ceq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, S, emptySsys) if K
  eq $replica&share(Ssys, K, W, S, Ssys') = $replica&share(Ssys, K - 1, W, S, join(Ssys', addLab(Ssys, < W ; K - 1 >, S) )) .
  *** shared elements are specified through a suffix
  op replica&share : SimpleSys NzNat String List{String}  -> SimpleSys .
- eq replica&share(Ssys, K, W, L) = replica&share(Ssys, K, W, places(Ssys, L)) . 
+ eq replica&share(Ssys, K, W, Lw) = replica&share(Ssys, K, W, places(Ssys, Lw)) . 
  *** default version
  op replica  : SimpleSys NzNat String -> SimpleSys . 
  eq replica(Ssys, 1, W) = replica&share(Ssys, 1, W, emptyPset) .
@@ -93,13 +93,13 @@ ceq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, S, emptySsys) if K
  eq $tnew(T |-> Q, A, P U S, K) = $tnew(T |-> set(Q, A, P, K), A, S, K) .
  *** set a marking for net places with label with a given suffix
  op setMark : Net List{String} NzNat -> System .
- eq setMark(N, L, K) = setMark(N nilP, L, K) . 
+ eq setMark(N, Lw, K) = setMark(N nilP, Lw, K) . 
  op setMark : System List{String} NzNat -> System .
- eq setMark(N B, L, K) = N set(B, places(N B, L), K) . 
+ eq setMark(N B, Lw, K) = N set(B, places(N B, Lw), K) . 
  
  *** version for simple systems
  op setMark : Snet List{String} NzNat -> SimpleSys .
- eq setMark(Sn, L, K) = Sn set(nilP, L, K) .  
+ eq setMark(Sn, Lw, K) = Sn set(nilP, Lw, K) .  
  
  *** "connect" a net to a fresh, newly created transition: the transition's arcs type/weight and the net's places to connect are given 
  op connect : Net Pset Tran Atype NzNat -> [Net] . *** partial op
@@ -121,17 +121,25 @@ ceq synch(Sys, K, A, W, W', W'') = connect(Sys', W, W', A, 1) if Sys' := replica
  eq par(Sys, K, W, W', W'', W''') = connect(synch(Sys, K, o, W, W', "||"), W'',  W''', i, 1) . 
 
  *** replica of elementary nets (systems)
- op replica&share : ElSys NzNat Set{String} -> [System] .
+ op replica&share : ElSys NzNat Pset -> [System] . *** partial operation: works if labels are elementary
  var E : ElSys .
- op replicable : ElSys -> Bool .
-ceq replicable(E) = true if S := places(E) /\ elemLabs(S) /\ simiLabs(S) == false .
- eq replicable(E) = false [owise] .
- op elemLabs : Pset -> Bool .
- eq elemLabs(p(L:NeLab El:Elab) U S) = false .
- eq elemLabs(S) = true [owise] .
- op simiLabs : Pset -> Bool .
- eq simiLabs(p(L:Lab < W ; I >) U p(L:Lab < W ; J >) U S) = true .
- eq simiLabs(S) = false [owise] .
+ var L : Lab .
+ op replicable : ElSys -> Bool . *** all labels must be elementary (Elab with index 0)
+ceq replicable(E) = false if S U p(L) := places(E) /\ elementary(L) == false .
+ eq replicable(E) = true [owise] .
+ *** set a given index for places with elementary labels (partial operations)
+ op setIndex : Pbag NzNat -> [Pbag] .
+ eq setIndex(B, K) = $setIndex(B, nilP, K) .
+ op $setIndex : Pbag Pbag NzNat -> [Pbag] .
+ eq $setIndex(nilP, B, K) = B .
+ eq $setIndex(K' . p( < W ; 0 >) + B, B', K) = $setIndex(B, B' + K' . p( < W ; K >), K) . 
+ op setIndex : Imatrix NzNat -> [Imatrix] .
+ eq setIndex([B, B', B''], K) = [setIndex(B, K), setIndex(B', K), setIndex(B'', K)] . 
+ op setIndex : ImatrixT NzNat -> [Net] .
+ eq setIndex(t(< W ; 0 >) |-> Q, K) = t(< W ; K >) |-> setIndex(Q, K) .
+ op setIndex : ElSys NzNat -> [ElSys] .
+ eq setIndex(Qt:ImatrixT B, K) = setIndex(Qt:ImatrixT, K) setIndex(B, K) .
+ 
  
  *** joins two nets by merging two transitions (builds on rename/join) -- helpful?
  *** op merge : Net Tran Net Tran Tran  -> [Net] .

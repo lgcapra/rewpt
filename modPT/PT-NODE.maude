@@ -33,7 +33,9 @@ ceq hasSuffix(L E L', E, Ls) = true if Ls := strLab(L') .
 *** op hasPrefix : Lab List{String} -> Bool .
 *** ceq hasPrefix(L, Ls) = true  if Ls Ls' := strLab(L) .
 *** eq hasPrefix(L, Ls) = false [owise] .
-
+op elementary : Lab -> Bool .
+eq elementary(< W ; 0 > ) = true .
+eq elementary(L) = false [owise] .
 endfm 
 
 fmod PT-NODE is
