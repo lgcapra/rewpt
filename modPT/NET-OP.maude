@@ -120,26 +120,36 @@ ceq synch(Sys, K, A, W, W', W'') = connect(Sys', W, W', A, 1) if Sys' := replica
  op par  : System NzNat String String String String  -> System . 
  eq par(Sys, K, W, W', W'', W''') = connect(synch(Sys, K, o, W, W', "||"), W'',  W''', i, 1) . 
 
- *** replica of elementary nets (systems)
- op replica&share : ElSys NzNat Pset -> [System] . *** partial operation: works if labels are elementary
- var E : ElSys .
+ var Ws : Set{String} . 
+ *** set a given index for bags of places all with elementary labels (partial operations) -- the specified places (denoted by labels) are untouched
+ op setIndex : Pbag Nat Set{String} -> [Pbag] .
+ eq setIndex(B, I, Ws) = $setIndex(B, nilP, I, Ws) .
+ op $setIndex : Pbag Pbag Nat Set{String} -> [Pbag] .
+ eq $setIndex(nilP, B, I, Ws) = B .
+ceq $setIndex(K' . P + B, B', I, Ws) = $setIndex(B, B' + K' . if W in Ws then P else p(< W ; I >) fi, I, Ws) if p( < W ; 0 >) := P . 
+ op setIndex : Imatrix Nat Set{String} -> [Imatrix] .
+ eq setIndex([B, B', B''], I, Ws) = [setIndex(B, I, Ws), setIndex(B', I, Ws), setIndex(B'', I, Ws)] . 
+ op setIndex : ImatrixT Nat Set{String} -> [Net] .
+ eq setIndex(t(< W ; 0 >) |-> Q, I, Ws) = t(< W ; I >) |-> setIndex(Q, I, Ws) .
+ op setIndex : ElSys Nat Set{String} -> [ElSys] .
+ eq setIndex(Qt:ImatrixT B, I, Ws) = setIndex(Qt:ImatrixT, I, Ws) setIndex(B, I, Ws) .
+ vars E E' : ElSys .
  var L : Lab .
- op replicable : ElSys -> Bool . *** all labels must be elementary (Elab with index 0)
-ceq replicable(E) = false if S U p(L) := places(E) /\ elementary(L) == false .
- eq replicable(E) = true [owise] .
- *** set a given index for places with elementary labels (partial operations)
- op setIndex : Pbag NzNat -> [Pbag] .
- eq setIndex(B, K) = $setIndex(B, nilP, K) .
- op $setIndex : Pbag Pbag NzNat -> [Pbag] .
- eq $setIndex(nilP, B, K) = B .
- eq $setIndex(K' . p( < W ; 0 >) + B, B', K) = $setIndex(B, B' + K' . p( < W ; K >), K) . 
- op setIndex : Imatrix NzNat -> [Imatrix] .
- eq setIndex([B, B', B''], K) = [setIndex(B, K), setIndex(B', K), setIndex(B'', K)] . 
- op setIndex : ImatrixT NzNat -> [Net] .
- eq setIndex(t(< W ; 0 >) |-> Q, K) = t(< W ; K >) |-> setIndex(Q, K) .
- op setIndex : ElSys NzNat -> [ElSys] .
- eq setIndex(Qt:ImatrixT B, K) = setIndex(Qt:ImatrixT, K) setIndex(B, K) .
- 
+ *** replica of elementary systems --- partial operation (build on setIndex): works if node labels are elementary
+ op replica&share : ElSys NzNat Set{String} -> [System] .
+ eq replica&share(E, K, Ws) = $replica&share(E, K, emptySys, Ws)  .
+ op $replica&share : ElSys Nat System Set{String} -> [System] .
+ eq $replica&share(E, 0, Sys, Ws) = Sys .
+ eq $replica&share(E, K, Sys, Ws) = $replica&share(E, K - 1, join(Sys, setIndex(E, K - 1, Ws)), Ws) .
+ *** default 
+ op replica&share : ElSys NzNat  -> [System] .
+ eq replica&share(E, K) = replica&share(E, K, emptyStr) .
+ *** Net versions
+ op replica&share : ImatrixT NzNat Set{String} -> [Net] .
+ eq replica&share(Qt:ImatrixT, K, Ws) = net(replica&share(Qt:ImatrixT nilP, K, Ws)) .
+ *** default
+ op replica&share : ImatrixT NzNat  -> [Net] .
+ eq replica&share(Qt:ImatrixT, K) = replica&share(Qt:ImatrixT, K, emptyStr) .
  
  *** joins two nets by merging two transitions (builds on rename/join) -- helpful?
  *** op merge : Net Tran Net Tran Tran  -> [Net] .
