@@ -6,11 +6,11 @@ fmod PT-FMS is
  ops line load ass fault faultyload faultyass : Nat -> ImatrixT . 
  ops cycle PL faultycycle faultyPL : Nat -> Net .
  op NPL : NzNat Nat  -> Net .
- op NPL : NzNat -> Net .
+ ops NPL : NzNat -> Net .
  eq NPL(N) = NPL(N, 0) .
  op NPLsys : NzNat -> System .
  ops M : -> NzNat [memo] . *** model's parameters: pieces worked at each cycle, number of replicated PLs
- eq M = 6  .
+ eq M = 2  .
  var I : Nat . 
  var N : NzNat .
  eq sline(I) =  [1 . p(< "work" ; I >) , 1 . p(< "ass" ; I >), 1 . p(< "faulty" ; I >) ] .
@@ -25,7 +25,17 @@ fmod PT-FMS is
  eq PL(I) = replica&share(cycle(I), 2, "L", p (< "focc" ; I >) U p(< "start" ; I >), t(< "ass" ; I >) U t(< "load" ; I >)) . *** a PL is built of two symmetric lines 
  eq NPL(N, I) = replica&share(PL(I), N, "PL", p(< "start" ; I >), emptyTset) .
  eq NPLsys(N) = setMark(setMark(NPL(N), "focc" "PL", 1), "start", M) .
- *** faulty PL
+ *** more compact labels
+ ops 2lines 2fault load ass comPL : -> Net .
+ eq 2lines = replica&share(line(0), 2) .
+ eq 2fault = replica&share(fault(0), 2, "focc") .
+ eq load = join(tnew("load", "work", o, 2, 1) , tnew("load", "start", i, 1, 2) ) . 
+ eq ass =  join(tnew("ass", "ass", i, 2, 1) , tnew("ass" , "start", o, 1, 2) ).
+ eq comPL = 2lines ; 2fault ; load ; ass .
+ op comPLsys : -> System .
+ eq comPLsys = setMark(setMark(comPL, "focc", 1), "start", M) .
+
+ *** faulty PL working with one line
  eq faultysload(I) =  [2 . p(< "start" ; I >) , 2 . p(< "work" ; I >) , nilP ] .
  eq faultysass(I)  =  [2 . p(< "ass" ; I >) , 2 . p(< "start" ; I >)  , nilP ] .
  eq faultyload(I) = t(< "load" ; I >) |-> faultysload(I) . 

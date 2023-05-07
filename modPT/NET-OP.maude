@@ -76,15 +76,16 @@ ceq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, S, emptySsys) if K
  *** elementary operators/operators acting on elementary nets
  var TQ : ImatrixT .
  var A : Atype .
+ var L : Elab .
  *** builds a transition's incidence matrix with a pre/post/inhibitor set of K (0..K-1) places of weight K' and with a given label
- op tnew : Tran String Atype NzNat NzNat  -> ImatrixT . 
- eq tnew(T, W, A, K, K') = $tnew(T |-> nilQ, W, A, K, K') . 
+ op tnew : Elab String Atype NzNat NzNat  -> ImatrixT . 
+ eq tnew(L, W, A, K, K') = $tnew(t(L) |-> nilQ, W, A, K, K') . 
  op $tnew : ImatrixT String Atype Nat NzNat   -> ImatrixT .
  eq $tnew(TQ, W, A, 0, K) = TQ .
  eq $tnew(T |-> Q, W, A, K', K) = $tnew(T |-> set(Q, A, p(< W ; K' - 1 >), K), W, A, K' - 1, K) .
  *** symmetric version
  op tnew : String String Atype NzNat NzNat  -> ImatrixT . 
- eq tnew(W, W', A, K, K') = tnew(t(< W ; 0 >), W', A, K, K') .
+ eq tnew(W, W', A, K, K') = tnew(< W ; 0 >, W', A, K, K') .
  *** builds a "transition" with a given pre/post/inhibitor set of weight K
  op tnew : Tran Atype NePset NzNat   -> ImatrixT .
  eq tnew(T, A, NeS:NePset, K) = $tnew(T |-> nilQ, A, NeS:NePset, K) .
@@ -134,7 +135,6 @@ ceq $setIndex(K' . P + B, B', I, Ws) = $setIndex(B, B' + K' . if W in Ws then P 
  op setIndex : ElSys Nat Set{String} -> [ElSys] .
  eq setIndex(Qt:ImatrixT B, I, Ws) = setIndex(Qt:ImatrixT, I, Ws) setIndex(B, I, Ws) .
  vars E E' : ElSys .
- var L : Lab .
  *** replica of elementary systems --- partial operation (build on setIndex): works if node labels are elementary
  op replica&share : ElSys NzNat Set{String} -> [System] .
  eq replica&share(E, K, Ws) = $replica&share(E, K, emptySys, Ws)  .
