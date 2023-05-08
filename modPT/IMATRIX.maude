@@ -54,9 +54,6 @@ fmod IMATRIX is
  *** removes all places from a local matrix
  op remove :  Imatrix Pset -> Imatrix .
  eq remove([X,Y,Z], S) = [remove(X, S),remove(Y, S),remove(Z, S)] .
- *** used in old canonization
- *** op swap : Imatrix Place Place -> Imatrix .
- *** eq swap([X,Y,Z], P, P') = [swap(X,P,P'),swap(Y,P,P'),swap(Z,P,P')] .
  
  *** net-algebra ops: add a new label to a matrix' elements
  op addLab : Imatrix Lab -> Imatrix . *** overloaded
@@ -64,9 +61,6 @@ fmod IMATRIX is
  *** version specifying elements to share
  op addLab : Imatrix Lab Pset -> Imatrix . 
  eq addLab([X,Y,Z], L, S) = [addLab(X, L, S), addLab(Y, L, S), addLab(Z, L, S)] .
- *** rename a place (build on BAGP.rename)
- *** op rename : Imatrix Place Place -> [Imatrix] .
- *** eq rename([X,Y,Z], P, P') = [rename(X, P, P'),rename(Y, P, P'),rename(Z, P, P')] . 
  *** set of places whose label's suffix matches the given one
  op places : List{String} Imatrix -> Pset .
  eq places(Ws, [X,Y,Z]) = support(X, Ws) U support(Y, Ws) U support(Z, Ws) .

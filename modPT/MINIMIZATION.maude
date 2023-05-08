@@ -22,8 +22,7 @@ fmod MINIMIZATION is
  op normalize : Pbag -> Pbag .
  *** eq normalize(B) = abstract(minimize(B)) .
  eq normalize(B) = minimize(abstract(B)) . *** seems slightly better 
- 
- *** simple extension to systems
+ *** extension to systems
  op normalize : System -> System .
  eq normalize(N B) = N normalize(B) .
  *** brings a marking (of a symmetric net) to a minimal form
@@ -34,8 +33,10 @@ fmod MINIMIZATION is
                     B'' := swapLab(B1, W, L, I, J) + K . p(L' < W ; J > L) + K' . p(L'' < W ; I > L) /\ B'' < B2 .            
  
  eq minimize(B) = B [owise] .
- op minimize : System -> System .
- eq minimize(N B) = N minimize(B) .
+ *** versions for simple systems
+ op normalize : SimpleSys -> SimpleSys .
+ eq normalize(Sn B) = Sn normalize(B) .
+ 
  *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
  op swapLab : Pbag String Lab Nat Nat -> Pbag .
  eq swapLab(B, W, L, I, I) = B .

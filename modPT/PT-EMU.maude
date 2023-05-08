@@ -14,6 +14,8 @@ mod PT-EMU is
 
  *** version for simple PT-system representation (transitions are implicit)
  vars Sn Sn' : Snet .
- crl [sfiring] : Sn M => Sn M + O - I if  [I,O,H] U Sn' := Sn /\ I  =/= O /\ I <= M /\ H >' M .
- 
+ *** crl [sfiring] : Sn M => Sn M + O - I if  [I,O,H] U Sn' := Sn /\ I =/= O /\ I <= M /\ H >' M .
+ *** including minimization
+ crl [sfiring] : Sn M => Sn normalize(M + O - I) if [I,O,H] U Sn' := Sn /\ O =/= I /\ I <= M /\ H >' M .
+
 endm

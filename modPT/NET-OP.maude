@@ -70,6 +70,10 @@ ceq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, S, emptySsys) if K
  op replica  : SimpleSys NzNat String -> SimpleSys . 
  eq replica(Ssys, 1, W) = replica&share(Ssys, 1, W, emptyPset) .
  *** simple-net version
+ op replica&share : Snet NzNat String Pset -> Snet .
+ eq replica&share(Sn, K, W, S) = net(replica&share(Sn nilP, K, W, S)) .
+ op replica&share : Snet NzNat String List{String}  -> Snet .
+ eq replica&share(Sn, K, W, Lw) = net(replica&share(Sn nilP, K, W, Lw)) .
  op replica  : Snet NzNat String -> Snet .
  eq replica(Sn, K, W) = net(replica(Sn nilP, K, W)) .
  
@@ -97,11 +101,12 @@ ceq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, S, emptySsys) if K
  eq setMark(N, Lw, K) = setMark(N nilP, Lw, K) . 
  op setMark : System List{String} NzNat -> System .
  eq setMark(N B, Lw, K) = N set(B, places(N B, Lw), K) . 
- 
  *** version for simple systems
  op setMark : Snet List{String} NzNat -> SimpleSys .
  eq setMark(Sn, Lw, K) = Sn set(nilP, Lw, K) .  
- 
+ op setMark : SimpleSys List{String} NzNat -> SimpleSys .
+ eq setMark(Sn B, Lw, K) = Sn set(B, places(Sn B, Lw), K) . 
+
  *** "connect" a net to a fresh, newly created transition: the transition's arcs type/weight and the net's places to connect are given 
  op connect : Net Pset Tran Atype NzNat -> [Net] . *** partial op
  eq connect(N, S, T, A, K) = N ; tnew(T, A, S, K) .
@@ -121,36 +126,7 @@ ceq synch(Sys, K, A, W, W', W'') = connect(Sys', W, W', A, 1) if Sys' := replica
  op par  : System NzNat String String String String  -> System . 
  eq par(Sys, K, W, W', W'', W''') = connect(synch(Sys, K, o, W, W', "||"), W'',  W''', i, 1) . 
 
- var Ws : Set{String} . 
- *** set a given index for bags of places all with elementary labels (partial operations) -- the specified places (denoted by labels) are untouched
- op setIndex : Pbag Nat Set{String} -> [Pbag] .
- eq setIndex(B, I, Ws) = $setIndex(B, nilP, I, Ws) .
- op $setIndex : Pbag Pbag Nat Set{String} -> [Pbag] .
- eq $setIndex(nilP, B, I, Ws) = B .
-ceq $setIndex(K' . P + B, B', I, Ws) = $setIndex(B, B' + K' . if W in Ws then P else p(< W ; I >) fi, I, Ws) if p( < W ; 0 >) := P . 
- op setIndex : Imatrix Nat Set{String} -> [Imatrix] .
- eq setIndex([B, B', B''], I, Ws) = [setIndex(B, I, Ws), setIndex(B', I, Ws), setIndex(B'', I, Ws)] . 
- op setIndex : ImatrixT Nat Set{String} -> [Net] .
- eq setIndex(t(< W ; 0 >) |-> Q, I, Ws) = t(< W ; I >) |-> setIndex(Q, I, Ws) .
- op setIndex : ElSys Nat Set{String} -> [ElSys] .
- eq setIndex(Qt:ImatrixT B, I, Ws) = setIndex(Qt:ImatrixT, I, Ws) setIndex(B, I, Ws) .
- vars E E' : ElSys .
- *** replica of elementary systems --- partial operation (build on setIndex): works if node labels are elementary
- op replica&share : ElSys NzNat Set{String} -> [System] .
- eq replica&share(E, K, Ws) = $replica&share(E, K, emptySys, Ws)  .
- op $replica&share : ElSys Nat System Set{String} -> [System] .
- eq $replica&share(E, 0, Sys, Ws) = Sys .
- eq $replica&share(E, K, Sys, Ws) = $replica&share(E, K - 1, join(Sys, setIndex(E, K - 1, Ws)), Ws) .
- *** default 
- op replica&share : ElSys NzNat  -> [System] .
- eq replica&share(E, K) = replica&share(E, K, emptyStr) .
- *** Net versions
- op replica&share : ImatrixT NzNat Set{String} -> [Net] .
- eq replica&share(Qt:ImatrixT, K, Ws) = net(replica&share(Qt:ImatrixT nilP, K, Ws)) .
- *** default
- op replica&share : ImatrixT NzNat  -> [Net] .
- eq replica&share(Qt:ImatrixT, K) = replica&share(Qt:ImatrixT, K, emptyStr) .
- 
+ *** vars E E' : ElSys .
  *** joins two nets by merging two transitions (builds on rename/join) -- helpful?
  *** op merge : Net Tran Net Tran Tran  -> [Net] .
  *** eq merge(N, T, N', T', T'') = join(rename(N, T, T''), rename(N', T', T'') ) .

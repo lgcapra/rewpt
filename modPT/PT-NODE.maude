@@ -67,7 +67,7 @@ fmod PT-NODE is
  eq hasSuffix(n(L), Ls) = hasSuffix(L, Ls) .
  op hasSuffix : Node Elab List{String} -> Bool .
  eq hasSuffix(n(L), E, Ls) = hasSuffix(L, E, Ls) .
- *** checks that the node's suffix starts with the given Elabel
+ *** checks that the node's suffix starts with the given Elab
  op hasSuffix : Node Elab  -> Bool .
  eq hasSuffix(N1, E) = hasSuffix(N1, E, emptyLs) .
  
