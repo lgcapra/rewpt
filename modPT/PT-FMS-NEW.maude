@@ -14,7 +14,7 @@ fmod PT-FMS is
  op SNPL : NzNat Nat  -> Snet .
  op SNPL : NzNat -> Snet .
  eq SNPL(N) = SNPL(N, 0) .
- op SNPLsys : NzNat -> System .
+ op SNPLsys : NzNat -> SimpleSys .
  
  ops M : -> NzNat [memo] . *** model's parameters: pieces worked at each cycle, number of replicated PLs
  eq M = 2  .
@@ -38,6 +38,7 @@ fmod PT-FMS is
  eq SNPL(N, I) = replica&share(SPL(I), N, "PL", p(< "s" ; I >)) .
  eq SNPLsys(N) = setMark(setMark(SNPL(N), "o" "PL", 1), "s", M) .
  
+
  *** faulty PL working with one line
  eq faultysload(I) =  [2 . p(< "s" ; I >) , 2 . p(< "w" ; I >) , nilP ] .
  eq faultysass(I)  =  [2 . p(< "a" ; I >) , 2 . p(< "s" ; I >)  , nilP ] .
