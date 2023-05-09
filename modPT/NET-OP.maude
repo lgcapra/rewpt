@@ -58,11 +58,11 @@ fmod NET-OP is
  
  *** general version for simple net representation
  op replica&share : SimpleSys NzNat String Pset -> SimpleSys .
- eq replica&share(Ssys, 1, W, S) = Ssys . *** does nothing
-ceq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, S, emptySsys) if K > 1 .
- op $replica&share  : SimpleSys Nat String Pset SimpleSys -> SimpleSys .
- eq $replica&share(Ssys, 0, W, S, Ssys') = Ssys' .
- eq $replica&share(Ssys, K, W, S, Ssys') = $replica&share(Ssys, K - 1, W, S, join(Ssys', addLab(Ssys, < W ; K - 1 >, S) )) .
+ eq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, emptySsys, S) . 
+ op $replica&share : SimpleSys Nat String SimpleSys Pset -> SimpleSys .
+ eq $replica&share(Ssys, 0, W, Ssys', S) = Ssys' .
+ eq $replica&share(Ssys, K, W, Ssys', S) = $replica&share(Ssys, K - 1, W, join(Ssys', addLab(Ssys, < W ; K - 1 >, S) ), S) .
+ 
  *** shared elements are specified through a suffix
  op replica&share : SimpleSys NzNat String List{String}  -> SimpleSys .
  eq replica&share(Ssys, K, W, Lw) = replica&share(Ssys, K, W, places(Ssys, Lw)) . 
@@ -103,7 +103,7 @@ ceq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, S, emptySsys) if K
  eq setMark(N B, Lw, K) = N set(B, places(N B, Lw), K) . 
  *** version for simple systems
  op setMark : Snet List{String} NzNat -> SimpleSys .
- eq setMark(Sn, Lw, K) = Sn set(nilP, Lw, K) .  
+ eq setMark(Sn, Lw, K) = setMark(Sn nilP, Lw, K) .  
  op setMark : SimpleSys List{String} NzNat -> SimpleSys .
  eq setMark(Sn B, Lw, K) = Sn set(B, places(Sn B, Lw), K) . 
 

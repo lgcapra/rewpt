@@ -91,13 +91,12 @@ ceq $addLab(K . P + B', B, L, S) = $addLab(B', K . P + B, L, S) if P in S .
  *** add a new label to every bag element
  op addLab : Pbag Lab -> Pbag .
  eq addLab(B, L) = addLab(B, L, emptyPset) .
- *** set a weight for places with a given prefix
- op set : Pbag List{String} Nat -> Pbag .
-ceq set(B, Ws, I) = set(B, S, I) if S := support(B, Ws) /\ S =/= emptyPset .
- eq set(B, Ws, I) = if I == 0 then B else B + I . p(< Ws ; 0 >) fi [owise] .
- *** set a weight for a (non-empty) set of places
- op set : Pbag NePset Nat -> Pbag .
- eq set(B, S U P U P', I) = set(set(B, P, I), S U P', I) . *** NOTE set(B, P, I) is already defined in BAG module 
+ *** set a weight for a set of places -- builds on set(B, P, I) defined in BAG module (note: P is a Set)
+ op set : Pbag Pset Nat -> Pbag .
+ceq set(B, S, I) = $set(B, S, I) if S :: Place == false . *** S is not a singleton (we avoid recursion)
+ op $set : Pbag Pset Nat -> Pbag . 
+ eq $set(B, emptyPset, I) = B .  
+ eq $set(B, S U P , I) = $set(set(B, P, I), S , I) .
 endfm
 
 

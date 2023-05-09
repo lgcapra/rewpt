@@ -1,0 +1,199 @@
+*** a new, more effective net representation
+in IMATRIX
+*** in ../shared/MAP+
+in ../shared/MAP-SET
+
+*** signature of a PT net : a PT net is a map Imatrix -> String
+fmod PT-NET is
+ pr MAP-SET{Imatrix,String} * (sort Map{Imatrix,String} to Net, sort Entry{Imatrix,String} to Tmatrix, op emptyM to emptyN,
+                              sort Set{Imatrix} to Iset, sort NeSet{Imatrix} to NeIset, op emptyS to emptyTset) .
+ pr SORTABLE-LIST{Place<} * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
+ pr SET+{String} * (op emptyS to emptyStr) .
+
+
+ vars N N'  : Net .
+ vars T T' : Tmatrix .
+ vars P P' P'' : Place .
+ vars Y J  : Nat .
+ vars K K' : NzNat .
+ vars I O H B : Pbag .
+ vars Q Q' : Imatrix . 
+ vars S S' PS : Pset .
+ var TS TS' : Iset .  
+ vars L L1 : Plist .
+ var W :  String .
+ var WL : List{String} .
+ var Z :  Set{String} .
+ var F :  Bool .
+ 
+ *** eq [I, I, H] -> = emptyN .
+
+ op lab : Tmatrix -> String .
+ eq lab(Q |-> W) = W .
+
+ op welldef : Net -> Bool .
+ eq welldef(N) = repeatedKeys?(N) == false . ***  and-then N =/= emptyN  . leaves the comment to consider empty nets as invalid 
+ 
+ *** dead transition
+ op dead : Tmatrix -> Bool .   
+ eq dead(Q |-> W) = dead(Q) .
+ 
+ *** test the existence of a place
+ op in :  Net Place -> Bool . 
+ceq in(Q |-> W ; N, P) = true if in (Q, P) .
+ eq in(N, P) = false [owise] .
+
+ *** test the existence of a transition
+ op in :  Net Imatrix -> Bool . 
+ eq in(N, Q) = $hasMapping(N, Q) .
+
+ *** gets out the places of the net
+ op places : Net -> Pset .
+ eq places(N) = $places(N, emptyPset) .  
+ op $places : Net Pset -> Pset . 
+ eq $places(emptyN, S) = S . 
+ eq $places(Q |-> W ; N, S) = $places(N, S U places(Q)) .
+ 
+ op places : Net List{String} -> Pset .
+ eq places(N, WL) = $places(N, WL, emptyPset) .  
+ op $places : Net List{String} Pset -> Pset . 
+ eq $places(emptyN, WL, S) = S . 
+ eq $places(Q |-> W ; N, WL, S) = $places(N, WL, S U places(WL, Q)) . *** places in Imatrix has the args in reverse order to avoid looping
+ 
+*** set of places whose label's suffix matches the given one --- the suffix header is specified exactly
+ op places : Net Elab List{String} -> Pset .
+ *** set of places whose label's suffix matches the given one --- the suffix header is specified exactly
+ var E : Elab .
+ eq places(N, E, WL) = $places(N, E, WL, emptyPset) .  
+ op $places : Net Elab List{String} Pset -> Pset . 
+ eq $places(emptyN, E, WL, S) = S . 
+ eq $places(Q |-> W ; N, E, WL, S) = $places(N, E, WL, S U places(WL, Q)) .
+ 
+ *** returns the sorted list of places of a netop placeList : Net -> Plist .
+ op placeList : Net -> Plist . 
+ eq placeList(N) = $makePlist(places(N), emptyPlist) .
+ op $makePlist : Pset Plist -> Plist . 
+ eq $makePlist(emptyPset, L) = sort(L) . 
+ eq $makePlist(P U S, L) = $makePlist(S, P L) . 
+
+ *** remove places
+ op remove :  Net Pset -> Net .
+ eq remove(N, emptyPset) = N .
+ eq remove(N, S) = $remove(N, emptyN, S) .
+ op $remove : Net Net NePset -> Net .
+ eq $remove(emptyN, N, S) = N .
+ eq $remove(Q |-> W ; N', N, S) = $remove(N', remove(Q, S)  |-> W ; N, S).
+
+ *** remove transitions with given labels
+ var Z : Set{String} .
+ op remove :  Net Set{String} -> Net .
+ eq remove(N, emptyStr) = N .
+ eq remove(N, Z) = $remove(N, emptyN, Z) .
+ op $remove : Net Net NeSet{String} -> Net .
+ eq $remove(emptyN, N, Z) = N .
+ceq $remove(Q |-> W ; N', N, Z) = $remove(N', N, Z) if W in Z .
+ eq $remove(Q |-> W ; N', N, Z) = $remove(N', Q |-> W ; N, Z) [owise] .
+
+ *** add a new tag to the net's places, but those to share (i.e., to which not to add the tag)
+ var Lab : Lab .
+ op addLab : Net Lab Pset -> Net . 
+ eq addLab(N, Lab, S) = $addLab(N, emptyN, Lab, S) .
+ op $addLab : Net Net Lab Pset -> Net .
+ eq $addLab(emptyN, N, Lab, S) = N .
+ eq $addLab(Q |-> W ; N', N, Lab, S) = $addLab(N', addLab(Q, Lab, S) |-> W ; N, Lab, S) .
+ *** simple (default) version
+ op addLab : Net Lab -> Net . 
+ eq addLab(N, Lab) = addLab(N, Lab, emptyPset) .
+ 
+endfm
+
+*** trivial view to a PT-NET
+view PTnet from TRIV to PT-NET is 
+ sort Elt to Net .
+endv
+
+*** PT system's signature (including a simple(r) one with an implicit representation of transition)
+fmod PT-SYS is
+ pr PT-NET .
+ sorts ElSys System ElSimpSys SimpleSys .
+ subsorts ElSys < System . *** PT system built of one transition 
+ op __ : Net Pbag  -> [System]      [ctor] .
+ op __ : ImatrixT Pbag  -> ElSys    [ctor] .
+ 
+ op emptySys  : -> System . *** alias
+ eq emptySys = emptyN nilP .
+ 
+ vars N N' : Net .
+ vars T T' : Tmatrix .
+ vars P P' P'' : Place .
+ vars I O H S S' : Pbag .
+ vars Q Q' : Imatrix .
+ vars K K' : NzNat .
+ var W :  String .
+ var Y : List{String} .
+ var Z : Set{String} .
+ *** all the ops are duplicated to consider simple nets
+ op net : System -> Net . 
+ op marking : System -> Pbag .
+ eq net(N S) = N .
+ eq marking(N S) = S .
+ 
+ *** checks system's  well-definition
+ cmb N S : System if welldef(N) . *** /\ support(S) subset places(N) . 
+
+ *** check transition enabling
+ op enabled : Pbag Tmatrix -> Bool .
+ eq enabled([I,O,H], S) = I <= S and-then H >' S .
+ op enabled : System Tmatrix -> [Bool] .
+ eq enabled((T |-> W ; N) S, T) = enabled(S, T) .
+ 
+ *** checks for a deadlock
+ op dead : System -> Bool . 
+ceq dead((Q |-> W ; N) S) = false if enabled((Q |-> W ; N) S, T) .
+ eq dead(N S) = true [owise] .
+ 
+ *** tests the existence of a place
+ op in :  System Place -> Bool . 
+ eq in(N S, P) =  S[P] =/= 0 or-else in(N, P).
+ op in :  SimpleSys Place -> Bool .
+ eq in(Sn S, P) =  S[P] =/= 0 or-else in(Sn, P).
+ *** system's places
+ op places : System -> Pset .
+ eq places(N S) = places(N) U support(S) .
+ op places : SimpleSys -> Pset .
+ eq places(Sn S) = places(Sn) U support(S) .
+ *** gets out the places whose labels match the given prefix 
+ op places : System List{String} -> Pset .
+ eq places(N S, Y) = places(N, Y) U support(S, Y) .
+ op places : SimpleSys List{String} -> Pset .
+ eq places(Sn S, Y) = places(Sn, Y) U support(S, Y) .
+ *** system's oredered list of places
+ op placeList : System -> Plist .
+ eq placeList(N S) = $makePlist(places(N S), emptyPlist) .
+ op placeList : SimpleSys -> Plist .
+ eq placeList(Sn S) = $makePlist(places(Sn S), emptyPlist) .
+*** add a new label to a system's places (not to transitions)
+ var Lab : Lab .
+ op addLab : System Lab -> System .
+ eq addLab(N S, Lab) = addLab(N, Lab) addLab(S, Lab) .
+ op addLab : SimpleSys Lab -> SimpleSys .
+ eq addLab(Sn S, Lab) = addLab(Sn, Lab) addLab(S, Lab) .
+ *** version specifying shared elements (helpful!)
+ op addLab : System Lab Pset Tset -> System .
+ var PS : Pset .
+ var TS : Tset .
+ eq addLab(N S, Lab, PS, TS) = addLab(N, Lab, PS, TS) addLab(S, Lab, PS) .
+ op addLab : SimpleSys Lab Pset -> SimpleSys .
+ eq addLab(Sn S, Lab, PS) = addLab(Sn, Lab, PS) addLab(S, Lab, PS) .
+ *** remove some places
+ op remove :  System Pset -> [System] .
+ eq remove(N S, PS) = remove(N, PS) remove(S, PS) .
+ op remove :  SimpleSys Pset -> SimpleSys .
+ eq remove(Sn S, PS) = remove(Sn, PS) remove(S, PS) .
+
+endfm
+
+*** trivial view to a PT-SYS
+view System from TRIV to PT-SYS is 
+ sort Elt to System .
+endv
