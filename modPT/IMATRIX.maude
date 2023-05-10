@@ -6,8 +6,6 @@ fmod IMATRIX is
  pr ATYPE .
  sort Imatrix .
  op [_,_,_] : Pbag Pbag Pbag -> Imatrix [ctor] .
- op nilQ : -> Imatrix . *** alias
- eq nilQ = [nilP, nilP, nilP] .
  
  vars X Y Z X' Y' Z' : Pbag .
  vars P P' P'' : Place .
@@ -23,6 +21,9 @@ fmod IMATRIX is
  eq I([X,Y,Z]) = X .
  eq O([X,Y,Z]) = Y .
  eq H([X,Y,Z]) = Z .
+
+ op enabled : Imatrix Pbag -> Bool .
+ eq enabled([X,Y,Z], X') = X =/= Y and-then X <= X' and-then Z >' X' .
 
  op _(_) : Imatrix Atype -> Pbag [prec 23] . *** introduced for convenience
  var a : Atype .

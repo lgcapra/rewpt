@@ -10,7 +10,6 @@ fmod PT-NET is
  pr SORTABLE-LIST{Place<} * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
  pr SET+{String} * (op emptyS to emptyStr) .
 
-
  vars N N'  : Net .
  vars T T' : Tmatrix .
  vars P P' P'' : Place .
@@ -19,21 +18,15 @@ fmod PT-NET is
  vars I O H B : Pbag .
  vars Q Q' : Imatrix . 
  vars S S' PS : Pset .
- var Z Z' : Iset .  
  vars L L1 : Plist .
  var W :  String .
  var WL : List{String} .
- var Z :  Set{String} .
- var F :  Bool .
- 
- *** eq [I, I, H] -> = emptyN .
+ var Z  : Set{String} .  
+ var Lab : Lab .
 
  op lab : Tmatrix -> String .
  eq lab(Q |-> W) = W .
 
- op welldef : Net -> Bool .
- eq welldef(N) = repeatedKeys?(N) == false . ***  and-then N =/= emptyN  . leaves the comment to consider empty nets as invalid 
- 
  *** dead transition
  op dead : Tmatrix -> Bool .   
  eq dead(Q |-> W) = dead(Q) .
@@ -94,7 +87,6 @@ ceq $remove(Q |-> W ; N', N, Z) = $remove(N', N, Z) if W in Z .
  eq $remove(Q |-> W ; N', N, Z) = $remove(N', Q |-> W ; N, Z) [owise] .
 
  *** add a new tag to the net's places, but those to share (i.e., to which not to add the tag)
- var Lab : Lab .
  op addLab : Net Lab Pset -> Net . 
  eq addLab(N, Lab, S) = $addLab(N, emptyN, Lab, S) .
  op $addLab : Net Net Lab Pset -> Net .
@@ -116,7 +108,7 @@ fmod PT-SYS is
  pr PT-NET .
  sorts ElSys System ElSimpSys SimpleSys .
  subsorts ElSys < System . *** PT system built of one transition 
- op __ : Net Pbag  -> [System]      [ctor] .
+ op __ : Net Pbag  -> System      [ctor] .
  op __ : Tmatrix Pbag  -> ElSys    [ctor] .
  
  op emptySys  : -> System . *** alias
@@ -137,12 +129,7 @@ fmod PT-SYS is
  eq net(N S) = N .
  eq marking(N S) = S .
  
- *** checks system's  well-definition
- cmb N S : System if welldef(N) . *** /\ support(S) subset places(N) . 
-
- *** check transition enabling
- op enabled : Imatrix Pbag -> Bool .
- eq enabled([I,O,H], S) = I <= S and-then H >' S .
+ *** net transition enabling (partial operation: defined if the transition belongs to the net)
  op enabled : Tmatrix System -> [Bool] .
  eq enabled(Q |-> W, (Q |-> W ; N) S) = enabled(Q, S) .
  
@@ -181,19 +168,6 @@ view System from TRIV to PT-SYS is
  sort Elt to System .
 endv
 
-mod PT-EMU is
- pr PT-SYS .
- *** pr MINIMIZATION .
- var  T : Tmatrix .
- vars I O H M : Pbag .
- vars N N' : Net .
- var W : String .
- *** ordinary firing rule
- crl [firing] : N M => N M + O - I if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) .
- *** including minimization
- *** crl [firing] : N M => N normalize(M + O - I) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M)  .
-endm
-
 fmod NET-OP is
  pr PT-SYS .  
  vars P P' P'' : Place .
@@ -209,84 +183,224 @@ fmod NET-OP is
  vars Q Q' : Imatrix .
  var S : Pset .
  
- *** join two nets by "merging" identically labelled "transitions" (and implicitly places, if any) -- total op
- op join : Net Net -> Net [assoc comm] .
- eq join(N ; Q |-> W , N' ; Q' |-> W) = Q + Q' |->  W ; join(N, N') .
- eq join(N, N') = N ; N' [owise] .
- *** join two nets by "merging" identically labelled "transitions" with labels belonging to a set (and implicitly places, if any) -- total op
- op join : Net Net Set{String} -> Net .
-ceq join(N ; Q |-> W , N' ; Q' |-> W, Z) = Q + Q' |->  W ; join(N, N') if W in Z .
- eq join(N, N', Z) = N ; N' [owise] .
-
- *** join two systems by summing markings
+ *** "merges" identically labelled net transitions whose labels belong to the given set
+ op merge : Net Set{String} -> Net .
+ceq merge(N ; Q |-> W ; Q' |-> W, Z) = Q + Q' |->  W ; merge(N, Z) if W in Z .
+ eq merge(N, Z) = N [owise] . 
+ *** "forced" merge of identically labelled net transitions
+ op merge! : Net  -> Net .
+ eq merge!(N ; Q |-> W ; Q' |-> W) = Q + Q' |->  W ; merge!(N) .
+ eq merge!(N) = N [owise] .
+ *** join two systems by summing their markings (identical places are implicitly merged)
  op join : System System -> System [assoc comm] .
- eq join(N B, N' B') = join(N, N') B + B' .
+ eq join(N B, N' B') = (N ; N') B + B' .
+ *** join two systems and then merge transitions identically labelled whose labels belong to the given set
  op join : System System Set{String} -> System .
- eq join(N B, N' B', Z) = join(N, N', Z) B + B' .
+ eq join(N B, N' B', Z) = merge(N ; N', Z) B + B' . 
+ *** forced join (builds on transitions'  merge!)
+ op join! : System System  -> System .
+ eq join(N B, N' B') = merge!(N ; N') B + B' . 
  
  *** "symmetric" juxtaposition: creates K (disjoint) replica of a system each one with a suitably added label suffix (with index 0..K-1) denoting the "nesting" level
- ***  general version specifying elements to be shared among replicas
+ ***  general version specifying elements to share among replicas
  op replica&share : System NzNat String Pset Set{String} -> System .
  eq replica&share(Sys, K, W, S, Z) = $replica&share(Sys, K, W, emptySys, S, Z)  .
  op $replica&share  : System Nat String System Pset Set{String} -> System .
  eq $replica&share(Sys, 0, W, Sys', S, Z) = Sys' .
  eq $replica&share(Sys, K, W, Sys', S, Z) = $replica&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S), Z), S, Z) .
- *** versions in which shared elements (places) are specified through a suffix
- op replica&share : System NzNat String List{String}  -> System .
- eq replica&share(Sys, K, W, Lw) = replica&share(Sys, K, W, places(Sys, Lw), emptyStr) .
+ *** overloaded version in which shared places are specified through a suffix in their labels
+ op replica&share : System NzNat String List{String} Set{String} -> System .
+ eq replica&share(Sys, K, W, Lw, Z) = replica&share(Sys, K, W, places(Sys, Lw), Z) .
  *** default version
  op replica  : System NzNat String -> System . 
- eq replica(Sys, K, W) =  replica&share(Sys, K, W, emptyPset, emptyTset) .
- *** net versions (builds on system-replica)
+ eq replica(Sys, K, W) =  replica&share(Sys, K, W, emptyPset, emptyStr) .
+ *** net versions (build on system replica)
  op replica&share : Net NzNat String Pset Set{String} -> Net .
  eq replica&share(N, K, W, S, Z) = net(replica&share(N nilP, K, W, S, Z)) .
- op replica&share : Net NzNat String List{String} List{String} -> Net .
- eq replica&share(N, K, W, Lw, Lw') = net(replica&share(N nilP, K, W, Lw, Lw')) .
- op replica  : Net NzNat String -> Net .
- eq replica(N, K, W) = replica&share(N, K, W, emptyPset, emptyTset) .
+ op replica&share : Net NzNat String List{String} Set{String} -> Net .
+ eq replica&share(N, K, W, Lw, Z) = net(replica&share(N nilP, K, W, Lw, Z)) .
+ op replica : Net NzNat String -> Net .
+ eq replica(N, K, W) = net(replica(N nilP, K, W)) .
  
  *** elementary operators/operators acting on elementary nets
  var TQ : Tmatrix .
  var A : Atype .
  var L : Elab .
- *** builds a transition's incidence matrix with a pre/post/inhibitor set of K (0..K-1) places of weight K' and with a given label
- op tnew : Elab String Atype NzNat NzNat  -> Tmatrix . 
- eq tnew(L, W, A, K, K') = $tnew(t(L) |-> nilQ, W, A, K, K') . 
- op $tnew : Tmatrix String Atype Nat NzNat   -> Tmatrix .
- eq $tnew(TQ, W, A, 0, K) = TQ .
- eq $tnew(T |-> Q, W, A, K', K) = $tnew(T |-> set(Q, A, p(< W ; K' - 1 >), K), W, A, K' - 1, K) .
- *** symmetric version
+ *** builds a "symmetric" transition's matrix with a pre/post/inhibitor set of K places of weight K' and with a given elementary label (indices 0..K-1)
+ *** the transition's labe is the 1st arg
  op tnew : String String Atype NzNat NzNat  -> Tmatrix . 
- eq tnew(W, W', A, K, K') = tnew(< W ; 0 >, W', A, K, K') .
- *** builds a "transition" with a given pre/post/inhibitor set of weight K
- op tnew : Tmatrix Atype NePset NzNat   -> Tmatrix .
- eq tnew(T, A, NeS:NePset, K) = $tnew(T |-> nilQ, A, NeS:NePset, K) .
- op $tnew : Tmatrix Atype Pset NzNat   -> Tmatrix .
- eq $tnew(TQ, A, emptyPset, K) = TQ .
- eq $tnew(T |-> Q, A, P U S, K) = $tnew(T |-> set(Q, A, P, K), A, S, K) .
+ eq tnew(W', W, A, K, K') = $tnew( [nilP, nilP, nilP] |-> W', W, A, K, K') . 
+ op $tnew : Tmatrix String Atype Nat NzNat  -> Tmatrix .
+ eq $tnew(TQ, W, A, 0, K) = TQ .
+ eq $tnew(Q |-> W', W, A, K', K) = $tnew(set(Q, A, p(< W ; K' - 1 >), K) |-> W', W, A, K' - 1, K) .
+ 
  *** set a marking for net places with label with a given suffix
  op setMark : Net List{String} NzNat -> System .
  eq setMark(N, Lw, K) = setMark(N nilP, Lw, K) . 
  op setMark : System List{String} NzNat -> System .
  eq setMark(N B, Lw, K) = N set(B, places(N B, Lw), K) . 
  
- *** "connect" a net to a fresh, newly created transition: the transition's arcs type/weight and the net's places to connect are given 
- op connect : Net Pset Tmatrix Atype NzNat -> [Net] . *** partial op
- eq connect(N, S, T, A, K) = N ; tnew(T, A, S, K) .
- *** overloaded op: connnect to net's places with a given label's suffix using the 2nd string as the fresh transition's lab
- op connect : Net String String Atype NzNat -> [Net] .
- eq connect(N, W, W', A, K) = connect(N, places(N, W), t(< W' ; 0 >), A, K) .
+ *** connnect a new transition to net's places with a given label's suffix using the 2nd string as the fresh transition's lab
+ *** op connect : Net String String Atype NzNat -> [Net] .
+ *** eq connect(N, W, W', A, K) = connect(N, places(N, W), t(< W' ; 0 >), A, K) .
  *** overloaded op: connnect a system to a fresh transition
- op connect : System String String Atype NzNat -> [System] . 
- eq connect(N B, W, W', A, K) = connect(N, W, W', A, K) B .
+ *** op connect : System String String Atype NzNat -> [System] . 
+ *** eq connect(N B, W, W', A, K) = connect(N, W, W', A, K) B .
  *** "synch" K replica of a system on a new fresh transition of given type 
  op synch  : System NzNat Atype String String String  -> System . 
-ceq synch(Sys, K, A, W, W', W'') = connect(Sys', W, W', A, 1) if Sys' := replica(Sys, K, W'') .
+*** ceq synch(Sys, K, A, W, W', W'') = connect(Sys', W, W', A, 1) if Sys' := replica(Sys, K, W'') .
  *** net version of synch
  op synch : Net NzNat Atype String String String  -> Net . 
  eq synch(N, K, A, W, W', W'') = net(synch(N nilP, K, A, W, W', W'')) .
  *** parallelize K replica of a system 
  op par  : System NzNat String String String String  -> System . 
- eq par(Sys, K, W, W', W'', W''') = connect(synch(Sys, K, o, W, W', "||"), W'',  W''', i, 1) . 
-
+ *** eq par(Sys, K, W, W', W'', W''') = connect(synch(Sys, K, o, W, W', "||"), W'',  W''', i, 1) . 
 endfm
+
+*** this module defines the operators to bring a Net (System) to a minimal/canonical form
+*** should be used in combination with NET-OP: i.e., assumes that models are built according
+*** to the net-operators there defined
+*** praticamente lo stesso usato per la codifica originale: si può importare
+
+fmod MINIMIZATION is
+ pr PT-SYS .
+ pr SET+{Nat} * (op emptyS to emptyNat) .
+ vars P P' P'' : Place .
+ vars N N' : Net .
+ vars B B' B'' B0 B1 B2 : Pbag .
+ var Sys Sys' : System .
+ vars I J : Nat .
+ vars K K' : NzNat .
+ vars W W' W'' W''' : String .
+ vars L L' L'' : Lab .
+ var NeL : NeLab .
+ vars Ls Ls' : List{String} .
+ *** minimization plus name abstraction
+ op normalize : Pbag -> Pbag .
+ *** eq normalize(B) = abstract(minimize(B)) .
+ eq normalize(B) = minimize(abstract(B)) . *** seems slightly better 
+ *** extension to systems
+ op normalize : System -> System .
+ eq normalize(N B) = N normalize(B) .
+ *** brings a marking (of a symmetric net) to a minimal form
+ op minimize : Pbag -> Pbag [memo] .
+ ceq minimize(B) = minimize(B'' + (B' - B2 )) if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B' := B  /\ J =/= I /\ 
+                    (K =/= K' or-else L' =/= L'')  /\ B1 := extract(B', W, I U J, L)  /\ 
+                    B2 := B1 + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\ 
+                    B'' := swapLab(B1, W, L, I, J) + K . p(L' < W ; J > L) + K' . p(L'' < W ; I > L) /\ B'' < B2 .            
+ 
+ eq minimize(B) = B [owise] .
+ 
+ *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
+ op swapLab : Pbag String Lab Nat Nat -> Pbag .
+ eq swapLab(B, W, L, I, I) = B .
+ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J . 
+ op $swapLab : Pbag Pbag String Lab Nat Nat -> Pbag .
+ eq $swapLab(nilP, B, W, L, I, J) = B .
+ eq $swapLab(K . p(L' < W ; I > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; J > L) + B', W, L, I, J) .
+ eq $swapLab(K . p(L' < W ; J > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; I > L) + B', W, L, I, J) .
+ eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
+*** makes the name (index) abstraction in a marking
+ op abstract : Pbag -> Pbag .
+ *** this version consider the suffix exactly as it is 
+ceq abstract(B) = abstract(replaceWithPrec(B, < W ; K' > L)) if K . p(L' < W ; K' > L) + B' := B /\ exists(B', < W ; K' - 1 > L) == false .
+ eq abstract(B) = B [owise] .
+ 
+ *** replaces in a bag all the occurrences of places whose label matches the given prefix (whose last element's index K' is given) and suffix using K' - 1 in place of K' 
+ op replaceWithPrec : Pbag NeLab -> Pbag . 
+ eq replaceWithPrec(B, NeL) = $replaceWithPrec(B, nilP, NeL) .
+ op $replaceWithPrec : Pbag Pbag NeLab -> Pbag .
+ceq $replaceWithPrec(K . p(L' NeL) + B, B', NeL) = $replaceWithPrec(B, K . p(L' < W ; K' - 1 > L) + B', NeL) if < W ; K' > L := NeL .
+ eq $replaceWithPrec(nilP, B, NeL) = B .
+ eq $replaceWithPrec(K . P + B', B, NeL) = $replaceWithPrec(B', K . P + B, NeL) [owise] .
+ 
+ *** checks for the existence in bag of a place whose label matches the given suffix (whose last element's index is given)
+ op exists : Pbag NeLab -> Bool .
+ eq exists(K . p(L' NeL) + B, NeL) = true  .
+ eq exists(B, NeL) = false [owise] .
+ *** slightly different version checking for a suffix with a given header label
+ *** op exists : Pbag String Lab -> Bool .
+ *** eq exists(K . p(L' < W ; I > L) + B, W, L) = true .
+ *** eq exists(B, W, L) = false [owise] .
+ *** extracts the elements with a given suffix
+ op extract : Pbag String Lab ->  Pbag .
+ eq extract(B, W, L) = $extract(B, nilP, W, L) .
+ op $extract : Pbag Pbag String Lab ->  Pbag .
+ eq $extract(nilP, B, W, L) = B .
+ eq $extract(K . p(L' < W ; I > L) + B, B', W, L) = $extract(B, B' + K . p(L' < W ; I > L) , W, L) . 
+ eq $extract(K . P + B, B', W, L) = $extract(B, B' , W, L) [owise] . 
+ *** extracts the elements with a given suffix and the suffix header's index in a set
+ var A : Set{Nat} .
+ op extract : Pbag String Set{Nat} Lab ->  Pbag .
+ eq extract(B, W, A, L) = $extract(B, nilP, W, A, L) .
+ op $extract : Pbag Pbag String Set{Nat} Lab ->  Pbag .
+ eq $extract(nilP, B, W, A, L) = B .
+ceq $extract(K . p(L' < W ; I > L) + B, B', W, A, L) = $extract(B, B' + K . p(L' < W ; I > L) , W, A, L) if I in A . 
+ eq $extract(K . P + B, B', W, A, L) = $extract(B, B' , W, A, L) [owise] . 
+endfm 
+
+mod PT-EMU is
+ pr MINIMIZATION .
+ var  T : Tmatrix .
+ vars I O H M : Pbag .
+ vars N N' : Net .
+ var W : String .
+ *** ordinary firing rule
+ crl [firing] : N M => N M + O - I if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) .
+ *** including minimization
+ *** crl [cfiring] : N M => N normalize(M + O - I) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M)  .
+endm
+
+fmod PT-FMS is
+ protecting NET-OP .
+ ops sline sload sass sfault faultysload faultysass :  Nat -> Imatrix .
+ ops line load ass fault faultyload faultyass : Nat -> Tmatrix . 
+ ops cycle PL faultycycle faultyPL : Nat -> Net .
+ op NPL : NzNat -> Net . *** N prod lines
+ op NPLsys : NzNat NzNat -> System . *** N prod lines with 2 * M tokens (raw pieces)
+ 
+ var I : Nat . 
+ vars N M : NzNat .
+ eq sline(I) =  [1 . p(< "w" ; I >) , 1 . p(< "a" ; I >), 1 . p(< "f" ; I >) ] .
+ eq line(I) = sline(I) |-> "l" .
+ eq sfault(I) =  [1 . p(< "o" ; I >) , 1 . p(< "f" ; I >), nilP ] .
+ eq fault(I) = sfault(I) |-> "f" .
+ eq sload(I) = [1 . p(< "s" ; I >) , 1 . p(< "w" ; I >) , nilP ] .
+ eq load(I) = sload(I) |-> "w" .
+ eq sass(I) =  [1 . p(< "a" ; I >) , 1 . p(< "s" ; I >)  , nilP ] .
+ eq ass(I)  = sass(I)  |-> "a" .
+ eq cycle(I) = load(I) ; line(I) ; ass(I) ; fault(I) .
+ eq PL(I) = replica&share(cycle(I), 2, "L", p (< "o" ; I >) U p(< "s" ; I >), "a" U "w") . *** a PL is built of two symmetric lines 
+ eq NPL(N) = replica&share(PL(0), N, "PL", p(< "s" ; 0 >), emptyStr) .
+ eq NPLsys(N, M) = setMark(setMark(NPL(N), "o" "PL", 1), "s", 2 * M) .
+ 
+ *** faulty PL working with one line
+ eq faultysload(I) =  [2 . p(< "s" ; I >) , 2 . p(< "w" ; I >) , nilP ] .
+ eq faultysass(I)  =  [2 . p(< "a" ; I >) , 2 . p(< "s" ; I >)  , nilP ] .
+ eq faultyload(I) = faultysload(I) |-> "l" . 
+ eq faultyass(I)  = faultysass(I)  |-> "a" .
+ eq faultycycle(I) = faultyload(I) ; line(I) ; faultyass(I) ; fault(I) .
+ eq faultyPL(I) = replica&share(faultycycle(I), 1, "fPL", "s",  emptyStr) . *** a faulty PL is built of 1 line
+endfm
+
+mod RWPT-FMS is
+ pr  PT-FMS .
+ inc PT-EMU .
+ vars N N' : Net .
+ vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : String .
+ vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
+ var S : Pbag .
+ var K : NzNat .
+ var I : Nat .
+ var W : String .
+ vars L L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
+ 
+crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+        if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
+*** crl [syr1new] : N S + 1 . p(L7 < "f" ; I >) => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+***          if (N' ; NPL(1, I)) := N /\ dead(N S + 1 . P7)  .
+crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
+         dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
+*** including minimization
+
+endm

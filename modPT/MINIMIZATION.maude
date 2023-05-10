@@ -1,6 +1,6 @@
 *** this module defines the operators to bring a Net (System) to a minimal/canonical form
 *** should be used in combination with NET-OP: i.e., assumes that models are built according
-*** to the net-operators there dfined
+*** to the net-operators there defined
 
 fmod MINIMIZATION is
  pr PT-SYS .

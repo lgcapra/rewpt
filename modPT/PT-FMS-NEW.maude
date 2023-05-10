@@ -7,19 +7,11 @@ fmod PT-FMS is
  ops cycle PL faultycycle faultyPL : Nat -> Net .
  ops scycle SPL : Nat -> Snet .
  
- op NPL : NzNat Nat  -> Net .
- op NPL : NzNat -> Net .
- eq NPL(N) = NPL(N, 0) .
- op NPLsys : NzNat -> System .
- op SNPL : NzNat Nat  -> Snet .
- op SNPL : NzNat -> Snet .
- eq SNPL(N) = SNPL(N, 0) .
- op SNPLsys : NzNat -> SimpleSys .
+ op NPL : NzNat -> Net . *** N prod lines
+ op NPLsys : NzNat NzNat -> System . *** N prod lines with 2 * M tokens (raw pieces)
  
- ops M : -> NzNat [memo] . *** model's parameters: pieces worked at each cycle, number of replicated PLs
- eq M = 2  .
  var I : Nat . 
- var N : NzNat .
+ vars N M : NzNat .
  eq sline(I) =  [1 . p(< "w" ; I >) , 1 . p(< "a" ; I >), 1 . p(< "f" ; I >) ] .
  eq line(I) = t(< "l" ; I >) |-> sline(I) .
  eq sfault(I) =  [1 . p(< "o" ; I >) , 1 . p(< "f" ; I >), nilP ] .
@@ -30,15 +22,9 @@ fmod PT-FMS is
  eq ass(I)  = t(< "a" ; I >) |-> sass(I) .
  eq cycle(I) = load(I) ; line(I) ; ass(I) ; fault(I) .
  eq PL(I) = replica&share(cycle(I), 2, "L", p (< "o" ; I >) U p(< "s" ; I >), t(< "a" ; I >) U t(< "w" ; I >)) . *** a PL is built of two symmetric lines 
- eq NPL(N, I) = replica&share(PL(I), N, "PL", p(< "s" ; I >), emptyTset) .
- eq NPLsys(N) = setMark(setMark(NPL(N), "o" "PL", 1), "s", M) .
- *** simple nets
- eq scycle(I) = sload(I) U sline(I) U sass(I) U sfault(I) .
- eq SPL(I) = replica&share(scycle(I), 2, "L", p (< "o" ; I >) U p(< "s" ; I >)) .  
- eq SNPL(N, I) = replica&share(SPL(I), N, "PL", p(< "s" ; I >)) .
- eq SNPLsys(N) = setMark(setMark(SNPL(N), "o" "PL", 1), "s", M) .
+ eq NPL(N) = replica&share(PL(0), N, "PL", p(< "s" ; 0 >), emptyTset) .
+ eq NPLsys(N, M) = setMark(setMark(NPL(N), "o" "PL", 1), "s", 2 * M) .
  
-
  *** faulty PL working with one line
  eq faultysload(I) =  [2 . p(< "s" ; I >) , 2 . p(< "w" ; I >) , nilP ] .
  eq faultysass(I)  =  [2 . p(< "a" ; I >) , 2 . p(< "s" ; I >)  , nilP ] .
@@ -60,12 +46,12 @@ mod RWPT-FMS is
  var W : String .
  vars L L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
  
- *** crl [syr1] : N S + 1 . P7 => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
- ***           if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P7] ; Tass |-> [1 . P4 + 1 . P5, 2 . P1, nilP ] ; Tfail2 |-> [1 . P0, 1 . P7, nilP]) := N /\ dead(N S + 1 . P7)  .
+ crl [syr1] : N S + 1 . P7 => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+        if (N' ; Tload |-> [2 . P1, 1 . P2 + 1 . P3, nilP ] ; Tline2 |-> [1 . P3, 1 . P5, 1 . P7] ; Tass |-> [1 . P4 + 1 . P5, 2 . P1, nilP ] ; Tfail2 |-> [1 . P0, 1 . P7, nilP]) := N /\ dead(N S + 1 . P7)  .
 *** crl [syr1new] : N S + 1 . p(L7 < "f" ; I >) => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
 ***          if (N' ; NPL(1, I)) := N /\ dead(N S + 1 . P7)  .
- *** crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P6, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P6] ; Tass |-> [2 . P4, 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
- ***             dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP ]) S) .
+ crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; Tfail1 |-> [1 . P0, 1 . P6, nilP] ; Tload |-> [2 . P1, 2 . P2, nilP] ; Tline1 |-> [1 . P2, 1 . P4, 1 . P6] ; Tass |-> [2 . P4, 2 . P1, nilP ]) := N  /\ N' =/= emptyN /\
+              dead((Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP ]) S) .
 *** including minimization
 
 endm
