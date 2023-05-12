@@ -126,12 +126,5 @@ ceq synch(Sys, K, A, W, W', W'') = connect(Sys', W, W', A, 1) if Sys' := replica
  op par  : System NzNat String String String String  -> System . 
  eq par(Sys, K, W, W', W'', W''') = connect(synch(Sys, K, o, W, W', "||"), W'',  W''', i, 1) . 
 
- *** vars E E' : ElSys .
- *** joins two nets by merging two transitions (builds on rename/join) -- helpful?
- *** op merge : Net Tran Net Tran Tran  -> [Net] .
- *** eq merge(N, T, N', T', T'') = join(rename(N, T, T''), rename(N', T', T'') ) .
- *** version for simple nets
- *** op merge : Snet Imatrix Imatrix  -> Snet .
- *** eq merge(Sn U Q U Q', Q, Q') = Sn U Q + Q' . 
  
 endfm

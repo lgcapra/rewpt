@@ -23,7 +23,7 @@ fmod IMATRIX is
  eq H([X,Y,Z]) = Z .
 
  op enabled : Imatrix Pbag -> Bool .
- eq enabled([X,Y,Z], X') = X =/= Y and-then X <= X' and-then Z >' X' .
+ eq enabled([X,Y,Z], X') = X <= X' and-then Z >' X' .
 
  op _(_) : Imatrix Atype -> Pbag [prec 23] . *** introduced for convenience
  var a : Atype .

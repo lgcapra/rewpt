@@ -28,17 +28,15 @@ ceq $support(K . p(N,W') + B, W, S) = $support(B, W, S) if W =/= W' .
  eq prefix&offset(nilP, N, W) = nilP .
  eq prefix&offset(K . P + B, N, W) = K . prefix&offset(P, N, W) + prefix&offset(B, N, W) .    
  
- *** canonization part
- op replace : Pbag Place Place -> Pbag . *** replaces the first place with the second one
- eq replace(K . P + B, P, P') = K . P' + B .
- op swap : Pbag Place Place -> Pbag .  *** swaps two places
- eq replace(B, P, P') = B [owise] .
- eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
- eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
- eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
- *** eq swap(K . P  + B, P, P')  = K . P' + swap(B, P, P')  . *** slightly less efficient
- *** eq swap(K . P' + B, P, P')  = K . P  + swap(B, P, P')  .
- eq swap(B, P, P')  = B [owise] .
+ *** (old) canonization part
+ *** op replace : Pbag Place Place -> Pbag . *** replaces the first place with the second one
+ *** eq replace(K . P + B, P, P') = K . P' + B .
+ *** op swap : Pbag Place Place -> Pbag .  *** swaps two places
+ *** eq replace(B, P, P') = B [owise] .
+ *** eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
+ *** eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
+ *** eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
+ *** eq swap(B, P, P')  = B [owise] .
  
  *** in alternative, we might define toList in BAG, then reuse extract
  op toList : Pbag String -> List{Nat,Place} . *** builds an (unordered) list of pairs < weight ; el > out of a bag -- considers places with a certain label
@@ -58,15 +56,15 @@ ceq $support(K . p(N,W') + B, W, S) = $support(B, W, S) if W =/= W' .
  eq toListS(C, B)  = sort(C, toList(B)) .   *** builds an ordered list of pairs out of a bag  using the usual list lex order (0) ([memo] ?) or the lex order based on weights (1)
  *** the same as above, for the list-view
  var L  : List{Nat,Place} . var X : Pair{Nat,Place} .
- op replace : List{Nat,Place} Place Place -> List{Nat,Place} . 
- eq replace(emptyListNP, P, P') = emptyListNP . 
- eq replace(< K ; P > L, P , P') = < K ; P' > L .
- eq replace(X L, P, P') = X replace(L, P, P') [owise] .
- op swap : List{Nat,Place} Place Place -> List{Nat,Place} . 
- eq swap(emptyListNP, P, P') = emptyListNP . 
- eq swap(< K ; P > L, P , P') = < K ; P' > replace(L, P', P) .
- eq swap(< K ; P' > L, P , P') = < K ; P > replace(L, P, P') .
- eq swap(X L, P, P') = X swap(L, P, P') [owise] .
+ *** op replace : List{Nat,Place} Place Place -> List{Nat,Place} . 
+ *** eq replace(emptyListNP, P, P') = emptyListNP . 
+ *** eq replace(< K ; P > L, P , P') = < K ; P' > L .
+ *** eq replace(X L, P, P') = X replace(L, P, P') [owise] .
+ *** op swap : List{Nat,Place} Place Place -> List{Nat,Place} . 
+ *** eq swap(emptyListNP, P, P') = emptyListNP . 
+ *** eq swap(< K ; P > L, P , P') = < K ; P' > replace(L, P', P) .
+ *** eq swap(< K ; P' > L, P , P') = < K ; P > replace(L, P, P') .
+ *** eq swap(X L, P, P') = X swap(L, P, P') [owise] .
  *** back conversion (places with a given label)
  op toBag : List{Nat,Place} String -> Pbag .
  eq toBag(LNP, W) = $toBag(LNP, W, nilP) .

@@ -3,10 +3,10 @@ in IMATRIX
 *** in ../shared/MAP+
 in ../shared/MAP-SET
 
-*** signature of a PT net : a PT net is a map Imatrix -> String
+*** signature of a PT net : a PT net is a map Imatrix -> String (In general Imatrix -> Tag)
 fmod PT-NET is
  pr MAP-SET{Imatrix,String} * (sort Map{Imatrix,String} to Net, sort Entry{Imatrix,String} to Tmatrix, op emptyM to emptyN,
-                              sort Set{Imatrix} to Iset, sort NeSet{Imatrix} to NeIset, op emptyS to emptyTset) .
+                              sort Set{Imatrix} to Iset, sort NeSet{Imatrix} to NeIset, op emptyS to emptyIset) .
  pr SORTABLE-LIST{Place<} * (sort List{Place<} to Plist, sort NeList{Place<} to NePlist, op nil to emptyPlist ) .
  pr SET+{String} * (op emptyS to emptyStr) .
 
@@ -68,6 +68,11 @@ ceq in(Q |-> W ; N, P) = true if in (Q, P) .
  op $makePlist : Pset Plist -> Plist . 
  eq $makePlist(emptyPset, L) = sort(L) . 
  eq $makePlist(P U S, L) = $makePlist(S, P L) . 
+
+ *** removes self-loops
+ op clearup : Net -> Net .
+ eq clearup([I, I, H] |-> W ; N) = clearup(N) .
+ eq clearup(N) = N [owise] .
 
  *** remove places
  op remove :  Net Pset -> Net .
@@ -158,6 +163,11 @@ ceq dead((T ; N) S) = false if enabled(T, (T ; N) S) .
  op addLab : System Lab Pset -> System .
  var PS : Pset .
  eq addLab(N S, Lab, PS) = addLab(N, Lab, PS) addLab(S, Lab, PS) .
+ *** clears the system's marking by removing non encoded places
+ op clearupM : System -> System .
+ceq clearupM(N K . P + S) = clearupM(N S) if in(N, P) == false .
+ eq clearupM(X:System) = X:System [owise] .
+
  *** remove some places
  op remove :  System Pset -> System .
  eq remove(N S, PS) = remove(N, PS) remove(S, PS) .
@@ -355,10 +365,11 @@ fmod PT-FMS is
  protecting NET-OP .
  ops sline sload sass sfault faultysload faultysass :  Nat -> Imatrix .
  ops line load ass fault faultyload faultyass : Nat -> Tmatrix . 
- ops cycle PL faultycycle faultyPL : Nat -> Net .
- op NPL : NzNat -> Net . *** N prod lines
+ ops cycle PL 1PL faultycycle faultyPL : Nat -> Net .
+ op NPL : NzNat -> Net . *** N prod lines 0 .. N- 1
  op NPLsys : NzNat NzNat -> System . *** N prod lines with 2 * M tokens (raw pieces)
  
+
  var I : Nat . 
  vars N M : NzNat .
  eq sline(I) =  [1 . p(< "w" ; I >) , 1 . p(< "a" ; I >), 1 . p(< "f" ; I >) ] .
@@ -373,7 +384,8 @@ fmod PT-FMS is
  eq PL(I) = replica&share(cycle(I), 2, "L", p (< "o" ; I >) U p(< "s" ; I >), "a" U "w") . *** a PL is built of two symmetric lines 
  eq NPL(N) = replica&share(PL(0), N, "PL", p(< "s" ; 0 >), emptyStr) .
  eq NPLsys(N, M) = setMark(setMark(NPL(N), "o" "PL", 1), "s", 2 * M) .
- 
+
+ eq 1PL(I) = replica&share(PL(I), 1, "PL", p(< "s" ; 0 >), emptyStr) .
  *** faulty PL working with one line
  eq faultysload(I) =  [2 . p(< "s" ; I >) , 2 . p(< "w" ; I >) , nilP ] .
  eq faultysass(I)  =  [2 . p(< "a" ; I >) , 2 . p(< "s" ; I >)  , nilP ] .
@@ -397,8 +409,8 @@ mod RWPT-FMS is
  
 crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
         if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
-*** crl [syr1new] : N S + 1 . p(L7 < "f" ; I >) => ( N' ; Tload |-> [2 . P1, 2 . P2, nilP] ;  Tass |-> [2 . P4, 2 . P1, nilP]) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-***          if (N' ; NPL(1, I)) := N /\ dead(N S + 1 . P7)  .
+*** crl [syr1new] : N S + 1 . p(L7 < "f" ; I >) => ( N' ; [2 . P1, 2 . P2, nilP] |->  Tload ; [2 . P4, 2 . P1, nilP] |-> Tass) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+    ***      if (N' ; 1PL(I)) := N /\ dead(N S + 1 . p(L7 < "f" ; I >))  .
 crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
          dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
 *** including minimization
