@@ -289,7 +289,7 @@ fmod MINIMIZATION is
  vars Ls Ls' : List{String} .
  *** minimization plus name abstraction
  op normalize : Pbag -> Pbag .
- *** eq normalize(B) = abstractV0(minimize(B)) .
+ *** eq normalize(B) = abstract(minimize(B)) .
  eq normalize(B) = minimize(abstract(B)) . *** seems slightly better 
  *** extension to systems
  op normalize : System -> System .
@@ -313,23 +313,19 @@ ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J .
  eq $swapLab(K . p(L' < W ; J > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; I > L) + B', W, L, I, J) .
  eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
 *** makes the name (index) abstraction in a marking
- op abstractV0 : Pbag -> Pbag .
- *** this version consider the suffix exactly as it is 
-ceq abstractV0(B) = abstractV0(replaceWithPrec(B, < W ; K' > L)) if K . p(L' < W ; K' > L) + B' := B /\ exists(B', < W ; K' - 1 > L) == false .
- eq abstractV0(B) = B [owise] .
- *** version 2 : (repeatedly) finds the smallest missing suffix header's index and the greatest one (if any) and replaces the former with the latter
  op abstract : Pbag -> Pbag .
-ceq abstract(B) = abstract(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ K := maxin(B, W, L) /\  I := minnotin(B', W, L) /\ I < K .
-*** ceq abstract(B) = K' . p(L' < W ; I > L) + abstract(replaceWith(B', NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ K := maxin(B, W, L) /\  I := minnotin(B', W, L) /\ I < K .
+ *** this version consider the suffix exactly as it is 
+ceq abstract(B) = abstract(K . p(L' < W ; K' - 1 > L) + replaceWith(B', < W ; K' > L, K' - 1)) if K . p(L' < W ; K' > L) + B' := B /\ exists(B', < W ; K' - 1 > L) == false .
  eq abstract(B) = B [owise] .
+ *** version 2 : (repeatedly) finds the smallest missing suffix header's index and the greatest one (if any) and replaces the former with the latter
+ *** negli esempi è un po' meno efficiente ma in generale (in casi meno semplici) è meglio
+ op abstractV2 : Pbag -> Pbag .
+ceq abstractV2(B) = abstractV2(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ I := minnotin(B', W, L) /\ I < K  /\ K := maxin(B, W, L) .
+ eq abstractV2(B) = B [owise] .
 *** net/system versions
- op abstractV0 : Net -> Net . *** needed?
- op abstractV0 : System -> System .
+ op abstract : Net -> Net . *** needed?
+ op abstract : System -> System .
 
- *** replaces in a bag all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the predecessor
- op replaceWithPrec : Pbag NeLab -> Pbag . 
-ceq replaceWithPrec(B, NeL) = replaceWith(B, NeL, K - 1) if < W ; K > L := NeL .
- eq replaceWithPrec(B, < W ; 0 > L) = B .
  *** replaces in a bag all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the specified value
  op replaceWith : Pbag NeLab Nat -> Pbag . 
  eq replaceWith(B, NeL, I) = $replaceWith(B, nilP, NeL, I) .
