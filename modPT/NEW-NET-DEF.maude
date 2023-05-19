@@ -291,6 +291,10 @@ fmod MINIMIZATION is
  op normalize : Pbag -> Pbag .
  *** eq normalize(B) = abstract(minimize(B)) .
  eq normalize(B) = minimize(abstract(B)) . *** seems slightly better 
+ *** optimized version
+ op normalize : Pbag Bool -> Pbag .
+ eq normalize(B, F:Bool) = if F:Bool then minimize(B) else normalize(B)  fi .
+ 
  *** extension to systems
  op normalize : System -> System .
  eq normalize(N B) = N normalize(B) .
@@ -392,13 +396,15 @@ endfm
 mod PT-EMU is
  pr MINIMIZATION .
  var  T : Tmatrix .
- vars I O H M : Pbag .
+ vars I O H M O_I : Pbag .
  vars N N' : Net .
  var W : String .
  *** ordinary firing rule
  *** crl [firing] : N M => N M + O - I if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) .
  *** including minimization
  crl [cfiring] : N M => N normalize(M + O - I) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M)  .
+ *** includes a further optimization
+ *** crl [cfiring] : N M => N normalize(M + O_I, eqsupp(M, O_I)) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) /\ O_I := O - I  .
 endm
 
 fmod PT-FMS is

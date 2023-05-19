@@ -22,6 +22,9 @@ fmod MINIMIZATION is
  op normalize : Pbag -> Pbag .
  *** eq normalize(B) = abstract(minimize(B)) .
  eq normalize(B) = minimize(abstract(B)) . *** seems slightly better 
+ op normalize : Pbag Bool -> Pbag .
+ *** optimized version
+ eq normalize(B, F:Bool) = if F minimize(B) else normalize(B)  fi .
  *** extension to systems
  op normalize : System -> System .
  eq normalize(N B) = N normalize(B) .

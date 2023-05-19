@@ -54,12 +54,6 @@ ceq $support(K . P + B, Ws, S) = $support(B, Ws, S U P) if hasSuffix(P, Ws) .
  op $support : Pbag Elab List{String} Pset -> Pset . 
 ceq $support(K . P + B, E, Ws, S) = $support(B, E, Ws, S U P) if hasSuffix(P, E, Ws) .
  eq $support(B, E, Ws, S) = S [owise] .
-  *** swaps two places (ever used?)
- *** op swap : Pbag Place Place -> Pbag .  
- *** eq swap(K . P  + K' . P' + B, P, P')  = K . P' +  K' . P + B .
- *** eq swap(K . P  + B, P, P')  = K . P' + B [owise] .
- *** eq swap(K . P' + B, P, P')  = K . P  + B [owise] .
- *** eq swap(B, P, P')  = B [owise] .
  *** builds an (un)ordered list of pairs < weight ; el > out of a bag
  op toList  : Pbag -> List{Nat,Place} .     
  eq toList(B) = $toList(B, emptyListNP) .
@@ -77,10 +71,14 @@ ceq $support(K . P + B, E, Ws, S) = $support(B, E, Ws, S U P) if hasSuffix(P, E,
  op cmp : Nat Pbag Pbag -> Nat . *** maps to the lexicographic orders defined on lists of (comparable) pairs
  eq cmp(C, B , B') = cmp(C, toListS(C, B), toListS(C, B')) .
  *** defined for convenience
- ops _<_  : Pbag Pbag -> Bool .
+ op _<_    : Pbag Pbag -> Bool .
  eq B <  B' = B =/= B' and-then lt(0, B, B') .
+ *** efficiently checks that two bag supports coincide
+ op eqsupp : Pbag Pbag -> Bool [ comm ] .
+ceq eqsupp(K . P + B, B') = false if B'[P] == 0 .   
+ eq eqsupp(B, B') = true [owise] .
  
- *** -- used for net algebra -- 
+ *** -- operators used for net algebra -- 
  *** add a new label to bag's elements -- version specifying elements to share (i.e., to which not to add the label)
  op addLab : Pbag Lab Pset -> Pbag . 
  eq addLab(B, L, S) = $addLab(B, nilP, L, S) .
