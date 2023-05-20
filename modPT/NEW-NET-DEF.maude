@@ -23,6 +23,7 @@ fmod PT-NET is
  var WL : List{String} .
  var Z  : Set{String} .  
  var Lab : Lab .
+ var NeL : NeLab .
 
  op lab : Tmatrix -> String .
  eq lab(Q |-> W) = W .
@@ -90,7 +91,8 @@ ceq in(Q |-> W ; N, P) = true if in (Q, P) .
  eq $remove(emptyN, N, Z) = N .
 ceq $remove(Q |-> W ; N', N, Z) = $remove(N', N, Z) if W in Z .
  eq $remove(Q |-> W ; N', N, Z) = $remove(N', Q |-> W ; N, Z) [owise] .
-
+ 
+ *** net algebra
  *** add a new tag to the net's places, but those to share (i.e., to which not to add the tag)
  op addLab : Net Lab Pset -> Net . 
  eq addLab(N, Lab, S) = $addLab(N, emptyN, Lab, S) .
@@ -100,6 +102,13 @@ ceq $remove(Q |-> W ; N', N, Z) = $remove(N', N, Z) if W in Z .
  *** simple (default) version
  op addLab : Net Lab -> Net . 
  eq addLab(N, Lab) = addLab(N, Lab, emptyPset) .
+ 
+ *** replaces all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the specified value
+ op replaceWith : Net NeLab Nat -> Net . 
+ eq replaceWith(N, NeL, Y) = $replaceWith(N, NeL, Y, emptyN) .  
+ op $replaceWith : Net NeLab Nat Net -> Net . 
+ eq $replaceWith(emptyN, NeL, Y, N) = N . 
+ eq $replaceWith(Q |-> W ; N, NeL, Y, N') = $replaceWith(N, NeL, Y, N' ; replaceWith(Q, NeL, Y) |-> W) .
  
 endfm
 
@@ -155,6 +164,7 @@ ceq dead((T ; N) S) = false if enabled(T, (T ; N) S) .
  *** system's oredered list of places
  op placeList : System -> Plist .
  eq placeList(N S) = $makePlist(places(N S), emptyPlist) .
+
 *** add a new label to a system's places (not to transitions)
  var Lab : Lab .
  op addLab : System Lab -> System .
@@ -171,6 +181,13 @@ ceq clearupM(N K . P + S) = clearupM(N S) if in(N, P) == false .
  *** remove some places
  op remove :  System Pset -> System .
  eq remove(N S, PS) = remove(N, PS) remove(S, PS) .
+
+  *** derived version 
+ var NeL : NeLab . 
+ var J : Nat .
+ op replaceWith : System NeLab Nat -> System .
+ eq replaceWith(N S, NeL, J) = replaceWith(N, NeL, J) replaceWith(S, NeL, J) .
+ 
 endfm
 
 *** trivial view to a PT-SYS
@@ -276,7 +293,7 @@ fmod MINIMIZATION is
  pr PT-SYS .
  pr SET+{Nat} * (op emptyS to emptyNat) .
  vars P P' P'' : Place .
- var S : Pset .
+ vars S S' : Pset .
  vars N N' : Net .
  vars B B' B'' B0 B1 B2 : Pbag .
  var Sys Sys' : System .
@@ -290,23 +307,22 @@ fmod MINIMIZATION is
  *** minimization plus name abstraction
  op normalize : Pbag -> Pbag .
  *** eq normalize(B) = abstract(minimize(B)) .
- eq normalize(B) = minimize(abstract(B)) . *** seems slightly better 
+ eq normalize(B) = minimize(abstractV2(B)) . *** seems slightly better 
  *** optimized version
  op normalize : Pbag Bool -> Pbag .
- eq normalize(B, F:Bool) = if F:Bool then minimize(B) else normalize(B)  fi .
+ eq normalize(B, F:Bool) = if F:Bool then minimize(B) else normalize(B) fi .
  
  *** extension to systems
  op normalize : System -> System .
  eq normalize(N B) = N normalize(B) .
+ 
  *** brings a marking (of a symmetric net) to a minimal form
  op minimize : Pbag -> Pbag [memo] .
  ceq minimize(B) = minimize(B'' + (B' - B2 )) if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B' := B  /\ J =/= I /\ 
                     (K =/= K' or-else L' =/= L'')  /\ B1 := extract(B', W, I U J, L)  /\ 
                     B2 := B1 + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\ 
                     B'' := swapLab(B1, W, L, I, J) + K . p(L' < W ; J > L) + K' . p(L'' < W ; I > L) /\ B'' < B2 .            
- 
  eq minimize(B) = B [owise] .
- 
  *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
  op swapLab : Pbag String Lab Nat Nat -> Pbag .
  eq swapLab(B, W, L, I, I) = B .
@@ -316,9 +332,9 @@ ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J .
  eq $swapLab(K . p(L' < W ; I > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; J > L) + B', W, L, I, J) .
  eq $swapLab(K . p(L' < W ; J > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; I > L) + B', W, L, I, J) .
  eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
-*** makes the name (index) abstraction in a marking
+
+*** makes name (index) abstraction in a marking
  op abstract : Pbag -> Pbag .
- *** this version consider the suffix exactly as it is 
 ceq abstract(B) = abstract(K . p(L' < W ; K' - 1 > L) + replaceWith(B', < W ; K' > L, K' - 1)) if K . p(L' < W ; K' > L) + B' := B /\ exists(B', < W ; K' - 1 > L) == false .
  eq abstract(B) = B [owise] .
  *** version 2 : (repeatedly) finds the smallest missing suffix header's index and the greatest one (if any) and replaces the former with the latter
@@ -329,14 +345,12 @@ ceq abstractV2(B) = abstractV2(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' :=
 *** net/system versions
  op abstract : Net -> Net . *** needed?
  op abstract : System -> System .
-
- *** replaces in a bag all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the specified value
- op replaceWith : Pbag NeLab Nat -> Pbag . 
- eq replaceWith(B, NeL, I) = $replaceWith(B, nilP, NeL, I) .
- op $replaceWith : Pbag Pbag NeLab Nat -> Pbag .
-ceq $replaceWith(K . p(L' NeL) + B, B', NeL, I) = $replaceWith(B, K . p(L' < W ; I > L) + B', NeL, I) if < W ; J > L := NeL .
- eq $replaceWith(nilP, B, NeL, I) = B .
- eq $replaceWith(K . P + B', B, NeL, I) = $replaceWith(B', K . P + B, NeL, I) [owise] .
+ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K' > L, K' - 1)) if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ exists(S', < W ; K' - 1 > L) == false .
+ eq abstract(Sys) = Sys [owise] .
+*** version 2
+ op abstractV2 : System -> System .
+ceq abstractV2(Sys) = abstractV2(replaceWith(Sys, NeL, I)) if S := places(Sys) /\ p(L' NeL) U S' := S /\ < W ; K > L := NeL /\ I := minnotin(S', W, L) /\ I < K  /\ K := maxin(S, W, L) .
+ eq abstractV2(Sys) = Sys [owise] .
 
  *** checks for the existence in a set of a place whose label matches the given suffix 
  op exists : Pset NeLab  -> Bool .
@@ -396,15 +410,15 @@ endfm
 mod PT-EMU is
  pr MINIMIZATION .
  var  T : Tmatrix .
- vars I O H M O_I : Pbag .
+ vars I O H M M' : Pbag .
  vars N N' : Net .
  var W : String .
  *** ordinary firing rule
  *** crl [firing] : N M => N M + O - I if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) .
  *** including minimization
- crl [cfiring] : N M => N normalize(M + O - I) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M)  .
+ *** crl [cfiring] : N M => N normalize(M + O - I) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M)  .
  *** includes a further optimization
- *** crl [cfiring] : N M => N normalize(M + O_I, eqsupp(M, O_I)) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) /\ O_I := O - I  .
+ crl [cfiring] : N M => N normalize(M', eqsupp(M, M')) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
 endm
 
 fmod PT-FMS is

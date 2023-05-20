@@ -68,6 +68,10 @@ fmod IMATRIX is
  *** overloaded version (suffix' header specified exactly)
  op places : Elab List{String} Imatrix -> Pset .
  eq places(E, Ws, [X,Y,Z]) = support(X, E, Ws) U support(Y, E, Ws) U support(Z, E, Ws) .
+ *** replaces in all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the specified value
+ op replaceWith : Imatrix NeLab Nat -> Imatrix .
+ var NeL : NeLab .
+ eq replaceWith([X,Y,Z], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N), replaceWith(Z, NeL, N)] .
   
 endfm
 

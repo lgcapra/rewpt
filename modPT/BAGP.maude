@@ -35,7 +35,7 @@ fmod BAGP is
  
  vars P P' P'' P''' : Place . 
  vars K K' : NzNat .
- var I : Nat .
+ vars I J : Nat .
  vars B B' : Pbag .
  vars L L' L'' : Lab .
  var E : Elab .
@@ -89,12 +89,22 @@ ceq $addLab(K . P + B', B, L, S) = $addLab(B', K . P + B, L, S) if P in S .
  *** add a new label to every bag element
  op addLab : Pbag Lab -> Pbag .
  eq addLab(B, L) = addLab(B, L, emptyPset) .
+ 
  *** set a weight for a set of places -- builds on set(B, P, I) defined in BAG module (note: P is a Set)
  op set : Pbag Pset Nat -> Pbag .
 ceq set(B, S, I) = $set(B, S, I) if S :: Place == false . *** S is not a singleton (we avoid recursion)
  op $set : Pbag Pset Nat -> Pbag . 
  eq $set(B, emptyPset, I) = B .  
  eq $set(B, S U P , I) = $set(set(B, P, I), S , I) .
+ 
+ *** replaces in all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the specified value
+ op replaceWith : Pbag NeLab Nat -> Pbag . 
+ var NeL : NeLab . var W : String .
+ eq replaceWith(B, NeL, I) = $replaceWith(B, nilP, NeL, I) .
+ op $replaceWith : Pbag Pbag NeLab Nat -> Pbag .
+ceq $replaceWith(K . p(L' NeL) + B, B', NeL, I) = $replaceWith(B, K . p(L' < W ; I > L) + B', NeL, I) if < W ; J > L := NeL .
+ eq $replaceWith(nilP, B, NeL, I) = B .
+ eq $replaceWith(K . P + B', B, NeL, I) = $replaceWith(B', K . P + B, NeL, I) [owise] .
 endfm
 
 
