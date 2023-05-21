@@ -102,6 +102,10 @@ ceq $remove(Q |-> W ; N', N, Z) = $remove(N', N, Z) if W in Z .
  *** simple (default) version
  op addLab : Net Lab -> Net . 
  eq addLab(N, Lab) = addLab(N, Lab, emptyPset) .
+ *** defined for convenience
+ op addLab : Net Lab List{String} -> Net .
+ eq addLab(N, Lab, WL) = addLab(N, Lab, places(N, WL)) . 
+ 
  
  *** replaces all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the specified value
  op replaceWith : Net NeLab Nat -> Net . 
@@ -137,7 +141,8 @@ fmod PT-SYS is
  var W :  String .
  var Y : List{String} .
  var Z : Set{String} .
- *** all the ops are duplicated to consider simple nets
+ var Sys : System .
+
  op net : System -> Net . 
  op marking : System -> Pbag .
  eq net(N S) = N .
@@ -165,7 +170,7 @@ ceq dead((T ; N) S) = false if enabled(T, (T ; N) S) .
  op placeList : System -> Plist .
  eq placeList(N S) = $makePlist(places(N S), emptyPlist) .
 
-*** add a new label to a system's places (not to transitions)
+*** add a new label to a system's places
  var Lab : Lab .
  op addLab : System Lab -> System .
  eq addLab(N S, Lab) = addLab(N, Lab) addLab(S, Lab) .
@@ -173,6 +178,10 @@ ceq dead((T ; N) S) = false if enabled(T, (T ; N) S) .
  op addLab : System Lab Pset -> System .
  var PS : Pset .
  eq addLab(N S, Lab, PS) = addLab(N, Lab, PS) addLab(S, Lab, PS) .
+ *** defined for convenience
+ op addLab : System Lab List{String} -> System .
+ eq addLab(Sys, Lab, Y) = addLab(Sys, Lab, places(Sys, Y)) . 
+ 
  *** clears the system's marking by removing non encoded places
  op clearupM : System -> System .
 ceq clearupM(N K . P + S) = clearupM(N S) if in(N, P) == false .
@@ -403,7 +412,8 @@ ceq maxin(K . p(L' NeL) + B, W, L) = J if < W ; J > L := NeL /\ existsgr(B, NeL)
  eq extract(B, W, A, L) = $extract(B, nilP, W, A, L) .
  op $extract : Pbag Pbag String Set{Nat} Lab ->  Pbag .
  eq $extract(nilP, B, W, A, L) = B .
-ceq $extract(K . p(L' < W ; I > L) + B, B', W, A, L) = $extract(B, B' + K . p(L' < W ; I > L) , W, A, L) if I in A . 
+ceq $extract(K . p(L' < W ; I > L) + B, B', W, A, L) = $extract(B,
+ B' + K . p(L' < W ; I > L) , W, A, L) if I in A . 
  eq $extract(K . P + B, B', W, A, L) = $extract(B, B' , W, A, L) [owise] . 
 endfm 
 
@@ -445,14 +455,14 @@ fmod PT-FMS is
  eq NPL(N) = replica&share(PL(0), N, "PL", p(< "s" ; 0 >), emptyStr) .
  eq NPLsys(N, M) = setMark(setMark(NPL(N), "o" "PL", 1), "s", 2 * M) .
 
- eq 1PL(I) = replica&share(PL(I), 1, "PL", p(< "s" ; 0 >), emptyStr) .
+ eq 1PL(I) = addLab(PL(0), < "PL" ; I >, p(< "s" ; 0 >)) .
  *** faulty PL working with one line
  eq faultysload(I) =  [2 . p(< "s" ; I >) , 2 . p(< "w" ; I >) , nilP ] .
  eq faultysass(I)  =  [2 . p(< "a" ; I >) , 2 . p(< "s" ; I >)  , nilP ] .
  eq faultyload(I) = faultysload(I) |-> "l" . 
  eq faultyass(I)  = faultysass(I)  |-> "a" .
  eq faultycycle(I) = faultyload(I) ; line(I) ; faultyass(I) ; fault(I) .
- eq faultyPL(I) = replica&share(faultycycle(I), 1, "fPL", "s",  emptyStr) . *** a faulty PL is built of 1 line
+ eq faultyPL(I) = addLab(faultycycle(0), < "fPL" ; I >, "s") . *** a faulty PL is built of 1 line
 endfm
 
 mod RWPT-FMS is
