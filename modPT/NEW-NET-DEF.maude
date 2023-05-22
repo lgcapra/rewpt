@@ -501,12 +501,12 @@ mod RWPT-FMS is
  var W : String .
  vars L L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
  
-crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-         if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
+*** crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+    ***     if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
 *** crl [syr1new] : N S + 1 . p(L7 < "PL" ; I >) => ( N' ; faultyPL(minnotin(N', "fPL", L7))) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
    ***    if N' ; nomPL(I) := N /\ dead(N S + 1 . p(L7 < "PL" ; I >))  .
-crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
-       dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
+*** crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
+  ***     dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
 *** including minimization
 
 endm

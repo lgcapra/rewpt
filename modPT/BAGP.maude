@@ -49,11 +49,12 @@ fmod BAGP is
 ceq $support(K . P + B, Ws, S) = $support(B, Ws, S U P) if hasSuffix(P, Ws) .
  eq $support(B, Ws, S) = S [owise] .
  *** overloaded version (the suffix' header is exactly specified)
+ var NeL : NeLab .
  op support : Pbag List{String} NeLab  -> Pset . 
- *** eq support(B, Ws, NeL) = $support(B, Ws, NeL, emptyPset) .  
- *** op $support : Pbag Elab List{String} Pset -> Pset . 
-*** ceq $support(K . P + B, Ws, NeL, S) = $support(B, Ws, NeL, S U P) if hasSuffix(P, Ws, NeL) .
- *** eq $support(B, Ws, NeL, S) = S [owise] .
+ eq support(B, Ws, NeL) = $support(B, Ws, NeL, emptyPset) .  
+ op $support : Pbag List{String} NeLab Pset -> Pset . 
+ceq $support(K . P + B, Ws, NeL, S) = $support(B, Ws, NeL, S U P) if hasSuffix(P, Ws, NeL) .
+ eq $support(B, Ws, NeL, S) = S [owise] .
  
  *** builds an (un)ordered list of pairs < weight ; el > out of a bag
  op toList  : Pbag -> List{Nat,Place} .     
@@ -100,7 +101,7 @@ ceq set(B, S, I) = $set(B, S, I) if S :: Place == false . *** S is not a singlet
  
  *** replaces in all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the specified value
  op replaceWith : Pbag NeLab Nat -> Pbag . 
- var NeL : NeLab . var W : String .
+ var W : String .
  eq replaceWith(B, NeL, I) = $replaceWith(B, nilP, NeL, I) .
  op $replaceWith : Pbag Pbag NeLab Nat -> Pbag .
 ceq $replaceWith(K . p(L' NeL) + B, B', NeL, I) = $replaceWith(B, K . p(L' < W ; I > L) + B', NeL, I) if < W ; J > L := NeL .

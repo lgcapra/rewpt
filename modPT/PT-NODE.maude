@@ -13,7 +13,7 @@ fmod NODE-LAB is
  vars I J : Nat .
  vars W W' : String .
  vars Ls Ls' Ls'' : List{String} .
- vars L L'L''  : Lab .
+ vars L L' L''  : Lab .
  *** gets the text tags out of a lab
  op strLab : Lab -> List{String} .
  op strLab : NeLab -> NeList{String} .
@@ -29,15 +29,16 @@ ceq hasSuffix(L, Ls) = true if Ls' Ls := strLab(L) . *** particular case: Ls emp
  op hasSuffix : Lab List{String} Lab -> Bool .
 ceq hasSuffix(L'' L' L, Ls, L) = true if Ls == strLab(L') .
  eq hasSuffix(L, Ls, L') = false [owise] .
- *** simple overloding
+ *** simplest version
  op hasSuffix : Lab Lab -> Bool .
- eq hasSuffix(L, L') = hasSuffix(L, emptyLs, L') .
+ eq hasSuffix(L L', L') = true .
+ eq hasSuffix(L, L') = false [owise] .
 endfm 
 
 fmod PT-NODE is
  pr NODE-LAB .
  sort Node .
- op n : NeLab -> Node [ctor] . *** partial op (a node's label is not empty)
+ op n : NeLab -> Node [ctor] . *** partial op: a node's label is not empty
  vars L L' : NeLab .
  vars N1 N2 : Node .
  *** get the label
