@@ -10,13 +10,13 @@ fmod NODE-LAB is
                                                     sort List{SortedPair+<{String<,Nat<}} to Lab,
                                                     op nil to emptyLab).
 
- var I J : Nat .
+ vars I J : Nat .
  vars W W' : String .
- var Ls Ls' Ls'' : List{String} .
- vars L L' L'' : Lab .
- var E : Elab .
+ vars Ls Ls' Ls'' : List{String} .
+ vars L L'L''  : Lab .
  *** gets the text tags out of a lab
  op strLab : Lab -> List{String} .
+ op strLab : NeLab -> NeList{String} .
  eq strLab(L) = $strLab(L, emptyLs) .
  op $strLab : Lab List{String} -> List{String} .
  eq $strLab(emptyLab, Ls) = Ls .
@@ -25,52 +25,47 @@ fmod NODE-LAB is
  op hasSuffix : Lab List{String} -> Bool .
 ceq hasSuffix(L, Ls) = true if Ls' Ls := strLab(L) . *** particular case: Ls empty
  eq hasSuffix(L, Ls) = false [owise] .
- *** overloaded version, in which the suffix header (an elementary lab) has to be exactly matched
- op hasSuffix : Lab Elab List{String} -> Bool .
-ceq hasSuffix(L E L', E, Ls) = true if Ls := strLab(L') .
- eq hasSuffix(L, E, Ls) = false [owise] .
-*** checks that the label's prefix matches the given one (ever used?)
-*** op hasPrefix : Lab List{String} -> Bool .
-*** ceq hasPrefix(L, Ls) = true  if Ls Ls' := strLab(L) .
-*** eq hasPrefix(L, Ls) = false [owise] .
-op elementary : Lab -> Bool .
-eq elementary(< W ; 0 > ) = true .
-eq elementary(L) = false [owise] .
+ *** checks if a non-empty label matches a (non-empty) suffix, whose last part is fully specified and whose tail is partially specified 
+ op hasSuffix : Lab List{String} Lab -> Bool .
+ceq hasSuffix(L'' L' L, Ls, L) = true if Ls == strLab(L') .
+ eq hasSuffix(L, Ls, L') = false [owise] .
+ *** simple overloding
+ op hasSuffix : Lab Lab -> Bool .
+ eq hasSuffix(L, L') = hasSuffix(L, emptyLs, L') .
 endfm 
 
 fmod PT-NODE is
  pr NODE-LAB .
  sort Node .
- op n : Lab -> Node [ctor] .
- vars L L' : Lab .
+ op n : NeLab -> Node [ctor] . *** partial op (a node's label is not empty)
+ vars L L' : NeLab .
  vars N1 N2 : Node .
  *** get the label
- op lab : Node -> Lab .
+ op lab : Node -> NeLab .
  eq lab (n(L)) = L .
  *** gets the text out of a node's lab
- op strLab : Node -> List{String} .
+ op strLab : Node -> NeList{String} .
  eq strLab(n(L)) = strLab(L) .
  vars W W' : String .
  var I J : Nat .
  *** add a new label entry to the tail
- op addLab : Node Lab -> Node . 
+ op addLab : Node NeLab -> Node . 
  eq addLab(n(L), L') = n(L L') .
  *** order relations
  op _<_ : Node Node -> Bool . *** strict total order
  eq n(L) < n(L') = lex(0, L, L') .
  op _<=_ : Node Node -> Bool . *** total order
  eq N1 <= N2 = N1 == N2 or-else N1 < N2 .
- *** checks that the node's label's suffix matches the given one
- var Ls : List{String} .
- var E : Elab .
- op hasSuffix : Node List{String} -> Bool .
- eq hasSuffix(n(L), Ls) = hasSuffix(L, Ls) .
- op hasSuffix : Node Elab List{String} -> Bool .
- eq hasSuffix(n(L), E, Ls) = hasSuffix(L, E, Ls) .
- *** checks that the node's suffix starts with the given Elab
- op hasSuffix : Node Elab  -> Bool .
- eq hasSuffix(N1, E) = hasSuffix(N1, E, emptyLs) .
  
+ **** derived definitions
+ op hasSuffix : Node NeList{String} -> Bool .
+ eq hasSuffix(n(L), NL:NeList{String}) = hasSuffix(L, NL:NeList{String}) .
+ var Ls : List{String} .
+ op hasSuffix : Node List{String} NeLab -> Bool . 
+ eq hasSuffix(n(L), Ls, L') = hasSuffix(L, Ls, L') .
+ op hasSuffix : Node NeLab -> Bool .
+ eq hasSuffix(n(L), L') = hasSuffix(L, L') .
+
  *** checks that the node's label's prefix matches the given one
  *** op hasPrefix : Node List{String} -> Bool .
  *** eq hasPrefix(n(L), Ls) = hasPrefix(L, Ls) .

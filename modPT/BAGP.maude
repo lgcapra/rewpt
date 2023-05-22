@@ -49,11 +49,12 @@ fmod BAGP is
 ceq $support(K . P + B, Ws, S) = $support(B, Ws, S U P) if hasSuffix(P, Ws) .
  eq $support(B, Ws, S) = S [owise] .
  *** overloaded version (the suffix' header is exactly specified)
- op support : Pbag Elab List{String} -> Pset . 
- eq support(B, E, Ws) = $support(B, E, Ws, emptyPset) .  
- op $support : Pbag Elab List{String} Pset -> Pset . 
-ceq $support(K . P + B, E, Ws, S) = $support(B, E, Ws, S U P) if hasSuffix(P, E, Ws) .
- eq $support(B, E, Ws, S) = S [owise] .
+ op support : Pbag List{String} NeLab  -> Pset . 
+ *** eq support(B, Ws, NeL) = $support(B, Ws, NeL, emptyPset) .  
+ *** op $support : Pbag Elab List{String} Pset -> Pset . 
+*** ceq $support(K . P + B, Ws, NeL, S) = $support(B, Ws, NeL, S U P) if hasSuffix(P, Ws, NeL) .
+ *** eq $support(B, Ws, NeL, S) = S [owise] .
+ 
  *** builds an (un)ordered list of pairs < weight ; el > out of a bag
  op toList  : Pbag -> List{Nat,Place} .     
  eq toList(B) = $toList(B, emptyListNP) .

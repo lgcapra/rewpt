@@ -313,17 +313,21 @@ fmod MINIMIZATION is
  vars L L' L'' : Lab .
  var NeL : NeLab .
  vars Ls Ls' : List{String} .
- *** minimization plus name abstraction
+ 
+ *** marking minimization plus name abstraction
  op normalize : Pbag -> Pbag .
- *** eq normalize(B) = abstract(minimize(B)) .
- eq normalize(B) = minimize(abstractV2(B)) . *** seems slightly better 
+ eq normalize(B) = minimize(abstract(B)) . *** seems slightly better than the alternative 
+ *** eq normalize(B) = abstract(minimize(B)) . *** alternative
+ *** version 2 (i.e., version using abstract2)
+ op normalize2 : Pbag -> Pbag .
+ eq normalize2(B) = minimize(abstract2(B)) . *** seems slightly better 
+ 
  *** optimized version
  op normalize : Pbag Bool -> Pbag .
  eq normalize(B, F:Bool) = if F:Bool then minimize(B) else normalize(B) fi .
- 
- *** extension to systems
- op normalize : System -> System .
- eq normalize(N B) = N normalize(B) .
+ *** version 2 
+ op normalize2 : Pbag Bool -> Pbag .
+ eq normalize2(B, F:Bool) = if F:Bool then minimize(B) else normalize2(B) fi .
  
  *** brings a marking (of a symmetric net) to a minimal form
  op minimize : Pbag -> Pbag [memo] .
@@ -348,19 +352,33 @@ ceq abstract(B) = abstract(K . p(L' < W ; K' - 1 > L) + replaceWith(B', < W ; K'
  eq abstract(B) = B [owise] .
  *** version 2 : (repeatedly) finds the smallest missing suffix header's index and the greatest one (if any) and replaces the former with the latter
  *** negli esempi è un po' meno efficiente ma in generale (in casi meno semplici) è meglio
- op abstractV2 : Pbag -> Pbag .
-ceq abstractV2(B) = abstractV2(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ I := minnotin(B', W, L) /\ I < K  /\ K := maxin(B, W, L) .
- eq abstractV2(B) = B [owise] .
+ op abstract2 : Pbag -> Pbag .
+ceq abstract2(B) = abstract2(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ I := minnotin(B', W, L) /\ I < K  /\ K := maxin(B, W, L) .
+ eq abstract2(B) = B [owise] .
+
 *** net/system versions
- op abstract : Net -> Net . *** needed?
+ **** op abstract : Net -> Net . *** needed?
  op abstract : System -> System .
 ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K' > L, K' - 1)) if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ exists(S', < W ; K' - 1 > L) == false .
  eq abstract(Sys) = Sys [owise] .
 *** version 2
- op abstractV2 : System -> System .
-ceq abstractV2(Sys) = abstractV2(replaceWith(Sys, NeL, I)) if S := places(Sys) /\ p(L' NeL) U S' := S /\ < W ; K > L := NeL /\ I := minnotin(S', W, L) /\ I < K  /\ K := maxin(S, W, L) .
- eq abstractV2(Sys) = Sys [owise] .
+ op abstract2 : System -> System .
+ceq abstract2(Sys) = abstract2(replaceWith(Sys, NeL, I)) if S := places(Sys) /\ p(L' NeL) U S' := S /\ < W ; K > L := NeL /\ I := minnotin(S', W, L) /\ I < K  /\ K := maxin(S, W, L) .
+ eq abstract2(Sys) = Sys [owise] .
 
+*** normalize a system's marking (defined for convenience, might be used in firing rule)
+ op normalizeM : System -> System .
+ eq normalizeM(N B) = N normalize(B) .  
+*** version 2
+ op normalizeM2 : System -> System .
+ eq normalizeM2(N B) = N normalize2(B) .
+ *** system normalize: helpful after a system rewrite and at the beinning: first system name (index) abstraction then marking normalization
+ op normalize  : System -> System .
+ eq normalize(Sys) = normalizeM(abstract(Sys)) .
+ *** version 2
+ op normalize2  : System -> System .
+ eq normalize2(Sys) = normalizeM2(abstract2(Sys)) .
+ 
  *** checks for the existence in a set of a place whose label matches the given suffix 
  op exists : Pset NeLab  -> Bool .
  eq exists(p(L' NeL) U S, NeL) = true  .
@@ -400,7 +418,10 @@ ceq maxin(K . p(L' NeL) + B, W, L) = J if < W ; J > L := NeL /\ existsgr(B, NeL)
  eq $minnotin(S, W, L, I) = if exists(S, < W ; I > L) then $minnotin(S, W, L, I + 1) else I fi .  
 *** ceq $minnotin(S, W, L, I) = $minnotin(S, W, L, I + 1) if exists(S, < W ; I > L) . *** alternative
  *** eq $minnotin(S, W, L, I) = I [owise] .
- *** bag versions
+ *** net version (defined for convenience)
+ op minnotin : Net String Lab -> Nat .
+ eq minnotin(N, W, L) = minnotin(places(N), W, L) .
+ *** bag versions (defined for efficiency)
  op minnotin : Pbag String Lab -> Nat .
  eq minnotin(B, W, L) = $minnotin(B, W, L, 0) .
  op $minnotin : Pbag String Lab Nat -> Nat . 
@@ -424,45 +445,48 @@ mod PT-EMU is
  vars N N' : Net .
  var W : String .
  *** ordinary firing rule
- *** crl [firing] : N M => N M + O - I if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) .
+ crl [firing] : N M => N M + O - I if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) .
  *** including minimization
  *** crl [cfiring] : N M => N normalize(M + O - I) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M)  .
- *** includes a further optimization
- crl [cfiring] : N M => N normalize(M', eqsupp(M, M')) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
+ *** includes a further optimization: if the marked places are retained then name abstraction is skipped
+ *** crl [cfiring] : N M => N normalize(M', eqsupp(M, M')) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
 endm
 
 fmod PT-FMS is
  protecting NET-OP .
- ops sline sload sass sfault faultysload faultysass :  Nat -> Imatrix .
- ops line load ass fault faultyload faultyass : Nat -> Tmatrix . 
- ops cycle PL 1PL faultycycle faultyPL : Nat -> Net .
+ ops sline sload sass sfault faultysload faultysass :  -> Imatrix .
+ ops line load ass fault faultyload faultyass : -> Tmatrix . 
+ ops cycle PL faultycycle : -> Net .
+ ops nomPL faultyPL : Nat -> Net .
  op NPL : NzNat -> Net . *** N prod lines 0 .. N- 1
  op NPLsys : NzNat NzNat -> System . *** N prod lines with 2 * M tokens (raw pieces)
  
 
  var I : Nat . 
  vars N M : NzNat .
- eq sline(I) =  [1 . p(< "w" ; I >) , 1 . p(< "a" ; I >), 1 . p(< "f" ; I >) ] .
- eq line(I) = sline(I) |-> "l" .
- eq sfault(I) =  [1 . p(< "o" ; I >) , 1 . p(< "f" ; I >), nilP ] .
- eq fault(I) = sfault(I) |-> "f" .
- eq sload(I) = [1 . p(< "s" ; I >) , 1 . p(< "w" ; I >) , nilP ] .
- eq load(I) = sload(I) |-> "w" .
- eq sass(I) =  [1 . p(< "a" ; I >) , 1 . p(< "s" ; I >)  , nilP ] .
- eq ass(I)  = sass(I)  |-> "a" .
- eq cycle(I) = load(I) ; line(I) ; ass(I) ; fault(I) .
- eq PL(I) = replica&share(cycle(I), 2, "L", p (< "o" ; I >) U p(< "s" ; I >), "a" U "w") . *** a PL is built of two symmetric lines 
- eq NPL(N) = replica&share(PL(0), N, "PL", p(< "s" ; 0 >), emptyStr) .
+ eq sline =  [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 0 >), 1 . p(< "f" ; 0 >) ] .
+ eq line = sline |-> "l" .
+ eq sfault =  [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ] .
+ eq fault = sfault |-> "f" .
+ eq sload = [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] .
+ eq load = sload |-> "w" .
+ eq sass =  [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ] .
+ eq ass  = sass  |-> "a" .
+ eq cycle = load ; line ; ass ; fault .
+ eq PL = replica&share(cycle, 2, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), "a" U "w") . *** a PL is built of two symmetric lines 
+ eq NPL(N) = replica&share(PL, N, "PL", p(< "s" ; 0 >), emptyStr) .
  eq NPLsys(N, M) = setMark(setMark(NPL(N), "o" "PL", 1), "s", 2 * M) .
 
- eq 1PL(I) = addLab(PL(0), < "PL" ; I >, p(< "s" ; 0 >)) .
- *** faulty PL working with one line
- eq faultysload(I) =  [2 . p(< "s" ; I >) , 2 . p(< "w" ; I >) , nilP ] .
- eq faultysass(I)  =  [2 . p(< "a" ; I >) , 2 . p(< "s" ; I >)  , nilP ] .
- eq faultyload(I) = faultysload(I) |-> "l" . 
- eq faultyass(I)  = faultysass(I)  |-> "a" .
- eq faultycycle(I) = faultyload(I) ; line(I) ; faultyass(I) ; fault(I) .
- eq faultyPL(I) = addLab(faultycycle(0), < "fPL" ; I >, "s") . *** a faulty PL is built of 1 line
+ *** helpful in system rewrite
+*** the i-th nominal PL
+ eq nomPL(I) = addLab(PL, < "PL" ; I >, p(< "s" ; 0 >)) .
+ *** the i-th faulty PL working with one line
+ eq faultysload =  [2 . p(< "s" ; 0 >) , 2 . p(< "w" ; 0 >) , nilP ] .
+ eq faultysass  =  [2 . p(< "a" ; 0 >) , 2 . p(< "s" ; 0 >)  , nilP ] .
+ eq faultyload = faultysload |-> "w" . 
+ eq faultyass  = faultysass  |-> "a" .
+ eq faultycycle = faultyload ; line ; faultyass ; fault .
+ eq faultyPL(I) = addLab(faultycycle, < "fPL" ; I >, "s") . *** a faulty PL is built of 1 line
 endfm
 
 mod RWPT-FMS is
@@ -477,12 +501,12 @@ mod RWPT-FMS is
  var W : String .
  vars L L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
  
-*** crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-***         if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
-*** crl [syr1new] : N S + 1 . p(L7 < "f" ; I >) => ( N' ; [2 . P1, 2 . P2, nilP] |->  Tload ; [2 . P4, 2 . P1, nilP] |-> Tass) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-    ***      if (N' ; 1PL(I)) := N /\ dead(N S + 1 . p(L7 < "f" ; I >))  .
-*** crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
- ***         dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
+crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+         if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
+*** crl [syr1new] : N S + 1 . p(L7 < "PL" ; I >) => ( N' ; faultyPL(minnotin(N', "fPL", L7))) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
+   ***    if N' ; nomPL(I) := N /\ dead(N S + 1 . p(L7 < "PL" ; I >))  .
+crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
+       dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
 *** including minimization
 
 endm
