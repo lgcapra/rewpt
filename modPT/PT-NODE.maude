@@ -27,12 +27,16 @@ ceq hasSuffix(L, Ls) = true if Ls' Ls := strLab(L) . *** particular case: Ls emp
  eq hasSuffix(L, Ls) = false [owise] .
  *** checks if a non-empty label matches a (non-empty) suffix, whose last part is fully specified and whose tail is partially specified 
  op hasSuffix : Lab List{String} Lab -> Bool .
-ceq hasSuffix(L'' L' L, Ls, L) = true if Ls == strLab(L') .
+ceq hasSuffix(L'' L' L, Ls, L) = true if Ls == strLab(L') . 
  eq hasSuffix(L, Ls, L') = false [owise] .
  *** simplest version
  op hasSuffix : Lab Lab -> Bool .
  eq hasSuffix(L L', L') = true .
  eq hasSuffix(L, L') = false [owise] .
+ *** checks both the suffix and the prefix of a label
+ op match : Lab List{String} Lab -> Bool .
+ceq match(L'' L' L, Ls, L) = true if Ls == strLab(L'') .
+ eq match(L, Ls, L') = false [owise] .
 endfm 
 
 fmod PT-NODE is
@@ -49,9 +53,9 @@ fmod PT-NODE is
  eq strLab(n(L)) = strLab(L) .
  vars W W' : String .
  var I J : Nat .
- *** add a new label entry to the tail
- op addLab : Node NeLab -> Node . 
- eq addLab(n(L), L') = n(L L') .
+ *** append a new sub-label
+ op addLab : Node Lab -> Node . 
+ eq addLab(n(L), X:Lab) = n(L X:Lab) .
  *** order relations
  op _<_ : Node Node -> Bool . *** strict total order
  eq n(L) < n(L') = lex(0, L, L') .
@@ -59,17 +63,16 @@ fmod PT-NODE is
  eq N1 <= N2 = N1 == N2 or-else N1 < N2 .
  
  **** derived definitions
- op hasSuffix : Node NeList{String} -> Bool .
- eq hasSuffix(n(L), NL:NeList{String}) = hasSuffix(L, NL:NeList{String}) .
  var Ls : List{String} .
+ var NLs : NeList{String} .
+ op hasSuffix : Node NeList{String} -> Bool .
+ eq hasSuffix(n(L), NLs) = hasSuffix(L, NLs) .
  op hasSuffix : Node List{String} NeLab -> Bool . 
  eq hasSuffix(n(L), Ls, L') = hasSuffix(L, Ls, L') .
  op hasSuffix : Node NeLab -> Bool .
  eq hasSuffix(n(L), L') = hasSuffix(L, L') .
-
- *** checks that the node's label's prefix matches the given one
- *** op hasPrefix : Node List{String} -> Bool .
- *** eq hasPrefix(n(L), Ls) = hasPrefix(L, Ls) .
+ op match : Node List{String} NeLab -> Bool .
+ eq match(n(L), Ls, L') = match(L, Ls, L') .
 endfm
 
 *** places

@@ -42,19 +42,33 @@ fmod BAGP is
  var S : Pset .
  var LNP : List{Nat,Place} . 
  var Ws : List{String} .
- *** gives the set of places whose labes match a given suffix (NOTE a String is also a List{String})
- op support : Pbag List{String} -> Pset . 
- eq support(B, Ws) = $support(B, Ws, emptyPset) .  
- op $support : Pbag List{String} Pset -> Pset . 
-ceq $support(K . P + B, Ws, S) = $support(B, Ws, S U P) if hasSuffix(P, Ws) .
- eq $support(B, Ws, S) = S [owise] .
- *** overloaded version (the suffix' header is exactly specified)
+ var NWs : NeList{String} .
+ *** gives the sub-bag of places whose labes have (match) a given suffix (NOTE a String is also a NeList{String})
+ op subag : Pbag NeList{String} -> Pbag . 
+ eq subag(B, NWs) = $subag(B, NWs, nilP) .  
+ op $subag : Pbag NeList{String} Pbag -> Pbag . 
+ceq $subag(K . P + B, NWs, B') = $subag(B, NWs, B' + K . P) if hasSuffix(P, NWs) .
+ eq $subag(B, NWs, B') = B' [owise] .
  var NeL : NeLab .
+ op subag : Pbag List{String} NeLab  -> Pbag . 
+ eq subag(B, Ws, NeL) = $subag(B, Ws, NeL, nilP) .  
+ op $subag : Pbag List{String} NeLab Pbag -> Pbag . 
+ceq $subag(K . P + B, Ws, NeL, B') = $subag(B, Ws, NeL, B' + K . P) if hasSuffix(P, Ws, NeL) .
+ eq $subag(B, Ws, NeL, B') = B' [owise] .
+ *** gives the sub-bag of places whose labes match a given pref-suffix
+ op match : Pbag List{String} NeLab  -> Pbag . 
+ eq match(B, Ws, NeL) = $match(B, Ws, NeL, nilP) .  
+ op $match : Pbag List{String} NeLab Pbag -> Pbag . 
+ceq $match(K . P + B, Ws, NeL, B') = $match(B, Ws, NeL, B' + K . P) if match(P, Ws, NeL) .
+ eq $match(B, Ws, NeL, B') = B' [owise] .
+
+ *** derived definition(s) of support
+ op support : Pbag NeList{String} -> Pset .
+ eq support(B, NWs) = support(subag(B, NWs)) .
  op support : Pbag List{String} NeLab  -> Pset . 
- eq support(B, Ws, NeL) = $support(B, Ws, NeL, emptyPset) .  
- op $support : Pbag List{String} NeLab Pset -> Pset . 
-ceq $support(K . P + B, Ws, NeL, S) = $support(B, Ws, NeL, S U P) if hasSuffix(P, Ws, NeL) .
- eq $support(B, Ws, NeL, S) = S [owise] .
+ eq support(B, Ws, NeL) = support(subag(B, Ws, NeL)) .
+ op suppmatch : Pbag List{String} NeLab  -> Pset .
+ eq suppmatch(B, Ws, NeL) = support(match(B, Ws, NeL)) .
  
  *** builds an (un)ordered list of pairs < weight ; el > out of a bag
  op toList  : Pbag -> List{Nat,Place} .     
@@ -88,7 +102,7 @@ ceq eqsupp(K . P + B, B') = false if B'[P] == 0 .
  eq $addLab(nilP, B, L, S) = B .
 ceq $addLab(K . P + B', B, L, S) = $addLab(B', K . P + B, L, S) if P in S .
  eq $addLab(K . P + B', B, L, S) = $addLab(B', K . addLab(P, L) + B, L, S) [owise].
- *** add a new label to every bag element
+ *** default: add a new label to every bag element
  op addLab : Pbag Lab -> Pbag .
  eq addLab(B, L) = addLab(B, L, emptyPset) .
  
@@ -99,7 +113,7 @@ ceq set(B, S, I) = $set(B, S, I) if S :: Place == false . *** S is not a singlet
  eq $set(B, emptyPset, I) = B .  
  eq $set(B, S U P , I) = $set(set(B, P, I), S , I) .
  
- *** replaces in all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the specified value
+ *** replaces in all places whose label match the given suffix with a corresponding suffix having as header's index the specified value
  op replaceWith : Pbag NeLab Nat -> Pbag . 
  var W : String .
  eq replaceWith(B, NeL, I) = $replaceWith(B, nilP, NeL, I) .

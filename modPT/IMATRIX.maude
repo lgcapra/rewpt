@@ -12,11 +12,12 @@ fmod IMATRIX is
  vars N N' C1 C2 : Nat .
  vars K K' : NzNat .
  vars Q Q' : Imatrix .
- var L  : Lab .
+ var L   : Lab .
+ var NeL  : NeLab .
  var S  : Pset .
- var Ws : List{String} .
- var E  : Elab .
-
+ var Ws :  List{String} .
+ var NWs : NeList{String} .
+ 
  ops I O H : Imatrix -> Pbag .
  eq I([X,Y,Z]) = X .
  eq O([X,Y,Z]) = Y .
@@ -52,25 +53,35 @@ fmod IMATRIX is
  eq set([X,Y,Z], i, P, N) = [set(X,P,N), Y, Z] .
  eq set([X,Y,Z], o, P, N) = [X, set(Y,P,N), Z] .
  eq set([X,Y,Z], h, P, N) = [X, Y, set(Z,P,N)] .
+ 
+ *** net-algebra ops: add a new label to a matrix' elements
  *** removes all places from a local matrix
  op remove :  Imatrix Pset -> Imatrix .
  eq remove([X,Y,Z], S) = [remove(X, S),remove(Y, S),remove(Z, S)] .
- 
- *** net-algebra ops: add a new label to a matrix' elements
+ *** add a new label to a matrix' elements
  op addLab : Imatrix Lab -> Imatrix . *** overloaded
  eq addLab([X,Y,Z], L) = [addLab(X, L), addLab(Y, L), addLab(Z, L)] .
  *** version specifying elements to share
  op addLab : Imatrix Lab Pset -> Imatrix . 
  eq addLab([X,Y,Z], L, S) = [addLab(X, L, S), addLab(Y, L, S), addLab(Z, L, S)] .
- *** set of places whose label's suffix matches the given one
- op places : List{String} Imatrix -> Pset .
- eq places(Ws, [X,Y,Z]) = support(X, Ws) U support(Y, Ws) U support(Z, Ws) .
- *** overloaded version (suffix' header specified exactly)
- *** op places : Elab List{String} Imatrix -> Pset .
- *** eq places(E, Ws, [X,Y,Z]) = support(X, E, Ws) U support(Y, E, Ws) U support(Z, E, Ws) .
- *** replaces in all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the specified value
+ 
+ *** sub-matrices based on the suffix
+ op sumatrix : Imatrix NeList{String} -> Imatrix .
+ eq sumatrix([X,Y,Z], NWs) = [subag(X, NWs), subag(Y, NWs), subag(Z, NWs)] .
+ op sumatrix : Imatrix List{String} NeLab -> Imatrix .
+ eq sumatrix([X,Y,Z], Ws, NeL) = [subag(X, Ws, NeL), subag(Y, Ws, NeL), subag(Z, Ws, NeL)] .
+ op match : Imatrix List{String} NeLab -> Imatrix .
+ eq match([X,Y,Z], Ws, NeL) = [match(X, Ws, NeL), match(Y, Ws, NeL), match(Z, Ws, NeL)] .
+
+ *** derived definitions of places
+ op places : Imatrix NeList{String}  -> Pset .
+ eq places(Q, NWs) = places(sumatrix(Q, NWs)) .
+ op places : Imatrix List{String} NeLab  -> Pset .
+ eq places(Q, Ws, NeL) = places(sumatrix(Q, Ws, NeL)) .
+ op matchplaces : Imatrix List{String} NeLab  -> Pset .
+ eq matchplaces(Q, Ws, NeL) = places(match(Q, Ws, NeL)) .
+ 
  op replaceWith : Imatrix NeLab Nat -> Imatrix .
- var NeL : NeLab .
  eq replaceWith([X,Y,Z], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N), replaceWith(Z, NeL, N)] .
   
 endfm

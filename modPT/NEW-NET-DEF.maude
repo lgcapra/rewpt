@@ -21,6 +21,7 @@ fmod PT-NET is
  vars L L1 : Plist .
  var W :  String .
  var WL : List{String} .
+ var NWL : NeList{String} .
  var Z  : Set{String} .  
  var Lab : Lab .
  var NeL : NeLab .
@@ -48,20 +49,32 @@ ceq in(Q |-> W ; N, P) = true if in (Q, P) .
  eq $places(emptyN, S) = S . 
  eq $places(Q |-> W ; N, S) = $places(N, S U places(Q)) .
  
- op places : Net List{String} -> Pset .
- eq places(N, WL) = $places(N, WL, emptyPset) .  
- op $places : Net List{String} Pset -> Pset . 
- eq $places(emptyN, WL, S) = S . 
- eq $places(Q |-> W ; N, WL, S) = $places(N, WL, S U places(WL, Q)) . *** places in Imatrix has the args in reverse order to avoid looping
- 
-*** set of places whose label's suffix matches the given one --- the suffix header is specified exactly
- op places : Net Elab List{String} -> Pset .
- *** set of places whose label's suffix matches the given one --- the suffix header is specified exactly
- var E : Elab .
- eq places(N, E, WL) = $places(N, E, WL, emptyPset) .  
- op $places : Net Elab List{String} Pset -> Pset . 
- eq $places(emptyN, E, WL, S) = S . 
- eq $places(Q |-> W ; N, E, WL, S) = $places(N, E, WL, S U places(WL, Q)) .
+ *** extract the subnet matching a given suffix ()
+ op subnet : Net NeList{String} -> Net .
+ eq subnet(N, NWL) = $subnet(N, NWL, emptyN) .  
+ op $subnet : Net NeList{String} Net -> Net . 
+ eq $subnet(emptyN, NWL, N) = clearup(N) . 
+ eq $subnet(Q |-> W ; N, NWL, N') = $subnet(N, NWL, N' ; sumatrix(Q, NWL) |-> W) .
+ ***
+ op subnet : Net List{String} NeLab -> Net .
+ eq subnet(N, WL, NeL) = $subnet(N, WL, NeL, emptyN) .  
+ op $subnet : Net List{String} NeLab Net -> Net . 
+ eq $subnet(emptyN, WL, NeL, N) = clearup(N) . 
+ eq $subnet(Q |-> W ; N, WL, NeL, N') = $subnet(N, WL, NeL, N' ; sumatrix(Q, WL, NeL) |-> W) .
+ *** extract the subnet matching a given pre-suffix
+ op netmatch : Net List{String} NeLab -> Net .
+ eq netmatch(N, WL, NeL) = $netmatch(N, WL, NeL, emptyN) .  
+ op $netmatch : Net List{String} NeLab Net -> Net . 
+ eq $netmatch(emptyN, WL, NeL, N) = clearup(N) . 
+ eq $netmatch(Q |-> W ; N, WL, NeL, N') = $netmatch(N, WL, NeL, N' ; match(Q, WL, NeL) |-> W) .
+
+ *** places matching a suffix (derived definitions) 
+ op places : Net NeList{String} -> Pset .
+ eq places(N, NWL) = places(subnet(N, NWL)) .
+ op places : Net List{String} NeLab -> Pset .
+ eq places(N, WL, NeL) = places(subnet(N, WL, NeL)) .
+ op placematch : Net List{String} NeLab -> Pset .
+ eq placematch(N, WL, NeL) = places(netmatch(N, WL, NeL)) .
  
  *** returns the sorted list of places of a netop placeList : Net -> Plist .
  op placeList : Net -> Plist . 
@@ -102,10 +115,9 @@ ceq $remove(Q |-> W ; N', N, Z) = $remove(N', N, Z) if W in Z .
  *** simple (default) version
  op addLab : Net Lab -> Net . 
  eq addLab(N, Lab) = addLab(N, Lab, emptyPset) .
- *** defined for convenience
+ *** defined for convenience (maps to the previous version)
  op addLab : Net Lab List{String} -> Net .
  eq addLab(N, Lab, WL) = addLab(N, Lab, places(N, WL)) . 
- 
  
  *** replaces all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the specified value
  op replaceWith : Net NeLab Nat -> Net . 
@@ -492,21 +504,24 @@ endfm
 mod RWPT-FMS is
  pr  PT-FMS .
  inc PT-EMU .
- vars N N' : Net .
+ vars N N' N'' : Net .
  vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : String .
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
  var S : Pbag .
  var K : NzNat .
- var I : Nat .
+ vars I Imin : Nat .
  var W : String .
  vars L L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
  
 *** crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-    ***     if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
-*** crl [syr1new] : N S + 1 . p(L7 < "PL" ; I >) => ( N' ; faultyPL(minnotin(N', "fPL", L7))) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-   ***    if N' ; nomPL(I) := N /\ dead(N S + 1 . p(L7 < "PL" ; I >))  .
+***       if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
+*** alternative form, that is coherent with normalization
+crl [syr1new] : N S + 1 . p(L7 < "PL" ; I >) =>  setMark(setMark((N' ; N'') S - match(S, emptyLs, < "PL" ; I >) , "w" "fPL", bsize(match(S, "w", < "PL" ; I >))),
+     "a" "fPL", bsize(match(S, "a", < "PL" ; I >))) 
+      if match(L7, "f", emptyLab) /\ N' ; nomPL(I) := N /\ Imin := minnotin(N', "fPL", L7) /\ N'' := faultyPL(Imin) /\ 
+         dead(N S + 1 . p(L7 < "PL" ; I >))  .
 *** crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
-  ***     dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
+***     dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
 *** including minimization
 
 endm
