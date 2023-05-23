@@ -499,6 +499,10 @@ fmod PT-FMS is
  eq faultyass  = faultysass  |-> "a" .
  eq faultycycle = faultyload ; line ; faultyass ; fault .
  eq faultyPL(I) = addLab(faultycycle, < "fPL" ; I >, "s") . *** a faulty PL is built of 1 line
+
+ op deadsys : ->  System .
+ eq deadsys =  net(NPLsys(1, 1)) 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >) + 1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 0 > <
+    "PL" ; 0 >) .
 endfm
 
 mod RWPT-FMS is
