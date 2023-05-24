@@ -433,11 +433,18 @@ ceq maxin(K . p(L' NeL) + B, W, L) = J if < W ; J > L := NeL /\ existsgr(B, NeL)
  *** net version (defined for convenience)
  op minnotin : Net String Lab -> Nat .
  eq minnotin(N, W, L) = minnotin(places(N), W, L) .
- *** bag versions (defined for efficiency)
+ 
+ *** bag version (defined for efficiency)
  op minnotin : Pbag String Lab -> Nat .
  eq minnotin(B, W, L) = $minnotin(B, W, L, 0) .
  op $minnotin : Pbag String Lab Nat -> Nat . 
  eq $minnotin(B, W, L, I) = if exists(B, < W ; I > L) then $minnotin(B, W, L, I + 1) else I fi .  
+ 
+ *** default versions (with a null suffix last part)
+ op minnotin : Net String -> Nat .
+ eq minnotin(N, W) = minnotin(N, W, emptyLab) .
+ op minnotin : Pbag String -> Nat .
+ eq minnotin(B, W) = minnotin(B, W, emptyLab) .
 
  var A : Set{Nat} .
  *** extracts the elements with a given suffix and the suffix header's index in a set
@@ -469,8 +476,9 @@ fmod PT-FMS is
  ops sline sload sass sfault faultysload faultysass :  -> Imatrix .
  ops line load ass fault faultyload faultyass : -> Tmatrix . 
  ops cycle PL faultycycle : -> Net .
- ops nomPL faultyPL : Nat -> Net .
- op NPL : NzNat -> Net . *** N prod lines 0 .. N- 1
+ ops nomPL faultyPL : Nat -> Net . *** templates for a single PL
+ op faultySys : Nat -> System . 
+ ops NPL NfaultyPL : NzNat -> Net . *** N (faulty) prod lines 0 .. N- 1
  op NPLsys : NzNat NzNat -> System . *** N prod lines with 2 * M tokens (raw pieces)
  
 
@@ -488,7 +496,6 @@ fmod PT-FMS is
  eq PL = replica&share(cycle, 2, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), "a" U "w") . *** a PL is built of two symmetric lines 
  eq NPL(N) = replica&share(PL, N, "PL", p(< "s" ; 0 >), emptyStr) .
  eq NPLsys(N, M) = setMark(setMark(NPL(N), "o" "PL", 1), "s", 2 * M) .
-
  *** helpful in system rewrite
 *** the i-th nominal PL
  eq nomPL(I) = addLab(PL, < "PL" ; I >, p(< "s" ; 0 >)) .
@@ -499,10 +506,10 @@ fmod PT-FMS is
  eq faultyass  = faultysass  |-> "a" .
  eq faultycycle = faultyload ; line ; faultyass ; fault .
  eq faultyPL(I) = addLab(faultycycle, < "fPL" ; I >, "s") . *** a faulty PL is built of 1 line
-
- op deadsys : ->  System .
- eq deadsys =  net(NPLsys(1, 1)) 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >) + 1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 0 > <
-    "PL" ; 0 >) .
+ eq faultySys(I) = setMark(faultyPL(I), "o" "fPL", 1) .
+ ***
+ eq NfaultyPL(N) = replica&share(faultycycle, N, "fPL", p(< "s" ; 0 >), emptyStr) .
+ 
 endfm
 
 mod RWPT-FMS is
@@ -511,19 +518,18 @@ mod RWPT-FMS is
  vars N N' N'' : Net .
  vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : String .
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
- var S : Pbag .
+ vars S S' : Pbag .
  var K : NzNat .
  vars I Imin : Nat .
  var W : String .
  vars L L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
  
 *** crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-***       if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
+***         if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
 *** alternative form, that is coherent with normalization
-crl [syr1new] : N S + 1 . p(L7 < "PL" ; I >) =>  setMark(setMark((N' ; N'') S - match(S, emptyLs, < "PL" ; I >) , "w" "fPL", bsize(match(S, "w", < "PL" ; I >))),
-     "a" "fPL", bsize(match(S, "a", < "PL" ; I >))) 
-      if match(L7, "f", emptyLab) /\ N' ; nomPL(I) := N /\ Imin := minnotin(N', "fPL", L7) /\ N'' := faultyPL(Imin) /\ 
-         dead(N S + 1 . p(L7 < "PL" ; I >))  .
+crl [syr1new] : (N ; N') S + 1 . p(L7 < "PL" ; I >) =>  
+        join(N S - S', setMark(setMark(faultySys(Imin), "w" "fPL", bsize(match(S', "w"))), "a" "fPL", bsize(match(S', "a"))))
+      if match(L7, "f") /\ dead((N ; N') S + 1 . p(L7 < "PL" ; I >)) /\ N' := nomPL(I) /\ Imin := minnotin(N, "fPL") /\   S' := subag(S, < "PL" ; I >) .
 *** crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
 ***     dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
 *** including minimization

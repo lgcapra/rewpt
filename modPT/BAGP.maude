@@ -55,20 +55,35 @@ ceq $subag(K . P + B, NWs, B') = $subag(B, NWs, B' + K . P) if hasSuffix(P, NWs)
  op $subag : Pbag List{String} NeLab Pbag -> Pbag . 
 ceq $subag(K . P + B, Ws, NeL, B') = $subag(B, Ws, NeL, B' + K . P) if hasSuffix(P, Ws, NeL) .
  eq $subag(B, Ws, NeL, B') = B' [owise] .
- *** gives the sub-bag of places whose labes match a given pref-suffix
+ *** might be defined in terms of a previous one
+ op subag : Pbag  NeLab  -> Pbag . 
+ eq subag(B, NeL) = $subag(B, NeL, nilP) .  
+ op $subag : Pbag NeLab Pbag -> Pbag . 
+ceq $subag(K . P + B, NeL, B') = $subag(B, NeL, B' + K . P) if hasSuffix(P, NeL) .
+ eq $subag(B, NeL, B') = B' [owise] .
+  *** gives the sub-bag of places whose labes match a given pref-suffix
  op match : Pbag List{String} NeLab  -> Pbag . 
  eq match(B, Ws, NeL) = $match(B, Ws, NeL, nilP) .  
  op $match : Pbag List{String} NeLab Pbag -> Pbag . 
 ceq $match(K . P + B, Ws, NeL, B') = $match(B, Ws, NeL, B' + K . P) if match(P, Ws, NeL) .
  eq $match(B, Ws, NeL, B') = B' [owise] .
+ *** match the prefix
+ op match : Pbag NeList{String} -> Pbag . 
+ eq match(B, NWs) = $match(B, NWs, nilP) .  
+ op $match : Pbag List{String} Pbag -> Pbag . 
+ceq $match(K . P + B, NWs, B') = $match(B, NWs, B' + K . P) if match(P, NWs) .
+ eq $match(B, NWs, B') = B' [owise] .
 
  *** derived definition(s) of support
  op support : Pbag NeList{String} -> Pset .
  eq support(B, NWs) = support(subag(B, NWs)) .
  op support : Pbag List{String} NeLab  -> Pset . 
  eq support(B, Ws, NeL) = support(subag(B, Ws, NeL)) .
+ *** based on match
  op suppmatch : Pbag List{String} NeLab  -> Pset .
  eq suppmatch(B, Ws, NeL) = support(match(B, Ws, NeL)) .
+ op suppmatch : Pbag NeList{String} -> Pset .
+ eq suppmatch(B, NWs) = support(match(B, NWs)) .
  
  *** builds an (un)ordered list of pairs < weight ; el > out of a bag
  op toList  : Pbag -> List{Nat,Place} .     

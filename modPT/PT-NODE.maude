@@ -37,6 +37,10 @@ ceq hasSuffix(L'' L' L, Ls, L) = true if Ls == strLab(L') .
  op match : Lab List{String} Lab -> Bool .
 ceq match(L'' L' L, Ls, L) = true if Ls == strLab(L'') .
  eq match(L, Ls, L') = false [owise] .
+ *** checks only the prefix 
+ op match : Lab List{String} -> Bool .
+ceq match(L' L, Ls) = true if Ls == strLab(L') .
+ eq match(L, Ls) = false [owise] .
 endfm 
 
 fmod PT-NODE is
@@ -71,8 +75,11 @@ fmod PT-NODE is
  eq hasSuffix(n(L), Ls, L') = hasSuffix(L, Ls, L') .
  op hasSuffix : Node NeLab -> Bool .
  eq hasSuffix(n(L), L') = hasSuffix(L, L') .
+ *** match
  op match : Node List{String} NeLab -> Bool .
  eq match(n(L), Ls, L') = match(L, Ls, L') .
+ op match : Node NeList{String} -> Bool .
+ eq match(n(L), NLs) = match(L, NLs) .
 endfm
 
 *** places
