@@ -288,10 +288,11 @@ ceq merge(N ; Q |-> W ; Q' |-> W, Z) = Q + Q' |->  W ; merge(N, Z) if W in Z .
  eq $tnew(Q |-> W', W, A, K', K) = $tnew(set(Q, A, p(< W ; K' - 1 >), K) |-> W', W, A, K' - 1, K) .
  
  *** set a marking for net places with label with a given suffix
- op setMark : Net List{String} NzNat -> System .
+ op setMark : Net List{String} Nat -> System .
+ eq setMark(N, Lw, 0) = N nilP . 
  eq setMark(N, Lw, K) = setMark(N nilP, Lw, K) . 
- op setMark : System List{String} NzNat -> System .
- eq setMark(N B, Lw, K) = N set(B, places(N B, Lw), K) . 
+ op setMark : System List{String} Nat -> System .
+ eq setMark(N B, Lw, I) = N set(B, places(N B, Lw), I) . 
  
  *** connnect a new transition to net's places with a given label's suffix using the 2nd string as the fresh transition's lab
  *** op connect : Net String String Atype NzNat -> [Net] .
