@@ -58,19 +58,19 @@ ceq (N . X + B) / M = B / M if N quo M == 0 .
  ceq N . X + B >' B' = false if N <= B'[X] .
  eq B >' B' = true [owise] .
  *** bag's cardinality
- op ||_|| : Bag{X} -> Nat . 
- op ||_|| : NeBag{X} -> NzNat . 
- eq || B || = $bcard(B, 0) . 
+ op |_| : Bag{X} -> Nat . 
+ op |_| : NeBag{X} -> NzNat . 
+ eq | B | = $bcard(B, 0) . 
  op $bcard : Bag{X} Nat -> Nat . 
  eq $bcard(nil, K) = K . 
  eq $bcard(N . X + B, K) = $bcard(B, K + N) .
  *** bag's size (n. of elements)
- op bsize : Bag{X} -> Nat . 
- op bsize : NeBag{X} -> NzNat . 
- eq bsize(B) = $bsize(B, 0) .  
- op $bsize : Bag{X} Nat -> Nat . 
- eq $bsize(nil, K) = K . 
- eq $bsize(N . X + B, K) = $bsize(B, K + 1) .
+ op size : Bag{X} -> Nat . 
+ op size : NeBag{X} -> NzNat . 
+ eq size(B) = $size(B, 0) .  
+ op $size : Bag{X} Nat -> Nat . 
+ eq $size(nil, K) = K . 
+ eq $size(N . X + B, K) = $size(B, K + 1) .
  *** checks whether two bags are disjoint
  op disjoint : Bag{X} Bag{X} -> Bool [ comm ] .
  eq disjoint(N . X + B, M . X + B') = false .

@@ -533,21 +533,20 @@ mod RWPT-FMS is
 
 *** the rule syr1 replaces a nominal PL with a faulty one: is correct (symmetric) but doesn't match the normalization requirements
 ***crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
-***        if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
+***       if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
 *** alternative rule coherent with normalization, but higly inefficient
 ***crl [nor1] : Sys => join(N S - S', setMark(setMark(faultySys(Imin), "w" "fPL", bsize(match(S', "w"))), "a" "fPL", bsize(match(S', "a"))))
 ***        if dead(Sys) /\ (N ; N') S + 1 . p(< "f" ; 0 > L < "PL" ; I >) := Sys  /\  N' := nomPL(I) /\ Imin := minnotin(N, "fPL") /\  S' := subag(S, < "PL" ; I >) .
 *** efficient version
- crl [nor1] : N  S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(Imin), "w" "fPL", bsize(match(S', "w"))), "a" "fPL", bsize(match(S', "a"))))
+ crl [nor1] : N  S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(Imin), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |))
      if dead (N S + 1 . p(< "f" ; 0 > L < "PL" ; I >)) /\ Imin := minnotin(N, "fPL") /\  S' := subag(S, < "PL" ; I >) .
 
 *** syr2 removes a faulty PL after a 2nd fault occurrence (analogous considerations to syr1)
-*** crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
-***    dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
+***crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
+***  dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
 *** version coherent with normalization
-crl [nor2] : N  S + 1 . p(< "f" ; 0 > L < "fPL" ; I >) => N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + (bsize(S') - 1))  if 
-  N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\
-  dead(N' S + 1 . p(< "f" ; 0 > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
-
+crl [nor2] : N  S + 1 . p(< "f" ; 0 > L < "fPL" ; I >) => N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |)  if 
+   N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\
+   dead(N' S + 1 . p(< "f" ; 0 > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
 
 endm
