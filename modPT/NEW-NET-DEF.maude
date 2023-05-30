@@ -61,6 +61,9 @@ ceq in(Q |-> W ; N, P) = true if in (Q, P) .
  op $subnet : Net List{String} NeLab Net -> Net . 
  eq $subnet(emptyN, WL, NeL, N) = clearup(N) . 
  eq $subnet(Q |-> W ; N, WL, NeL, N') = $subnet(N, WL, NeL, N' ; sumatrix(Q, WL, NeL) |-> W) .
+ ***
+ op subnet : Net NeLab -> Net .
+ eq subnet(N, NeL) = subnet(N, emptyLs, NeL) .
  *** extract the subnet matching a given pre-suffix
  op netmatch : Net List{String} NeLab -> Net .
  eq netmatch(N, WL, NeL) = $netmatch(N, WL, NeL, emptyN) .  
@@ -213,6 +216,11 @@ ceq clearupM(N K . P + S) = clearupM(N S) if in(N, P) == false .
  var J : Nat .
  op replaceWith : System NeLab Nat -> System .
  eq replaceWith(N S, NeL, J) = replaceWith(N, NeL, J) replaceWith(S, NeL, J) .
+
+ *** 
+ op subsys : System NeLab -> System .
+ eq subsys(N S, NeL) = subnet(N, NeL) subag(S, NeL) .
+ *** si dovrebbero definire anche le versioni overloaded di subsys a matchsys
  
 endfm
 
@@ -327,7 +335,7 @@ fmod MINIMIZATION is
  vars I J : Nat .
  vars K K' : NzNat .
  var Z : Int .
- vars W W' W'' W''' : String .
+ vars W W' W'' : String .
  vars L L' L'' : Lab .
  var NeL : NeLab .
  vars Ls Ls' : List{String} .
@@ -349,10 +357,10 @@ fmod MINIMIZATION is
  
  *** brings a marking (of a symmetric net) to a minimal form
  op minimize : Pbag -> Pbag [memo] .
- ceq minimize(B) = minimize(B'' + (B' - B2 )) if K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B' := B  /\ J =/= I /\ 
-                    (K =/= K' or-else L' =/= L'')  /\ B1 := extract(B', W, I U J, L)  /\ 
+ ceq minimize(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + (B - B2 )) if 
+                    J =/= I /\ (K =/= K' or-else L' =/= L'')  /\ B1 := extract(B, W, I U J, L)  /\ 
                     B2 := B1 + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\ 
-                    B'' := swapLab(B1, W, L, I, J) + K . p(L' < W ; J > L) + K' . p(L'' < W ; I > L) /\ B'' < B2 .            
+                    B' := swapLab(B1, W, L, I, J) + K . p(L' < W ; J > L) + K' . p(L'' < W ; I > L) /\ B' < B2 .        
  eq minimize(B) = B [owise] .
  *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
  op swapLab : Pbag String Lab Nat Nat -> Pbag .
@@ -466,9 +474,9 @@ mod PT-EMU is
  *** ordinary firing rule
  *** crl [firing] : N M => N M + O - I if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) .
  *** including minimization
- crl [cfiring] : N M => N normalize(M + O - I) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M)  .
+  crl [cfiring] : N M => N normalize(M + O - I) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M)  .
  *** includes a further optimization: if the marked places are retained then name abstraction is skipped
- *** crl [cfiring] : N M => N normalize(M', eqsupp(M, M')) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
+ ***crl [cfiring] : N M => N normalize(M', eqsupp(M, M')) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
 endm
 
 fmod PT-FMS is
@@ -529,14 +537,18 @@ mod RWPT-FMS is
 ***crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
 ***       if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
 *** alternative rule coherent with normalization, but higly inefficient
- crl [nor1] : N  S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => normalize2(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(Imin), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))
-     if dead (N S + 1 . p(< "f" ; 0 > L < "PL" ; I >)) /\ Imin := minnotin(N, "fPL") /\  S' := subag(S, < "PL" ; I >) .
+ crl [nor1] : N  S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))
+     if dead (N S + 1 . p(< "f" ; 0 > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
+ *** optimized version of nor1 exploiting the fact that the faulty PL do need need abstraction
+ ***crl [nor1opt] : N  S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => join(detache(N, nomPL(I))  S - S', 
+ ***     setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |))
+ ***    if dead (N S + 1 . p(< "f" ; 0 > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
 
 *** syr2 removes a faulty PL after a 2nd fault occurrence (analogous considerations to syr1)
 ***crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
 ***  dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
 *** version coherent with normalization
-crl [nor2] : N  S + 1 . p(< "f" ; 0 > L < "fPL" ; I >) => normalize2(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |))  if 
+crl [nor2] : N  S + 1 . p(< "f" ; 0 > L < "fPL" ; I >) => normalize(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |))  if 
    N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\
    dead(N' S + 1 . p(< "f" ; 0 > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
 

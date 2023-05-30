@@ -69,7 +69,8 @@ fmod IMATRIX is
  op sumatrix : Imatrix NeList{String} -> Imatrix .
  eq sumatrix([X,Y,Z], NWs) = [subag(X, NWs), subag(Y, NWs), subag(Z, NWs)] .
  op sumatrix : Imatrix List{String} NeLab -> Imatrix .
- eq sumatrix([X,Y,Z], Ws, NeL) = [subag(X, Ws, NeL), subag(Y, Ws, NeL), subag(Z, Ws, NeL)] .
+ eq sumatrix([X,Y,Z], NWs, NeL) = [subag(X, NWs, NeL), subag(Y, NWs, NeL), subag(Z, NWs, NeL)] . *** optimization
+ eq sumatrix([X,Y,Z], emptyLs, NeL) = [subag(X, NeL), subag(Y, NeL), subag(Z, NeL)] .
  op match : Imatrix List{String} NeLab -> Imatrix .
  eq match([X,Y,Z], Ws, NeL) = [match(X, Ws, NeL), match(Y, Ws, NeL), match(Z, Ws, NeL)] .
 
