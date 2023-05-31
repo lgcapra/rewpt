@@ -50,6 +50,7 @@ ceq (N . X + B) / M = B / M if N quo M == 0 .
  op remove :  Bag{X} X$Elt -> Bag{X} .
  eq remove(B + N . X, X) = B .
  eq remove(B, X) = B [owise] .
+ 
  *** relational ops
  op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
  ceq N . X + B <= B' = false if N > B'[X] .

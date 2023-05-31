@@ -64,7 +64,7 @@ fmod PT-NODE is
  op _<_ : Node Node -> Bool . *** strict total order
  eq n(L) < n(L') = lex(0, L, L') .
  op _<=_ : Node Node -> Bool . *** total order
- eq N1 <= N2 = N1 == N2 or-else N1 < N2 .
+ eq N1 <= N2 = N1 == N2 or-else N1 < N2 . 
  
  **** derived definitions
  var Ls : List{String} .

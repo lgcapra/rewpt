@@ -24,6 +24,9 @@ fmod SORTED-PAIR{X :: STRICT-TOTAL-ORDER, Y :: STRICT-TOTAL-ORDER} is
  eq P <  P' = lt(0, P, P') .
  eq P <1 P' = lt(1, P, P') .
  eq P <2 P' = lt(2, P, P') .
+
+ op min : Pair{X, Y} Pair{X, Y} -> Pair{X, Y} .
+ eq min(P, P') = if P < P' then P else P' fi .
 endfm
 
 *** ordinary view 

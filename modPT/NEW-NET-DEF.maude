@@ -357,11 +357,21 @@ fmod MINIMIZATION is
  
  *** brings a marking (of a symmetric net) to a minimal form
  op minimize : Pbag -> Pbag [memo] .
- ceq minimize(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + (B - B2 )) if 
-                    J =/= I /\ (K =/= K' or-else L' =/= L'')  /\ B1 := extract(B, W, I U J, L)  /\ 
-                    B2 := B1 + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\ 
-                    B' := swapLab(B1, W, L, I, J) + K . p(L' < W ; J > L) + K' . p(L'' < W ; I > L) /\ B' < B2 .        
+ op minimize2 : Pbag -> Pbag [memo] .
+ 
+ ceq minimize(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + (B - B'' )) if 
+                      J =/= I /\ (K =/= K' or-else L' =/= L'')  /\ 
+                      B'' := extract(B, W, I U J, L) + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\
+                      B' := swapLab(B'', W, L, I, J) /\ B' < B'' . 
  eq minimize(B) = B [owise] .
+ var NP : Pair{Nat,Place} .
+ *** op swap : Pair{Nat,Place} Nat Nat -> [Pair{Nat,Place}] .
+ *** eq swap(< K ; p(L' < W ; I >) >, I, J) = 
+ *** ceq minimize2(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + (B - B'' )) if 
+ ***                      J =/= I /\ (K =/= K' or-else L' =/= L'')  /\ 
+ ***                      NP := min(< K ; p(L' < W ; I >) >, <  K' ; p(L'' < W ; J >) >) /\ swap(NP, I, J) < NP /\  
+ ***                      B'' := extract(B, W, I U J, L) + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\
+ ***                      B' := swapLab(B'', W, L, I, J) /\ B' < B'' . 
  *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
  op swapLab : Pbag String Lab Nat Nat -> Pbag .
  eq swapLab(B, W, L, I, I) = B .
@@ -462,7 +472,7 @@ ceq maxin(K . p(L' NeL) + B, W, L) = J if < W ; J > L := NeL /\ existsgr(B, NeL)
  eq $extract(nilP, B, W, A, L) = B .
 ceq $extract(K . p(L' < W ; I > L) + B, B', W, A, L) = $extract(B,
  B' + K . p(L' < W ; I > L) , W, A, L) if I in A . 
- eq $extract(K . P + B, B', W, A, L) = $extract(B, B' , W, A, L) [owise] . 
+ eq $extract(K . P + B, B', W, A, L) = $extract(B, B' , W, A, L) [owise] .  
 endfm 
 
 mod PT-EMU is
