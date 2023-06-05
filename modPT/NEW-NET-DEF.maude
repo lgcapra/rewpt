@@ -359,15 +359,16 @@ fmod MINIMIZATION is
  op minimize : Pbag -> Pbag [memo] .
  op minimize2 : Pbag -> Pbag [memo] .
  
- ceq minimize(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + (B - B'' )) if 
+ ceq minimize2(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + (B - B'' )) if 
                       J =/= I /\ (K =/= K' or-else L' =/= L'')  /\ 
                       B'' := extract(B, W, I U J, L) + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\
                       B' := swapLab(B'', W, L, I, J) /\ B' < B'' . 
  eq minimize(B) = B [owise] .
  var NP : Pair{Nat,Place} .
  *** op swap : Pair{Nat,Place} Nat Nat -> [Pair{Nat,Place}] .
- ceq minimize2(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(K . p(L' < W ; J > L) + K' . p(L'' < W ; I > L) + swapLab(B, W, L, I, J))
-        if J < I /\ < K ; p(L' < W ; I > L) > < min(B, < K' ; p(L'' < W ; J > L) >,  < W ; J > L) .
+ ceq minimize(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(K . p(L' < W ; J > L) + K' . p(L'' < W ; I > L) + B')
+        if J < I /\ B' := swapLab(B, W, L, I, J) /\ (K' . p(L'' < W ; I > L) +  B' ==  K' . p(L'' < W ; J > L) + B
+           or-else < K ; p(L' < W ; I > L) > < min(B, < K' ; p(L'' < W ; J > L) >,  < W ; J > L)) .
   eq minimize2(B) = B [owise] .
   
   ***not(existsle(B, K, L', < W ; I > L)) . 
