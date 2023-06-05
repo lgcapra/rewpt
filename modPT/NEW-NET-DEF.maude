@@ -366,12 +366,11 @@ fmod MINIMIZATION is
  eq minimize(B) = B [owise] .
  var NP : Pair{Nat,Place} .
  *** op swap : Pair{Nat,Place} Nat Nat -> [Pair{Nat,Place}] .
- *** eq swap(< K ; p(L' < W ; I >) >, I, J) = 
- *** ceq minimize2(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + (B - B'' )) if 
- ***                      J =/= I /\ (K =/= K' or-else L' =/= L'')  /\ 
- ***                      NP := min(< K ; p(L' < W ; I >) >, <  K' ; p(L'' < W ; J >) >) /\ swap(NP, I, J) < NP /\  
- ***                      B'' := extract(B, W, I U J, L) + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\
- ***                      B' := swapLab(B'', W, L, I, J) /\ B' < B'' . 
+ ceq minimize2(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(K . p(L' < W ; J > L) + K' . p(L'' < W ; I > L) + swapLab(B, W, L, I, J))
+        if J < I /\ < K ; p(L' < W ; I > L) > < min(B, < K' ; p(L'' < W ; J > L) >,  < W ; J > L) .
+  eq minimize2(B) = B [owise] .
+  
+  ***not(existsle(B, K, L', < W ; I > L)) . 
  *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
  op swapLab : Pbag String Lab Nat Nat -> Pbag .
  eq swapLab(B, W, L, I, I) = B .
@@ -428,10 +427,20 @@ ceq normalize(Sys) = net(Sys') normalize(marking(Sys')) if Sys' := abstract(Sys)
 ceq existsgr(p(L' < W ; J > L) U S, < W ; I > L) = true  if J > I .
  eq existsgr(S, NeL) = false [owise] .
  *** bag version
-  op existsgr : Pbag NeLab  -> Bool .
+op existsgr : Pbag NeLab  -> Bool .
 ceq existsgr(K . p(L' < W ; J > L) + B, < W ; I > L) = true  if J > I .
  eq existsgr(B, NeL) = false [owise] .
-
+*** new: checks the existence of an element with the same suffix lesser than the given one
+ *** op existsle : Pbag NzNat Lab Nat NeLab  -> Bool .
+*** ceq existsle(K' . p(L' NeL) + B, K, L, < W ; J> L) = true if K' < K or-else K == K' and-then L' < L .
+*** eq existsle(B, K, L, NeL) = false [owise] .
+*** search for the minimum pair (elementary bag) with a given suffix, starting from one
+op min : Pbag Pair{Nat, Place} NeLab -> Pair{Nat, Place} . *** o Pbag al posto di Pair ...
+eq min(K . p(L' NeL) + B, < K' ; p(L'' NeL) > , NeL) = min(B, min(< K ; p(L' NeL) >, < K' ; p(L'' NeL) >), NeL) . 
+eq min(B, NP, NeL) = NP [owise] .
+*** version with two args
+op min : Pbag NeLab -> Pair{Nat, Place} . 
+eq min(B, NeL) = min(B, < 1000000000000000000000000 ; p(NeL) >, NeL) .
 *** returns the biggest suffix header's index in the specified set of places (-1 if no place with a matching suffix does exist)
  op maxin : Pset String Lab -> Int .
 ceq maxin(p(L' NeL) U S, W, L) = J if < W ; J > L := NeL /\ existsgr(S, NeL) == false .  
