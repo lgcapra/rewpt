@@ -29,14 +29,15 @@ fmod LIST-NAT-PLACE is
 endfm
 
 fmod BAGP is
- pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, op nil to nilP, 
+ pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, sort ElBag{Place} to ElPbag, op nil to nilP, 
                            sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
  pr LIST-NAT-PLACE .
  
  vars P P' P'' P''' : Place . 
  vars K K' : NzNat .
  vars I J : Nat .
- vars B B' : Pbag .
+ vars B B' B'' : Pbag .
+ vars NeB NeB' : NePbag .
  vars L L' L'' : Lab .
  var E : Elab .
  var S : Pset .
@@ -103,7 +104,23 @@ ceq $match(K . P + B, NWs, B') = $match(B, NWs, B' + K . P) if match(P, NWs) .
  eq cmp(C, B , B') = cmp(C, toListS(C, B), toListS(C, B')) .
  *** defined for convenience
  op _<_    : Pbag Pbag -> Bool .
- eq B <  B' = B =/= B' and-then lt(0, B, B') .
+ *** eq B <  B' = B =/= B' and-then lt(0, B, B') .
+ *** more efficient definition not requiring passing to lists
+ eq B < B = false .
+ eq nilP < NeB = true .
+ eq NeB < nilP = false .
+ eq NeB + B' < NeB + B'' = B' < B'' .
+ eq K . P < K' . P' = K < K' or-else K == K' and then P < P' .
+ eq NeB < NeB' = min(NeB) < min(NeB') [owise] .
+ *** finds the min elementary bag
+ op min : NePbag -> ElPbag .
+ eq min(K . P + B) = min(B, K . P) . 
+ op min : Pbag ElPbag -> ElPbag . 
+ eq min(nilP, NeB) = NeB . 
+ eq min(K . P + NeB, K' . P') =  min(NeB, min(K . P, K' . P')) .
+ vars EB EB' : ElPbag .
+ eq min(EB, EB') = if EB <= EB' then EB else EB' fi .
+ 
  *** efficiently checks that two bag supports coincide
  op eqsupp : Pbag Pbag -> Bool [ comm ] .
 ceq eqsupp(K . P + B, B') = false if B'[P] == 0 .   

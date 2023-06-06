@@ -65,6 +65,8 @@ fmod PT-NODE is
  eq n(L) < n(L') = lex(0, L, L') .
  op _<=_ : Node Node -> Bool . *** total order
  eq N1 <= N2 = N1 == N2 or-else N1 < N2 . 
+ op min :  Node Node ->  Node .
+ eq min(N1, N2) = if N1 <=  N2 then N1 else N2 fi .
  
  **** derived definitions
  var Ls : List{String} .

@@ -2,8 +2,8 @@ fmod BAG{X :: TRIV} is
  protecting INT .
  protecting EXT-BOOL .
  
- sorts Bag{X} NeBag{X} .
- subsorts NeBag{X} < Bag{X} .
+ sorts Bag{X} NeBag{X} ElBag{X} .
+ subsorts ElBag{X} < NeBag{X} < Bag{X} .
 
  vars N M : NzNat .
  var K : Nat .
@@ -11,7 +11,7 @@ fmod BAG{X :: TRIV} is
  var B B' : Bag{X} .
  *** constructors
  op nil : -> Bag{X} [ctor] .
- op _._  : NzNat X$Elt ->  NeBag{X} [prec 35 ctor] .
+ op _._  : NzNat X$Elt ->  ElBag{X} [prec 35 ctor] .
  *** bag operations
  op _`[_`] : Bag{X} X$Elt -> Nat [prec 23] .
  op _+_  : Bag{X} Bag{X} -> Bag{X} [prec 39 ctor assoc comm id: nil] .
