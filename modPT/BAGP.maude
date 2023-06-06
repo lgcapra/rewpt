@@ -103,15 +103,17 @@ ceq $match(K . P + B, NWs, B') = $match(B, NWs, B' + K . P) if match(P, NWs) .
  op cmp : Nat Pbag Pbag -> Nat . *** maps to the lexicographic orders defined on lists of (comparable) pairs
  eq cmp(C, B , B') = cmp(C, toListS(C, B), toListS(C, B')) .
  *** defined for convenience
- op _<_    : Pbag Pbag -> Bool .
- *** eq B <  B' = B =/= B' and-then lt(0, B, B') .
- *** more efficient definition not requiring passing to lists
- eq B < B = false .
- eq nilP < NeB = true .
- eq NeB < nilP = false .
- eq NeB + B' < NeB + B'' = B' < B'' .
- eq K . P < K' . P' = K < K' or-else K == K' and then P < P' .
- eq NeB < NeB' = min(NeB) < min(NeB') [owise] .
+ op _le_     : Pbag Pbag -> Bool . *** to avoid any confusion with < , <= etc.
+ op _leq_    : Pbag Pbag -> Bool .
+ eq B leq B' = B == B' or-else B le B' .
+ *** eq B le  B' = B =/= B' and-then lt(0, B, B') .
+ *** more efficient definition not requiring passing through lists
+ eq B le B = false .
+ eq nilP le NeB = true .
+ eq NeB le nilP = false .
+ eq NeB + B' le NeB + B'' = B' le B'' .
+ eq K . P le K' . P' = K < K' or-else K == K' and-then P < P'   .
+ eq NeB le NeB' = min(NeB) le min(NeB') [owise] .
  *** finds the min elementary bag
  op min : NePbag -> ElPbag .
  eq min(K . P + B) = min(B, K . P) . 
@@ -119,7 +121,7 @@ ceq $match(K . P + B, NWs, B') = $match(B, NWs, B' + K . P) if match(P, NWs) .
  eq min(nilP, NeB) = NeB . 
  eq min(K . P + NeB, K' . P') =  min(NeB, min(K . P, K' . P')) .
  vars EB EB' : ElPbag .
- eq min(EB, EB') = if EB <= EB' then EB else EB' fi .
+ eq min(EB, EB') = if EB leq EB' then EB else EB' fi .
  
  *** efficiently checks that two bag supports coincide
  op eqsupp : Pbag Pbag -> Bool [ comm ] .
