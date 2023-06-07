@@ -1,13 +1,13 @@
-in ../shared/SORTED-PAIR.maude
-in ../shared/COMPARABLE-LIST.maude
+in ../shared/BASE-SORTED-PAIR.maude
+in ../shared/BASE-COMPARABLE-LIST.maude
 
-*** defines label-structures for moudular nets
+*** defines structured labels for modular PT nets
 fmod NODE-LAB is 
  pr NAT .
  pr LIST{String} * (op nil to emptyLs) .
- pr COMPARABLE-LIST{SortedPair+<{String<,Nat<}} * (sort Pair{String<,Nat<} to Elab, *** elementary lab  
-                                                    sort NeList{SortedPair+<{String<,Nat<}} to NeLab,
-                                                    sort List{SortedPair+<{String<,Nat<}} to Lab,
+ pr COMPARABLE-LIST{SortedPair<{String<,Nat<}} * (sort Pair{String<,Nat<} to Elab, *** elementary lab  
+                                                    sort NeList{SortedPair<{String<,Nat<}} to NeLab,
+                                                    sort List{SortedPair<{String<,Nat<}} to Lab,
                                                     op nil to emptyLab).
 
  vars I J : Nat .
@@ -62,7 +62,7 @@ fmod PT-NODE is
  eq addLab(n(L), X:Lab) = n(L X:Lab) .
  *** order relations
  op _<_ : Node Node -> Bool . *** strict total order
- eq n(L) < n(L') = lex(0, L, L') .
+ eq n(L) < n(L') = lex(L, L') .
  op _<=_ : Node Node -> Bool . *** total order
  eq N1 <= N2 = N1 == N2 or-else N1 < N2 . 
  op min :  Node Node ->  Node .

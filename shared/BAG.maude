@@ -50,6 +50,16 @@ ceq (N . X + B) / M = B / M if N quo M == 0 .
  op remove :  Bag{X} X$Elt -> Bag{X} .
  eq remove(B + N . X, X) = B .
  eq remove(B, X) = B [owise] .
+ *** common part
+ var NeB : NeBag{X} .
+ op shared : Bag{X} Bag{X} -> Bag{X} [assoc comm] .
+ eq shared(B, B) = B .
+ eq shared(NeB + B, NeB  + B') = NeB + shared(B, B')  . 
+ eq shared(B, B') = nil [owise] .
+ *** detaches a part
+ op disjoin : Bag{X} Bag{X} -> Bag{X} .
+ eq disjoin(NeB + B, NeB) = B .
+ eq disjoin(B, B') = B [owise] .
  
  *** relational ops
  op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .

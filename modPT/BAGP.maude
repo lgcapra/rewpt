@@ -18,14 +18,10 @@ view PairNatP< from STRICT-TOTAL-ORDER to PAIR-NAT-PLACE is
  sort Elt to Pair{Nat,Place} .
 endv
 
-*** view as strict-weak-order 
-view PairNatP+< from STRICT-WEAK-ORDER+ to PAIR-NAT-PLACE is 
- sort Elt to Pair{Nat,Place} . 
-endv
 
 *** this module defines comparable lists of pairs < Nat ; Place >
 fmod LIST-NAT-PLACE is 
-  pr COMPARABLE-LIST{PairNatP+<} * (sort List{PairNatP+<} to List{Nat,Place}, sort NeList{PairNatP+<} to NeList{Nat,Place}, op nil to emptyListNP)  .  
+  pr COMPARABLE-LIST{PairNatP<} * (sort List{PairNatP<} to List{Nat,Place}, sort NeList{PairNatP<} to NeList{Nat,Place}, op nil to emptyListNP)  .  
 endfm
 
 fmod BAGP is
@@ -38,12 +34,15 @@ fmod BAGP is
  vars I J : Nat .
  vars B B' B'' : Pbag .
  vars NeB NeB' : NePbag .
+ vars EB EB' : ElPbag .
  vars L L' L'' : Lab .
  var E : Elab .
  var S : Pset .
  var LNP : List{Nat,Place} . 
+ var W : String .
  var Ws : List{String} .
  var NWs : NeList{String} .
+
  *** gives the sub-bag of places whose labes have (match) a given suffix (NOTE a String is also a NeList{String})
  op subag : Pbag NeList{String} -> Pbag . 
  eq subag(B, NWs) = $subag(B, NWs, nilP) .  
@@ -62,6 +61,7 @@ ceq $subag(K . P + B, Ws, NeL, B') = $subag(B, Ws, NeL, B' + K . P) if hasSuffix
  op $subag : Pbag NeLab Pbag -> Pbag . 
 ceq $subag(K . P + B, NeL, B') = $subag(B, NeL, B' + K . P) if hasSuffix(P, NeL) .
  eq $subag(B, NeL, B') = B' [owise] .
+
   *** gives the sub-bag of places whose labes match a given pref-suffix
  op match : Pbag List{String} NeLab  -> Pbag . 
  eq match(B, Ws, NeL) = $match(B, Ws, NeL, nilP) .  
@@ -86,42 +86,48 @@ ceq $match(K . P + B, NWs, B') = $match(B, NWs, B' + K . P) if match(P, NWs) .
  op suppmatch : Pbag NeList{String} -> Pset .
  eq suppmatch(B, NWs) = support(match(B, NWs)) .
  
- *** builds an (un)ordered list of pairs < weight ; el > out of a bag
+ *** builds a list of pairs < weight ; el > out of a bag
  op toList  : Pbag -> List{Nat,Place} .     
  eq toList(B) = $toList(B, emptyListNP) .
  op $toList : Pbag List{Nat,Place} -> List{Nat,Place} .
  eq $toList(nilP, LNP) = LNP .
  eq $toList(K . P + B, LNP) = $toList(B, < K ; P > LNP) . 
- *** builds an ordered list of pairs out of a bag  using the usual list lex order (0) ([memo] ?) or the lex order based on weights (1)
- var C : Nat .
- op toListS : Nat Pbag -> List{Nat,Place} . *** the 1st arg identifies the sorting 
- eq toListS(C, B)  = sort(C, toList(B)) .   
- *** defined for convenience (and to satisfy th STRICT-WEAK-ORDER+)
- op lt : Nat Pbag Pbag -> Bool . *** maps to the lexicographic orders defined on lists of (comparable) pairs
- eq lt(C, B , B') = lex(C, toListS(C, B), toListS(C, B')) .
- *** defined for convenience 
- op cmp : Nat Pbag Pbag -> Nat . *** maps to the lexicographic orders defined on lists of (comparable) pairs
- eq cmp(C, B , B') = cmp(C, toListS(C, B), toListS(C, B')) .
- *** defined for convenience
- op _le_     : Pbag Pbag -> Bool . *** to avoid any confusion with < , <= etc.
- op _leq_    : Pbag Pbag -> Bool .
- eq B leq B' = B == B' or-else B le B' .
- *** eq B le  B' = B =/= B' and-then lt(0, B, B') .
- *** more efficient definition not requiring passing through lists
- eq B le B = false .
- eq nilP le NeB = true .
- eq NeB le nilP = false .
- eq NeB + B' le NeB + B'' = B' le B'' .
- eq K . P le K' . P' = K < K' or-else K == K' and-then P < P'   .
- eq NeB le NeB' = min(NeB) le min(NeB') [owise] .
- *** finds the min elementary bag
+ *** builds a sorted list of pairs out of a bag
+ op toListS : Pbag -> List{Nat,Place} .  
+ eq toListS(B)  = sort(toList(B)) .   
+ 
+ *** asymmetric relation on bags: strict TO on the set of bags obtained by permuting a bag's elements -- defined without passing through lists
+ op le  : Pbag Pbag -> Bool . *** to avoid any confusion with < , <= bag operators etc.
+ op cmp : ElPbag ElPbag -> Nat .   *** compare method between el. bags  -- results in {0,1,2}
+ eq cmp(K . p(L), K . p(L')) = cmp(L, L') .
+ eq cmp(K . P, K' . P') = if K < K' then 1 else 2 fi [owise] .
+
+ eq le(B, B) = false .
+ eq le(nilP, NeB) = true .
+ eq le(NeB, nilP) = false .
+ eq le(NeB + B', NeB + B'') = le(B', B'') . 
+ eq le(NeB, NeB') = cmp(min(NeB), min(NeB')) == 1 [owise] .
+
+ *** finds the min elementary bag, based on le
  op min : NePbag -> ElPbag .
- eq min(K . P + B) = min(B, K . P) . 
- op min : Pbag ElPbag -> ElPbag . 
- eq min(nilP, NeB) = NeB . 
- eq min(K . P + NeB, K' . P') =  min(NeB, min(K . P, K' . P')) .
- vars EB EB' : ElPbag .
- eq min(EB, EB') = if EB leq EB' then EB else EB' fi .
+ eq min(EB) = EB . *** optimization
+ eq min(K . P + NeB) = min(NeB, K . P) . 
+ op min : NePbag ElPbag -> ElPbag . 
+ eq min(EB + NeB, EB') =  min(NeB, min(EB, EB')) .
+ eq min(EB, EB) = EB .
+ eq min(EB, EB') = if cmp(EB, EB') == 1 then EB else EB' fi [owise] .
+ 
+ *** strict TO obtained by translating bags into sorted lists of pairs
+ op lex : Pbag Pbag -> Bool .
+ eq lex(B, B) = false .
+ eq lex(nilP, NeB) = true .
+ eq lex(NeB, nilP) = false .
+ eq lex(NeB, NeB') = lex(toListS(NeB), toListS(NeB')) [owise] .
+
+ *** non strict TO (based on lex)
+ op leq : Pbag Pbag -> Bool .
+ eq leq(B, B) = true .
+ eq leq(B, B') = lex(B, B') [owise] .
  
  *** efficiently checks that two bag supports coincide
  op eqsupp : Pbag Pbag -> Bool [ comm ] .
@@ -149,7 +155,6 @@ ceq set(B, S, I) = $set(B, S, I) if S :: Place == false . *** S is not a singlet
  
  *** replaces in all places whose label match the given suffix with a corresponding suffix having as header's index the specified value
  op replaceWith : Pbag NeLab Nat -> Pbag . 
- var W : String .
  eq replaceWith(B, NeL, I) = $replaceWith(B, nilP, NeL, I) .
  op $replaceWith : Pbag Pbag NeLab Nat -> Pbag .
 ceq $replaceWith(K . p(L' NeL) + B, B', NeL, I) = $replaceWith(B, K . p(L' < W ; I > L) + B', NeL, I) if < W ; J > L := NeL .
@@ -162,17 +167,13 @@ view Pbag from TRIV to BAGP is
  sort Elt to Pbag .
 endv
 
-*** strict-total-order view
-*** view Pbag< from STRICT-TOTAL-ORDER to BAGP is 
-***  sort Elt to Pbag . 
-*** endv
-
-*** strict-weak-order view
-*** view Pbag+< from STRICT-WEAK-ORDER+ to BAGP is 
-*** sort Elt to Pbag . 
-*** endv
+*** strict TO view
+view Pbag< from STRICT-TOTAL-ORDER to BAGP is 
+  sort Elt to Pbag .
+  op _<_ to le . 
+endv
 
 *** set-view of a bag (defined for convenience)
-view Pset from TRIV to BAGP is
- sort Elt to Pset .
-endv
+*** view Pset from TRIV to BAGP is
+***  sort Elt to Pset .
+*** endv
