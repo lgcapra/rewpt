@@ -9,6 +9,7 @@ fmod BAG{X :: TRIV} is
  var K : Nat .
  vars X Y Z : X$Elt .
  var B B' : Bag{X} .
+ var NeB : NeBag{X} .
  *** constructors
  op nil : -> Bag{X} [ctor] .
  op _._  : NzNat X$Elt ->  ElBag{X} [prec 35 ctor] .
@@ -21,7 +22,9 @@ fmod BAG{X :: TRIV} is
  eq N . X + M . X = (N + M) . X .
  *** difference
  op _-_  : Bag{X} Bag{X} -> Bag{X} [prec 41 gather (E e) right id: nil] .
+*** eq B + NeB - B' + NeB = B - B' .
  eq N . X + B - M . X + B' = if N > M then N - M . X + (B - B') else B - B' fi  .
+*** ceq N . X + B - M . X + B' = N - M . X + (B - B') if N > M  . 
  eq B - M . X + B' = B - B' [owise] .
 *** intersection
  op _∩_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection
@@ -37,10 +40,10 @@ fmod BAG{X :: TRIV} is
  eq M * nil = nil .
  eq M * (N . X + B) = (M * N) . X + M * B .
  *** scalar division (by a nonzero nat) 
- op _/_ : Bag{X} NzNat -> Bag{X} [prec 37]. *** higher priority than the sum (for symmetry with *)
- eq nil / M = nil .  
-ceq (N . X + B) / M = B / M if N quo M == 0 .
- eq (N . X + B) / M = N quo M . X + B / M [owise] .
+ *** op _/_ : Bag{X} NzNat -> Bag{X} [prec 37]. *** higher priority than the sum (for symmetry with *)
+ *** eq nil / M = nil .  
+*** ceq (N . X + B) / M = B / M if N quo M == 0 .
+ *** eq (N . X + B) / M = N quo M . X + B / M [owise] .
  *** sets an element's multiplicity (if zero removes it from the bag)
  op set  : Bag{X} X$Elt Nat -> Bag{X} . 
  eq set(B, X, 0) = remove(B, X) .
@@ -50,13 +53,12 @@ ceq (N . X + B) / M = B / M if N quo M == 0 .
  op remove :  Bag{X} X$Elt -> Bag{X} .
  eq remove(B + N . X, X) = B .
  eq remove(B, X) = B [owise] .
- *** common part
- var NeB : NeBag{X} .
- op shared : Bag{X} Bag{X} -> Bag{X} [assoc comm] .
- eq shared(B, B) = B .
- eq shared(NeB + B, NeB  + B') = NeB + shared(B, B')  . 
- eq shared(B, B') = nil [owise] .
- *** detaches a part
+ *** common part between bags
+ *** op shared : Bag{X} Bag{X} -> Bag{X} [assoc comm] .
+ *** eq shared(B, B) = B .
+ *** eq shared(NeB + B, NeB  + B') = NeB + shared(B, B')  . 
+ *** eq shared(B, B') = nil [owise] .
+ *** detache a part from a bag
  op disjoin : Bag{X} Bag{X} -> Bag{X} .
  eq disjoin(NeB + B, NeB) = B .
  eq disjoin(B, B') = B [owise] .

@@ -364,7 +364,7 @@ fmod MINIMIZATION is
                       B'' := extract(B, W, I U J, L) + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\
                       B' := swapLab(B'', W, L, I, J) /\ le(B', B'') . 
  eq minimize(B) = B [owise] .
-  
+
  *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
  op swapLab : Pbag String Lab Nat Nat -> Pbag .
  eq swapLab(B, W, L, I, I) = B .
