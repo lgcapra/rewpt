@@ -359,10 +359,14 @@ fmod MINIMIZATION is
  op minimize : Pbag -> Pbag [memo] .
  op minimize2 : Pbag -> Pbag [memo] .
  
- ceq minimize(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + (B - B'' )) if 
+ ceq minimize(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + diff(B, B'' )) if 
                       J =/= I /\ (K =/= K' or-else L' =/= L'')  /\ 
                       B'' := extract(B, W, I U J, L) + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\
                       B' := swapLab(B'', W, L, I, J) /\ le(B', B'') . 
+ ceq minimize2(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + (B - B'' )) if 
+                      J =/= I /\ (K =/= K' or-else L' =/= L'')  /\ 
+                      B'' := extract(B, W, I U J, L) + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\
+                      B' := swapLab(B'', W, L, I, J) /\ le(B', B'') .
  eq minimize(B) = B [owise] .
 
  *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices

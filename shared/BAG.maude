@@ -22,10 +22,11 @@ fmod BAG{X :: TRIV} is
  eq N . X + M . X = (N + M) . X .
  *** difference
  op _-_  : Bag{X} Bag{X} -> Bag{X} [prec 41 gather (E e) right id: nil] .
-*** eq B + NeB - B' + NeB = B - B' .
- eq N . X + B - M . X + B' = if N > M then N - M . X + (B - B') else B - B' fi  .
-*** ceq N . X + B - M . X + B' = N - M . X + (B - B') if N > M  . 
+ *** eq (B + NeB) - NeB = B  . *** optimization
+ eq N . X + B - M . X + B' = if N > M then N - M . X + (B - B') else B - B' fi .
  eq B - M . X + B' = B - B' [owise] .
+ op diff : Bag{X} Bag{X} -> Bag{X} [right id: nil] .
+ eq diff(B, B') = disjoin(B, B') - B' .
 *** intersection
  op _∩_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection
  eq B ∩ B = B .
