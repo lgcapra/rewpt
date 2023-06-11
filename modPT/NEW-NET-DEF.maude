@@ -180,15 +180,15 @@ ceq dead((T ; N) S) = false if enabled(T, (T ; N) S) .
  *** tests the existence of a place
  op in :  System Place -> Bool . 
  eq in(N S, P) =  S[P] =/= 0 or-else in(N, P).
- *** system's places
+ *** system's places: assumes that it is the same as net's places
  op places : System -> Pset .
- eq places(N S) = places(N) U support(S) .
+ eq places(N S) = places(N) .
  *** gets out the places whose labels match the given prefix 
  op places : System List{String} -> Pset .
- eq places(N S, Y) = places(N, Y) U support(S, Y) .
+ eq places(N S, Y) = places(N, Y) .
  *** system's oredered list of places
  op placeList : System -> Plist .
- eq placeList(N S) = $makePlist(places(N S), emptyPlist) .
+ eq placeList(Sys) = $makePlist(places(Sys), emptyPlist) .
 
 *** add a new label to a system's places
  var Lab : Lab .
@@ -359,16 +359,12 @@ fmod MINIMIZATION is
  op minimize : Pbag -> Pbag [memo] .
  op minimize2 : Pbag -> Pbag [memo] .
  
- ceq minimize(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + diff(B, B'' )) if 
-                      J =/= I /\ (K =/= K' or-else L' =/= L'')  /\ 
-                      B'' := extract(B, W, I U J, L) + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\
-                      B' := swapLab(B'', W, L, I, J) /\ le(B', B'') . 
- ceq minimize2(K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L)  + B) = minimize(B' + (B - B'' )) if 
-                      J =/= I /\ (K =/= K' or-else L' =/= L'')  /\ 
-                      B'' := extract(B, W, I U J, L) + K . p(L' < W ; I > L) + K' . p(L'' < W ; J > L) /\
-                      B' := swapLab(B'', W, L, I, J) /\ le(B', B'') .
  eq minimize(B) = B [owise] .
+ ceq minimize(K . P + K' . P' + B) = minimize(B' + (B - B'' )) if p(L' < W ; I > L) := P /\ p(L'' < W ; J > L) := P' /\
+                      J > I /\ (K =/= K' or-else L' =/= L'')  /\ B'' := extract(B, W, I U J, L) /\
+                      B' := swapLab(B'' + K . P + K' . P', W, L, I, J) /\ le(B', B'' + K . P + K' . P') . *** J > I prunes some matches (same as I > J) 
 
+ *** using lex instead of le seems to be a bit less efficient
  *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
  op swapLab : Pbag String Lab Nat Nat -> Pbag .
  eq swapLab(B, W, L, I, I) = B .
@@ -384,7 +380,7 @@ ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J .
 ceq abstract(B) = abstract(K . p(L' < W ; K' - 1 > L) + replaceWith(B', < W ; K' > L, K' - 1)) if K . p(L' < W ; K' > L) + B' := B /\ exists(B', < W ; K' - 1 > L) == false .
  eq abstract(B) = B [owise] .
  *** version 2 : (repeatedly) finds the smallest missing suffix header's index and the greatest one (if any) and replaces the former with the latter
- *** negli esempi è un po' meno efficiente ma in generale (in casi meno semplici) è meglio
+ *** negli esempi è un po' meno efficiente ma in generale (in casi meno semplici) può essere meglio
  op abstract2 : Pbag -> Pbag .
 ceq abstract2(B) = abstract2(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ I := minnotin(B', W, L) /\ I < K  /\ K := maxin(B, W, L) .
  eq abstract2(B) = B [owise] .
@@ -399,9 +395,21 @@ ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K' > L, K' - 1)) if S := pla
 ceq abstract2(Sys) = abstract2(replaceWith(Sys, NeL, I)) if S := places(Sys) /\ p(L' NeL) U S' := S /\ < W ; K > L := NeL /\ I := minnotin(S', W, L) /\ I < K  /\ K := maxin(S, W, L) .
  eq abstract2(Sys) = Sys [owise] .
 
+****** NEW excludes from index abstraction those places (components) matching a given suffix
+op abstractBut : System String -> System .
+ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K' > L, K' - 1), W') if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ 1st(last(L' < W ; K' > L)) =/= W' /\ exists(S', < W ; K' - 1 > L) == false .
+ eq abstractBut(Sys, W) = Sys [owise] .
+******
+
 *** normalize a system assuming that its labeleing is well-defined: for the net only index abstraction applies 
  op normalize : System -> System .
 ceq normalize(Sys) = net(Sys') normalize(marking(Sys')) if Sys' := abstract(Sys) .  
+
+****** NEW excludes from index abstraction those net places (components) matching a given suffix
+op normalize : System String -> System .
+ceq normalize(Sys, W) = net(Sys') normalize(marking(Sys')) if Sys' := abstractBut(Sys, W) .  
+*****
+
 *** version 2
  op normalize2 : System -> System .
  ceq normalize2(Sys) = net(Sys') normalize2(marking(Sys')) if Sys' := abstract2(Sys) . 
@@ -543,16 +551,16 @@ mod RWPT-FMS is
 ***crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
 ***       if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
 *** alternative rule coherent with normalization, but higly inefficient
- crl [nor1] : N  S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))
+ *** crl [nor1] : N  S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))
+ ***      if dead (N S + 1 . p(< "f" ; 0 > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
+ *** optimized version of nor1 exploiting the fact that the faulty PL do not need abstraction
+crl [nor1] : N  S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")
      if dead (N S + 1 . p(< "f" ; 0 > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
- *** optimized version of nor1 exploiting the fact that the faulty PL do need need abstraction
- ***crl [nor1opt] : N  S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => join(detache(N, nomPL(I))  S - S', 
- ***     setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |))
- ***    if dead (N S + 1 . p(< "f" ; 0 > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
-
+ 
 *** syr2 removes a faulty PL after a 2nd fault occurrence (analogous considerations to syr1)
 ***crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
 ***  dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
+
 *** version coherent with normalization
 crl [nor2] : N  S + 1 . p(< "f" ; 0 > L < "fPL" ; I >) => normalize(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |))  if 
    N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\

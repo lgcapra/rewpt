@@ -1,0 +1,179 @@
+state 0, System: ([1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >),nilP] |-> "f" ;
+    [1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "f" ; [1 . p(< "w" ;
+    0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > <
+    "PL" ; 0 >)] |-> "l" ; [1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >)] |-> "l" ; [2 . p(< "s" ; 0 >),1 . p(< "w" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "w" ; [1 . p(< "a" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >),2 . p(< "s" ; 0 >),nilP] |-> "a") 1 . p(< "o"
+    ; 0 > < "PL" ; 0 >) + 2 . p(< "s" ; 0 >)
+arc 0 ===> state 1 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+arc 1 ===> state 2 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 1, System: ([1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >),nilP] |-> "f" ;
+    [1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "f" ; [1 . p(< "w" ;
+    0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > <
+    "PL" ; 0 >)] |-> "l" ; [1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >)] |-> "l" ; [2 . p(< "s" ; 0 >),1 . p(< "w" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "w" ; [1 . p(< "a" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >),2 . p(< "s" ; 0 >),nilP] |-> "a") 1 . p(< "f"
+    ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 2 . p(< "s" ; 0 >)
+arc 0 ===> state 3 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 2, System: ([1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >),nilP] |-> "f" ;
+    [1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "f" ; [1 . p(< "w" ;
+    0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > <
+    "PL" ; 0 >)] |-> "l" ; [1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >)] |-> "l" ; [2 . p(< "s" ; 0 >),1 . p(< "w" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "w" ; [1 . p(< "a" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >),2 . p(< "s" ; 0 >),nilP] |-> "a") 1 . p(< "o"
+    ; 0 > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >)
+arc 0 ===> state 3 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+arc 1 ===> state 4 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 3, System: ([1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >),nilP] |-> "f" ;
+    [1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "f" ; [1 . p(< "w" ;
+    0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > <
+    "PL" ; 0 >)] |-> "l" ; [1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >)] |-> "l" ; [2 . p(< "s" ; 0 >),1 . p(< "w" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "w" ; [1 . p(< "a" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >),2 . p(< "s" ; 0 >),nilP] |-> "a") 1 . p(< "f"
+    ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1
+    > < "PL" ; 0 >)
+arc 0 ===> state 5 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 4, System: ([1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >),nilP] |-> "f" ;
+    [1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "f" ; [1 . p(< "w" ;
+    0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > <
+    "PL" ; 0 >)] |-> "l" ; [1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >)] |-> "l" ; [2 . p(< "s" ; 0 >),1 . p(< "w" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "w" ; [1 . p(< "a" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >),2 . p(< "s" ; 0 >),nilP] |-> "a") 1 . p(< "o"
+    ; 0 > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >)
+arc 0 ===> state 5 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+arc 1 ===> state 6 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+arc 2 ===> state 7 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 5, System: ([1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >),nilP] |-> "f" ;
+    [1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "f" ; [1 . p(< "w" ;
+    0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > <
+    "PL" ; 0 >)] |-> "l" ; [1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >)] |-> "l" ; [2 . p(< "s" ; 0 >),1 . p(< "w" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "w" ; [1 . p(< "a" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >),2 . p(< "s" ; 0 >),nilP] |-> "a") 1 . p(< "a"
+    ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1
+    > < "PL" ; 0 >)
+arc 0 ===> state 8 (crl N S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I)) (S -
+    S'), setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S',
+    "a") |))) if dead(N S + 1 . p(< "f" ; 0 > L < "PL" ; I >)) = true /\ S' := subag(S, < "PL" ; I >) [label
+    nor1] .)
+
+state 6, System: ([1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >),nilP] |-> "f" ;
+    [1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "f" ; [1 . p(< "w" ;
+    0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > <
+    "PL" ; 0 >)] |-> "l" ; [1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >)] |-> "l" ; [2 . p(< "s" ; 0 >),1 . p(< "w" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "w" ; [1 . p(< "a" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >),2 . p(< "s" ; 0 >),nilP] |-> "a") 1 . p(< "a"
+    ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1
+    > < "PL" ; 0 >)
+arc 0 ===> state 9 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 7, System: ([1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >),nilP] |-> "f" ;
+    [1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "f" ; [1 . p(< "w" ;
+    0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > <
+    "PL" ; 0 >)] |-> "l" ; [1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >)] |-> "l" ; [2 . p(< "s" ; 0 >),1 . p(< "w" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "w" ; [1 . p(< "a" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >),2 . p(< "s" ; 0 >),nilP] |-> "a") 1 . p(< "o"
+    ; 0 > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >)
+arc 0 ===> state 0 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+arc 1 ===> state 9 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 8, System: ([1 . p(< "o" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >),nilP] |-> "f" ; [1 . p(<
+    "w" ; 0 > < "fPL" ; 0 >),1 . p(< "a" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >)] |-> "l" ; [2 .
+    p(< "s" ; 0 >),2 . p(< "w" ; 0 > < "fPL" ; 0 >),nilP] |-> "w" ; [2 . p(< "a" ; 0 > < "fPL" ; 0 >),2 . p(<
+    "s" ; 0 >),nilP] |-> "a") 1 . p(< "a" ; 0 > < "fPL" ; 0 >) + 1 . p(< "o" ; 0 > < "fPL" ; 0 >) + 1 . p(< "w"
+    ; 0 > < "fPL" ; 0 >)
+arc 0 ===> state 10 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+arc 1 ===> state 11 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 9, System: ([1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > < "PL" ; 0 >),nilP] |-> "f" ;
+    [1 . p(< "o" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "f" ; [1 . p(< "w" ;
+    0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 0 > < "PL" ; 0 >),1 . p(< "f" ; 0 > < "L" ; 0 > <
+    "PL" ; 0 >)] |-> "l" ; [1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ;
+    0 >),1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >)] |-> "l" ; [2 . p(< "s" ; 0 >),1 . p(< "w" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >),nilP] |-> "w" ; [1 . p(< "a" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >),2 . p(< "s" ; 0 >),nilP] |-> "a") 1 . p(< "a"
+    ; 0 > < "L" ; 0 > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >) + 1 . p(< "f" ; 0 > < "L" ; 0
+    > < "PL" ; 0 >)
+arc 0 ===> state 1 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 10, System: ([1 . p(< "o" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >),nilP] |-> "f" ; [1 . p(<
+    "w" ; 0 > < "fPL" ; 0 >),1 . p(< "a" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >)] |-> "l" ; [2 .
+    p(< "s" ; 0 >),2 . p(< "w" ; 0 > < "fPL" ; 0 >),nilP] |-> "w" ; [2 . p(< "a" ; 0 > < "fPL" ; 0 >),2 . p(<
+    "s" ; 0 >),nilP] |-> "a") 1 . p(< "a" ; 0 > < "fPL" ; 0 >) + 1 . p(< "f" ; 0 > < "fPL" ; 0 >) + 1 . p(< "w"
+    ; 0 > < "fPL" ; 0 >)
+
+state 11, System: ([1 . p(< "o" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >),nilP] |-> "f" ; [1 . p(<
+    "w" ; 0 > < "fPL" ; 0 >),1 . p(< "a" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >)] |-> "l" ; [2 .
+    p(< "s" ; 0 >),2 . p(< "w" ; 0 > < "fPL" ; 0 >),nilP] |-> "w" ; [2 . p(< "a" ; 0 > < "fPL" ; 0 >),2 . p(<
+    "s" ; 0 >),nilP] |-> "a") 1 . p(< "o" ; 0 > < "fPL" ; 0 >) + 2 . p(< "a" ; 0 > < "fPL" ; 0 >)
+arc 0 ===> state 12 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+arc 1 ===> state 13 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 12, System: ([1 . p(< "o" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >),nilP] |-> "f" ; [1 . p(<
+    "w" ; 0 > < "fPL" ; 0 >),1 . p(< "a" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >)] |-> "l" ; [2 .
+    p(< "s" ; 0 >),2 . p(< "w" ; 0 > < "fPL" ; 0 >),nilP] |-> "w" ; [2 . p(< "a" ; 0 > < "fPL" ; 0 >),2 . p(<
+    "s" ; 0 >),nilP] |-> "a") 1 . p(< "f" ; 0 > < "fPL" ; 0 >) + 2 . p(< "a" ; 0 > < "fPL" ; 0 >)
+arc 0 ===> state 14 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 13, System: ([1 . p(< "o" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >),nilP] |-> "f" ; [1 . p(<
+    "w" ; 0 > < "fPL" ; 0 >),1 . p(< "a" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >)] |-> "l" ; [2 .
+    p(< "s" ; 0 >),2 . p(< "w" ; 0 > < "fPL" ; 0 >),nilP] |-> "w" ; [2 . p(< "a" ; 0 > < "fPL" ; 0 >),2 . p(<
+    "s" ; 0 >),nilP] |-> "a") 1 . p(< "o" ; 0 > < "fPL" ; 0 >) + 2 . p(< "s" ; 0 >)
+arc 0 ===> state 14 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+arc 1 ===> state 15 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 14, System: ([1 . p(< "o" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >),nilP] |-> "f" ; [1 . p(<
+    "w" ; 0 > < "fPL" ; 0 >),1 . p(< "a" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >)] |-> "l" ; [2 .
+    p(< "s" ; 0 >),2 . p(< "w" ; 0 > < "fPL" ; 0 >),nilP] |-> "w" ; [2 . p(< "a" ; 0 > < "fPL" ; 0 >),2 . p(<
+    "s" ; 0 >),nilP] |-> "a") 1 . p(< "f" ; 0 > < "fPL" ; 0 >) + 2 . p(< "s" ; 0 >)
+arc 0 ===> state 16 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 15, System: ([1 . p(< "o" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >),nilP] |-> "f" ; [1 . p(<
+    "w" ; 0 > < "fPL" ; 0 >),1 . p(< "a" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >)] |-> "l" ; [2 .
+    p(< "s" ; 0 >),2 . p(< "w" ; 0 > < "fPL" ; 0 >),nilP] |-> "w" ; [2 . p(< "a" ; 0 > < "fPL" ; 0 >),2 . p(<
+    "s" ; 0 >),nilP] |-> "a") 1 . p(< "o" ; 0 > < "fPL" ; 0 >) + 2 . p(< "w" ; 0 > < "fPL" ; 0 >)
+arc 0 ===> state 8 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+arc 1 ===> state 16 (crl N M:Pbag => N normalize(M:Pbag + O:Pbag - I:Pbag) if N' ; [I:Pbag,O:Pbag,H:Pbag] |-> W
+    := N /\ enabled([I:Pbag,O:Pbag,H:Pbag], M:Pbag) = true [label cfiring] .)
+
+state 16, System: ([1 . p(< "o" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >),nilP] |-> "f" ; [1 . p(<
+    "w" ; 0 > < "fPL" ; 0 >),1 . p(< "a" ; 0 > < "fPL" ; 0 >),1 . p(< "f" ; 0 > < "fPL" ; 0 >)] |-> "l" ; [2 .
+    p(< "s" ; 0 >),2 . p(< "w" ; 0 > < "fPL" ; 0 >),nilP] |-> "w" ; [2 . p(< "a" ; 0 > < "fPL" ; 0 >),2 . p(<
+    "s" ; 0 >),nilP] |-> "a") 1 . p(< "f" ; 0 > < "fPL" ; 0 >) + 2 . p(< "w" ; 0 > < "fPL" ; 0 >)

@@ -8,8 +8,8 @@ fmod BAG{X :: TRIV} is
  vars N M : NzNat .
  var K : Nat .
  vars X Y Z : X$Elt .
- var B B' : Bag{X} .
- var NeB : NeBag{X} .
+ vars B B' B'' : Bag{X} .
+ vars NeB NeB' NeB'' : NeBag{X} .
  *** constructors
  op nil : -> Bag{X} [ctor] .
  op _._  : NzNat X$Elt ->  ElBag{X} [prec 35 ctor] .
@@ -22,11 +22,11 @@ fmod BAG{X :: TRIV} is
  eq N . X + M . X = (N + M) . X .
  *** difference
  op _-_  : Bag{X} Bag{X} -> Bag{X} [prec 41 gather (E e) right id: nil] .
- *** eq (B + NeB) - NeB = B  . *** optimization
- eq N . X + B - M . X + B' = if N > M then N - M . X + (B - B') else B - B' fi .
- eq B - M . X + B' = B - B' [owise] .
- op diff : Bag{X} Bag{X} -> Bag{X} [right id: nil] .
- eq diff(B, B') = disjoin(B, B') - B' .
+eq B + NeB - NeB = B  . *** optimization
+ceq N . X + B - M . X + B' = N - M . X + (B - B')  if N > M .
+ceq N . X + B - M . X + B' = B - B' if N <= M .
+*** eq N . X + B - M . X + B' = if N > M then N - M . X + (B - B') else B - B' fi . *** more compact
+ceq B - NeB = B  if B =/= NeB  [owise] .
 *** intersection
  op _∩_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection
  eq B ∩ B = B .
@@ -40,11 +40,6 @@ fmod BAG{X :: TRIV} is
  eq 0 * B = nil .
  eq M * nil = nil .
  eq M * (N . X + B) = (M * N) . X + M * B .
- *** scalar division (by a nonzero nat) 
- *** op _/_ : Bag{X} NzNat -> Bag{X} [prec 37]. *** higher priority than the sum (for symmetry with *)
- *** eq nil / M = nil .  
-*** ceq (N . X + B) / M = B / M if N quo M == 0 .
- *** eq (N . X + B) / M = N quo M . X + B / M [owise] .
  *** sets an element's multiplicity (if zero removes it from the bag)
  op set  : Bag{X} X$Elt Nat -> Bag{X} . 
  eq set(B, X, 0) = remove(B, X) .
@@ -101,3 +96,8 @@ endfm
 view Bag{X :: TRIV} from TRIV to BAG{X} is 
  sort Elt to Bag{X} . 
 endv
+
+*** to make some tests
+fmod BAG-S is
+ pr BAG{String} .
+endfm  
