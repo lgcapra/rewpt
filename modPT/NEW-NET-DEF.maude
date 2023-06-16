@@ -324,7 +324,7 @@ endfm
 *** to the net-operators there defined
 *** praticamente lo stesso usato per la codifica originale: si può importare
 
-fmod MINIMIZATION is
+fmod PT-NORM is
  pr PT-SYS .
  pr SET+{Nat} * (op emptyS to emptyNat) .
  vars P P' P'' : Place .
@@ -340,7 +340,7 @@ fmod MINIMIZATION is
  var NeL : NeLab .
  vars Ls Ls' : List{String} .
  
- *** marking minimization plus name abstraction
+ *** marking normalization plus name abstraction
  op normalize : Pbag -> Pbag .
  eq normalize(B) = minimize(abstract(B)) . *** seems slightly better than the alternative 
  *** eq normalize(B) = abstract(minimize(B)) . *** alternative
@@ -480,14 +480,14 @@ ceq $extract(K . p(L' < W ; I > L) + B, B', W, A, L) = $extract(B,
 endfm 
 
 mod PT-EMU is
- pr MINIMIZATION .
+ pr PT-NORM .
  var  T : Tmatrix .
  vars I O H M M' : Pbag .
  vars N N' : Net .
  var W : String .
  *** ordinary firing rule
  *** crl [firing] : N M => N M + O - I if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) .
- *** including minimization
+ *** including PT-NORM
   crl [cfiring] : N M => N normalize(M + O - I) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M)  .
  *** includes a further optimization: if the marked places are retained then name abstraction is skipped
  ***crl [cfiring] : N M => N normalize(M', eqsupp(M, M')) if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .

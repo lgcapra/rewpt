@@ -22,7 +22,7 @@ fmod BAG{X :: TRIV} is
  eq N . X + M . X = (N + M) . X .
  *** difference
  op _-_  : Bag{X} Bag{X} -> Bag{X} [prec 41 gather (E e) right id: nil] .
-eq B + NeB - NeB = B  . *** optimization
+*** eq B + NeB - NeB = B  . *** optimization
 ceq N . X + B - M . X + B' = N - M . X + (B - B')  if N > M .
 ceq N . X + B - M . X + B' = B - B' if N <= M .
 *** eq N . X + B - M . X + B' = if N > M then N - M . X + (B - B') else B - B' fi . *** more compact
@@ -61,11 +61,13 @@ ceq B - NeB = B  if B =/= NeB  [owise] .
  
  *** relational ops
  op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
- ceq N . X + B <= B' = false if N > B'[X] .
+ eq B <= B = true . *** optimization
+ceq N . X + B <= B' = false if N > B'[X] .
  eq B <= B' = true [owise] . 
- op _>'_ : Bag{X} Bag{X} -> Bool [prec 43] .
- ceq N . X + B >' B' = false if N <= B'[X] .
- eq B >' B' = true [owise] .
+ **** greater than restricted to the elements of 1st bag
+ op _>_ : Bag{X} Bag{X} -> Bool [prec 43] .
+ ceq N . X + B > B' = false if N <= B'[X] .
+ eq B > B' = true [owise] .
  *** bag's cardinality
  op |_| : Bag{X} -> Nat . 
  op |_| : NeBag{X} -> NzNat . 
