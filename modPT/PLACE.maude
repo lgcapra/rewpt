@@ -2,7 +2,7 @@ in ../shared/BASE-SORTED-PAIR.maude
 in ../shared/BASE-COMPARABLE-LIST.maude
 
 *** defines structured labels for modular PT nets
-fmod NODE-LAB is 
+fmod P-LAB is 
  pr NAT .
  pr LIST{String} * (op nil to emptyLs) .
  pr COMPARABLE-LIST{SortedPair<{String<,Nat<}} * (sort Pair{String<,Nat<} to Elab, *** elementary lab  
@@ -43,51 +43,47 @@ ceq match(L' L, Ls) = true if Ls == strLab(L') .
  eq match(L, Ls) = false [owise] .
 endfm 
 
-fmod PT-NODE is
- pr NODE-LAB .
- sort Node .
- op n : NeLab -> Node [ctor] . *** partial op: a node's label is not empty
+fmod PLACE is
+ pr P-LAB .
+ sort Place .
+ op p : NeLab -> Place [ctor] . *** partial op: a Place's label is not empty
  vars L L' : NeLab .
- vars N1 N2 : Node .
+ vars N1 N2 : Place .
  *** get the label
- op lab : Node -> NeLab .
- eq lab (n(L)) = L .
- *** gets the text out of a node's lab
- op strLab : Node -> NeList{String} .
- eq strLab(n(L)) = strLab(L) .
+ op lab : Place -> NeLab .
+ eq lab (p(L)) = L .
+ *** gets the text out of a Place's lab
+ op strLab : Place -> NeList{String} .
+ eq strLab(p(L)) = strLab(L) .
  vars W W' : String .
  var I J : Nat .
  *** append a new sub-label
- op addLab : Node Lab -> Node . 
- eq addLab(n(L), X:Lab) = n(L X:Lab) .
+ op addLab : Place Lab -> Place . 
+ eq addLab(p(L), X:Lab) = p(L X:Lab) .
  *** order relations
- op _<_ : Node Node -> Bool . *** strict total order
- eq n(L) < n(L') = lex(L, L') .
- op _<=_ : Node Node -> Bool . *** total order
+ op _<_ : Place Place -> Bool . *** strict total order
+ eq p(L) < p(L') = lex(L, L') .
+ op _<=_ : Place Place -> Bool . *** total order
  eq N1 <= N2 = N1 == N2 or-else N1 < N2 . 
- op min :  Node Node ->  Node .
+ op min :  Place Place ->  Place .
  eq min(N1, N2) = if N1 <=  N2 then N1 else N2 fi .
  
  **** derived definitions
  var Ls : List{String} .
  var NLs : NeList{String} .
- op hasSuffix : Node NeList{String} -> Bool .
- eq hasSuffix(n(L), NLs) = hasSuffix(L, NLs) .
- op hasSuffix : Node List{String} NeLab -> Bool . 
- eq hasSuffix(n(L), Ls, L') = hasSuffix(L, Ls, L') .
- op hasSuffix : Node NeLab -> Bool .
- eq hasSuffix(n(L), L') = hasSuffix(L, L') .
+ op hasSuffix : Place NeList{String} -> Bool .
+ eq hasSuffix(p(L), NLs) = hasSuffix(L, NLs) .
+ op hasSuffix : Place List{String} NeLab -> Bool . 
+ eq hasSuffix(p(L), Ls, L') = hasSuffix(L, Ls, L') .
+ op hasSuffix : Place NeLab -> Bool .
+ eq hasSuffix(p(L), L') = hasSuffix(L, L') .
  *** match
- op match : Node List{String} NeLab -> Bool .
- eq match(n(L), Ls, L') = match(L, Ls, L') .
- op match : Node NeList{String} -> Bool .
- eq match(n(L), NLs) = match(L, NLs) .
+ op match : Place List{String} NeLab -> Bool .
+ eq match(p(L), Ls, L') = match(L, Ls, L') .
+ op match : Place NeList{String} -> Bool .
+ eq match(p(L), NLs) = match(L, NLs) .
 endfm
 
-*** places
-fmod PLACE is
- protecting PT-NODE * (sort Node to Place, op n to p) .
-endfm
 
 *** default view
 view Place from TRIV to PLACE is 
@@ -102,20 +98,4 @@ endv
 *** total-order view to PLACE
 view Place<= from TOTAL-ORDER to PLACE is 
  sort Elt to Place . 
-endv
-
-
-*** transitions
-fmod TRAN is
- protecting PT-NODE * (sort Node to Tran, op n to t) .
-endfm
-
-*** default view
-view Tran from TRIV to TRAN is 
- sort Elt to Tran . 
-endv
-
-*** standard total-order view to TRAN
-view Tran< from STRICT-TOTAL-ORDER to TRAN is 
- sort Elt to Tran . 
 endv

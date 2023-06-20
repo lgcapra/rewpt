@@ -1,130 +1,86 @@
+*** net-algebra operators pointing out symmetries
 in PT-SYS
 
-*** basic net-algebra operators
-fmod NET-OP is
- pr PT-SYS .  
+fmod NET-OP{X :: TRIV} is
+ pr PT-SYS{X} .
  vars P P' P'' : Place .
- vars T T' T'' : Tran .
+ vars T T' T'' : Transition .
  vars N N' : Net .
  vars B B' B'' : Pbag .
  var Sys Sys' : System .
- var Ssys Ssys' : SimpleSys .
- vars Sn Sn' : Snet .
  vars I J : Nat .
  vars K K' : NzNat .
  vars W W' W'' W''' : String .
  vars Lw Lw' : List{String} .
- vars Q Q' : Imatrix .
-
- *** join two nets by "merging" identical transitions and (implicitly) places, if any -- total op
- op join : Net Net -> Net [assoc comm] .
- eq join(N ; T |-> Q , N' ; T |-> Q') = T |-> Q + Q' ; join(N, N') .
- eq join(N, N') = N ; N' [owise] .
- *** join two systems by summing place markings
+ vars Q Q' : Tmatrix .
+ var S : Pset .
+ var L : X$Elt . *** tran. lab
+ var Z : Set{X} .
+ 
+ *** "merges" identically labelled net transitions whose labels belong to the given set
+ op merge : Net Set{X} -> Net .
+ceq merge(N ; Q |-> L ; Q' |-> L, Z) = Q + Q' |->  L ; merge(N, Z) if L in Z .
+ eq merge(N, Z) = N [owise] . 
+ *** "forced" merge of identically labelled net transitions
+ op merge! : Net  -> Net .
+ eq merge!(N ; Q |-> L ; Q' |-> L) = Q + Q' |->  L ; merge!(N) .
+ eq merge!(N) = N [owise] .
+ *** join two systems by summing their markings (identical places are implicitly merged)
  op join : System System -> System [assoc comm] .
- eq join(N B, N' B') = join(N, N') B + B' .
- *** simple-system version of join (NOTE not defined for simple nets because equivalent to 'U')
- op join : SimpleSys SimpleSys -> SimpleSys [assoc comm] .
- eq join(Sn B, Sn' B') = (Sn U Sn') B + B' .
-*** version of join for simple nets merging two given transitions
- op join : Snet Imatrix Snet Imatrix -> Snet . 
- eq join(Sn U Q, Q, Sn' U Q', Q') = Sn U Sn' U Q + Q' .
- eq join(Sn, Q, Sn', Q') = Sn U Sn' [owise] .
- *** version for simple systems
- op join : SimpleSys Imatrix SimpleSys Imatrix -> SimpleSys . 
- eq join(Sn B, Q, Sn' B', Q') = join(Sn, Q, Sn', Q') B + B' . 
- vars S S' : Pset .
- var TS : Tset .
+ eq join(N B, N' B') = (N ; N') B + B' .
+ *** join two systems and then merge transitions identically labelled whose labels belong to the given set
+ op join : System System Set{X} -> System .
+ eq join(N B, N' B', Z) = merge(N ; N', Z) B + B' . 
+ *** forced join (builds on transitions'  merge!)
+ op join! : System System  -> System .
+ eq join(N B, N' B') = merge!(N ; N') B + B' . 
+ 
  *** "symmetric" juxtaposition: creates K (disjoint) replica of a system each one with a suitably added label suffix (with index 0..K-1) denoting the "nesting" level
- ***  general version specifying elements to be shared among replicas
- op replica&share : System NzNat String Pset Tset -> System .
- eq replica&share(Sys, K, W, S, TS) = $replica&share(Sys, K, W, emptySys, S, TS)  .
- op $replica&share  : System Nat String System Pset Tset -> System .
- eq $replica&share(Sys, 0, W, Sys', S, TS) = Sys' .
- eq $replica&share(Sys, K, W, Sys', S, TS) = $replica&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S, TS)), S, TS) .
- *** versions in which shared elements are specified through a suffix
- op replica&share : System NzNat String List{String} List{String} -> System .
- eq replica&share(Sys, K, W, Lw, Lw') = replica&share(Sys, K, W, places(Sys, Lw), transitions(net(Sys), Lw')) .
+ ***  general version specifying elements to share among replicas
+ op replica&share : System NzNat String Pset Set{X} -> System .
+ eq replica&share(Sys, K, W, S, Z) = $replica&share(Sys, K, W, emptySys, S, Z)  .
+ op $replica&share  : System Nat String System Pset Set{X} -> System .
+ eq $replica&share(Sys, 0, W, Sys', S, Z) = Sys' .
+ eq $replica&share(Sys, K, W, Sys', S, Z) = $replica&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S), Z), S, Z) .
+ *** overloaded version in which shared places are specified through a suffix in their labels
+ op replica&share : System NzNat String List{String} Set{X} -> System .
+ eq replica&share(Sys, K, W, Lw, Z) = replica&share(Sys, K, W, places(Sys, Lw), Z) .
  *** default version
  op replica  : System NzNat String -> System . 
- eq replica(Sys, K, W) =  replica&share(Sys, K, W, emptyPset, emptyTset) .
- *** net versions (builds on system-replica)
- op replica&share : Net NzNat String Pset Tset -> Net .
- eq replica&share(N, K, W, S, TS) = net(replica&share(N nilP, K, W, S, TS)) .
- op replica&share : Net NzNat String List{String} List{String} -> Net .
- eq replica&share(N, K, W, Lw, Lw') = net(replica&share(N nilP, K, W, Lw, Lw')) .
- op replica  : Net NzNat String -> Net .
- eq replica(N, K, W) = replica&share(N, K, W, emptyPset, emptyTset) .
- 
- *** general version for simple net representation
- op replica&share : SimpleSys NzNat String Pset -> SimpleSys .
- eq replica&share(Ssys, K, W, S) = $replica&share(Ssys, K, W, emptySsys, S) . 
- op $replica&share : SimpleSys Nat String SimpleSys Pset -> SimpleSys .
- eq $replica&share(Ssys, 0, W, Ssys', S) = Ssys' .
- eq $replica&share(Ssys, K, W, Ssys', S) = $replica&share(Ssys, K - 1, W, join(Ssys', addLab(Ssys, < W ; K - 1 >, S) ), S) .
- 
- *** shared elements are specified through a suffix
- op replica&share : SimpleSys NzNat String List{String}  -> SimpleSys .
- eq replica&share(Ssys, K, W, Lw) = replica&share(Ssys, K, W, places(Ssys, Lw)) . 
- *** default version
- op replica  : SimpleSys NzNat String -> SimpleSys . 
- eq replica(Ssys, 1, W) = replica&share(Ssys, 1, W, emptyPset) .
- *** simple-net version
- op replica&share : Snet NzNat String Pset -> Snet .
- eq replica&share(Sn, K, W, S) = net(replica&share(Sn nilP, K, W, S)) .
- op replica&share : Snet NzNat String List{String}  -> Snet .
- eq replica&share(Sn, K, W, Lw) = net(replica&share(Sn nilP, K, W, Lw)) .
- op replica  : Snet NzNat String -> Snet .
- eq replica(Sn, K, W) = net(replica(Sn nilP, K, W)) .
+ eq replica(Sys, K, W) =  replica&share(Sys, K, W, emptyPset, emptyStlab) .
+ *** net versions (build on system replica)
+ op replica&share : Net NzNat String Pset Set{X} -> Net .
+ eq replica&share(N, K, W, S, Z) = net(replica&share(N nilP, K, W, S, Z)) .
+ op replica&share : Net NzNat String List{String} Set{X} -> Net .
+ eq replica&share(N, K, W, Lw, Z) = net(replica&share(N nilP, K, W, Lw, Z)) .
+ op replica : Net NzNat String -> Net .
+ eq replica(N, K, W) = net(replica(N nilP, K, W)) .
  
  *** elementary operators/operators acting on elementary nets
- var TQ : ImatrixT .
+ var TQ : Transition .
  var A : Atype .
- var L : Elab .
- *** builds a transition's incidence matrix with a pre/post/inhibitor set of K (0..K-1) places of weight K' and with a given label
- op tnew : Elab String Atype NzNat NzNat  -> ImatrixT . 
- eq tnew(L, W, A, K, K') = $tnew(t(L) |-> [nilP, nilP, nilP], W, A, K, K') . 
- op $tnew : ImatrixT String Atype Nat NzNat   -> ImatrixT .
- eq $tnew(TQ, W, A, 0, K) = TQ .
- eq $tnew(T |-> Q, W, A, K', K) = $tnew(T |-> set(Q, A, p(< W ; K' - 1 >), K), W, A, K' - 1, K) .
- *** symmetric version
- op tnew : String String Atype NzNat NzNat  -> ImatrixT . 
- eq tnew(W, W', A, K, K') = tnew(< W ; 0 >, W', A, K, K') .
- *** builds a "transition" with a given pre/post/inhibitor set of weight K
- op tnew : Tran Atype NePset NzNat   -> ImatrixT .
- eq tnew(T, A, NeS:NePset, K) = $tnew(T |->  [nilP, nilP, nilP], A, NeS:NePset, K) .
- op $tnew : ImatrixT Atype Pset NzNat   -> ImatrixT .
- eq $tnew(TQ, A, emptyPset, K) = TQ .
- eq $tnew(T |-> Q, A, P U S, K) = $tnew(T |-> set(Q, A, P, K), A, S, K) .
+ 
  *** set a marking for net places with label with a given suffix
- op setMark : Net List{String} NzNat -> System .
+ op setMark : Net List{String} Nat -> System .
+ eq setMark(N, Lw, 0) = N nilP . 
  eq setMark(N, Lw, K) = setMark(N nilP, Lw, K) . 
- op setMark : System List{String} NzNat -> System .
- eq setMark(N B, Lw, K) = N set(B, places(N B, Lw), K) . 
- *** version for simple systems
- op setMark : Snet List{String} NzNat -> SimpleSys .
- eq setMark(Sn, Lw, K) = setMark(Sn nilP, Lw, K) .  
- op setMark : SimpleSys List{String} NzNat -> SimpleSys .
- eq setMark(Sn B, Lw, K) = Sn set(B, places(Sn B, Lw), K) . 
-
- *** "connect" a net to a fresh, newly created transition: the transition's arcs type/weight and the net's places to connect are given 
- op connect : Net Pset Tran Atype NzNat -> [Net] . *** partial op
- eq connect(N, S, T, A, K) = N ; tnew(T, A, S, K) .
- *** overloaded op: connnect to net's places with a given label's suffix using the 2nd string as the fresh transition's lab
- op connect : Net String String Atype NzNat -> [Net] .
- eq connect(N, W, W', A, K) = connect(N, places(N, W), t(< W' ; 0 >), A, K) .
+ op setMark : System List{String} Nat -> System .
+ eq setMark(N B, Lw, I) = N set(B, places(N B, Lw), I) . 
+ 
+ *** DA RIVEDERE
+ *** connnect a new transition to net's places with a given label's suffix using the 2nd string as the fresh transition's lab
+ *** op connect : Net String String Atype NzNat -> [Net] .
+ *** eq connect(N, W, W', A, K) = connect(N, places(N, W), t(< W' ; 0 >), A, K) .
  *** overloaded op: connnect a system to a fresh transition
- op connect : System String String Atype NzNat -> [System] . 
- eq connect(N B, W, W', A, K) = connect(N, W, W', A, K) B .
+ *** op connect : System String String Atype NzNat -> [System] . 
+ *** eq connect(N B, W, W', A, K) = connect(N, W, W', A, K) B .
  *** "synch" K replica of a system on a new fresh transition of given type 
  op synch  : System NzNat Atype String String String  -> System . 
-ceq synch(Sys, K, A, W, W', W'') = connect(Sys', W, W', A, 1) if Sys' := replica(Sys, K, W'') .
+*** ceq synch(Sys, K, A, W, W', W'') = connect(Sys', W, W', A, 1) if Sys' := replica(Sys, K, W'') .
  *** net version of synch
  op synch : Net NzNat Atype String String String  -> Net . 
  eq synch(N, K, A, W, W', W'') = net(synch(N nilP, K, A, W, W', W'')) .
  *** parallelize K replica of a system 
  op par  : System NzNat String String String String  -> System . 
- eq par(Sys, K, W, W', W'', W''') = connect(synch(Sys, K, o, W, W', "||"), W'',  W''', i, 1) . 
-
- 
+ *** eq par(Sys, K, W, W', W'', W''') = connect(synch(Sys, K, o, W, W', "||"), W'',  W''', i, 1) . 
 endfm

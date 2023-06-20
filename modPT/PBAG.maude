@@ -1,7 +1,7 @@
 *** qui e altrove usiamo il preludio modificato anche se si potrebbe usare quello originale (nuova versione)
 in ../shared/BAG-AND-SET
 in ../shared/MAP+
-in PT-NODE
+in PLACE
 
 *** this module defines (sortable) of pairs << Nat ; Place >>> (much simpler definition than the original one)
 fmod PAIR-NAT-PLACE is 
@@ -24,7 +24,7 @@ fmod LIST-NAT-PLACE is
   pr COMPARABLE-LIST{PairNatP<} * (sort List{PairNatP<} to List{Nat,Place}, sort NeList{PairNatP<} to NeList{Nat,Place}, op nil to emptyListNP)  .  
 endfm
 
-fmod BAGP is
+fmod PBAG is
  pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, sort ElBag{Place} to ElPbag, op nil to nilP, 
                            sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
  pr LIST-NAT-PLACE .
@@ -163,17 +163,12 @@ ceq $replaceWith(K . p(L' NeL) + B, B', NeL, I) = $replaceWith(B, K . p(L' < W ;
 endfm
 
 
-view Pbag from TRIV to BAGP is 
+view Pbag from TRIV to PBAG is 
  sort Elt to Pbag .
 endv
 
 *** strict TO view
-view Pbag< from STRICT-TOTAL-ORDER to BAGP is 
+view Pbag< from STRICT-TOTAL-ORDER to PBAG is 
   sort Elt to Pbag .
   op _<_ to le . 
 endv
-
-*** set-view of a bag (defined for convenience)
-*** view Pset from TRIV to BAGP is
-***  sort Elt to Pset .
-*** endv

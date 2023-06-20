@@ -1,21 +1,17 @@
-in NET-OP
-in MINIMIZATION
+*** defines the PT-system semantics
+in PT-NORM
 
-mod PT-EMU is
- *** pr PT-SYS .
- pr MINIMIZATION .
- var  T : Tran .
- vars I O H M : Pbag .
+mod PT-EMU{X :: TRIV} is
+ pr PT-NORM{X} .
+ var  T : Transition .
+ vars I O H M M' : Pbag .
  vars N N' : Net .
+ var L : X$Elt . *** tran. lab
  *** ordinary firing rule
- crl [firing] : N M => N M + O - I if T |-> [I,O,H] ; N' := N /\ enabled([I,O,H], M) .
- *** including minimization
- *** crl [firing] : N M => N normalize(M + O - I) if T |-> [I,O,H] ; N' := N  /\  O =/= I /\ I <= M /\ H >' M .
-
- *** version for simple PT-system representation (transitions are implicit)
- *** vars Sn Sn' : Snet .
- *** crl [sfiring] : Sn M => Sn M + O - I if  [I,O,H] U Sn' := Sn /\ I =/= O /\ I <= M /\ H >' M .
- *** including minimization
- *** crl [sfiring] : Sn M => Sn normalize(M + O - I) if [I,O,H] U Sn' := Sn /\ O =/= I /\ I <= M /\ H >' M .
-
+ *** crl [firing] : N M => N M + O - I if [I,O,H] |-> W ; N' := N /\ enabled([I,O,H], M) .
+ *** including PT-NORM
+  crl [cfiring] : N M => N normalize(M + O - I) if [I,O,H] |-> L ; N' := N /\ enabled([I,O,H], M)  .
+ *** includes a further optimization: if the marked places are retained then name abstraction is skipped
+ ***crl [cfiring] : N M => N normalize(M', eqsupp(M, M')) if [I,O,H] |-> L ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
 endm
+

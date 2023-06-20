@@ -1,5 +1,0 @@
-in RWPT-FMS
-in PTSYSTH+
-
-view RWfms from PTSYSTH to RWPT-FMS is  
-endv
