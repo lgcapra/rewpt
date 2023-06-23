@@ -28,6 +28,9 @@ fmod PT-SYS{X :: TRIV} is
  eq net(N S) = N .
  eq marking(N S) = S .
  
+ *** transition enabling
+ op enabled : Transition Pbag  -> Bool .
+ eq enabled(Q |-> L,  S) = enabled(Q, S) .
  *** net transition enabling (partial operation: defined if the transition belongs to the net)
  op enabled : Transition System -> [Bool] .
  eq enabled(Q |-> L, (Q |-> L ; N) S) = enabled(Q, S) .
