@@ -39,7 +39,7 @@ fmod TMATRIX is
  eq in(Q, P) = false [owise] .
 
  op dead : Tmatrix -> Bool .  *** checks for structurally dead transitions 
- eq dead([K . P + X, Y, K' . P + Z]) = K >= K' [metadata "dead tq"] .
+ceq dead([K . P + X, Y, K' . P + Z]) = true if K >= K'  .
  eq dead(Q) = false [owise] .
 
  op places : Tmatrix -> Pset .

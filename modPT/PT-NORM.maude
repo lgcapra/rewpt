@@ -35,7 +35,7 @@ fmod PT-NORM{X :: TRIV} is
  eq normalize2(B, F:Bool) = if F:Bool then minimize(B) else normalize2(B) fi .
  
  *** brings a marking (of a symmetric net) to a minimal form
- op minimize : Pbag -> Pbag [memo] .
+ op minimize : Pbag -> Pbag  [memo] .
  op minimize2 : Pbag -> Pbag [memo] .
  
  eq minimize(B) = B [owise] .
