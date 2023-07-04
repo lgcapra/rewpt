@@ -39,6 +39,16 @@ fmod PT-FTPL is
  ***
  eq NfaultyPL(N) = replica&share(faultycycle, N, "fPL", p(< "s" ; 0 >), emptyStr) .
  
+ *** we use newT and process algebra ops to build the same model
+ ops tline tfault : -> Transition .
+ ops cycle1 PL1 faultycycle1 : -> Net .
+ eq  tline =  newT("w", 1 , "a", 1, "f" ,1 , "l")  . *** same as line
+ eq  PL1 = replAnd(tline, 2, "w", "a", "load","s", "ass", "s", "L") . *** note s used twice: it's at the same time in and out
+ ops NPL1 NfaultyPL1 : NzNat -> Net . 
+ eq NPL1(N) = replOr(PL1, N, "s", "s", "PL") .
+
+ op NPLsys1 : NzNat NzNat -> System . 
+ 
 endfm
 
 in PT-EMU
