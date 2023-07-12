@@ -22,8 +22,8 @@ fmod PT-FTPL is
  eq sass =  [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ] .
  eq ass  = sass  |-> "a" .
  eq cycle = load ; line ; ass ; fault .
- eq PL = replica&share(cycle, 2, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), "a" U "w") . *** a PL is built of two symmetric lines 
- eq NPL(N) = replica&share(PL, N, "PL", p(< "s" ; 0 >), emptyStr) .
+ eq PL = repl&share(cycle, 2, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), "a" U "w") . *** a PL is built of two symmetric lines 
+ eq NPL(N) = repl&share(PL, N, "PL", p(< "s" ; 0 >), emptyStr) .
  eq NPLsys(N, M) = setMark(setMark(NPL(N), "o" "PL", 1), "s", 2 * M) .
  *** helpful in system rewrite
 *** the i-th nominal PL
@@ -37,7 +37,7 @@ fmod PT-FTPL is
  eq faultyPL(I) = addLab(faultycycle, < "fPL" ; I >, "s") . *** a faulty PL is built of 1 line
  eq faultySys(I) = setMark(faultyPL(I), "o" "fPL", 1) .
  ***
- eq NfaultyPL(N) = replica&share(faultycycle, N, "fPL", p(< "s" ; 0 >), emptyStr) .
+ eq NfaultyPL(N) = repl&share(faultycycle, N, "fPL", p(< "s" ; 0 >), emptyStr) .
  
  *** we use newT and process algebra ops to build the same model
  ops tline tfault : -> Transition .
