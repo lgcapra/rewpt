@@ -13,10 +13,17 @@ fmod NET-OP{X :: TRIV} is
  vars W W1 W2 W3 W4 : String .
  vars Lw Lw' : NeList{String} .
  vars Q Q' : Tmatrix .
- var S : Pset .
+ vars S S' : Pset .
  vars L L' : X$Elt . *** tran. lab
  var Z : Set{X} .
- 
+ vars Lb Lb' : Lab . *** place lab 
+*** verifies that two nets may be joined by preserving the symmetry hierarchy
+ op joinable : Net Net -> Bool [comm] .  
+ceq joinable(N, N') = false if p(Lb < W ; I > ) U S := places(N) /\ p(Lb' < W ; J > ) U S' := places(N')  /\ Lb < W ; I > =/= Lb' < W ; J > .
+ eq joinable(N, N') = true [owise] .
+ ***symmetry preserving net juxtaposition
+ op _;;_ : Net Net -> [Net] [prec 70 ] .
+ceq N ;; N' = N ; N' if joinable(N, N') . 
  *** "merges" identically labelled net transitions whose labels belong to the given set
  op merge : Net Set{X} -> Net .
 ceq merge(N ; Q |-> L ; Q' |-> L, Z) = Q + Q' |->  L ; merge(N, Z) if L in Z .
