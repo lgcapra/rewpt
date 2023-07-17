@@ -4,30 +4,27 @@ fmod PT-FTPL is
  protecting NET-OP{String} * (op emptyStlab to emptyStr) .
  ops sline sload sass sfault faultysload faultysass :  -> Tmatrix .
  ops line load ass fault faultyload faultyass : -> Transition . 
- ops cycle PL faultycycle : -> Net .
- ops nomPL faultyPL : Nat -> Net . *** templates for a single PL
+ ops cycle faultycycle : -> Net .
+ ops PL nomPL faultyPL : Nat -> Net . *** templates for a single PU
  op faultySys : Nat -> System . 
  ops NPL NfaultyPL : NzNat -> Net . *** N (faulty) prod lines 0 .. N- 1
  op NPLsys : NzNat NzNat -> System . *** N prod lines with 2 * M tokens (raw pieces)
  
 
  var I : Nat . 
- vars N M : NzNat .
+ vars N K M : NzNat .
  eq sline =  [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 0 >), 1 . p(< "f" ; 0 >) ] .
  eq line = sline |-> "l" .
- eq sfault =  [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ] .
- eq fault = sfault |-> "f" .
- eq sload = [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] .
- eq load = sload |-> "w" .
- eq sass =  [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ] .
- eq ass  = sass  |-> "a" .
+ eq fault =[1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ] |-> "f" .
+ eq load = [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] |-> "w" .
+ eq ass  = [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ]  |-> "a" .
  eq cycle = load ; line ; ass ; fault .
- eq PL = repl&share(cycle, 2, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), "a" U "w") . *** a PL is built of two symmetric lines 
- eq NPL(N) = repl&share(PL, N, "PL", p(< "s" ; 0 >), emptyStr) .
+ eq PL(K) = repl&share(cycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), "a" U "w") . *** a PL is built of K symmetric lines 
+ eq NPL(N) = repl&share(PL(2), N, "PL", p(< "s" ; 0 >), emptyStr) .
  eq NPLsys(N, M) = setMark(setMark(NPL(N), "o" "PL", 1), "s", 2 * M) .
  *** helpful in system rewrite
 *** the i-th nominal PL
- eq nomPL(I) = addLab(PL, < "PL" ; I >, p(< "s" ; 0 >)) .
+ eq nomPL(I) = addLab(PL(2), < "PL" ; I >, p(< "s" ; 0 >)) .
  *** the i-th faulty PL working with one line
  eq faultysload =  [2 . p(< "s" ; 0 >) , 2 . p(< "w" ; 0 >) , nilP ] .
  eq faultysass  =  [2 . p(< "a" ; 0 >) , 2 . p(< "s" ; 0 >)  , nilP ] .
