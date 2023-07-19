@@ -5,21 +5,19 @@ fmod PT-FTPL is
  ops sline sload sass sfault faultysload faultysass :  -> Tmatrix .
  ops line load ass fault faultyload faultyass : -> Transition . 
  ops cycle faultycycle : -> Net .
- ops PL nomPL faultyPL : Nat -> Net . *** templates for a single PU
- op faultySys : Nat -> System . 
+ ops PL PLA nomPL faultyPL : NzNat -> Net . 
+ op faultySys : NzNat -> System . 
  ops NPL NfaultyPL : NzNat -> Net . *** N (faulty) prod lines 0 .. N- 1
  op NPLsys : NzNat NzNat -> System . *** N prod lines with 2 * M tokens (raw pieces)
  
-
- var I : Nat . 
+ var I  : Nat . 
  vars N K M : NzNat .
- eq sline =  [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 0 >), 1 . p(< "f" ; 0 >) ] .
- eq line = sline |-> "l" .
- eq fault =[1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ] |-> "f" .
- eq load = [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] |-> "w" .
- eq ass  = [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ]  |-> "a" .
- eq cycle = load ; line ; ass ; fault .
- eq PL(K) = repl&share(cycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), "a" U "w") . *** a PL is built of K symmetric lines 
+ eq line =  [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 0 >), 1 . p(< "f" ; 0 >) ] |-> "ln" .
+ eq fault = [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ] |-> "ft" .
+ eq load  = [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] |-> "ld" .
+ eq ass   = [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ]  |-> "as" .
+ eq cycle = load ; line ; ass .
+ eq PL(K) = repl&share(cycle ; fault, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), "as" U "ld") . *** a PL is built of K symmetric lines 
  eq NPL(N) = repl&share(PL(2), N, "PL", p(< "s" ; 0 >), emptyStr) .
  eq NPLsys(N, M) = setMark(setMark(NPL(N), "o" "PL", 1), "s", 2 * M) .
  *** helpful in system rewrite
@@ -28,23 +26,19 @@ fmod PT-FTPL is
  *** the i-th faulty PL working with one line
  eq faultysload =  [2 . p(< "s" ; 0 >) , 2 . p(< "w" ; 0 >) , nilP ] .
  eq faultysass  =  [2 . p(< "a" ; 0 >) , 2 . p(< "s" ; 0 >)  , nilP ] .
- eq faultyload = faultysload |-> "w" . 
- eq faultyass  = faultysass  |-> "a" .
+ eq faultyload = faultysload |-> "ld" . 
+ eq faultyass  = faultysass  |-> "as" .
  eq faultycycle = faultyload ; line ; faultyass ; fault .
  eq faultyPL(I) = addLab(faultycycle, < "fPL" ; I >, "s") . *** a faulty PL is built of 1 line
  eq faultySys(I) = setMark(faultyPL(I), "o" "fPL", 1) .
  ***
  eq NfaultyPL(N) = repl&share(faultycycle, N, "fPL", p(< "s" ; 0 >), emptyStr) .
  
- *** we use newT and process algebra ops to build the same model
- ops tline tfault : -> Transition .
- ops cycle1 PL1 faultycycle1 : -> Net .
- eq  tline =  newT("w", 1 , "a", 1, "f" ,1 , "l")  . *** same as line
- eq  PL1 = replAnd(tline, 2, "w", "a", "load","s", "ass", "s", "L") . *** note s used twice: it's at the same time in and out
- ops NPL1 NfaultyPL1 : NzNat -> Net . 
- eq NPL1(N) = replOr(PL1, N, "s", "s", "PL") .
+ *** we use process algebra ops to build the same model
+ eq  PLA(K) = merge(replAnd(line ; fault, K, "w", "a", "ld", "s", "as", "s", "L"), "o" "L") . *** note s used twice: it's at the same time in and out
+ eq  PL(K)  = set(set(PLA(K), "ld", i, "s", K), "as", o, "s", K) .
+ eq  NPL(N) = replOr(PLA(2), N, "s", "s", "PL") . 
 
- op NPLsys1 : NzNat NzNat -> System . 
  
 endfm
 
@@ -57,7 +51,7 @@ mod RWPT-FTPL is
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
  vars S S' : Pbag .
  var K : NzNat .
- vars I Imin : Nat .
+ vars I Imin J : Nat .
  var W : String .
  vars L L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
  var Sys : System .
@@ -66,19 +60,25 @@ mod RWPT-FTPL is
 ***crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
 ***       if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
 *** alternative rule coherent with normalization, but higly inefficient
- *** crl [nor1] : N  S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))
- ***      if dead (N S + 1 . p(< "f" ; 0 > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
+ *** crl [nor1] : N  S + 1 . p(< "f" ; J > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))
+ ***      if dead (N S + 1 . p(< "f" ; J > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
  *** optimized version of nor1 exploiting the fact that the faulty PL do not need abstraction
-crl [nor1] : N  S + 1 . p(< "f" ; 0 > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")
-     if dead (N S + 1 . p(< "f" ; 0 > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
- 
+crl [rew1] : N  S + 1 . p(< "f" ; J > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")
+     if dead (N S + 1 . p(< "f" ; J > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
+*** paper's version
+crl [rew1p] : N  S + 1 . p(< "f" ; J > L < "PL" ; I >) => normalize(join(detache(N, < "PL" ; I >)  S - S', setMark(setMark(faultySys(minnotin(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")
+     if dead (N S + 1 . p(< "f" ; J > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) . *** da sistemare
+
 *** syr2 removes a faulty PL after a 2nd fault occurrence (analogous considerations to syr1)
 ***crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
 ***  dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
 
 *** version coherent with normalization
-crl [nor2] : N  S + 1 . p(< "f" ; 0 > L < "fPL" ; I >) => normalize(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |))  if 
+crl [rew2] : N  S + 1 . p(< "f" ; J > L < "fPL" ; I >) => normalize(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |))  if 
    N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\
-   dead(N' S + 1 . p(< "f" ; 0 > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
-
+   dead(N' S + 1 . p(< "f" ; J > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
+*** paper's version
+crl [rew2p] : N  S + 1 . p(< "f" ; J > L < "fPL" ; I >) => normalize(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |))  if 
+   N' := faultyPL(I) /\ N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyN /\
+   dead(N' S + 1 . p(< "f" ; J > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) . *** da sistemare
 endm

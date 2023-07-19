@@ -87,6 +87,10 @@ ceq in(Q |-> L ; N, P) = true if in (Q, P) .
  op detache : Net Net -> Net .
  eq detache(N ; N', N') = N .
  eq detache(N, N') = N [owise] .
+ *** symmetric version used in the paper
+ op detache : Net Elab List{String}  -> Net .
+ op detache : Net Elab  -> Net .
+ eq detache(N, El:Elab) = detache(N, El:Elab, emptyLs) .
 
  *** remove places
  op remove :  Net Pset -> Net .

@@ -80,7 +80,7 @@ ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K' > L, K' - 1), W
  eq abstractBut(Sys, W) = Sys [owise] .
 ******
 
-*** normalize a system assuming that its labeleing is well-defined: for the net only index abstraction applies 
+*** normalize a system assuming that its labelling is well-defined: for the net only index abstraction applies 
  op normalize : System -> System .
 ceq normalize(Sys) = net(Sys') normalize(marking(Sys')) if Sys' := abstract(Sys) .  
 

@@ -11,7 +11,7 @@ fmod NET-OP{X :: TRIV} is
  vars I J Y : Nat .
  vars K K' : NzNat .
  vars W W1 W2 W3 W4 : String .
- vars Lw Lw' : NeList{String} .
+ vars Lw Lw' : List{String} .
  vars Q Q' : Tmatrix .
  vars S S' : Pset .
  vars L L' : X$Elt . *** tran. lab
@@ -41,16 +41,21 @@ ceq merge(N ; Q |-> L ; Q' |-> L, Z) = Q + Q' |->  L ; merge(N, Z) if L in Z .
  *** forced join (builds on transitions'  merge!)
  op join! : System System  -> System .
  eq join(N B, N' B') = merge!(N ; N') B + B' . 
- 
+ *** merge permutable places by summing their markings -- to define
+ op merge : System  List{String} -> System .
+ op merge : Net List{String} -> Net .
+ eq merge(N, Lw) = net(merge(N nilP, Lw)) .
+
  *** "symmetric" juxtaposition: creates K (disjoint) replica of a system each one with a suitably added label suffix (with index 0..K-1) denoting the "nesting" level
  ***  general version specifying elements to share among replicas
  op repl&share  : System NzNat String Pset Set{X} -> System .
- eq repl&share(Sys, K, W, S, Z) = $repl&share(Sys, K, W, emptySys, S, Z)  .
+ eq repl&share(Sys, 1, W, S, Z) = Sys .
+ eq repl&share(Sys, K, W, S, Z) = $repl&share(Sys, K, W, emptySys, S, Z)  [owise] .
  op $repl&share  : System Nat String System Pset Set{X} -> System .
  eq $repl&share(Sys, 0, W, Sys', S, Z) = Sys' .
  eq $repl&share(Sys, K, W, Sys', S, Z) = $repl&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S), Z), S, Z) .
  *** overloaded version in which shared places are specified through a suffix in their labels
- op repl&share : System NzNat String NeList{String} Set{X} -> System .
+ op repl&share : System NzNat String List{String} Set{X} -> System .
  eq repl&share(Sys, K, W, Lw, Z) = repl&share(Sys, K, W, places(Sys, Lw), Z) .
  *** default version
  op replica  : System NzNat String -> System . 
@@ -58,7 +63,7 @@ ceq merge(N ; Q |-> L ; Q' |-> L, Z) = Q + Q' |->  L ; merge(N, Z) if L in Z .
  *** net versions (build on system replica)
  op repl&share : Net NzNat String Pset Set{X} -> Net .
  eq repl&share(N, K, W, S, Z) = net(repl&share(N nilP, K, W, S, Z)) .
- op repl&share : Net NzNat String NeList{String} Set{X} -> Net .
+ op repl&share : Net NzNat String List{String} Set{X} -> Net .
  eq repl&share(N, K, W, Lw, Z) = net(repl&share(N nilP, K, W, Lw, Z)) .
  op replica : Net NzNat String -> Net .
  eq replica(N, K, W) = net(replica(N nilP, K, W)) .
@@ -75,29 +80,30 @@ ceq merge(N ; Q |-> L ; Q' |-> L, Z) = Q + Q' |->  L ; merge(N, Z) if L in Z .
 
  
  *** set a marking for net places with label with a given suffix
+ var NeL : NeList{String} .
  op setMark : Net NeList{String} Nat -> System .
- eq setMark(N, Lw, 0) = N nilP . 
- eq setMark(N, Lw, K) = setMark(N nilP, Lw, K) . 
+ eq setMark(N, NeL, 0) = N nilP . 
+ eq setMark(N, NeL, K) = setMark(N nilP, NeL, K) . 
  op setMark : System NeList{String} Nat -> System .
- eq setMark(N B, Lw, I) = N set(B, places(N B, Lw), I) . 
+ eq setMark(N B, NeL, I) = N set(B, places(N B, NeL), I) . 
 
 *** symmetric process algebra ops 
 *** op synch  : System NzNat Atype String String String  -> System . 
 *** ceq synch(Sys, K, A, W, W1, W2) = connect(Sys', W, W1, A, 1) if Sys' := replica(Sys, K, W2) .
  *** symmetric process-algebra ops -- to define
- op replAnd  : System NzNat NeList{String} NeList{String} X$Elt String X$Elt  String String -> System . *** 2nd and 3rd args: in/out places, 5th, 6th: tag of fork tran and its in place, 7th, 8th join tran and its out, 9th: new suffix
- op replOr  :  System NzNat NeList{String} NeList{String} String   -> System . *** the same as replAnd, but the fork-join parameters disappeared
+ op replAnd  : System NzNat List{String} List{String} X$Elt String X$Elt  String String -> System . *** 2nd and 3rd args: in/out places, 5th, 6th: tag of fork tran and its in place, 7th, 8th join tran and its out, 9th: new suffix
+ op replOr  :  System NzNat List{String} List{String} String   -> System . *** the same as replAnd, but the fork-join parameters disappeared
  *** bisogna aggiungere 2 par String a And per in nomi dei nuovi posti di in/out ?
  *** net version
- op replAnd  : Net NzNat NeList{String} NeList{String} X$Elt String X$Elt String String   -> Net . 
+ op replAnd  : Net NzNat List{String} List{String} X$Elt String X$Elt String String   -> Net . 
  eq replAnd(N, K, Lw, Lw', L, W, L', W1, W2) = net(replAnd(N nilP, K, Lw, Lw', L, W, L', W1, W2)) .
- op replOr  : Net NzNat NeList{String} NeList{String} String  -> Net .
+ op replOr  : Net NzNat List{String} List{String} String  -> Net .
  eq replOr(N, K, Lw, Lw', W) = net(replOr(N nilP, K, Lw, Lw', W)) .
  
  *** classical binary version
- op and : System System NeList{String} NeList{String} X$Elt String X$Elt String -> System .
- op or  : System System NeList{String} NeList{String} -> System .
- op seq : System System NeList{String} NeList{String} -> System .
+ op and : System System List{String} List{String} X$Elt String X$Elt String -> System .
+ op or  : System System List{String} List{String} -> System .
+ op seq : System System List{String} List{String} -> System .
  *** net versions
 
  *** introspectio ops -- to define
