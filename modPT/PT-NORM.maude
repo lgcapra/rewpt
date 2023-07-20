@@ -61,7 +61,7 @@ ceq abstract(B) = abstract(K . p(L' < W ; K' - 1 > L) + replaceWith(B', < W ; K'
  *** version 2 : (repeatedly) finds the smallest missing suffix header's index and the greatest one (if any) and replaces the former with the latter
  *** negli esempi è un po' meno efficiente ma in generale (in casi meno semplici) può essere meglio
  op abstract2 : Pbag -> Pbag .
-ceq abstract2(B) = abstract2(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ I := minnotin(B', W, L) /\ I < K  /\ K := maxin(B, W, L) .
+ceq abstract2(B) = abstract2(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ I := minNotIn(B', W, L) /\ I < K  /\ K := maxIn(B, W, L) .
  eq abstract2(B) = B [owise] .
 
 *** net/system versions
@@ -71,7 +71,7 @@ ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K' > L, K' - 1)) if S := pla
  eq abstract(Sys) = Sys [owise] .
 *** version 2
  op abstract2 : System -> System .
-ceq abstract2(Sys) = abstract2(replaceWith(Sys, NeL, I)) if S := places(Sys) /\ p(L' NeL) U S' := S /\ < W ; K > L := NeL /\ I := minnotin(S', W, L) /\ I < K  /\ K := maxin(S, W, L) .
+ceq abstract2(Sys) = abstract2(replaceWith(Sys, NeL, I)) if S := places(Sys) /\ p(L' NeL) U S' := S /\ < W ; K > L := NeL /\ I := minNotIn(S', W, L) /\ I < K  /\ K := maxIn(S, W, L) .
  eq abstract2(Sys) = Sys [owise] .
 
 ****** NEW excludes from index abstraction those places (components) matching a given suffix
@@ -116,36 +116,36 @@ op existsgr : Pbag NeLab  -> Bool .
 ceq existsgr(K . p(L' < W ; J > L) + B, < W ; I > L) = true  if J > I .
  eq existsgr(B, NeL) = false [owise] .
 *** returns the biggest suffix header's index in the specified set of places (-1 if no place with a matching suffix does exist)
- op maxin : Pset String Lab -> Int .
-ceq maxin(p(L' NeL) U S, W, L) = J if < W ; J > L := NeL /\ existsgr(S, NeL) == false .  
- eq maxin(S, W, L) = -1 [owise] .
+ op maxIn : Pset String Lab -> Int .
+ceq maxIn(p(L' NeL) U S, W, L) = J if < W ; J > L := NeL /\ existsgr(S, NeL) == false .  
+ eq maxIn(S, W, L) = -1 [owise] .
  *** bag version
- op maxin : Pbag String Lab -> Int .
-ceq maxin(K . p(L' NeL) + B, W, L) = J if < W ; J > L := NeL /\ existsgr(B, NeL) == false .  
- eq maxin(B, W, L) = -1 [owise] .
+ op maxIn : Pbag String Lab -> Int .
+ceq maxIn(K . p(L' NeL) + B, W, L) = J if < W ; J > L := NeL /\ existsgr(B, NeL) == false .  
+ eq maxIn(B, W, L) = -1 [owise] .
  
  *** find the min suffix header's index non present in the set of places
- op minnotin : Pset String Lab -> Nat .
- eq minnotin(S, W, L) = $minnotin(S, W, L, 0) .
- op $minnotin : Pset String Lab Nat -> Nat . 
- eq $minnotin(S, W, L, I) = if exists(S, < W ; I > L) then $minnotin(S, W, L, I + 1) else I fi .  
-*** ceq $minnotin(S, W, L, I) = $minnotin(S, W, L, I + 1) if exists(S, < W ; I > L) . *** alternative
- *** eq $minnotin(S, W, L, I) = I [owise] .
+ op minNotIn : Pset String Lab -> Nat .
+ eq minNotIn(S, W, L) = $minNotIn(S, W, L, 0) .
+ op $minNotIn : Pset String Lab Nat -> Nat . 
+ eq $minNotIn(S, W, L, I) = if exists(S, < W ; I > L) then $minNotIn(S, W, L, I + 1) else I fi .  
+*** ceq $minNotIn(S, W, L, I) = $minNotIn(S, W, L, I + 1) if exists(S, < W ; I > L) . *** alternative
+ *** eq $minNotIn(S, W, L, I) = I [owise] .
  *** net version (defined for convenience)
- op minnotin : Net String Lab -> Nat .
- eq minnotin(N, W, L) = minnotin(places(N), W, L) .
+ op minNotIn : Net String Lab -> Nat .
+ eq minNotIn(N, W, L) = minNotIn(places(N), W, L) .
  
  *** bag version (defined for efficiency)
- op minnotin : Pbag String Lab -> Nat .
- eq minnotin(B, W, L) = $minnotin(B, W, L, 0) .
- op $minnotin : Pbag String Lab Nat -> Nat . 
- eq $minnotin(B, W, L, I) = if exists(B, < W ; I > L) then $minnotin(B, W, L, I + 1) else I fi .  
+ op minNotIn : Pbag String Lab -> Nat .
+ eq minNotIn(B, W, L) = $minNotIn(B, W, L, 0) .
+ op $minNotIn : Pbag String Lab Nat -> Nat . 
+ eq $minNotIn(B, W, L, I) = if exists(B, < W ; I > L) then $minNotIn(B, W, L, I + 1) else I fi .  
  
  *** default versions (with a null suffix last part)
- op minnotin : Net String -> Nat .
- eq minnotin(N, W) = minnotin(N, W, emptyLab) .
- op minnotin : Pbag String -> Nat .
- eq minnotin(B, W) = minnotin(B, W, emptyLab) .
+ op minNotIn : Net String -> Nat .
+ eq minNotIn(N, W) = minNotIn(N, W, emptyLab) .
+ op minNotIn : Pbag String -> Nat .
+ eq minNotIn(B, W) = minNotIn(B, W, emptyLab) .
 
  var A : Set{Nat} .
  *** extracts the elements with a given suffix and the suffix header's index in a set
