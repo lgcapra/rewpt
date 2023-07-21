@@ -76,11 +76,15 @@ mod RWPT-FTPL is
 ***crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
 ***  dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
 *** version coherent with normalization
-crl [rew2] : N  S + 1 . p(< "f" ; J > L < "fPL" ; I >) => normalize(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |))  if 
-   N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\
-   dead(N' S + 1 . p(< "f" ; J > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
+*** crl [rew2] : N  S + 1 . p(< "f" ; J > L < "fPL" ; I >) => normalize(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |))  if 
+***   N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\
+***   dead(N' S + 1 . p(< "f" ; J > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
+*** more readable
+crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |))  if 
+    S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
+   S' := subag(S'', < "fPL" ; I >) .
 *** paper's version
-crl [rew2p] : N  S + 1 . p(< "f" ; J > L < "fPL" ; I >) => normalize(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |)) 
-  if  N' := faultyPL(I) /\ N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyN /\
-     dead(N' S + 1 . p(< "f" ; J > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) . *** da sistemare
+*** crl [rew2p] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |))  if 
+***  S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\  dead(faultyPL(I) S)  /\ N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyN  /\
+***   S' := subag(S'', < "fPL" ; I >) . 
 endm
