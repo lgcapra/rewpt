@@ -9,7 +9,7 @@ fmod PT-NET{X :: TRIV} is
                         op emptyS to emptyTset) .
  pr SET+{X} * (op emptyS to emptyStlab) .
 
- vars N N'  : Net .
+ vars N N' N'' : Net .
  vars T T' : Transition .
  vars P P' P'' : Place .
  vars Y J  : Nat .
@@ -86,7 +86,7 @@ ceq in(Q |-> L ; N, P) = true if in (Q, P) .
  *** removes the 2nd net from the first, if it is a subnet (does nothing otherwise)
  op detache : Net Net -> Net .
  eq detache(N ; N', N') = N .
- eq detache(N, N') = N [owise] .
+ eq detache(N, N') = N  [owise] .
  *** symmetric version used in the paper
  op detache : Net Elab List{String}  -> Net .
  op detache : Net Elab  -> Net .

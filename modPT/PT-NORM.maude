@@ -19,7 +19,7 @@ fmod PT-NORM{X :: TRIV} is
  var NeL : NeLab .
  vars Ls Ls' : List{String} .
  
- *** marking normalization plus name abstraction
+ *** normalization (general): index abstraction plus marking normalization 
  op normalize : Pbag -> Pbag .
  eq normalize(B) = minimize(abstract(B)) . *** seems slightly better than the alternative 
  *** eq normalize(B) = abstract(minimize(B)) . *** alternative
@@ -27,7 +27,7 @@ fmod PT-NORM{X :: TRIV} is
  op normalize2 : Pbag -> Pbag .
  eq normalize2(B) = minimize(abstract2(B)) . *** seems slightly better 
  
- *** optimized version
+ *** flexible version: index-abstraction activated based on a flag
  op normalize : Pbag Bool -> Pbag .
  eq normalize(B, F:Bool) = if F:Bool then minimize(B) else normalize(B) fi .
  *** version 2 
@@ -65,7 +65,8 @@ ceq abstract2(B) = abstract2(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B
  eq abstract2(B) = B [owise] .
 
 *** net/system versions
- **** op abstract : Net -> Net . *** needed?
+ op abstract : Net -> Net . *** needed?
+ eq abstract(N) = net(abstract(N nilP)) .
  op abstract : System -> System .
 ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K' > L, K' - 1)) if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ exists(S', < W ; K' - 1 > L) == false .
  eq abstract(Sys) = Sys [owise] .
@@ -74,24 +75,30 @@ ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K' > L, K' - 1)) if S := pla
 ceq abstract2(Sys) = abstract2(replaceWith(Sys, NeL, I)) if S := places(Sys) /\ p(L' NeL) U S' := S /\ < W ; K > L := NeL /\ I := minNotIn(S', W, L) /\ I < K  /\ K := maxIn(S, W, L) .
  eq abstract2(Sys) = Sys [owise] .
 
-****** NEW excludes from index abstraction those places (components) matching a given suffix
-op abstractBut : System String -> System .
+*** excludes from index abstraction those places (components) matching a given suffix
+ op abstractBut : System String -> System .
 ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K' > L, K' - 1), W') if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ 1st(last(L' < W ; K' > L)) =/= W' /\ exists(S', < W ; K' - 1 > L) == false .
  eq abstractBut(Sys, W) = Sys [owise] .
+*** version 2
+op abstractBut2 : System String -> System .
+ceq abstractBut2(Sys, W') = abstractBut2(replaceWith(Sys, < W ; K' > L, K' - 1), W') if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ 1st(last(L' < W ; K' > L)) =/= W' /\ exists(S', < W ; K' - 1 > L) == false .
+ eq abstractBut2(Sys, W) = Sys [owise] .
 ******
-
-*** normalize a system assuming that its labelling is well-defined: for the net only index abstraction applies 
+ 
+*** normalize a system assuming that its labelling is well-defined: for the net, only index abstraction applies 
  op normalize : System -> System .
 ceq normalize(Sys) = net(Sys') normalize(marking(Sys')) if Sys' := abstract(Sys) .  
 
-****** NEW excludes from index abstraction those net places (components) matching a given suffix
+****** excludes from index abstraction those net places (components) matching a given suffix
 op normalize : System String -> System .
 ceq normalize(Sys, W) = net(Sys') normalize(marking(Sys')) if Sys' := abstractBut(Sys, W) .  
 *****
 
-*** version 2
+ *** version 2
  op normalize2 : System -> System .
- ceq normalize2(Sys) = net(Sys') normalize2(marking(Sys')) if Sys' := abstract2(Sys) . 
+ceq normalize2(Sys) = net(Sys') normalize2(marking(Sys')) if Sys' := abstract2(Sys) . 
+ op normalize2 : System String -> System .
+ceq normalize2(Sys, W) = net(Sys') normalize2(marking(Sys')) if Sys' := abstractBut2(Sys, W) . 
  
  *** checks for the existence in a set of a place whose label matches the given suffix 
  op exists : Pset NeLab  -> Bool .
