@@ -1,0 +1,34 @@
+in ../shared/BAG
+in ../shared/MAP+
+
+
+fmod BAG-NAT is
+ pr BAG{Nat} * ( op nil to nilN) .
+endfm
+
+fmod BAG-STRING is
+ pr BAG{String} * ( op nil to nilS) .
+endfm
+
+view BagNat from TRIV to BAG-NAT is 
+ sort Elt to Bag{Nat} . 
+endv
+
+view BagString from TRIV to  BAG-STRING is 
+ sort Elt to Bag{String} . 
+endv
+
+fmod MAPN is
+ pr MAP{Nat, BagNat} * ( op empty to emptyN) .
+endfm
+
+fmod MAPS is
+ pr MAP{Nat, BagString} * ( op empty to emptyS) .
+endfm
+
+fmod MAPs is 
+ pr MAPS .
+ pr MAPN .
+ sort All .
+ subsort Map{Nat, BagNat} Map{Nat, BagString} < All .
+endfm
