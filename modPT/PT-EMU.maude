@@ -8,18 +8,11 @@ mod PT-EMU{X :: TRIV} is
  var L : X$Elt . *** tran. lab
  var T : Tmatrix .
  *** ordinary firing rule
- crl [firing] : N M => N M + O - I if [I,O,H] |-> L ; N' := N  /\ I =/= O /\ enabled([I,O,H], M) .
+ *** crl [firing] : N M => N M + O - I if [I,O,H] |-> L ; N' := N  /\ I =/= O /\ enabled([I,O,H], M) .
  *** including PT-NORM
  *** crl [firing] : N M => N normalize(M + O - I) if [I,O,H] |-> L ; N' := N  /\ I =/= O /\ enabled([I,O,H], M) .
-<<<<<<< HEAD
- *** crl [firing] : (N ; T |-> L) M => (N ; T |-> L) normalize(M + O - I) if [I,O,H] := T /\ I =/= O /\ enabled(T, M)  .
- 
- *** includes a further optimization: if the marked places are retained then name abstraction is skipped
- *** crl [cfiring] : N M => N normalize(M', eqsupp(M, M')) if [I,O,H] |-> L ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
-=======
  crl [firing] : (N ; T |-> L) M => (N ; T |-> L) normalize(M + O - I) if [I,O,H] := T /\ I =/= O /\ enabled(T, M)  .
  *** includes a further optimization: if the marked places are retained then index abstraction is skipped
  *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if [I,O,H] |-> L ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
->>>>>>> 0d730f819a34b5dfe9865f3a8189b688bf521790
 endm
 

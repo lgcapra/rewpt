@@ -9,3 +9,9 @@ fmod PLACE is
  eq subscript (p(N)) = N .
  eq p(N) < p(N') = N < N' .
 endfm
+
+
+*** default view
+view Place from TRIV to PLACE is 
+ sort Elt to Place . 
+endv

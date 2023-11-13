@@ -53,11 +53,7 @@ ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
 
  *** "symmetric" juxtaposition: creates K (disjoint) replica of a system each one with a suitably added label suffix (with index 0..K-1) denoting the "nesting" level
  ***  general version specifying elements to share among replicas
-<<<<<<< HEAD
-  op repl&share  : System NzNat String Pset Set{X} -> System .
-=======
  op repl&share  : System NzNat String Pset Set{X} -> System .
->>>>>>> 0d730f819a34b5dfe9865f3a8189b688bf521790
  eq repl&share(Sys, K, W, S, Z) = $repl&share(Sys, K, W, emptySys, S, Z) .
  op $repl&share  : System Nat String System Pset Set{X} -> System .
  eq $repl&share(Sys, 0, W, Sys', S, Z) = Sys' .

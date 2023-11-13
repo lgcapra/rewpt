@@ -1,6 +1,6 @@
 in ../shared/BAG
 in ../shared/MAP+
-
+in ../PLACE
 
 fmod BAG-NAT is
  pr BAG{Nat} * ( op nil to nilN) .
@@ -19,16 +19,18 @@ view BagString from TRIV to  BAG-STRING is
 endv
 
 fmod MAPN is
- pr MAP{Nat, BagNat} * ( op empty to emptyN) .
+ pr MAP{Place, BagNat} * ( op empty to emptyN, op undefined to undefinedN) .
 endfm
 
 fmod MAPS is
- pr MAP{Nat, BagString} * ( op empty to emptyS) .
+ pr MAP{Place, BagString} * ( op empty to emptyS, op undefined to undefinedS) .
 endfm
 
 fmod MAPs is 
  pr MAPS .
  pr MAPN .
- sort All .
- subsort Map{Nat, BagNat} Map{Nat, BagString} < All .
+ sort Net .
+ subsort Map{Place, BagNat} Map{Place, BagString} < Net .
+ op _;_ : Net Net -> Net [ctor assoc comm prec 121 format (d r os d)] .
+  
 endfm
