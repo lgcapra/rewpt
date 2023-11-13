@@ -32,6 +32,8 @@ ceq merge(N ; Q |-> L ; Q' |-> L, Z) = Q + Q' |->  L ; merge(N, Z) if L in Z .
  *** join two systems by summing their markings (identical places are implicitly merged)
  op join : System System -> System [assoc comm] .
  eq join(N B, N' B') = (N ; N') B + B' .
+ op joinAbs : System System -> System  . *** marking abstraction
+ eq joinAbs(Sys, Sys') = net(join(Sys, Sys')) nilP . 
  *** join two systems and then merge transitions identically labelled whose labels belong to the given set
  op join : System System Set{X} -> System  .
  eq join(N B, N' B', Z) = merge(N ; N', Z) B + B' . 
@@ -51,7 +53,11 @@ ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
 
  *** "symmetric" juxtaposition: creates K (disjoint) replica of a system each one with a suitably added label suffix (with index 0..K-1) denoting the "nesting" level
  ***  general version specifying elements to share among replicas
+<<<<<<< HEAD
   op repl&share  : System NzNat String Pset Set{X} -> System .
+=======
+ op repl&share  : System NzNat String Pset Set{X} -> System .
+>>>>>>> 0d730f819a34b5dfe9865f3a8189b688bf521790
  eq repl&share(Sys, K, W, S, Z) = $repl&share(Sys, K, W, emptySys, S, Z) .
  op $repl&share  : System Nat String System Pset Set{X} -> System .
  eq $repl&share(Sys, 0, W, Sys', S, Z) = Sys' .
@@ -93,7 +99,7 @@ ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
  eq setMark(N, NeL, K) = setMark(N nilP, NeL, K) . 
  op setMark : System NeList{String} Nat -> System .
  eq setMark(N B, NeL, I) = N set(B, places(N B, NeL), I) . 
-
+ 
 *** symmetric process algebra ops 
 *** op synch  : System NzNat Atype String String String  -> System . 
 *** ceq synch(Sys, K, A, W, W1, W2) = connect(Sys', W, W1, A, 1) if Sys' := replica(Sys, K, W2) .

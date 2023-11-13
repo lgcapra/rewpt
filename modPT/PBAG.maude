@@ -129,11 +129,6 @@ ceq $match(K . P + B, NWs, B') = $match(B, NWs, B' + K . P) if match(P, NWs) .
  eq leq(B, B) = true .
  eq leq(B, B') = lex(B, B') [owise] .
  
- *** efficiently checks that two bag supports coincide
- op eqsupp : Pbag Pbag -> Bool [ comm ] .
-ceq eqsupp(K . P + B, B') = false if B'[P] == 0 .   
- eq eqsupp(B, B') = true [owise] .
- 
  *** -- operators used for net algebra -- 
  *** add a new label to bag's elements -- version specifying elements to share (i.e., to which not to add the label)
  op addLab : Pbag Lab Pset -> Pbag . 
