@@ -2,35 +2,95 @@ in ../shared/BAG
 in ../shared/MAP+
 in ../PLACE
 
-fmod BAG-NAT is
- pr BAG{Nat} * ( op nil to nilN) .
+
+*** marking of a single place 
+fmod P-MARK{X :: TRIV} is
+  protecting BOOL .
+  protecting PLACE .
+  protecting BAG{X} .
+  sort Pmark{X} .
+  op _|->_ : Place Bag{X} -> Pmark{X} [ctor] .
+  var X : X$Elt .
+  var B : Bag{X} .
+  var P : Place .
+  *** op mp : Pmark{X} -> Bag{X} .
+  *** eq mp(P |-> B) = B .
 endfm
 
-fmod BAG-STRING is
- pr BAG{String} * ( op nil to nilS) .
+
+*** marking of an algebraic net of uniform type
+fmod MARK{X :: TRIV} is
+  protecting P-MARK{X} .
+  sort Mark{X} .
+  subsort Pmark{X} < Mark{X} .
+
+  op empty : -> Mark{X} [ctor] .
+  op _,_ : Mark{X} Mark{X} -> Mark{X} [ctor assoc comm id: empty prec 121 format (d r os d)] .
+  op undefined : -> [Bag{X}] [ctor] .
+
+  var P : Place .
+  vars B B' : Bag{X} .
+  var M : Mark{X} .
+
+  op insert : Place Bag{X} Mark{X} -> Mark{X} .
+  eq insert(P, B, (M, P |-> B')) =
+     if marked(M, P) then insert(P, B, M)
+     else (M, P |-> B)
+     fi .
+  eq insert(P, B, M) = (M, P |-> B) [owise] .
+
+  op _[_] : Mark{X} Place -> [Bag{X}] [prec 23] .
+  eq (M, P |-> B)[P] =
+     if marked(M, P) then undefined
+     else B
+     fi .
+  eq M[P] = undefined [owise] .
+
+  op marked : Mark{X} Place -> Bool .
+  eq marked((M, P |-> B), P) = true .
+  eq marked(M, P) = false [owise] .
 endfm
 
-view BagNat from TRIV to BAG-NAT is 
- sort Elt to Bag{Nat} . 
-endv
+*** marking of any algebraic net (an example)
+fmod PN-MARK is 
+ pr P-MARK{Nat} * ( op nil to nilN) .
+ pr P-MARK{String} * ( op nil to nilS) .
+ sorts Pmarking Marking Bag .
+ subsort Pmark{Nat} Pmark{String} < Pmarking < Marking .
+ subsort Bag{Nat} Bag{String} < Bag . 
+ op empty : -> Marking [ctor] .
+ op _,_ : Marking Marking -> Marking [ctor assoc comm id: empty prec 121 format (d r os d)] .
+ *** op undefined : -> [Bag{X}] [ctor] .
 
-view BagString from TRIV to  BAG-STRING is 
- sort Elt to Bag{String} . 
-endv
+ var P : Place .
+ vars B B' : Bag .
+ var M : Marking .
+ var PM : Pmarking . 
 
-fmod MAPN is
- pr MAP{Place, BagNat} * ( op empty to emptyN, op undefined to undefinedN) .
+*** op insert : Place Bag{X} Mark{X} -> Mark{X} .
+*** eq insert(P, B, (M, P |-> B')) =
+***      if marked(M, P) then insert(P, B, M)
+***      else (M, P |-> B)
+***      fi .
+*** eq insert(P, B, M) = (M, P |-> B) [owise] .
+
+*** op _[_] : Mark{X} Place -> [Bag{X}] [prec 23] .
+*** eq (M, P |-> B)[P] =
+***      if marked(M, P) then undefined
+***      else B
+***      fi .
+*** eq M[P] = undefined [owise] .
+
+op marked : Marking Place -> Bool .
+eq marked((M, P |-> B), P) = true .
+eq marked(M, P) = false [owise] .
+
 endfm
 
-fmod MAPS is
- pr MAP{Place, BagString} * ( op empty to emptyS, op undefined to undefinedS) .
-endfm
-
-fmod MAPs is 
- pr MAPS .
- pr MAPN .
- sort Net .
- subsort Map{Place, BagNat} Map{Place, BagString} < Net .
- op _;_ : Net Net -> Net [ctor assoc comm prec 121 format (d r os d)] .
-  
-endfm
+mod ALG-NET is
+ pr PN-MARK .
+ var P : Place .
+ var B : Bag{String} .
+ var M : Marking .
+ rl [t1] : p(1) |-> B  => empty .
+endm
