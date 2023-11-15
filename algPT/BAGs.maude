@@ -54,10 +54,10 @@ endfm
 *** marking of any algebraic net (an example)
 fmod PN-MARK is 
  pr P-MARK{Nat} * ( op nil to nilN) .
- pr P-MARK{String} * ( op nil to nilS) .
+ pr (P-MARK * (op nil to nilS)){List{Nat}}  .
  sorts Pmarking Marking Bag .
- subsort Pmark{Nat} Pmark{String} < Pmarking < Marking .
- subsort Bag{Nat} Bag{String} < Bag . 
+ subsort Pmark{Nat} Pmark{List{Nat}} < Pmarking < Marking .
+ subsort Bag{Nat} Bag{List{Nat}} < Bag . 
  op empty : -> Marking [ctor] .
  op _,_ : Marking Marking -> Marking [ctor assoc comm id: empty prec 121 format (d r os d)] .
  *** op undefined : -> [Bag{X}] [ctor] .
@@ -90,7 +90,7 @@ endfm
 mod ALG-NET is
  pr PN-MARK .
  var P : Place .
- var B : Bag{String} .
+ var B : Bag{List{Nat}} .
  var M : Marking .
  rl [t1] : p(1) |-> B  => empty .
 endm
