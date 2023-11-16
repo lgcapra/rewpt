@@ -92,5 +92,8 @@ mod ALG-NET is
  var P : Place .
  var B : Bag{List{Nat}} .
  var M : Marking .
- rl [t1] : p(1) |-> B  => empty .
+ var L : NeList{Nat} .
+ *** rl [t1] : p(1) |-> B  => empty .
+ rl [t1] : 1 . L  => nilS .
+ *** rl [t2] : L  => nil .
 endm
