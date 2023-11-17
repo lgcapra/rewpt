@@ -1,0 +1,91 @@
+in ../shared/BAG
+in ../PLACE
+
+*** marking of a place of any type 
+fmod GEN-P-MARK is
+ protecting PLACE .
+ sorts Pmarking Bag .
+ var B : Bag .
+ var P : Place .
+ op _|->_ : Place Bag -> Pmarking [ctor] .
+ *** getters ops
+ op m : Pmarking -> Bag .
+ eq m(P |-> B) = B .
+ op pl : Pmarking -> Place .
+ eq pl(P |-> B) = P .
+endfm
+
+*** marking of a place of specific type 
+fmod P-MARK{X :: TRIV} is
+  protecting GEN-P-MARK .
+  protecting BAG{X} .
+  sort Pmark{X} .
+  subsort Pmark{X} < Pmarking .
+  subsort Bag{X} < Bag .
+  op _|->_ : Place Bag{X} -> Pmark{X} [ctor ditto] .
+  var X : X$Elt .
+  var B : Bag{X} .
+  var P : Place .
+endfm
+
+*** marking of any algebraic net (an example)
+fmod ALG-PN-MARK is 
+ protecting GEN-P-MARK .
+ sort Marking .
+ subsort Pmarking < Marking .
+ op empty : -> Marking [ctor] .
+ op _,_ : Marking Marking -> [Marking] [ctor assoc comm id: empty prec 121 format (d r os d)] .
+ op undefined : -> [Bag] [ctor] .
+
+ vars P P' : Place .
+ vars B B' : Bag .
+ var M : Marking .
+ var PM : Pmarking . 
+ var M' : [Marking] .
+
+ *** well-definiteness (no duplicates)
+op well-def : [Marking] -> Bool .
+eq well-def((P |-> B , P |-> B', M')) = false .
+eq well-def(M') = true  [owise] .
+*** well-definiteness characterization
+cmb M' : Marking if well-def(M') .
+*** look-up
+op _[_] : Marking Place -> [Bag] [prec 23] .
+eq (M, P |-> B)[P] = B .
+eq M[P] = undefined [owise] .
+op marked : Marking Place -> Bool .
+eq marked(M, P) = M[P] =/= undefined .
+
+endfm
+
+*** marking of an algebraic net of uniform type
+fmod MARK{X :: TRIV} is
+  protecting ALG-PN-MARK .
+  protecting P-MARK{X} .
+  sort Mark{X} .
+  subsort Pmark{X} < Mark{X} < Marking .
+  op empty : -> Mark{X} [ctor ditto ] .
+  op _,_ : Mark{X} Mark{X} -> Mark{X} [ctor ditto] .
+  op undefined : -> [Bag{X}] [ctor ditto] .
+endfm
+
+
+*** an example of algebraic net
+mod ALG-PN-EXE is
+ pr ALG-PN-MARK .
+ *** types of model's places
+ pr P-MARK{Nat} * ( op nil : -> Bag{Nat} to 0nat) .
+ pr P-MARK{List{Nat}} * (op nil : -> Bag{List{Nat}} to 0lsnat) .
+ *** NOTA in questo esempio termini come 1 . 2 NON sono prereglari (due least sorts: Bag{Nat} e Bag{List{Nat}})
+ var P : Place .
+ var B : Bag{Nat} .
+ var M : Marking .
+ var L : List{Nat} .
+ var LB : Bag{List{Nat}} .
+ var N : Nat .
+ vars K K' : NzNat .
+ *** transitions encoded as rewrite rules
+ *** rl [t1] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . (L N), p(2) |-> K . N + B - 1 . N .
+ crl [t1v2] : p(1) |-> K' . L + LB , p(2) |-> K . N + B => p(1) |-> (K' - 1) . L  + 1 . (L N) + LB, 
+                                                           p(2) |-> ((K - 1). N) + B if K >= 1 and-then K' >= 1 .
+endm
