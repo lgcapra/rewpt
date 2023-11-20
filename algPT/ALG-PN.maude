@@ -1,4 +1,4 @@
-in ../shared/BAG
+in BAG
 in ../PLACE
 
 *** marking of a place of any type 
@@ -76,7 +76,9 @@ mod ALG-PN-EXE is
  *** types of model's places
  pr P-MARK{Nat} * ( op nil : -> Bag{Nat} to 0nat) .
  pr P-MARK{List{Nat}} * (op nil : -> Bag{List{Nat}} to 0lsnat) .
- *** NOTA in questo esempio termini come 1 . 2 NON sono prereglari (due least sorts: Bag{Nat} e Bag{List{Nat}})
+ *** NOTA in questo esempio termini come 1 . 2 NON sono preregolari (due least sorts: Bag{Nat} e Bag{List{Nat}})
+ op init : -> Marking .
+ eq init =  p(1) |-> 1 . nil , p(2) |-> 2 . 1 + 1 . 2 . 
  var P : Place .
  var B : Bag{Nat} .
  var M : Marking .
@@ -85,7 +87,8 @@ mod ALG-PN-EXE is
  var N : Nat .
  vars K K' : NzNat .
  *** transitions encoded as rewrite rules
- *** rl [t1] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . (L N), p(2) |-> K . N + B - 1 . N .
- crl [t1v2] : p(1) |-> K' . L + LB , p(2) |-> K . N + B => p(1) |-> (K' - 1) . L  + 1 . (L N) + LB, 
-                                                           p(2) |-> ((K - 1). N) + B if K >= 1 and-then K' >= 1 .
+ *** rl [t1] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . (L N), p(2) |-> sd(K,1) . N + B  . *** works
+ rl [t1] : p(1) |-> 1 . L , p(2) |-> 1 . N + B => p(1) |-> 1 . (L N), p(2) |->  B  . *** doesn't work
+ *** crl [t1] : p(1) |-> 1 . L , p(2) |-> B => p(1) |-> 1 . (L N), p(2) |->  B - 1 . N if 1 . N <= B . *** N used before bound
+ 
 endm
