@@ -1,4 +1,4 @@
-in BAG
+in ./BAG
 in ../PLACE
 
 *** marking of a place of any type 
@@ -78,7 +78,7 @@ mod ALG-PN-EXE is
  pr P-MARK{List{Nat}} * (op nil : -> Bag{List{Nat}} to 0lsnat) .
  *** NOTA in questo esempio termini come 1 . 2 NON sono preregolari (due least sorts: Bag{Nat} e Bag{List{Nat}})
  op init : -> Marking .
- eq init =  p(1) |-> 1 . nil , p(2) |-> 2 . 1 + 1 . 2 . 
+ eq init =  p(1) |-> 1 . nil , p(2) |-> 2 . 1 + 3 . 2 . 
  var P : Place .
  var B : Bag{Nat} .
  var M : Marking .
@@ -87,8 +87,11 @@ mod ALG-PN-EXE is
  var N : Nat .
  vars K K' : NzNat .
  *** transitions encoded as rewrite rules
- *** rl [t1] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . (L N), p(2) |-> sd(K,1) . N + B  . *** works
- rl [t1] : p(1) |-> 1 . L , p(2) |-> 1 . N + B => p(1) |-> 1 . (L N), p(2) |->  B  . *** doesn't work
+ *** dati (almeno) due elementi identici in p2 t1 ne rimuove uno e lo accoda nella lista in p1 
+ *** crl [t1] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . (L N), p(2) |-> sd(K,1) . N + B  if K > 1 . *** works
+ *** rl [t1] : p(1) |-> 1 . L , p(2) |-> 2 . N + B => p(1) |-> 1 . (L N), p(2) |->  1 . N + B  . *** doesn't work: doesn't do all matches
  *** crl [t1] : p(1) |-> 1 . L , p(2) |-> B => p(1) |-> 1 . (L N), p(2) |->  B - 1 . N if 1 . N <= B . *** N used before bound
  
+ *** rimuove K elementi identici da p2 e li accoda alla lista p1
+ rl [t2] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L ncopies(N, K) , p(2) |->  B  . *** works
 endm

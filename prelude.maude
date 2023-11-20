@@ -1120,9 +1120,16 @@ fmod LIST{X :: TRIV} is
 
   *** additional part added by @Lorenzo Capra
   var NeL : NeList{X} .
-  op pop : NeList{X} List{X} -> List{X} . *** pops the 2nd list from the 1st one, if the former prefixes the latter -- does nothing otherwise 
+  *** pops the 2nd list from the 1st one, if the former prefixes the latter -- does nothing otherwise 
+  op pop : NeList{X} List{X} -> List{X} . 
   eq pop(NeL L, NeL) = L .
   eq pop(NeL, L) = NeL [owise] .
+  *** creates a list as a replica of an element
+  op ncopies : X$Elt Nat -> List{X} .
+  op $ncopies : X$Elt Nat List{X}  -> List{X} .
+  eq ncopies(E, C) = $ncopies(E, C, nil) .
+  eq $ncopies(E, 0, L) = L .
+  eq $ncopies(E, K:NzNat, L) = $ncopies(E, sd(K:NzNat,1), E L) .
 endfm
 
 view List{X :: TRIV} from TRIV to LIST{X} is
