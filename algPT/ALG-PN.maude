@@ -1,7 +1,7 @@
 in ./BAG
 in ../PLACE
 
-*** marking of any algebraic net (an example)
+*** marking of any algebraic net
 fmod ALG-PN-MARK is 
  protecting PLACE .
  sorts Pmarking Marking Bag .
@@ -17,7 +17,7 @@ fmod ALG-PN-MARK is
  var PM : Pmarking . 
  var M' : [Marking] .
 
- *** well-definiteness OF A MARKING (no duplicates)
+ *** well-definiteness of marking (no duplicate places)
 op well-def : [Marking] -> Bool .
 eq well-def((P |-> B , P |-> B', M')) = false .
 eq well-def(M') = true  [owise] .
@@ -32,7 +32,17 @@ eq marked(M, P) = M[P] =/= undefined .
 
 endfm
 
-*** marking of an algebraic net of specific type
+fmod Marking is 
+ sort Bag . *** denotes a generic multiset
+endfm
+
+
+fmod ALG-PN-MARK-2 is 
+ protecting PLACE .
+ protecting MAP{Place, AnyBag} .
+endfm
+
+*** submarking of an algebraic net of specific type
 fmod MARK{X :: TRIV} is
   protecting ALG-PN-MARK .
   protecting BAG{X} .
@@ -43,6 +53,9 @@ fmod MARK{X :: TRIV} is
   op _,_ : Mark{X} Mark{X} -> [Mark{X}] [ctor ditto] .
   op empty : -> Mark{X} [ctor ditto ] .
   op undefined : -> [Bag{X}] [ctor ditto] .
+  var M : Mark{X} .
+  var M' : [Mark{X}] .
+  *** cmb  M' : Mark{X} if M' :: Marking .
 endfm
 
 
