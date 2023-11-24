@@ -1,0 +1,113 @@
+fmod BAG{X :: TRIV} is
+ protecting INT .
+ protecting EXT-BOOL .
+ 
+ sorts Bag{X} NeBag{X} ElBag{X} .
+ subsorts ElBag{X} < NeBag{X} < Bag{X}  .
+ 
+ vars N M : NzNat .
+ var K : Nat .
+ vars X Y Z : X$Elt .
+ vars B B' B'' : Bag{X} .
+ vars NeB NeB' NeB'' : NeBag{X} .
+ *** constructors
+ op nil : -> Bag{X} [ctor] .
+ op _._  : Nat X$Elt ->  ElBag{X} [prec 35 ctor] .
+ eq 0 . X = nil .
+ *** bag operations
+ op _`[_`] : Bag{X} X$Elt -> Nat [prec 23] .
+ op _+_  : Bag{X} Bag{X} -> Bag{X} [prec 39 ctor assoc comm id: nil] .
+ op _+_  : NeBag{X} Bag{X} -> NeBag{X} [ctor ditto] .
+ eq (N . X + B)[X] = N .
+ eq B[X] = 0 [owise] .
+ eq N . X + M . X = (N + M) . X .
+ *** difference
+ op _-_  : Bag{X} Bag{X} -> Bag{X} [prec 41 gather (E e) right id: nil] .
+ eq N . X + B - M . X + B' = max(0, N - M) . X + (B - B') . *** more compact
+ceq B - NeB = B  if B =/= NeB  [owise] .
+*** intersection
+ op _∩_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection
+ eq B ∩ B = B .
+ eq B ∩ nil = nil .
+ eq N . X + B ∩ M . X + B' = min(N,M) . X + (B ∩ B') .
+ eq N . X + B ∩ B' = B ∩ B' [owise] .
+ op _I_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection (aliasing)
+ eq B I B' = B ∩ B' .
+*** scalar product
+ op _*_ : Nat Bag{X} -> Bag{X}  [prec 37] . *** higher priority than the sum (in any case parenthese needed to disambiguate)
+ eq 0 * B = nil .
+ eq M * nil = nil .
+ eq M * (N . X + B) = (M * N) . X + M * B .
+ *** sets an element's multiplicity (if zero removes it from the bag)
+ op set  : Bag{X} X$Elt Nat -> Bag{X} . 
+ eq set(B + N . X, X, K) =  B + K . X  .
+ eq set(B, X, K) = B + K . X [owise] .
+ *** remove a given element from a bag
+ op remove :  Bag{X} X$Elt -> Bag{X} .
+ eq remove(B, X) = set(B, X, 0) .
+ 
+ *** relational ops
+ op _<=_ : Bag{X} Bag{X} -> Bool [prec 43] .
+ eq B <= B = true . *** optimization
+ceq N . X + B <= B' = false if N > B'[X] .
+ceq B <= B' = true if B =/= B' [owise] . 
+ op _<_ : Bag{X} Bag{X} -> Bool [prec 43] .
+ eq B < B = false . *** optimization
+ceq N . X + B < B' = false if N >= B'[X] .
+ceq B < B' = true if B =/= B' [owise] . 
+ **** greater than restricted to the elements of 1st bag
+ op _>_ : Bag{X} Bag{X} -> Bool [prec 43] .
+ ceq N . X + B > B' = false if N <= B'[X] .
+ eq B > B' = true [owise] .
+ 
+ *** bag's cardinality
+ op |_| : Bag{X} -> Nat . 
+ op |_| : NeBag{X} -> NzNat . 
+ eq | B | = $bcard(B, 0) . 
+ op $bcard : Bag{X} Nat -> Nat . 
+ eq $bcard(nil, K) = K . 
+ eq $bcard(N . X + B, K) = $bcard(B, K + N) .
+ *** bag's size (n. of elements)
+ op size : Bag{X} -> Nat . 
+ op size : NeBag{X} -> NzNat . 
+ eq size(B) = $size(B, 0) .  
+ op $size : Bag{X} Nat -> Nat . 
+ eq $size(nil, K) = K . 
+ eq $size(N . X + B, K) = $size(B, K + 1) .
+
+ *** checks whether two bags are pairwise disjoint
+ op disjoint : Bag{X} Bag{X} -> Bool [ comm ] .
+ eq disjoint(N . X + B, M . X + B') = false .
+ eq disjoint(B, B') = true [owise] .
+ *** checks whether a bas is a "set"
+ op isaset : Bag{X} -> Bool .
+ceq isaset(N . X + B) = false if N > 1 .
+ eq isaset(B) = true [owise] .
+ *** checks whether two bags have the same multiplicities
+ *** op _eqw_ : Bag{X} Bag{X} -> Bool [ comm ] .
+ *** eq B eqw B = true .
+ *** eq N . X + B eqw N . Y + B' = B eqw B' .
+ *** eq B eqw B' = false [owise] . 
+ 
+ *** common part between bags
+ *** op shared : Bag{X} Bag{X} -> Bag{X} [assoc comm] .
+ *** eq shared(B, B) = B .
+ *** eq shared(NeB + B, NeB  + B') = NeB + shared(B, B')  . 
+ *** eq shared(B, B') = nil [owise] .
+ *** detache a part from a bag
+ *** op disjoin : Bag{X} Bag{X} -> Bag{X} .
+ *** eq disjoin(NeB + B, NeB) = B .
+ *** eq disjoin(B, B') = B [owise] .
+endfm
+
+*** parameterized trivial view to BAG{X}
+view Bag{X :: TRIV} from TRIV to BAG{X} is 
+ sort Elt to Bag{X} . 
+endv
+
+*** to make some tests
+fmod BAG-LIST-NAT is 
+   pr BAG{Nat} * (op _._ to _;_ , op nil to nilN ). 
+   pr BAG{List{Nat}} .
+endfm 
+  

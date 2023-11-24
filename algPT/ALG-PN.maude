@@ -21,12 +21,18 @@ fmod P-MARK{X :: TRIV} is
   protecting BAG{X} .
   sort Pmark{X} .
   subsort Pmark{X} < Pmarking .
-  subsort Bag{X} < Bag .
+  subsort Bag{X} < Bag . *** spostare ?
   op _|->_ : Place Bag{X} -> Pmark{X} [ctor ditto] .
   var X : X$Elt .
   var B : Bag{X} .
   var P : Place .
 endfm
+
+ *** parameterized trivial view to BAG{X}
+view Pmark{X :: TRIV} from TRIV to  P-MARK{X} is 
+ sort Elt to Pmark{X} . 
+endv
+
 
 *** marking of any algebraic net (an example)
 fmod ALG-PN-MARK is 
@@ -36,7 +42,8 @@ fmod ALG-PN-MARK is
  op empty : -> Marking [ctor] .
  op _,_ : Marking Marking -> [Marking] [ctor assoc comm id: empty prec 121 format (d r os d)] .
  op undefined : -> [Bag] [ctor] .
-
+ op init : -> Marking . *** should be defined in an importing module
+ 
  vars P P' : Place .
  vars B B' : Bag .
  var M : Marking .
@@ -75,23 +82,38 @@ mod ALG-PN-EXE is
  pr ALG-PN-MARK .
  *** types of model's places
  pr P-MARK{Nat} * ( op nil : -> Bag{Nat} to 0nat) .
- pr P-MARK{List{Nat}} * (op nil : -> Bag{List{Nat}} to 0lsnat) .
- *** NOTA in questo esempio termini come 1 . 2 NON sono preregolari (due least sorts: Bag{Nat} e Bag{List{Nat}})
- op init : -> Marking .
- eq init =  p(1) |-> 1 . nil , p(2) |-> 2 . 1 + 3 . 2 . 
+ pr P-MARK{List{Nat}} * (op nil : -> Bag{List{Nat}} to 0lsnat, op _._ : Nat List{Nat} -> Bag{List{Nat}} to _:_) . *** to ensure preregularity
+ *** of terms like 1 . 2  (otherwise it would have two least sorts: Bag{Nat} e Bag{List{Nat}})
+ *** to remove all warnings due to the multiple importation of BAG module we could rename bag operators
+ eq init =  p(1) |-> 1 . 3 , p(2) |-> 2 . 1 + 3 . 2 . 
  var P : Place .
  var B : Bag{Nat} .
  var M : Marking .
  var L : List{Nat} .
+ var NeL : NeList{Nat} .
  var LB : Bag{List{Nat}} .
- var N : Nat .
+ vars N N' N'' : Nat .
  vars K K' : NzNat .
  *** transitions encoded as rewrite rules
  *** dati (almeno) due elementi identici in p2 t1 ne rimuove uno e lo accoda nella lista in p1 
  *** crl [t1] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . (L N), p(2) |-> sd(K,1) . N + B  if K > 1 . *** works
- *** rl [t1] : p(1) |-> 1 . L , p(2) |-> 2 . N + B => p(1) |-> 1 . (L N), p(2) |->  1 . N + B  . *** doesn't work: doesn't do all matches
+ *** rl [t1] : p(1) |-> 1 . L , p(2) |-> 2 . N + B => p(1) |-> 1 . (L N), p(2) |->  1 . N + B  . *** doesn't work: doesn't perform all matches
  *** crl [t1] : p(1) |-> 1 . L , p(2) |-> B => p(1) |-> 1 . (L N), p(2) |->  B - 1 . N if 1 . N <= B . *** N used before bound
  
  *** rimuove K elementi identici da p2 e li accoda alla lista p1
- rl [t2] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L ncopies(N, K) , p(2) |->  B  . *** works
+ *** rl [t2] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L ncopies(N, K) , p(2) |->  B . *** works
+ *** rimuove un elemento dalla lista p1 e lo mette in p2
+ *** rl [t3] : p(1) |-> 1 . NeL , p(2) |-> B => p(1) |-> 1 . tail(NeL) , p(2) |->  B + 1 . head(NeL) . *** works
+ 
+ *** altri esempi che hanno/non hanno match : rimuove dalla lista in p1 un elemento in testa la cui somma corrisponde a due elementi in p2 (rimossi anche loro)
+*** rl [t4] : p(1) |-> 1 . (N + N') L , p(2) |-> K . N + K' . N' + B => p(1) |-> 1 . L, p(2) |-> sd(K,1) . N + sd(K',1) . N' + B   . *** no match
+crl [t4] : p(1) |-> 1 . N'' L , p(2) |-> K . N + K' . N' + B => p(1) |-> 1 . L, p(2) |-> sd(K,1) . N + sd(K',1) . N' + B  
+     if N'' = N' + N . *** works
+endm
+
+*** nested algebraic net!!
+mod ALG2-PN-EXE is
+ inc ALG-PN-EXE .
+ pr P-MARK{Pmark{Nat}}  .
+ pr P-MARK{Pmark{List{Nat}}} * (op nil : -> Bag{Pmark{List{Nat}}} to 0l2snat) .
 endm
