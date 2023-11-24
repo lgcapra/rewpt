@@ -1,0 +1,94 @@
+in ./BAG
+in ../PLACE
+
+*** used in the example
+*** embedded list (builds on built-in LIST) --- avoids any preregularity issue, e.g., between terms like: 1 . 1 and 1 . 1 2
+fmod E-LIST{X :: TRIV} is
+ protecting LIST{X} .
+ sorts NeElist{X} Elist{X} .
+ subsort NeElist{X} < Elist{X} .
+
+ op `[`] : -> Elist{X} [ctor] .
+ op `[_`] : List{X} -> Elist{X} [ctor] .
+ op __ : Elist{X} Elist{X} -> Elist{X} [assoc id: `[`] prec 25] .
+ op __ : NeElist{X} Elist{X} -> NeElist{X} [ditto] .
+ op __ : Elist{X} NeElist{X} -> NeElist{X} [ditto] .
+
+ var E E' : X$Elt .
+ vars A L : List{X} .
+ eq [nil] = [] .
+ eq [A] [L] = [A L] .
+ *** inherit all the other ops from LIST
+endfm
+
+*** parameterized trivial view to E-LIST{X}
+view Elist{X :: TRIV} from TRIV to E-LIST{X} is 
+ sort Elt to Elist{X} . 
+endv
+
+*** specification of algebraic PN
+
+*** marking of any algebraic net
+fmod ALG-PN-MARK is 
+ protecting PLACE .
+ protecting MAP{Place, AnyBag} * (sort Map{Place, AnyBag} to Marking, sort Entry{Place, AnyBag} to Pmarking ) .
+ *** check well-definiteness of marking (no duplicate places)
+op well-def : Marking -> Bool .
+vars B B' : Bag .
+var P  : Place .
+var M : Marking .
+eq well-def((P |-> B , P |-> B', M)) = false .
+eq well-def(M) = true  [owise] .
+endfm
+
+*** submarking of a specific type
+fmod MARK{X :: TRIV} is
+  protecting ALG-PN-MARK .
+  protecting BAG{X} .
+  sorts Pmark{X} Mark{X} .
+  subsort Pmark{X} < Pmarking Mark{X} < Marking .
+  op _|->_ : Place Bag{X} -> Pmark{X} [ctor ditto] .
+  op _,_ : Mark{X} Mark{X} -> Mark{X} [ctor ditto] .
+endfm
+
+*** an example of algebraic net
+mod ALG-PN-EXE is
+ pr ALG-PN-MARK .
+ *** types of model's places
+ pr MARK{Nat} * ( op nil : -> Bag{Nat} to 0nat) .
+ pr MARK{Elist{Nat}} * (op nil : -> Bag{Elist{Nat}} to 0lsnat) .
+ op init : -> Marking .
+ eq init =  p(1) |-> 1 . [] , p(2) |-> 2 . 1 + 3 . 2 . 
+ var P : Place .
+ var B : Bag{Nat} .
+ var M : Marking .
+ var L : Elist{Nat} .
+ var LB : Bag{Elist{Nat}} .
+ var N : Nat .
+ vars K K' : NzNat .
+ *** transitions encoded as rewrite rules
+ *** dati (almeno) due elementi identici in p2 t1 ne rimuove uno e lo accoda nella lista in p1 
+ crl [t1] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L [N], p(2) |-> sd(K,1) . N + B  if K > 1 . *** works
+ *** rl  [t1] : p(1) |-> 1 . L , p(2) |-> 2 . N + B => p(1) |-> 1 . L [N], p(2) |->  1 . N + B  . *** doesn't work: doesn't do all matches
+ *** crl [t1] : p(1) |-> 1 . L , p(2) |-> B => p(1) |-> 1 . (L N), p(2) |->  B - 1 . N if 1 . N <= B . *** N used before bound
+ 
+ *** rimuove K elementi identici da p2 e li accoda alla lista p1
+ *** rl [t2] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L [ncopies(N, K)] , p(2) |->  B  . *** works
+endm
+
+*** fmod NAT-ELIST is 
+***  pr E-LIST{Nat} .
+*** endfm 
+
+*** parameterized trivial view to MARK{X}
+view Mark{X :: TRIV} from TRIV to MARK{X} is 
+ sort Elt to Mark{X} . 
+endv
+
+mod NEST-ALG-PN-EXE is
+ inc ALG-PN-EXE * (sort Marking to Marking2, sort Pmarking to Pmarking2, sort Bag to Bag2, sort Place to Place2, op p to pp,
+                   op empty to empty2) .
+ pr ALG-PN-MARK .
+ *** pr MARK{Mark{Nat}} .
+ *** pr MARK{Mark{Elist{Nat}}} .
+endm
