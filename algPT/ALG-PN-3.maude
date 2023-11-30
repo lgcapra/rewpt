@@ -55,7 +55,6 @@ view Mark{X :: TRIV} from TRIV to MARK{X} is
  sort Elt to Mark{X} . 
 endv
 
-
 *** an example of algebraic net
 mod ALG-PN-EXE is
  *** types of model's places
@@ -82,25 +81,16 @@ mod ALG-PN-EXE is
  *** rl [t2] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L [ncopies(N, K)] , p(2) |->  B  . *** works
 endm
 
-fmod MARK-NAT is
- pr MARK{Nat} * (sort Marking to Marking2, sort Pmarking to Pmarking2, op empty to empty2) .
-endfm
+mod ALG-PN-EXE2 is 
+  inc ALG-PN-EXE * (sort Marking to Marking2, sort Pmarking to Pmarking2, op empty to empty2, op init to init2) .
+endm
 
-fmod MARK-LIST-NAT is
- pr MARK{Elist{Nat}} * (sort Marking to Marking2, sort Pmarking to Pmarking2, op empty to empty2) .
-endfm
-
-view MarkNat from TRIV to MARK-NAT is 
-   sort Elt to Mark{Nat} . 
+view AlgPNexe2 from TRIV to ALG-PN-EXE2 is 
+   sort Elt to Marking2 . 
 endv
 
-view MarkListNat from TRIV to MARK-LIST-NAT is 
-  sort Elt to Mark{Elist{Nat}} . 
-endv
 
 ***  nested algebraic net
 mod NEST-ALG-PN-EXE is
-  *** inc ALG-PN-EXE * (sort Marking to Marking2, sort Pmarking to Pmarking2, op empty to empty2) .
-  pr MARK{MarkNat} .
-  pr MARK{MarkListNat} .
+  inc MARK{AlgPNexe2} .
 endm
