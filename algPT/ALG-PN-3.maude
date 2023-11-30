@@ -32,6 +32,7 @@ fmod ALG-PN-MARK is
  subsort Pmarking < Marking .
  op empty : -> Marking [ctor] .
  op _,_ : Marking Marking -> Marking [ctor assoc comm id: empty prec 121 format (d r os d)] .
+ op init : -> Marking .
 endfm
 
 *** submarking of a specific type
@@ -43,14 +44,13 @@ fmod MARK{X :: TRIV} is
   subsort Pmark{X} < Pmarking Mark{X} < Marking .
   op _|->_ : Place Bag{X} -> Pmark{X} [ctor] .
   op _,_ : Mark{X} Mark{X} -> Mark{X} [ctor ditto] .
-  vars B B' : Bag{X} .
+  var B  : Bag{X} .
   var P  : Place .
-  var M : Mark{X} .
   op place : Pmark{X} -> Place .
   eq place(P |-> B) = P .
 endfm
 
-*** parameterized trivial view to MARK{X}
+*** parameterized trivial view to MARK
 view Mark{X :: TRIV} from TRIV to MARK{X} is 
  sort Elt to Mark{X} . 
 endv
@@ -64,7 +64,6 @@ mod ALG-PN-EXE is
  *** sorts Pmarking Marking .
  **** subsort Mark{Nat} Mark{Elist{Nat}} < Marking .
  **** subsort Pmark{Nat} Pmark{Elist{Nat}} < Pmarking < Marking .
- op init : -> Marking .
  eq init =  p(1) |-> 1 . [] , p(2) |-> 2 . 1 + 3 . 2 . 
  *** eq init =  p(1) |-> 1 . [] ; p(2) |-> 2 . 1 + 3 . 2 . 
  var M : Marking .
@@ -83,13 +82,25 @@ mod ALG-PN-EXE is
  *** rl [t2] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L [ncopies(N, K)] , p(2) |->  B  . *** works
 endm
 
-*** fmod NAT-ELIST is 
-***  pr E-LIST{Nat} .
-*** endfm 
+fmod MARK-NAT is
+ pr MARK{Nat} * (sort Marking to Marking2, sort Pmarking to Pmarking2, op empty to empty2) .
+endfm
 
+fmod MARK-LIST-NAT is
+ pr MARK{Elist{Nat}} * (sort Marking to Marking2, sort Pmarking to Pmarking2, op empty to empty2) .
+endfm
 
- mod NEST-ALG-PN-EXE is
+view MarkNat from TRIV to MARK-NAT is 
+   sort Elt to Mark{Nat} . 
+endv
+
+view MarkListNat from TRIV to MARK-LIST-NAT is 
+  sort Elt to Mark{Elist{Nat}} . 
+endv
+
+***  nested algebraic net
+mod NEST-ALG-PN-EXE is
   *** inc ALG-PN-EXE * (sort Marking to Marking2, sort Pmarking to Pmarking2, op empty to empty2) .
-  pr MARK{Mark{Nat}} .
-  *** pr MARK{Mark{Elist{Nat}}} .
+  pr MARK{MarkNat} .
+  pr MARK{MarkListNat} .
 endm
