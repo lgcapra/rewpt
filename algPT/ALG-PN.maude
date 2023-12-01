@@ -1,102 +1,123 @@
 in ./BAG
 in ../PLACE
 
-*** marking of any algebraic net
+*** embedded list (builds on built-in LIST) --- avoids preregularity issue, e.g., between terms like: 1 . 1 and 1 . 1 2
+fmod E-LIST{X :: TRIV} is
+ protecting LIST{X} .
+ sorts NeElist{X} Elist{X} .
+ subsort NeElist{X} < Elist{X} .
+
+ op `[`] : -> Elist{X} [ctor] .
+ op `[_`] : List{X} -> Elist{X} [ctor] .
+ op __ : Elist{X} Elist{X} -> Elist{X} [assoc id: `[`] prec 25] .
+ op __ : NeElist{X} Elist{X} -> NeElist{X} [ditto] .
+ op __ : Elist{X} NeElist{X} -> NeElist{X} [ditto] .
+
+ var E E' : X$Elt .
+ vars A L : List{X} .
+ eq [nil] = [] .
+ eq [A] [L] = [A L] .
+ *** inherit all the other ops from LIST
+endfm
+
+*** parameterized trivial view to E-LIST{X}
+view Elist{X :: TRIV} from TRIV to E-LIST{X} is 
+ sort Elt to Elist{X} . 
+endv
+
+**** algebraic PN specification ***
+
+*** abstract specification of an algebraic net's marking
 fmod ALG-PN-MARK is 
- protecting PLACE .
- sorts Pmarking Marking Bag .
+ protecting PLACE  .
+ sorts Pmarking Marking .
  subsort Pmarking < Marking .
- op _|->_ : Place Bag -> Pmarking [ctor] .
  op empty : -> Marking [ctor] .
- op _,_ : Marking Marking -> [Marking] [ctor assoc comm id: empty prec 121 format (d r os d)] .
- op undefined : -> [Bag] [ctor] .
- op init : -> Marking . *** should be defined in an importing module
- 
- vars P P' : Place .
- vars B B' : Bag .
+ op _,_ : Marking Marking -> Marking [ctor assoc comm id: empty prec 121 format (d r os d)] .
+ op init : -> Marking .
+ op place : Pmarking -> Place .
+ op welldef : Marking -> Bool .
+ var P  : Place .
+ vars Mp Mp' : Pmarking .
  var M : Marking .
- var PM : Pmarking . 
- var M' : [Marking] .
+ceq welldef((Mp , Mp', M)) = false if place(Mp) = place(Mp') .
+ eq welldef(M) = true  [owise] .
+ *** look-up
+ op undefined : -> [Pmarking] .
+ op _[_] : Marking Place -> [Pmarking] [prec 23] .
+ceq (M, Mp)[P] =
+     if $marked(M, P) then undefined
+     else Mp
+     fi 
+  if place(Mp) == P .
+  eq M[P] = undefined [owise] .
 
- *** well-definiteness of marking (no duplicate places)
-op well-def : [Marking] -> Bool .
-eq well-def((P |-> B , P |-> B', M')) = false .
-eq well-def(M') = true  [owise] .
-*** well-definiteness characterization
-cmb M' : Marking if well-def(M') .
-*** look-up OP
-op _[_] : Marking Place -> [Bag] [prec 23] .
-eq (M, P |-> B)[P] = B .
-eq M[P] = undefined [owise] .
-op marked : Marking Place -> Bool .
-eq marked(M, P) = M[P] =/= undefined .
-
+  op $marked : Marking Place -> Bool .
+ceq $marked((M, Mp), P) = true if place(Mp) = P .
+  eq $marked(M, P) = false [owise] .
 endfm
 
-fmod Marking is 
- sort Bag . *** denotes a generic multiset
-endfm
-
-
-fmod ALG-PN-MARK-2 is 
- protecting PLACE .
- protecting MAP{Place, AnyBag} .
-endfm
-
-*** submarking of an algebraic net of specific type
+*** submarking of a specific type
 fmod MARK{X :: TRIV} is
-  protecting ALG-PN-MARK .
+  extending ALG-PN-MARK .
   protecting BAG{X} .
-  sorts Pmark{X} Mark{X} .
+  sorts Pmark{X}  Mark{X} .
   subsort Pmark{X} < Pmarking Mark{X} < Marking .
-  subsort Bag{X} < Bag .
-  op _|->_ : Place Bag{X} -> Pmark{X} [ctor ditto] .
-  op _,_ : Mark{X} Mark{X} -> [Mark{X}] [ctor ditto] .
-  op empty : -> Mark{X} [ctor ditto ] .
-  op undefined : -> [Bag{X}] [ctor ditto] .
-  var M : Mark{X} .
-  var M' : [Mark{X}] .
-  *** cmb  M' : Mark{X} if M' :: Marking .
+  op _|->_ : Place Bag{X} -> Pmark{X} [ctor] .
+  op _,_ : Mark{X} Mark{X} -> Mark{X} [ctor ditto] .
+  var B  : Bag{X} .
+  var P  : Place .
+  eq place(P |-> B) = P .
 endfm
 
+*** parameterized view to MARK
+view Mark{X :: TRIV} from TRIV to MARK{X} is 
+ sort Elt to Mark{X} . 
+endv
 
 *** an example of algebraic net
 mod ALG-PN-EXE is
- pr ALG-PN-MARK .
  *** types of model's places
- pr MARK{Nat} * ( op nil : -> Bag{Nat} to 0nat) .
- pr MARK{List{Nat}} * (op nil : -> Bag{List{Nat}} to 0lsnat) .
- *** NOTA in questo esempio termini come 1 . 2 NON sono preregolari (due least sorts: Bag{Nat} e Bag{List{Nat}})
- op init : -> Marking .
- eq init =  p(1) |-> 1 . nil , p(2) |-> 2 . 1 + 3 . 2 . 
- var P : Place .
- var B : Bag{Nat} .
+ pr MARK{Nat} * ( op nil : -> Bag{Nat} to 0nat ) .
+ pr MARK{Elist{Nat}} * (op nil : -> Bag{Elist{Nat}} to 0lsnat ) .
+ 
+ eq init =  p(1) |-> 1 . [] , p(2) |-> 2 . 1 + 3 . 2 . 
+ *** eq init =  p(1) |-> 1 . [] ; p(2) |-> 2 . 1 + 3 . 2 . 
  var M : Marking .
- var L : List{Nat} .
- var NeL : NeList{Nat} .
- var LB : Bag{List{Nat}} .
- vars N N' N'' : Nat .
+ var B : Bag{Nat} .
+ var L : Elist{Nat} .
+ var LB : Bag{Elist{Nat}} .
+ var N : Nat .
  vars K K' : NzNat .
- *** transitions encoded as rewrite rules
+ *** net transitions are encoded as rewrite rules
  *** dati (almeno) due elementi identici in p2 t1 ne rimuove uno e lo accoda nella lista in p1 
- *** crl [t1] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . (L N), p(2) |-> sd(K,1) . N + B  if K > 1 . *** works
- *** rl [t1] : p(1) |-> 1 . L , p(2) |-> 2 . N + B => p(1) |-> 1 . (L N), p(2) |->  1 . N + B  . *** doesn't work: doesn't perform all matches
+ crl [t1] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L [N], p(2) |-> sd(K,1) . N + B  if K > 1 . *** works
+ *** rl  [t1] : p(1) |-> 1 . L , p(2) |-> 2 . N + B => p(1) |-> 1 . L [N], p(2) |->  1 . N + B  . *** doesn't work: doesn't do all matches
  *** crl [t1] : p(1) |-> 1 . L , p(2) |-> B => p(1) |-> 1 . (L N), p(2) |->  B - 1 . N if 1 . N <= B . *** N used before bound
  
  *** rimuove K elementi identici da p2 e li accoda alla lista p1
- *** rl [t2] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L ncopies(N, K) , p(2) |->  B . *** works
- *** rimuove un elemento dalla lista p1 e lo mette in p2
- *** rl [t3] : p(1) |-> 1 . NeL , p(2) |-> B => p(1) |-> 1 . tail(NeL) , p(2) |->  B + 1 . head(NeL) . *** works
- 
- *** altri esempi che hanno/non hanno match : rimuove dalla lista in p1 un elemento in testa la cui somma corrisponde a due elementi in p2 (rimossi anche loro)
-*** rl [t4] : p(1) |-> 1 . (N + N') L , p(2) |-> K . N + K' . N' + B => p(1) |-> 1 . L, p(2) |-> sd(K,1) . N + sd(K',1) . N' + B   . *** no match
-crl [t4] : p(1) |-> 1 . N'' L , p(2) |-> K . N + K' . N' + B => p(1) |-> 1 . L, p(2) |-> sd(K,1) . N + sd(K',1) . N' + B  
-     if N'' = N' + N . *** works
+ *** rl [t2] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L [ncopies(N, K)] , p(2) |->  B  . *** works
 endm
 
-*** nested algebraic net!!
-mod ALG2-PN-EXE is
- inc ALG-PN-EXE .
- pr P-MARK{Pmark{Nat}}  .
- pr P-MARK{Pmark{List{Nat}}} * (op nil : -> Bag{Pmark{List{Nat}}} to 0l2snat) .
+mod ALG-PN-EXE2 is 
+  inc ALG-PN-EXE * (sort Marking to Marking2, sort Pmarking to Pmarking2, op empty to empty2, op init to init2) .
+  *** more safely, we should rename all subsorts of Marking2 ...
+endm
+
+view AlgPNexe from TRIV to ALG-PN-EXE2 is 
+   sort Elt to Marking2 . 
+endv
+
+
+***  nested algebraic net
+mod NEST-ALG-PN-EXE is
+  pr MARK{Nat} * ( sort Mark{Nat} to MarkNat, sort Pmark{Nat} to PmarkNat, op nil : -> Bag{Nat} to 0nat,
+                   op _|->_ : Place Bag{Nat} -> Mark{Nat} to _||->_ ) .
+  *** should have been better to rename sorts and ops in ALG-PN-EXE2
+  inc MARK{AlgPNexe} .
+  eq init = p(0) |-> 1 . init2 , p(1) |-> 1 . init2 .
+  var M : Marking2 .
+  var N : Bag{AlgPNexe} .
+  var K : NzNat .
+  rl p(0) |-> K . M , p(1) |-> N => p(0) |-> sd(K,1) . M , p(1) |->  1 . M + N .
 endm
