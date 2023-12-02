@@ -79,28 +79,13 @@ ceq B < B' = true if B =/= B' [owise] .
  op disjoint : Bag{X} Bag{X} -> Bool [ comm ] .
  eq disjoint(N . X + B, M . X + B') = false .
  eq disjoint(B, B') = true [owise] .
- *** checks whether a bas is a "set"
+ *** checks whether a bag is a "set" (muliplicities < 2)
  op isaset : Bag{X} -> Bool .
 ceq isaset(N . X + B) = false if N > 1 .
  eq isaset(B) = true [owise] .
- *** checks whether two bags have the same multiplicities
- *** op _eqw_ : Bag{X} Bag{X} -> Bool [ comm ] .
- *** eq B eqw B = true .
- *** eq N . X + B eqw N . Y + B' = B eqw B' .
- *** eq B eqw B' = false [owise] . 
- 
- *** common part between bags
- *** op shared : Bag{X} Bag{X} -> Bag{X} [assoc comm] .
- *** eq shared(B, B) = B .
- *** eq shared(NeB + B, NeB  + B') = NeB + shared(B, B')  . 
- *** eq shared(B, B') = nil [owise] .
- *** detache a part from a bag
- *** op disjoin : Bag{X} Bag{X} -> Bag{X} .
- *** eq disjoin(NeB + B, NeB) = B .
- *** eq disjoin(B, B') = B [owise] .
 endfm
 
-*** parameterized trivial view to BAG{X}
+*** parameterized view to BAG{X}
 view Bag{X :: TRIV} from TRIV to BAG{X} is 
  sort Elt to Bag{X} . 
 endv
