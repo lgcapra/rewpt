@@ -88,11 +88,4 @@ endfm
 *** parameterized view to BAG{X}
 view Bag{X :: TRIV} from TRIV to BAG{X} is 
  sort Elt to Bag{X} . 
-endv
-
-*** to make some tests
-fmod BAG-LIST-NAT is 
-   pr BAG{Nat} * (op _._ to _;_ , op nil to nilN ). 
-   pr BAG{List{Nat}} .
-endfm 
-  
+endv  

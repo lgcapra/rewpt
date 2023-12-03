@@ -54,6 +54,14 @@ view Mark{X :: TRIV} from TRIV to MARK{X} is
  sort Elt to Mark{X} . 
 endv
 
+*** used to simulate non-determinism
+mod TICK is
+  protecting NAT .
+  sort Tick .
+  op @_ : Nat -> Tick .  
+ crl [tick] : @ X:NzNat =>  @ sd(X:NzNat, 1) if X:NzNat > 1 .
+endm
+
 *** an example of algebraic net using lists
 mod ALG-PN-EXE is
  *** types of model's places
@@ -66,15 +74,20 @@ mod ALG-PN-EXE is
  var L : Elist{Nat} .
  var LB : Bag{Elist{Nat}} .
  var N : Nat .
- vars K K' : NzNat .
+ vars K K' K'' : NzNat .
  *** net transitions are encoded as rewrite rules
  *** dati (almeno) due elementi identici in p2 t1 ne rimuove uno e lo accoda nella lista in p1 
- crl [t1] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L [N], p(2) |-> sd(K,1) . N + B  if K > 1 . *** works
+ *** crl [t1] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L [N], p(2) |-> sd(K,1) . N + B  if K > 1 . *** works
  *** rl  [t1] : p(1) |-> 1 . L , p(2) |-> 2 . N + B => p(1) |-> 1 . L [N], p(2) |->  1 . N + B  . *** doesn't work: doesn't do all matches
- *** crl [t1] : p(1) |-> 1 . L , p(2) |-> B => p(1) |-> 1 . (L N), p(2) |->  B - 1 . N if 1 . N <= B . *** N used before bound
+ *** crl [t1] : p(1) |-> 1 . L , p(2) |-> B => p(1) |-> 1 . (L N), p(2) |->  B - 1 . N if 1 . N <= B . *** incorrect: N used before it is bound
  
  *** rimuove K elementi identici da p2 e li accoda alla lista p1
- *** rl [t2] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L [ncopies(N, K)] , p(2) |->  B  . *** works
+  rl [t2] : p(1) |-> 1 . L , p(2) |-> K . N + B => p(1) |-> 1 . L [ncopies(N, K)] , p(2) |->  B  . *** works
+ 
+ *** crl [t3] : K . N => sd(K,K') . N if K' + 1 := K . *** doesn't work
+ *** example of non deterministic-rule
+  inc TICK .
+  crl [t4] : p(2) |-> K . K'' + B => p(2) |-> K' . K'' + B if  @ K => @ K' /\ K' < K .
 endm
 
 *** redefinition of ALG-PN-EXE2 with some sort-op renaming (so that the base and meta levels sort-components of Marking are disjoint)
