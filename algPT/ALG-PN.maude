@@ -9,8 +9,8 @@ fmod ALG-PN-MARK is
  protecting PLACE  .
  sorts Pmarking Marking .
  subsort Pmarking < Marking .
- op empty : -> Marking [ctor] .
- op _,_ : Marking Marking -> Marking [ctor assoc comm id: empty prec 121 format (d r os d)] .
+ op emptyM : -> Marking [ctor] .
+ op _,_ : Marking Marking -> Marking [ctor assoc comm id: emptyM prec 121 format (d r os d)] .
  op init : -> Marking .
  op place : Pmarking -> Place .
  op welldef : Marking -> Bool .
@@ -123,7 +123,7 @@ endm
 *** all subsorts of Marking should be renamed (below only a subset)
  mod ALG-PN-EXE2 is 
    inc ALG-PN-EXE * (sort Marking to Marking2, sort Pmarking to Pmarking2, sort Mark{Nat} to MarkNat2, sort Pmark{Nat} to PmarkNat2,
-                     op empty to empty2, op init to init2, op markN to markN2, op markListN to markListN2,
+                     op emptyM to emptyM2, op init to init2, op markN to markN2, op markListN to markListN2,
                      op _|->_ to _||->_ ) .
   *** NOTA se nella meta-rete ci fosse un posto dello stesso tipo della rete base (nell'esempio sotto si importa MARK{Nat})
   *** allora bisogna ridefinire anche |-> per evitare ambiguità (qui o nella meta-rete).
@@ -139,7 +139,7 @@ endv
 ***  example of nested algebraic net
 mod NEST-ALG-PN-EXE is
   *** inc MARK{AlgPNexe} .
-  inc S-MARK{AlgPNexe} .
+  inc S-MARK{AlgPNexe}  .
   pr MARK{Nat} * ( op nil : -> Bag{Nat} to 0nat,  op mark to markN) .
   *** eq init = p(0) |-> 1 . init2 , p(1) |-> 1 . init2 .
   eq init = p(0) |-> init2 , p(1) |-> init2 .
