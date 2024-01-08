@@ -4,16 +4,23 @@ fmod ELIST{X :: TRIV} is
  sorts NeElist{X} Elist{X} .
  subsort NeElist{X} < Elist{X} .
 
- op `[`] : -> Elist{X} [ctor] .
  op `[_`] : List{X} -> Elist{X} [ctor] .
- op __ : Elist{X} Elist{X} -> Elist{X} [assoc id: `[`] prec 25] .
- op __ : NeElist{X} Elist{X} -> NeElist{X} [ditto] .
- op __ : Elist{X} NeElist{X} -> NeElist{X} [ditto] .
+ op `[_`] : NeList{X} -> NeElist{X} [ctor] .
+ op list : Elist{X} -> List{X} .
+ op list : NeElist{X} -> NeList{X} .
+ 
+ eq list([L:List{X}]) = L:List{X} . 
+ 
+ *** uncomment if you want to define operators for embedded list
+ *** op `[`] : -> Elist{X} [ctor] .
+ *** op __ : Elist{X} Elist{X} -> Elist{X} [assoc id: `[`] prec 25] .
+ *** op __ : NeElist{X} Elist{X} -> NeElist{X} [ditto] .
+ *** op __ : Elist{X} NeElist{X} -> NeElist{X} [ditto] .
 
- var E E' : X$Elt .
- vars A L : List{X} .
- eq [nil] = [] .
- eq [A] [L] = [A L] .
+ *** var E E' : X$Elt .
+ *** vars A L : List{X} .
+ *** eq [nil] = [] .
+ *** eq [A] [L] = [A L] .
  *** inherit all the other ops from LIST
 endfm
 
