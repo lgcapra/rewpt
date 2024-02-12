@@ -1,0 +1,169 @@
+*** qui e altrove usiamo il preludio modificato anche se si potrebbe usare quello originale (nuova versione)
+in ../shared/BAG-AND-SET
+in ../shared/MAP+
+in PLACE
+
+*** this module defines (sortable) of pairs << Nat ; Place >>> (much simpler definition than the original one)
+fmod PAIR-NAT-PLACE is 
+  pr  SORTED-PAIR{Nat<,Place<} * (sort Pair{Nat<,Place<} to Pair{Nat,Place})  .  
+endfm
+
+*** ordinary view 
+view PairNatP from TRIV to PAIR-NAT-PLACE is 
+ sort Elt to Pair{Nat,Place} .
+endv
+
+*** classical view as strict-total-order 
+view PairNatP< from STRICT-TOTAL-ORDER to PAIR-NAT-PLACE is 
+ sort Elt to Pair{Nat,Place} .
+endv
+
+
+*** this module defines comparable lists of pairs < Nat ; Place >
+fmod LIST-NAT-PLACE is 
+  pr COMPARABLE-LIST{PairNatP<} * (sort List{PairNatP<} to List{Nat,Place}, sort NeList{PairNatP<} to NeList{Nat,Place}, op nil to emptyListNP)  .  
+endfm
+
+fmod PBAG is
+ pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, sort ElBag{Place} to ElPbag, op nil to nilP, 
+                           sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
+ pr LIST-NAT-PLACE .
+ 
+ vars P P' P'' P''' : Place . 
+ vars K K' : NzNat .
+ vars I J : Nat .
+ vars B B' B'' : Pbag .
+ vars NeB NeB' : NePbag .
+ vars EB EB' : ElPbag .
+ vars L L' L'' : Lab .
+ var E : Elab .
+ var S : Pset .
+ var LNP : List{Nat,Place} . 
+ var W : String .
+ var Ws : List{String} .
+ var NWs : NeList{String} .
+
+ *** gives the sub-bag of places whose labes have (match) a given suffix (NOTE a String is also a NeList{String})
+ op subag : Pbag NeList{String} -> Pbag . 
+ eq subag(B, NWs) = $subag(B, NWs, nilP) .  
+ op $subag : Pbag NeList{String} Pbag -> Pbag . 
+ceq $subag(K . P + B, NWs, B') = $subag(B, NWs, B' + K . P) if hasSuffix(P, NWs) .
+ eq $subag(B, NWs, B') = B' [owise] .
+ var NeL : NeLab .
+ op subag : Pbag List{String} NeLab  -> Pbag . 
+ eq subag(B, Ws, NeL) = $subag(B, Ws, NeL, nilP) .  
+ op $subag : Pbag List{String} NeLab Pbag -> Pbag . 
+ceq $subag(K . P + B, Ws, NeL, B') = $subag(B, Ws, NeL, B' + K . P) if hasSuffix(P, Ws, NeL) .
+ eq $subag(B, Ws, NeL, B') = B' [owise] .
+ *** might be defined in terms of a previous one
+ op subag : Pbag  NeLab  -> Pbag . 
+ eq subag(B, NeL) = $subag(B, NeL, nilP) .  
+ op $subag : Pbag NeLab Pbag -> Pbag . 
+ceq $subag(K . P + B, NeL, B') = $subag(B, NeL, B' + K . P) if hasSuffix(P, NeL) .
+ eq $subag(B, NeL, B') = B' [owise] .
+
+  *** gives the sub-bag of places whose labes match a given pref-suffix
+ op match : Pbag List{String} NeLab  -> Pbag . 
+ eq match(B, Ws, NeL) = $match(B, Ws, NeL, nilP) .  
+ op $match : Pbag List{String} NeLab Pbag -> Pbag . 
+ceq $match(K . P + B, Ws, NeL, B') = $match(B, Ws, NeL, B' + K . P) if match(P, Ws, NeL) .
+ eq $match(B, Ws, NeL, B') = B' [owise] .
+ *** match the prefix
+ op match : Pbag NeList{String} -> Pbag . 
+ eq match(B, NWs) = $match(B, NWs, nilP) .  
+ op $match : Pbag List{String} Pbag -> Pbag . 
+ceq $match(K . P + B, NWs, B') = $match(B, NWs, B' + K . P) if match(P, NWs) .
+ eq $match(B, NWs, B') = B' [owise] .
+
+ *** derived definition(s) of support
+ op support : Pbag NeList{String} -> Pset .
+ eq support(B, NWs) = support(subag(B, NWs)) .
+ op support : Pbag List{String} NeLab  -> Pset . 
+ eq support(B, Ws, NeL) = support(subag(B, Ws, NeL)) .
+ *** based on match
+ op suppmatch : Pbag List{String} NeLab  -> Pset .
+ eq suppmatch(B, Ws, NeL) = support(match(B, Ws, NeL)) .
+ op suppmatch : Pbag NeList{String} -> Pset .
+ eq suppmatch(B, NWs) = support(match(B, NWs)) .
+ 
+ *** builds a list of pairs < weight ; el > out of a bag
+ op toList  : Pbag -> List{Nat,Place} .     
+ eq toList(B) = $toList(B, emptyListNP) .
+ op $toList : Pbag List{Nat,Place} -> List{Nat,Place} .
+ eq $toList(nilP, LNP) = LNP .
+ eq $toList(K . P + B, LNP) = $toList(B, < K ; P > LNP) . 
+ *** builds a sorted list of pairs out of a bag
+ op toListS : Pbag -> List{Nat,Place} .  
+ eq toListS(B)  = sort(toList(B)) .   
+ 
+ *** asymmetric relation on bags: strict TO on the set of bags obtained by permuting a bag's elements -- defined without passing through lists
+ op le  : Pbag Pbag -> Bool . *** to avoid any confusion with < , <= bag operators etc.
+ op cmp : ElPbag ElPbag -> Nat .   *** compare method between el. bags  -- results in {0,1,2}
+ eq cmp(K . p(L), K . p(L')) = cmp(L, L') .
+ eq cmp(K . P, K' . P') = if K < K' then 1 else 2 fi [owise] .
+
+ eq le(B, B) = false .
+ eq le(nilP, NeB) = true .
+ eq le(NeB, nilP) = false .
+ eq le(NeB + B', NeB + B'') = le(B', B'') . 
+ eq le(NeB, NeB') = cmp(min(NeB), min(NeB')) == 1 [owise] .
+
+ *** finds the min elementary bag, based on le
+ op min : NePbag -> ElPbag .
+ eq min(EB) = EB . *** optimization
+ eq min(K . P + NeB) = min(NeB, K . P) . 
+ op min : NePbag ElPbag -> ElPbag . 
+ eq min(EB + NeB, EB') =  min(NeB, min(EB, EB')) .
+ eq min(EB, EB) = EB .
+ eq min(EB, EB') = if cmp(EB, EB') == 1 then EB else EB' fi [owise] .
+ 
+ *** strict TO obtained by translating bags into sorted lists of pairs
+ op lex : Pbag Pbag -> Bool .
+ eq lex(B, B) = false .
+ eq lex(nilP, NeB) = true .
+ eq lex(NeB, nilP) = false .
+ eq lex(NeB, NeB') = lex(toListS(NeB), toListS(NeB')) [owise] .
+
+ *** non strict TO (based on lex)
+ op leq : Pbag Pbag -> Bool .
+ eq leq(B, B) = true .
+ eq leq(B, B') = lex(B, B') [owise] .
+ 
+ *** -- operators used for net algebra -- 
+ *** add a new label to bag's elements -- version specifying elements to share (i.e., to which not to add the label)
+ op addLab : Pbag Lab Pset -> Pbag . 
+ eq addLab(B, L, S) = $addLab(B, nilP, L, S) .
+ op $addLab : Pbag Pbag Lab Pset -> Pbag .
+ eq $addLab(nilP, B, L, S) = B .
+ceq $addLab(K . P + B', B, L, S) = $addLab(B', K . P + B, L, S) if P in S .
+ eq $addLab(K . P + B', B, L, S) = $addLab(B', K . addLab(P, L) + B, L, S) [owise].
+ *** default: add a new label to every bag element
+ op addLab : Pbag Lab -> Pbag .
+ eq addLab(B, L) = addLab(B, L, emptyPset) .
+ 
+ *** set a weight for a set of places -- builds on set(B, P, I) defined in BAG module (note: P is a Set)
+ op set : Pbag Pset Nat -> Pbag .
+ceq set(B, S, I) = $set(B, S, I) if S :: Place == false . *** S is not a singleton (we avoid recursion)
+ op $set : Pbag Pset Nat -> Pbag . 
+ eq $set(B, emptyPset, I) = B .  
+ eq $set(B, S U P , I) = $set(set(B, P, I), S , I) .
+ 
+ *** replaces in all places whose label match the given suffix with a corresponding suffix having as header's index the specified value
+ op replaceWith : Pbag NeLab Nat -> Pbag . 
+ eq replaceWith(B, NeL, I) = $replaceWith(B, nilP, NeL, I) .
+ op $replaceWith : Pbag Pbag NeLab Nat -> Pbag .
+ceq $replaceWith(K . p(L' NeL) + B, B', NeL, I) = $replaceWith(B, K . p(L' < W ; I > L) + B', NeL, I) if < W ; J > L := NeL .
+ eq $replaceWith(nilP, B, NeL, I) = B .
+ eq $replaceWith(K . P + B', B, NeL, I) = $replaceWith(B', K . P + B, NeL, I) [owise] .
+endfm
+
+
+view Pbag from TRIV to PBAG is 
+ sort Elt to Pbag .
+endv
+
+*** strict TO view
+view Pbag< from STRICT-TOTAL-ORDER to PBAG is 
+  sort Elt to Pbag .
+  op _<_ to le . 
+endv

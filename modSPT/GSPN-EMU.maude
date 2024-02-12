@@ -1,0 +1,49 @@
+*** defines the PT-system semantics
+in PT-NORM
+in SPT-LAB
+
+fmod GSPN is 
+  pr PT-SYS{SPTlab} .
+  var Q Q' : Tmatrix .
+  vars T T' : Tran .
+  var L : Tlab .
+  vars N N' : Net .
+  var M : Pbag .
+  op prio : Tran -> Nat .
+  eq prio(Q |-> L) = prio(L) .
+  op tag : Tran -> String .
+  eq tag(Q |-> L) = tag(L) .
+  op rate : Tran -> Float .
+  eq rate(Q |-> L) = rate(L) .
+  op enabled : Tran System -> [Bool] .
+ ceq enabled(T, (T ; T' ; N) M) = false if prio(T) < prio(T') /\ hasConcession(T', M) .
+  eq enabled(T, (T ; N) M) = hasConcession(T, M) [owise] .
+endfm
+
+mod GSPN-EMU is
+ pr GSPN .
+ vars I O H M M' : Pbag . 
+ vars N N' : Net .
+ vars L L' : Tlab . *** tran. lab
+ var Q Q' : Tmatrix .
+ vars T T' : Tran .
+ *** ordinary firing rule
+ crl [firing] : N M => N M + fire(t(T),M) if T ; N' := N  /\ enabled(T, N M) .
+endm
+
+*** mod GSPN-EMU-NORM is
+***  pr PT-NORM{SPTlab} .
+***  vars I O H M M' : Pbag . 
+***  vars N N' : Net .
+***  vars L L' : Tlab . *** tran. lab
+***  var Q Q' : Tmatrix .
+***  vars T T' : Tran .
+***  op enabled : Tran System -> [Bool] .
+*** ceq enabled(Q |-> L, (Q |-> L ; Q' |-> L' ; N) S) = false if prio(Q') > prio(Q) /\ hasConcession(Q', S) .
+***  eq enabled(T, N S) = hasConcession(T, N S) [owise] .
+ 
+***  *** crl [firing] : N M => N normalize(M + O - I) if [I,O,H] |-> L ; N' := N  /\ I =/= O /\ enabled([I,O,H], M) .
+***  crl [firing] : (N ; Q |-> L) M => (N ; Q |-> L) normalize(M + O - I) if [I,O,H] := Q /\ I =/= O /\ enabled(Q, M)  [print "Q = " L] .
+***  *** includes a further optimization: if the marked places are retained then index abstraction is skipped
+***  *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if [I,O,H] |-> L ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
+*** endm

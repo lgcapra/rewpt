@@ -1,0 +1,167 @@
+*** this module defines the operators to bring a Net (System) to a minimal/canonical form
+*** should be used in combination with NET-OP: i.e., assumes that models are built according
+*** to the net-operators there defined
+in PT-SYS
+
+fmod PT-NORM{X :: TRIV} is
+ pr PT-SYS{X} .
+ pr SET+{Nat} * (op emptyS to emptyNat) .
+ vars P P' P'' : Place .
+ vars S S' : Pset .
+ vars N N' : Net .
+ vars B B' B'' B0 B1 B2 : Pbag .
+ var Sys Sys' : System .
+ vars I J : Nat .
+ vars K K' : NzNat .
+ var Z : Int .
+ vars W W' W'' : String .
+ vars L L' L'' : Lab .
+ var NeL : NeLab .
+ vars Ls Ls' : List{String} .
+ 
+ *** normalization (general): index abstraction plus marking normalization 
+ op normalize : Pbag -> Pbag .
+ eq normalize(B) = minimize(abstract(B)) . *** seems slightly better than the alternative 
+ *** eq normalize(B) = abstract(minimize(B)) . *** alternative
+ *** version 2 (i.e., version using abstract2)
+ op normalize2 : Pbag -> Pbag .
+ eq normalize2(B) = minimize(abstract2(B)) . *** seems slightly better 
+ 
+ *** flexible version: index-abstraction activated based on a flag
+ op normalize : Pbag Bool -> Pbag .
+ eq normalize(B, F:Bool) = if F:Bool then minimize(B) else normalize(B) fi .
+ *** version 2 
+ op normalize2 : Pbag Bool -> Pbag .
+ eq normalize2(B, F:Bool) = if F:Bool then minimize(B) else normalize2(B) fi .
+ 
+ *** brings a marking (of a symmetric net) to a minimal form
+ op minimize : Pbag -> Pbag  [memo] .
+ op minimize2 : Pbag -> Pbag [memo] .
+ 
+ eq minimize(B) = B [owise] .
+ ceq minimize(K . P + K' . P' + B) = minimize(B' + (B - B'' )) if p(L' < W ; I > L) := P /\ p(L'' < W ; J > L) := P' /\
+                      J > I /\ (K =/= K' or-else L' =/= L'')  /\ B'' := extract(B, W, I U J, L) /\
+                      B' := swapLab(B'' + K . P + K' . P', W, L, I, J) /\ le(B', B'' + K . P + K' . P') . *** J > I prunes some matches (same as I > J) 
+
+ *** using lex instead of le seems to be a bit less efficient
+ *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
+ op swapLab : Pbag String Lab Nat Nat -> Pbag .
+ eq swapLab(B, W, L, I, I) = B .
+ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J . 
+ op $swapLab : Pbag Pbag String Lab Nat Nat -> Pbag .
+ eq $swapLab(nilP, B, W, L, I, J) = B .
+ eq $swapLab(K . p(L' < W ; I > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; J > L) + B', W, L, I, J) .
+ eq $swapLab(K . p(L' < W ; J > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; I > L) + B', W, L, I, J) .
+ eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
+
+*** makes name (index) abstraction in a marking in a simple way: repeatedly searches (and in the event, replaces with) a suffix header's index with a missing prdecessor
+ op abstract : Pbag -> Pbag .
+ceq abstract(B) = abstract(K . p(L' < W ; K' - 1 > L) + replaceWith(B', < W ; K' > L, K' - 1)) if K . p(L' < W ; K' > L) + B' := B /\ exists(B', < W ; K' - 1 > L) == false .
+ eq abstract(B) = B [owise] .
+ *** version 2 : (repeatedly) finds the smallest missing suffix header's index and the greatest one (if any) and replaces the former with the latter
+ *** negli esempi è un po' meno efficiente ma in generale (in casi meno semplici) può essere meglio
+ op abstract2 : Pbag -> Pbag .
+ceq abstract2(B) = abstract2(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ I := minNotIn(B', W, L) /\ I < K  /\ K := maxIn(B, W, L) .
+ eq abstract2(B) = B [owise] .
+
+*** net/system versions
+ op abstract : Net -> Net . *** needed?
+ eq abstract(N) = net(abstract(N nilP)) .
+ op abstract : System -> System .
+ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K' > L, K' - 1)) if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ exists(S', < W ; K' - 1 > L) == false .
+ eq abstract(Sys) = Sys [owise] .
+*** version 2
+ op abstract2 : System -> System .
+ceq abstract2(Sys) = abstract2(replaceWith(Sys, NeL, I)) if S := places(Sys) /\ p(L' NeL) U S' := S /\ < W ; K > L := NeL /\ I := minNotIn(S', W, L) /\ I < K  /\ K := maxIn(S, W, L) .
+ eq abstract2(Sys) = Sys [owise] .
+
+*** excludes from index abstraction those places (components) matching a given suffix
+ op abstractBut : System String -> System .
+ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K' > L, K' - 1), W') if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ 1st(last(L' < W ; K' > L)) =/= W' /\ exists(S', < W ; K' - 1 > L) == false .
+ eq abstractBut(Sys, W) = Sys [owise] .
+*** version 2
+op abstractBut2 : System String -> System .
+ceq abstractBut2(Sys, W') = abstractBut2(replaceWith(Sys, < W ; K' > L, K' - 1), W') if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ 1st(last(L' < W ; K' > L)) =/= W' /\ exists(S', < W ; K' - 1 > L) == false .
+ eq abstractBut2(Sys, W) = Sys [owise] .
+******
+ 
+*** normalize a system assuming that its labelling is well-defined: for the net, only index abstraction applies 
+ op normalize : System -> System .
+ceq normalize(Sys) = net(Sys') normalize(marking(Sys')) if Sys' := abstract(Sys) .  
+
+****** excludes from index abstraction those net places (components) matching a given suffix
+op normalize : System String -> System .
+ceq normalize(Sys, W) = net(Sys') normalize(marking(Sys')) if Sys' := abstractBut(Sys, W) .  
+*****
+
+ *** version 2
+ op normalize2 : System -> System .
+ceq normalize2(Sys) = net(Sys') normalize2(marking(Sys')) if Sys' := abstract2(Sys) . 
+ op normalize2 : System String -> System .
+ceq normalize2(Sys, W) = net(Sys') normalize2(marking(Sys')) if Sys' := abstractBut2(Sys, W) . 
+ 
+ *** checks for the existence in a set of a place whose label matches the given suffix 
+ op exists : Pset NeLab  -> Bool .
+ eq exists(p(L' NeL) U S, NeL) = true  .
+ eq exists(S, NeL) = false [owise] .
+ *** bag version 
+ op exists : Pbag NeLab -> Bool .
+ eq exists(K . p(L' NeL) + B, NeL) = true  .
+ eq exists(B, NeL) = false [owise] .
+ *** eq exists(B, NeL) = exists(support(B), NeL) . *** alternative
+ *** net/system versions building on Net.places: efficient if places is set as [memo] -- otherwise better to define from scratch
+ op exists : Net NeLab  -> Bool .
+ eq exists(N, NeL) = exists(places(N), NeL) .
+ *** op exists : System NeLab -> Bool . *** inutile, se assumiano che Marking \subseteq Net
+ *** eq exists(N B, NeL) = exists(B, NeL) or-else exists(N, NeL) .
+ *** new: checks the existence of a place in a set with a suffix header's index greater than the specified one
+ op existsgr : Pset NeLab  -> Bool .
+ceq existsgr(p(L' < W ; J > L) U S, < W ; I > L) = true  if J > I .
+ eq existsgr(S, NeL) = false [owise] .
+ *** bag version
+op existsgr : Pbag NeLab  -> Bool .
+ceq existsgr(K . p(L' < W ; J > L) + B, < W ; I > L) = true  if J > I .
+ eq existsgr(B, NeL) = false [owise] .
+*** returns the biggest suffix header's index in the specified set of places (-1 if no place with a matching suffix does exist)
+ op maxIn : Pset String Lab -> Int .
+ceq maxIn(p(L' NeL) U S, W, L) = J if < W ; J > L := NeL /\ existsgr(S, NeL) == false .  
+ eq maxIn(S, W, L) = -1 [owise] .
+ *** bag version
+ op maxIn : Pbag String Lab -> Int .
+ceq maxIn(K . p(L' NeL) + B, W, L) = J if < W ; J > L := NeL /\ existsgr(B, NeL) == false .  
+ eq maxIn(B, W, L) = -1 [owise] .
+ 
+ *** find the min suffix header's index non present in the set of places
+ op minNotIn : Pset String Lab -> Nat .
+ eq minNotIn(S, W, L) = $minNotIn(S, W, L, 0) .
+ op $minNotIn : Pset String Lab Nat -> Nat . 
+ eq $minNotIn(S, W, L, I) = if exists(S, < W ; I > L) then $minNotIn(S, W, L, I + 1) else I fi .  
+*** ceq $minNotIn(S, W, L, I) = $minNotIn(S, W, L, I + 1) if exists(S, < W ; I > L) . *** alternative
+ *** eq $minNotIn(S, W, L, I) = I [owise] .
+ *** net version (defined for convenience)
+ op minNotIn : Net String Lab -> Nat .
+ eq minNotIn(N, W, L) = minNotIn(places(N), W, L) .
+ 
+ *** bag version (defined for efficiency)
+ op minNotIn : Pbag String Lab -> Nat .
+ eq minNotIn(B, W, L) = $minNotIn(B, W, L, 0) .
+ op $minNotIn : Pbag String Lab Nat -> Nat . 
+ eq $minNotIn(B, W, L, I) = if exists(B, < W ; I > L) then $minNotIn(B, W, L, I + 1) else I fi .  
+ 
+ *** default versions (with a null suffix last part)
+ op minNotIn : Net String -> Nat .
+ eq minNotIn(N, W) = minNotIn(N, W, emptyLab) .
+ op minNotIn : Pbag String -> Nat .
+ eq minNotIn(B, W) = minNotIn(B, W, emptyLab) .
+
+ var A : Set{Nat} .
+ *** extracts the elements with a given suffix and the suffix header's index in a set
+ op extract : Pbag String Set{Nat} Lab ->  Pbag .
+ eq extract(B, W, A, L) = $extract(B, nilP, W, A, L) .
+ op $extract : Pbag Pbag String Set{Nat} Lab ->  Pbag .
+ eq $extract(nilP, B, W, A, L) = B .
+ceq $extract(K . p(L' < W ; I > L) + B, B', W, A, L) = $extract(B,
+ B' + K . p(L' < W ; I > L) , W, A, L) if I in A . 
+ eq $extract(K . P + B, B', W, A, L) = $extract(B, B' , W, A, L) [owise] .  
+endfm 
+

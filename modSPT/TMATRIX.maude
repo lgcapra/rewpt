@@ -1,0 +1,95 @@
+in PBAG
+in ATYPE
+
+fmod TMATRIX is
+ pr PBAG .
+ pr ATYPE .
+ sort Tmatrix .
+ op [_,_,_] : Pbag Pbag Pbag -> Tmatrix [ctor] .
+ 
+ vars X Y Z X' Y' Z' : Pbag .
+ vars P P' P'' : Place .
+ vars N N' C1 C2 : Nat .
+ vars K K' : NzNat .
+ vars Q Q' : Tmatrix .
+ var L   : Lab .
+ var NeL  : NeLab .
+ var S  : Pset .
+ var Ws :  List{String} .
+ var NWs : NeList{String} .
+ 
+ ops I O H : Tmatrix -> Pbag .
+ eq I([X,Y,Z]) = X .
+ eq O([X,Y,Z]) = Y .
+ eq H([X,Y,Z]) = Z .
+
+ op hasConcession : Tmatrix Pbag -> Bool .
+ eq hasConcession([X,Y,Z], X') = X <= X' and-then Z > X' .
+
+ op fire : Tmatrix Pbag -> Pbag .
+ eq fire([X,Y,Z], X') = X' + Y - X .
+ 
+ op _(_) : Tmatrix Atype -> Pbag [prec 23] . *** introduced for convenience
+ var a : Atype .
+ eq Q(i) = I(Q) .
+ eq Q(o) = O(Q) . 
+ eq Q(h) = H(Q) .
+
+ op in :  Tmatrix Place -> Bool . *** test the existence of a place
+ eq in([X + K . P, Y, Z], P) = true .
+ eq in([X, Y + K . P, Z], P) = true .
+ eq in([X, Y, Z + K . P], P) = true .
+ eq in(Q, P) = false [owise] .
+
+ op dead : Tmatrix -> Bool .  *** checks for structurally dead transitions 
+ceq dead([K . P + X, Y, K' . P + Z]) = true if K >= K'  .
+ eq dead(Q) = false [owise] .
+
+ op places : Tmatrix -> Pset .
+ eq places([X,Y,Z]) = support(X) U support(Y) U support(Z) .
+ 
+ *** pair-wise sum
+ op _+_  : Tmatrix Tmatrix -> Tmatrix [prec 41 assoc comm] .
+ eq [X,Y,Z] + [X',Y',Z'] = [X' + X, Y' + Y, Z' + Z] .
+ *** set a given place's arc type
+ op set : Tmatrix Atype Place Nat -> Tmatrix .
+ eq set([X,Y,Z], i, P, N) = [set(X,P,N), Y, Z] .
+ eq set([X,Y,Z], o, P, N) = [X, set(Y,P,N), Z] .
+ eq set([X,Y,Z], h, P, N) = [X, Y, set(Z,P,N)] .
+ 
+ *** net-algebra ops: add a new label to a matrix' elements
+ *** removes all places from a local matrix
+ op remove :  Tmatrix Pset -> Tmatrix .
+ eq remove([X,Y,Z], S) = [remove(X, S),remove(Y, S),remove(Z, S)] .
+ *** add a new label to a matrix' elements
+ op addLab : Tmatrix Lab -> Tmatrix . *** overloaded
+ eq addLab([X,Y,Z], L) = [addLab(X, L), addLab(Y, L), addLab(Z, L)] .
+ *** version specifying elements to share
+ op addLab : Tmatrix Lab Pset -> Tmatrix . 
+ eq addLab([X,Y,Z], L, S) = [addLab(X, L, S), addLab(Y, L, S), addLab(Z, L, S)] .
+ 
+ *** sub-matrices based on the suffix
+ op sumatrix : Tmatrix NeList{String} -> Tmatrix .
+ eq sumatrix([X,Y,Z], NWs) = [subag(X, NWs), subag(Y, NWs), subag(Z, NWs)] .
+ op sumatrix : Tmatrix List{String} NeLab -> Tmatrix .
+ eq sumatrix([X,Y,Z], NWs, NeL) = [subag(X, NWs, NeL), subag(Y, NWs, NeL), subag(Z, NWs, NeL)] . *** optimization
+ eq sumatrix([X,Y,Z], emptyLs, NeL) = [subag(X, NeL), subag(Y, NeL), subag(Z, NeL)] .
+ op match : Tmatrix List{String} NeLab -> Tmatrix .
+ eq match([X,Y,Z], Ws, NeL) = [match(X, Ws, NeL), match(Y, Ws, NeL), match(Z, Ws, NeL)] .
+
+ *** derived definitions of places
+ op places : Tmatrix NeList{String}  -> Pset .
+ eq places(Q, NWs) = places(sumatrix(Q, NWs)) .
+ op places : Tmatrix List{String} NeLab  -> Pset .
+ eq places(Q, Ws, NeL) = places(sumatrix(Q, Ws, NeL)) .
+ op matchplaces : Tmatrix List{String} NeLab  -> Pset .
+ eq matchplaces(Q, Ws, NeL) = places(match(Q, Ws, NeL)) .
+ 
+ op replaceWith : Tmatrix NeLab Nat -> Tmatrix .
+ eq replaceWith([X,Y,Z], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N), replaceWith(Z, NeL, N)] .
+  
+endfm
+
+view Tmatrix from TRIV to TMATRIX is 
+ sort Elt to Tmatrix . 
+endv

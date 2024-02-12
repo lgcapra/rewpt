@@ -1,0 +1,142 @@
+*** a new, more effective net representation
+in TMATRIX
+*** in ../shared/MAP+
+in ../shared/MAP-SET
+
+*** signature of a PT net : a PT net is a map Tmatrix -> Tag
+fmod PT-NET{X :: TRIV} is
+ pr MAP-SET{Tmatrix,X} * (sort Map{Tmatrix,X} to Net, sort Entry{Tmatrix,X} to Tran, op emptyM to emptyN,
+                        op emptyS to emptyTset) .
+ pr SET+{X} * (op emptyS to emptyStlab) .
+
+ vars N N' N'' : Net .
+ vars T T' : Tran .
+ vars P P' P'' : Place .
+ vars Y J  : Nat .
+ vars K K' : NzNat .
+ vars I O H B : Pbag .
+ vars Q Q' : Tmatrix . 
+ vars S S' PS : Pset .
+ var W :  String .
+ var WL : List{String} .
+ var NWL : NeList{String} .
+ var Lab : Lab .
+ var NeL : NeLab .
+ var L : X$Elt . *** tran. lab
+ var Z  : Set{X} .  
+ 
+ op lab : Tran -> X$Elt .
+ eq lab(Q |-> L) = L .
+ op t : Tran -> Tmatrix .
+ eq t(Q |-> L) = Q .
+  
+
+ *** dead Tran
+ op dead : Tran -> Bool .   
+ eq dead(Q |-> L) = dead(Q) .
+ 
+ *** test the existence of a place
+ op in :  Net Place -> Bool . 
+ceq in(Q |-> L ; N, P) = true if in (Q, P) .
+ eq in(N, P) = false [owise] .
+
+ *** test the existence of a Tran
+ op in :  Net Tmatrix -> Bool . 
+ eq in(N, Q) = $hasMapping(N, Q) .
+
+ *** gets out the places of the net
+ op places : Net -> Pset [memo] .
+ eq places(N) = $places(N, emptyPset) .  
+ op $places : Net Pset -> Pset . 
+ eq $places(emptyN, S) = S . 
+ eq $places(Q |-> L ; N, S) = $places(N, S U places(Q)) .
+ 
+ *** extract the subnet matching a given suffix ()
+ op subnet : Net NeList{String} -> Net .
+ eq subnet(N, NWL) = $subnet(N, NWL, emptyN) .  
+ op $subnet : Net NeList{String} Net -> Net . 
+ eq $subnet(emptyN, NWL, N) = clearup(N) . 
+ eq $subnet(Q |-> L ; N, NWL, N') = $subnet(N, NWL, N' ; sumatrix(Q, NWL) |-> L) .
+ ***
+ op subnet : Net List{String} NeLab -> Net .
+ eq subnet(N, WL, NeL) = $subnet(N, WL, NeL, emptyN) .  
+ op $subnet : Net List{String} NeLab Net -> Net . 
+ eq $subnet(emptyN, WL, NeL, N) = clearup(N) . 
+ eq $subnet(Q |-> L ; N, WL, NeL, N') = $subnet(N, WL, NeL, N' ; sumatrix(Q, WL, NeL) |-> L) .
+ ***
+ op subnet : Net NeLab -> Net .
+ eq subnet(N, NeL) = subnet(N, emptyLs, NeL) .
+ *** extract the subnet matching a given pre-suffix
+ op netmatch : Net List{String} NeLab -> Net .
+ eq netmatch(N, WL, NeL) = $netmatch(N, WL, NeL, emptyN) .  
+ op $netmatch : Net List{String} NeLab Net -> Net . 
+ eq $netmatch(emptyN, WL, NeL, N) = clearup(N) . 
+ eq $netmatch(Q |-> L ; N, WL, NeL, N') = $netmatch(N, WL, NeL, N' ; match(Q, WL, NeL) |-> L) .
+
+ *** places matching a suffix (derived definitions) 
+ op places : Net NeList{String} -> Pset .
+ eq places(N, NWL) = places(subnet(N, NWL)) .
+ op places : Net List{String} NeLab -> Pset .
+ eq places(N, WL, NeL) = places(subnet(N, WL, NeL)) .
+ op placematch : Net List{String} NeLab -> Pset .
+ eq placematch(N, WL, NeL) = places(netmatch(N, WL, NeL)) .
+ 
+ *** removes self-loops
+ op clearup : Net -> Net .
+ eq clearup([I, I, H] |-> L ; N) = clearup(N) .
+ eq clearup(N) = N [owise] .
+
+ *** removes the 2nd net from the first, if it is a subnet (does nothing otherwise)
+ op detache : Net Net -> Net .
+ eq detache(N ; N', N') = N .
+ eq detache(N, N') = N  [owise] .
+ *** symmetric version used in the paper
+ op detache : Net Elab List{String}  -> Net .
+ op detache : Net Elab  -> Net .
+ eq detache(N, El:Elab) = detache(N, El:Elab, emptyLs) .
+
+ *** remove places
+ op remove :  Net Pset -> Net .
+ eq remove(N, emptyPset) = N .
+ eq remove(N, S) = $remove(N, emptyN, S) .
+ op $remove : Net Net NePset -> Net .
+ eq $remove(emptyN, N, S) = N .
+ eq $remove(Q |-> L ; N', N, S) = $remove(N', remove(Q, S)  |-> L ; N, S).
+
+ *** remove Trans with given labels
+ op remove :  Net Set{X} -> Net .
+ eq remove(N, emptyStlab) = N .
+ eq remove(N, Z) = $remove(N, emptyN, Z) .
+ op $remove : Net Net NeSet{X} -> Net .
+ eq $remove(emptyN, N, Z) = N .
+ceq $remove(Q |-> L ; N', N, Z) = $remove(N', N, Z) if L in Z .
+ eq $remove(Q |-> L ; N', N, Z) = $remove(N', Q |-> L ; N, Z) [owise] .
+ 
+ *** net algebra
+ *** add a new tag to the net's places, but those to share (i.e., to which not to add the tag)
+ op addLab : Net Lab Pset -> Net . 
+ eq addLab(N, Lab, S) = $addLab(N, emptyN, Lab, S) .
+ op $addLab : Net Net Lab Pset -> Net .
+ eq $addLab(emptyN, N, Lab, S) = N .
+ eq $addLab(Q |-> L ; N', N, Lab, S) = $addLab(N', addLab(Q, Lab, S) |-> L ; N, Lab, S) .
+ *** simple (default) version
+ op addLab : Net Lab -> Net . 
+ eq addLab(N, Lab) = addLab(N, Lab, emptyPset) .
+ *** defined for convenience (maps to the previous version)
+ op addLab : Net Lab List{String} -> Net .
+ eq addLab(N, Lab, WL) = addLab(N, Lab, places(N, WL)) . 
+ 
+ *** replaces all the occurrences of places whose label matches the given suffix with a corresponding suffix having as header's index the specified value
+ op replaceWith : Net NeLab Nat -> Net . 
+ eq replaceWith(N, NeL, Y) = $replaceWith(N, NeL, Y, emptyN) .  
+ op $replaceWith : Net NeLab Nat Net -> Net . 
+ eq $replaceWith(emptyN, NeL, Y, N) = N . 
+ eq $replaceWith(Q |-> L ; N, NeL, Y, N') = $replaceWith(N, NeL, Y, N' ; replaceWith(Q, NeL, Y) |-> L) .
+ 
+endfm
+
+*** trivial view to a PT-NET
+view PTnet{X :: TRIV} from TRIV to PT-NET{X} is 
+ sort Elt to Net .
+endv
+
