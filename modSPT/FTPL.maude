@@ -1,6 +1,6 @@
 in NET-OP
 
-fmod PT-FTPL is
+fmod FTPL is
  protecting NET-OP{String} * (op emptyStlab to emptyStr) .
  ops sline sload sass sfault faultysload faultysass :  -> Tmatrix .
  ops line load ass fault faultyload faultyass : -> Tran . 
@@ -44,8 +44,8 @@ fmod PT-FTPL is
 endfm
 
 in PT-EMU
-mod RWPT-FTPL is
- pr  PT-FTPL .
+mod FTPL is
+ pr  FTPL .
  inc PT-EMU{String} * (op emptyStlab to emptyStr) .
  vars N N' N'' : Net .
  vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : String .
