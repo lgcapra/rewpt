@@ -28,7 +28,7 @@ ceq expand([I,O,H] |-> L, P) = [I, 1 . P, H] |-> L ; [1 . P ,O, nilP] |-> << tag
   var X : Nat .
   op expand : Tran Nat -> [Net] .
   eq expand(T, X) = expand(T, p(< tag(T) ; X >)) .
-  *** expand a whole net: assumes that net's transitions take different tags
+  *** expand a whole net: assumes that net's transitions all have different tags
   op expandAll : Net Nat -> [Net] .
   eq expandAll(N, X) = $expandAll(N, emptyN, X) .
   op $expandAll : Net Net Nat -> [Net] .

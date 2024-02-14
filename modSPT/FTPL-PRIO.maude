@@ -21,7 +21,7 @@ fmod FTPL-PRIO is
  eq fault = [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ] |-> << "ft",0,1.0 >> .
  eq load  = [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] |-> loadLab .
  eq ass   = [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ]  |-> asLab .
- eq cycle = load ; line ; ass ; fault.
+ eq cycle = load ; line ; ass ; fault .
  eq PL(K) = repl&share(cycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), asLab U loadLab) . *** a PL is built of K symmetric lines 
  eq NPL(N, K) = repl&share(PL(K), N, "PL", p(< "s" ; 0 >), emptyStlab) . *** change here to vary the lines of a PL
  eq NPLsys(N, K, M) = setMark(setMark(NPL(N, K), "o" "PL", 1), "s", K * M) .
