@@ -1,0 +1,35 @@
+*** the following module defines some operators for net with priorities
+in GSPN
+
+fmod GSPN-OP is
+ pr GSPN .
+ pr CONVERSION .
+ vars P P' P'' : Place .
+ vars T T' T'' : Tran .
+ var L : Tlab .
+ vars N N' : Net .
+ vars B B' B'' : Pbag .
+ var J : Nat .
+ vars I O H : Pbag . 
+  
+*** expand takes a timed (0-priority) transition t and expands it into an equivalent sequence t' ; t'' 
+*** where t'' is immediate - the intermediate place is passed as an argument
+ op tlabexp : Tlab -> Tlab . *** creates the immediate transition's label from t's label
+ eq tlabexp(L) = << tag(L) + "-exp",1,1.0 >> . 
+ op tlabexp : Tran -> Tlab . *** creates the immediate transition's label from t
+ eq tlabexp(T) = tlabexp(lab(T)) .
+ op expand : Tran Place -> [Net] .
+ceq expand([I,O,H] |-> L, P) = [I, 1 . P, H] |-> L ; [1 . P , O, nilP] |-> tlabexp(L)  if prio(L) == 0 .  
+  *** overloading: the intermediate place's name is derived from the transition lab
+ op plabexp : Tran -> String . *** creates the immediate transition's input place's label from t's label
+ eq plabexp(T) = tag(T) + "-" + string(rate(T)) .
+ op expand : Tran Nat -> [Net] .
+ eq expand(T, J) = expand(T, p(< plabexp(T); J >)) .
+  *** expand a whole net: assumes that net's transitions all have different tags
+ op expandAll : Net Nat -> [Net] .
+ eq expandAll(N, J) = $expandAll(N, emptyN, J) .
+ op $expandAll : Net Net Nat -> [Net] .
+ eq $expandAll(emptyN, N, J) = N .
+ eq $expandAll(N ; T, N', J) = $expandAll(N , expand(T, J) ; N', J) .
+
+endfm
