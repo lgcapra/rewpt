@@ -1,8 +1,11 @@
 in NET-OP
+in GSPN-OP
 
 *** signature of the PL model (with priorities)
 fmod FTPL-PRIO is
- protecting NET-OP{SPTlab} .
+ pr NET-OP{SPTlab} .
+ pr GSPN-OP .
+
  ops sline sload sass sfault faultysload faultysass :  -> Tmatrix .
  ops line load ass fault faultyload faultyass : -> Tran . 
  ops cycle faultycycle faultyPL : -> Net .
@@ -44,5 +47,23 @@ fmod FTPL-PRIO is
  eq  PLA(K) = merge(replAnd(line ; fault, K, "w", "a", loadLab, "s", asLab, "s", "L"), "o" "L") . *** note s used twice: it's at the same time in and out
  eq  PL(K)  = set(set(PLA(K), loadLab, i, "s", K), asLab, o, "s", K) .
  eq  NPL(N,K) = replOr(PLA(K), N, "s", "s", "PL") . 
- 
+
+ *** model in which "timed" transitions are expanded into a pair timed ; immediate
+ *** the operators are "equivalent" to the above ones
+ ops expcycle : -> Net .
+ eq expcycle = expandAll(cycle, 0) .
+ ops exPL  : NzNat -> Net . 
+ eq exPL(K) = repl&share(expcycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), asLab U loadLab U tlabexp(load) U tlabexp(ass)) . *** a PL is built of K symmetric lines 
+ op expNPL  : NzNat NzNat -> Net . 
+ eq expNPL(N, K) = repl&share(exPL(K), N, "PL", p(< "s" ; 0 >), emptyStlab) .
+ op expNPLsys : NzNat NzNat NzNat -> System . 
+ eq expNPLsys(N, K, M) = setMark(setMark(expNPL(N, K), "o" "PL", 1), "s", K * M) .
+
 endfm
+
+
+*** the corresponding PT system
+mod FTPL-PRIO-SYS is
+  pr  FTPL-PRIO .
+  inc GSPN-EMU .
+endm

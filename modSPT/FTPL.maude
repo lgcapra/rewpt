@@ -44,7 +44,7 @@ fmod FTPL is
 endfm
 
 in PT-EMU
-mod FTPL is
+mod RWPT-FTPL is
  pr  FTPL .
  inc PT-EMU{String} * (op emptyStlab to emptyStr) .
  vars N N' N'' : Net .

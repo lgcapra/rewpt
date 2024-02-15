@@ -1,4 +1,4 @@
-*** defines the PT-system semantics
+*** defines the PT-system semantics without priorities 
 in PT-NORM
 
 mod PT-EMU{X :: TRIV} is
@@ -11,7 +11,7 @@ mod PT-EMU{X :: TRIV} is
  *** crl [firing] : N M => N M + O - I if [I,O,H] |-> L ; N' := N  /\ I =/= O /\ enabled([I,O,H], M) .
  *** including PT-NORM
  *** crl [firing] : N M => N normalize(M + O - I) if [I,O,H] |-> L ; N' := N  /\ I =/= O /\ enabled([I,O,H], M) .
- crl [firing] : (N ; T |-> L) M => (N ; T |-> L) normalize(M + O - I) if [I,O,H] := T /\ I =/= O /\ enabled(T, M)  [print "T = " L] .
+ crl [firing] : (N ; T |-> L) M => (N ; T |-> L) normalize(M + O - I) if [I,O,H] := T /\ I =/= O /\ hasConcession(T, M)  [print "T = " L] .
  *** includes a further optimization: if the marked places are retained then index abstraction is skipped
  *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if [I,O,H] |-> L ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
 endm

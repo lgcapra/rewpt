@@ -1,10 +1,8 @@
-in PT-FTPL-PRIO
-in GSPN-EMU
+in FTPL-PRIO-SYS
 
 *** PL system model with priorities
 mod RWPT-FTPL-PRIO is
- pr  FTPL-PRIO .
- inc GSPN-EMU .
+ pr FTPL-PRIO-SYS .
  vars N N' N'' : Net .
  vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : String .
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .

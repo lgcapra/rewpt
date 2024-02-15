@@ -18,20 +18,4 @@ fmod GSPN is
   op enabled : Tran System -> [Bool] .
  ceq enabled(T, (T ; T' ; N) M) = false if prio(T) < prio(T') /\ hasConcession(T', M) .
   eq enabled(T, (T ; N) M) = hasConcession(T, M) [owise] .
-  *** this operator expands a timed (0-priority) transition t into an equivalent sequence t' ; t'' 
-  *** where t'' is immediate - the intermediate place is passed as an argument
-  var P : Place .
-  vars I O H : Pbag . 
-  op expand : Tran Place -> [Net] .
-ceq expand([I,O,H] |-> L, P) = [I, 1 . P, H] |-> L ; [1 . P ,O, nilP] |-> << tag(L) + "-exp",1,1.0 >>  if prio(L) == 0 .  
-  *** overloading: the intermidiate place's name is derived from the transition lab
-  var X : Nat .
-  op expand : Tran Nat -> [Net] .
-  eq expand(T, X) = expand(T, p(< tag(T) ; X >)) .
-  *** expand a whole net: assumes that net's transitions all have different tags
-  op expandAll : Net Nat -> [Net] .
-  eq expandAll(N, X) = $expandAll(N, emptyN, X) .
-  op $expandAll : Net Net Nat -> [Net] .
-  eq $expandAll(emptyN, N, X) = N .
-  eq $expandAll(N ; T, N', X) = $expandAll(N , expand(T, X) ; N', X) .
 endfm
