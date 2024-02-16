@@ -53,17 +53,11 @@ fmod FTPL-PRIO is
  ops expcycle : -> Net .
  eq expcycle = expandAll(cycle, 0) .
  ops exPL  : NzNat -> Net . 
- eq exPL(K) = repl&share(expcycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), asLab U loadLab U tlabexp(load) U tlabexp(ass)) . *** a PL is built of K symmetric lines 
+ *** eq exPL(K) = repl&share(expcycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), asLab U loadLab U tlabexp(load) U tlabexp(ass)) . *** a PL is built of K symmetric lines 
+ eq exPL(K) = repl&share(expcycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >) U p(< plabexp(load) ; 0 >) U  p(< plabexp(ass) ; 0 >), asLab U loadLab U tlabexp(load) U tlabexp(ass)) . *** a PL is built of K symmetric lines 
  op expNPL  : NzNat NzNat -> Net . 
  eq expNPL(N, K) = repl&share(exPL(K), N, "PL", p(< "s" ; 0 >), emptyStlab) .
  op expNPLsys : NzNat NzNat NzNat -> System . 
  eq expNPLsys(N, K, M) = setMark(setMark(expNPL(N, K), "o" "PL", 1), "s", K * M) .
 
 endfm
-
-
-*** the corresponding PT system
-mod FTPL-PRIO-SYS is
-  pr  FTPL-PRIO .
-  inc GSPN-EMU .
-endm

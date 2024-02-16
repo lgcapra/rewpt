@@ -1,4 +1,5 @@
 in FTPL-PRIO
+in GSPN-EMU-NORM 
 
 *** the PT system of the PL model (with priorities) -- "symbolic version
 mod FTPL-PRIO-SYS-SYM is

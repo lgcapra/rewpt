@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- This project file has been saved by the New GreatSPN Editor, v.100 --><project name="MS" version="121">
+  <gspn name="symPL" show-fluid-cmd="false" zoom="125">
+    <nodes>
+      <place domain="PL" label-y="-2.0" marking="&lt;All&gt;" name="occ" x="5.0" y="3.0"/>
+      <transition delay="1" label-y="-2.0" name="fault" nservers-x="0.5" type="EXP" x="10.55" y="3.0"/>
+      <place label-y="-2.0" marking="2" name="start" x="3.0" y="10.0"/>
+      <transition label-y="-2.0" name="load" nservers-x="0.5" type="EXP" x="8.55" y="10.0"/>
+      <transition label-y="2.0" name="line" nservers-x="0.5" type="EXP" x="20.55" y="10.0"/>
+      <transition label-y="-2.0" name="assembly" nservers-x="0.5" type="EXP" x="32.55" y="10.0"/>
+      <place domain="PLL" label-x="-0.5" label-y="-2.0" name="work" x="14.0" y="10.0"/>
+      <place domain="PLL" label-x="-0.5" label-y="-2.0" name="ass" x="26.0" y="10.0"/>
+      <place domain="PLL" label-x="1.0" label-y="-2.0" name="faulty" x="15.0" y="3.0"/>
+      <color-class definition="pl{1..N}" name="PL" x="3.125" y="19.0"/>
+      <constant consttype="INTEGER" name="N" value="2" x="22.125" y="21.0"/>
+      <constant consttype="INTEGER" name="M" value="1" x="26.0" y="21.0"/>
+      <color-class definition="l{1..K}" name="L" x="12.75" y="19.0"/>
+      <color-class definition="PL*L" name="PLL" x="21.5" y="19.0"/>
+      <color-var domain="PL" name="pl" x="3.0" y="21.0"/>
+      <color-var domain="L" name="l" x="12.5625" y="21.0"/>
+      <constant consttype="INTEGER" name="K" value="2" x="19.0625" y="21.0"/>
+    </nodes>
+    <edges>
+      <arc head="load" kind="INPUT" mult="K" mult-k="0.5127929687499999" mult-x="-1.1610984802246094E-4" mult-y="0.5" tail="start">
+        <point x="8.87548828125" y="11.0"/>
+      </arc>
+      <arc head="work" kind="OUTPUT" mult="&lt;pl,All&gt;" mult-k="0.35712890625000004" tail="load"/>
+      <arc head="line" kind="INPUT" mult="&lt;pl,l&gt;" mult-k="0.33330078125000007" tail="work"/>
+      <arc head="ass" kind="OUTPUT" mult="&lt;pl,l&gt;" mult-k="0.33330078125000007" tail="line"/>
+      <arc head="assembly" kind="INPUT" mult="&lt;pl,All&gt;" mult-k="0.33330078125000007" tail="ass"/>
+      <arc head="start" kind="OUTPUT" mult="K" mult-x="0.5" mult-y="0.16864264284442498" tail="assembly">
+        <point x="33.0" y="16.5"/>
+        <point x="4.0" y="16.5"/>
+      </arc>
+      <arc head="line" kind="INHIBITOR" mult="&lt;pl,l&gt;" mult-k="1.1657226562499998" tail="faulty">
+        <point x="21.0" y="4.0"/>
+      </arc>
+      <arc head="faulty" kind="OUTPUT" mult="&lt;pl,l&gt;" mult-k="0.30009765625000007" tail="fault"/>
+      <arc head="fault" kind="INPUT" mult="&lt;pl&gt;" mult-k="0.30009765625000007" tail="occ"/>
+    </edges>
+  </gspn>
+  <gspn name="symPLprio" show-fluid-cmd="false" show-timed-cmd="false" view-rates="false">
+    <nodes>
+      <place domain="PL" label-y="-2.0" marking="&lt;All&gt;" name="occ" x="4.0" y="3.0"/>
+      <transition delay="1" label-y="-2.0" name="fault" nservers-x="0.5" type="EXP" x="9.55" y="3.0"/>
+      <place label-y="-2.0" marking="2" name="start" x="3.0" y="10.0"/>
+      <transition label-y="-2.0" name="load" nservers-x="0.5" type="EXP" x="8.55" y="10.0"/>
+      <transition label-y="2.0" name="line" nservers-x="0.5" type="EXP" x="24.55" y="10.0"/>
+      <transition label-y="-2.0" name="assembly" nservers-x="0.5" type="EXP" x="42.55" y="10.0"/>
+      <place domain="PLL" label-x="-0.5" label-y="-2.0" name="work" x="20.0" y="10.0"/>
+      <place domain="PLL" label-x="-0.5" label-y="-2.0" name="ass" x="37.0" y="10.0"/>
+      <place domain="PLL" label-x="1.0" label-y="-2.0" name="faulty" x="24.0" y="3.0"/>
+      <color-class definition="pl{1..N}" name="PL" x="3.125" y="19.0"/>
+      <constant consttype="INTEGER" name="N" value="2" x="22.125" y="21.0"/>
+      <constant consttype="INTEGER" name="M" value="1" x="26.0" y="21.0"/>
+      <color-class definition="l{1..K}" name="L" x="12.75" y="19.0"/>
+      <color-class definition="PL*L" name="PLL" x="21.5" y="19.0"/>
+      <color-var domain="PL" name="pl" x="3.0" y="21.0"/>
+      <color-var domain="L" name="l" x="12.5625" y="21.0"/>
+      <constant consttype="INTEGER" name="K" value="2" x="19.0625" y="21.0"/>
+      <place domain="PL" name="P0" x="12.0" y="10.0"/>
+      <transition name="T0" type="IMM" x="16.85" y="10.0"/>
+      <place domain="PLL" label-x="-0.5" label-y="-2.0" name="P1" x="29.0" y="10.0"/>
+      <transition name="T1" type="IMM" x="33.85" y="10.0"/>
+      <place domain="PL" name="P2" x="46.0" y="10.0"/>
+      <transition name="T2" type="IMM" x="50.849999999999994" y="10.0"/>
+      <place domain="PLL" name="P3" x="14.0" y="3.0"/>
+      <transition name="T3" type="IMM" x="19.85" y="3.0"/>
+    </nodes>
+    <edges>
+      <arc head="load" kind="INPUT" mult="K" mult-k="0.5127929687499999" mult-x="-1.1610984802246094E-4" mult-y="0.5" tail="start">
+        <point x="8.87548828125" y="11.0"/>
+      </arc>
+      <arc head="work" kind="OUTPUT" mult="&lt;pl,All&gt;" mult-k="0.35712890625000004" mult-x="0.21435546875" mult-y="0.5" tail="T0"/>
+      <arc head="line" kind="INPUT" mult="&lt;pl,l&gt;" mult-k="0.33330078125000007" tail="work"/>
+      <arc head="ass" kind="OUTPUT" mult="&lt;pl,l&gt;" mult-k="0.33330078125000007" mult-x="0.6667968750000028" tail="T1"/>
+      <arc head="assembly" kind="INPUT" mult="&lt;pl,All&gt;" mult-k="0.33330078125000007" tail="ass"/>
+      <arc head="start" kind="OUTPUT" mult="K" mult-x="0.5" mult-y="0.16864264284442498" tail="T2">
+        <point x="51.0" y="16.5"/>
+        <point x="4.0" y="16.5"/>
+      </arc>
+      <arc head="line" kind="INHIBITOR" mult="&lt;pl,l&gt;" mult-k="0.0" tail="faulty"/>
+      <arc head="P3" kind="OUTPUT" mult="&lt;pl,l&gt;" mult-k="0.30009765625000007" tail="fault"/>
+      <arc head="fault" kind="INPUT" mult="&lt;pl&gt;" mult-k="0.30009765625000007" tail="occ"/>
+      <arc head="T0" kind="INPUT" mult="&lt;pl&gt;" mult-x="0.0" mult-y="-1.0" tail="P0"/>
+      <arc head="P0" kind="OUTPUT" mult="&lt;pl&gt;" mult-x="0.0" mult-y="-1.0" tail="load"/>
+      <arc head="P1" kind="OUTPUT" mult="&lt;pl,l&gt;" mult-x="0.0" tail="line"/>
+      <arc head="T1" kind="INPUT" mult="&lt;pl,l&gt;" mult-x="0.5" tail="P1"/>
+      <arc head="P2" kind="OUTPUT" mult="&lt;pl&gt;" mult-x="0.0" mult-y="-1.0" tail="assembly"/>
+      <arc head="T2" kind="INPUT" mult="&lt;pl&gt;" mult-x="0.5" mult-y="-1.0" tail="P2"/>
+      <arc head="T3" kind="INPUT" mult="&lt;pl,l&gt;" mult-k="0.39990234375" tail="P3"/>
+      <arc head="faulty" kind="OUTPUT" mult="&lt;pl,l&gt;" mult-k="0.19990234375000002" tail="T3"/>
+    </edges>
+  </gspn>
+  <gspn name="PL" show-color-cmd="false" show-fluid-cmd="false" show-timed-cmd="false" view-rates="false">
+    <nodes>
+      <place label-x="-1.0" label-y="-2.0" marking="1" name="o" x="6.0" y="10.0"/>
+      <transition label-y="-2.0" name="ft0" nservers-x="0.5" type="EXP" x="16.55" y="3.0"/>
+      <transition label-y="-2.0" name="ft1" nservers-x="0.5" type="EXP" x="16.55" y="17.0"/>
+      <place label-y="-2.0" marking="2 *M" name="s" x="11.0" y="10.0"/>
+      <transition label-y="-2.0" name="ld" nservers-x="0.5" type="EXP" x="16.55" y="10.0"/>
+      <transition label-y="2.0" name="ln0" nservers-x="0.5" type="EXP" x="26.55" y="7.0"/>
+      <transition label-y="-2.0" name="ln1" nservers-x="0.5" type="EXP" x="26.55" y="13.0"/>
+      <transition label-y="-2.0" name="as" nservers-x="0.5" type="EXP" x="36.55" y="10.0"/>
+      <place name="w0" x="21.0" y="7.0"/>
+      <place name="w1" x="21.0" y="13.0"/>
+      <place name="a0" x="31.0" y="7.0"/>
+      <place name="a1" x="31.0" y="13.0"/>
+      <place label-y="-2.0" name="f0" x="21.0" y="3.0"/>
+      <place name="f1" x="21.0" y="17.0"/>
+      <constant consttype="INTEGER" name="M" value="2" x="3.0" y="21.0"/>
+    </nodes>
+    <edges>
+      <arc head="ft0" kind="INPUT" tail="o">
+        <point x="7.0" y="4.0"/>
+      </arc>
+      <arc head="ft1" kind="INPUT" tail="o">
+        <point x="7.0" y="18.0"/>
+      </arc>
+      <arc head="ld" kind="INPUT" mult="2" mult-k="0.81142578125" mult-x="-5.0681611512004565E-5" mult-y="0.4999999999999982" tail="s">
+        <point x="14.87548828125" y="11.0"/>
+      </arc>
+      <arc head="w0" kind="OUTPUT" tail="ld"/>
+      <arc head="ln0" kind="INPUT" tail="w0"/>
+      <arc head="a0" kind="OUTPUT" tail="ln0"/>
+      <arc head="w1" kind="OUTPUT" tail="ld"/>
+      <arc head="ln1" kind="INPUT" tail="w1"/>
+      <arc head="a1" kind="OUTPUT" tail="ln1"/>
+      <arc head="as" kind="INPUT" tail="a1"/>
+      <arc head="as" kind="INPUT" tail="a0"/>
+      <arc head="s" kind="OUTPUT" mult="2" mult-x="0.5" mult-y="-0.04080641240004823" tail="as">
+        <point x="37.0" y="21.0"/>
+        <point x="12.0" y="21.0"/>
+      </arc>
+      <arc head="ln0" kind="INHIBITOR" tail="f0">
+        <point x="27.0" y="4.0"/>
+      </arc>
+      <arc head="ln1" kind="INHIBITOR" tail="f1">
+        <point x="27.0" y="18.0"/>
+      </arc>
+      <arc head="f0" kind="OUTPUT" tail="ft0"/>
+      <arc head="f1" kind="OUTPUT" tail="ft1"/>
+    </edges>
+  </gspn>
+  <gspn name="2PL" show-color-cmd="false" show-fluid-cmd="false" show-timed-cmd="false" view-rates="false">
+    <nodes>
+      <place marking="1" name="pnf1" x="8.0" y="12.0"/>
+      <transition label-y="-2.0" name="tfa1" nservers-x="0.5" type="EXP" x="18.55" y="5.0"/>
+      <transition label-y="-2.0" name="tfa2" nservers-x="0.5" type="EXP" x="18.55" y="19.0"/>
+      <place label-y="-2.0" marking="M" name="pin1" x="8.0" y="22.0"/>
+      <transition label-y="-2.0" name="tlo1" nservers-x="0.5" type="EXP" x="18.55" y="12.0"/>
+      <transition label-y="2.0" name="tl1" nservers-x="0.5" type="EXP" x="28.55" y="9.0"/>
+      <transition name="tl2" nservers-x="0.5" type="EXP" x="28.55" y="15.0"/>
+      <transition label-y="-2.0" name="ta1" nservers-x="0.5" type="EXP" x="38.55" y="12.0"/>
+      <place name="pl1" x="23.0" y="9.0"/>
+      <place name="pl2" x="23.0" y="15.0"/>
+      <place name="pw1" x="33.0" y="9.0"/>
+      <place name="pw2" x="33.0" y="15.0"/>
+      <place name="pb1" x="23.0" y="5.0"/>
+      <place name="pb2" x="23.0" y="19.0"/>
+      <constant consttype="INTEGER" name="M" value="2" x="3.0" y="22.0"/>
+      <place marking="1" name="pnf2" x="8.0" y="31.0"/>
+      <transition label-y="2.0" name="tfa1_2" nservers-x="0.5" type="EXP" x="18.55" y="24.0"/>
+      <transition label-y="-2.0" name="tfa2_" nservers-x="0.5" type="EXP" x="18.55" y="38.0"/>
+      <transition label-y="-2.0" name="tlo1_2" nservers-x="0.5" type="EXP" x="18.55" y="31.0"/>
+      <transition label-y="2.0" name="tl1_2" nservers-x="0.5" type="EXP" x="28.55" y="28.0"/>
+      <transition name="tl2_2" nservers-x="0.5" type="EXP" x="28.55" y="34.0"/>
+      <transition label-y="-2.0" name="ta1_2" nservers-x="0.5" type="EXP" x="38.55" y="31.0"/>
+      <place name="pl1_2" x="23.0" y="28.0"/>
+      <place name="pl2_2" x="23.0" y="34.0"/>
+      <place name="pw1_2" x="33.0" y="28.0"/>
+      <place name="pw2_2" x="33.0" y="34.0"/>
+      <place name="pb1_2" x="23.0" y="24.0"/>
+      <place name="pb2_2" x="23.0" y="38.0"/>
+    </nodes>
+    <edges>
+      <arc head="tfa1" kind="INPUT" tail="pnf1">
+        <point x="9.0" y="6.0"/>
+      </arc>
+      <arc head="tfa2" kind="INPUT" tail="pnf1">
+        <point x="9.0" y="20.0"/>
+      </arc>
+      <arc head="tlo1" kind="INPUT" mult="2" mult-k="0.81142578125" mult-x="-5.0681611512004565E-5" mult-y="0.9999999999999982" tail="pin1">
+        <point x="16.87548828125" y="13.0"/>
+      </arc>
+      <arc head="pl1" kind="OUTPUT" tail="tlo1"/>
+      <arc head="tl1" kind="INPUT" tail="pl1"/>
+      <arc head="pw1" kind="OUTPUT" tail="tl1"/>
+      <arc head="pl2" kind="OUTPUT" tail="tlo1"/>
+      <arc head="tl2" kind="INPUT" tail="pl2"/>
+      <arc head="pw2" kind="OUTPUT" tail="tl2"/>
+      <arc head="ta1" kind="INPUT" tail="pw2"/>
+      <arc head="ta1" kind="INPUT" tail="pw1"/>
+      <arc head="pin1" kind="OUTPUT" mult="2" mult-y="-0.03347399767363157" tail="ta1">
+        <point x="39.0" y="23.0"/>
+        <point x="14.0" y="23.0"/>
+      </arc>
+      <arc head="tl1" kind="INHIBITOR" tail="pb1">
+        <point x="29.0" y="6.0"/>
+      </arc>
+      <arc head="tl2" kind="INHIBITOR" tail="pb2">
+        <point x="29.0" y="20.0"/>
+      </arc>
+      <arc head="pb1" kind="OUTPUT" tail="tfa1"/>
+      <arc head="pb2" kind="OUTPUT" tail="tfa2"/>
+      <arc head="tfa1_2" kind="INPUT" tail="pnf2">
+        <point x="9.0" y="25.0"/>
+      </arc>
+      <arc head="tfa2_" kind="INPUT" tail="pnf2">
+        <point x="9.0" y="39.0"/>
+      </arc>
+      <arc head="tlo1_2" kind="INPUT" mult="2" mult-k="0.81142578125" mult-x="-5.0681611512004565E-5" mult-y="0.9999999999999982" tail="pin1">
+        <point x="16.87548828125" y="32.0"/>
+      </arc>
+      <arc head="pl1_2" kind="OUTPUT" tail="tlo1_2"/>
+      <arc head="tl1_2" kind="INPUT" tail="pl1_2"/>
+      <arc head="pw1_2" kind="OUTPUT" tail="tl1_2"/>
+      <arc head="pl2_2" kind="OUTPUT" tail="tlo1_2"/>
+      <arc head="tl2_2" kind="INPUT" tail="pl2_2"/>
+      <arc head="pw2_2" kind="OUTPUT" tail="tl2_2"/>
+      <arc head="ta1_2" kind="INPUT" tail="pw2_2"/>
+      <arc head="ta1_2" kind="INPUT" tail="pw1_2"/>
+      <arc head="pin1" kind="OUTPUT" mult="2" mult-y="-0.03347399767363157" tail="ta1_2">
+        <point x="39.0" y="42.0"/>
+        <point x="14.0" y="42.0"/>
+      </arc>
+      <arc head="tl1_2" kind="INHIBITOR" tail="pb1_2">
+        <point x="29.0" y="25.0"/>
+      </arc>
+      <arc head="tl2_2" kind="INHIBITOR" tail="pb2_2">
+        <point x="29.0" y="39.0"/>
+      </arc>
+      <arc head="pb1_2" kind="OUTPUT" tail="tfa1_2"/>
+      <arc head="pb2_2" kind="OUTPUT" tail="tfa2_"/>
+    </edges>
+  </gspn>
+  <gspn name="2PL1F" show-color-cmd="false" show-fluid-cmd="false" show-timed-cmd="false" view-rates="false">
+    <nodes>
+      <place marking="1" name="pnf1" x="10.0" y="14.0"/>
+      <transition label-y="-2.0" name="tfa1" nservers-x="0.5" type="EXP" x="20.55" y="7.0"/>
+      <transition label-y="-2.0" name="tfa2" nservers-x="0.5" type="EXP" x="20.55" y="21.0"/>
+      <place label-y="-2.0" marking="M" name="pin1" x="10.0" y="24.0"/>
+      <transition label-y="-2.0" name="tlo1" nservers-x="0.5" type="EXP" x="20.55" y="14.0"/>
+      <transition label-y="2.0" name="tl1" nservers-x="0.5" type="EXP" x="30.55" y="11.0"/>
+      <transition name="tl2" nservers-x="0.5" type="EXP" x="30.55" y="17.0"/>
+      <transition label-y="-2.0" name="ta1" nservers-x="0.5" type="EXP" x="40.55" y="14.0"/>
+      <place name="pl1" x="25.0" y="11.0"/>
+      <place name="pl2" x="25.0" y="17.0"/>
+      <place name="pw1" x="35.0" y="11.0"/>
+      <place name="pw2" x="35.0" y="17.0"/>
+      <place name="pb1" x="25.0" y="7.0"/>
+      <place name="pb2" x="25.0" y="21.0"/>
+      <constant consttype="INTEGER" name="M" value="2" x="5.0" y="24.0"/>
+      <place label-x="0.5" marking="1" name="pnf1_2" x="15.0" y="26.0"/>
+      <transition label-y="2.0" name="tfa1_2" nservers-x="0.5" type="EXP" x="20.55" y="26.0"/>
+      <transition label-y="-2.0" name="tlo1_2" nservers-x="0.5" type="EXP" x="20.55" y="33.0"/>
+      <transition label-y="2.0" name="tl1_2" nservers-x="0.5" type="EXP" x="30.55" y="33.0"/>
+      <transition label-y="-2.0" name="ta1_2" nservers-x="0.5" type="EXP" x="40.55" y="33.0"/>
+      <place label-x="0.5" name="pl1_2" x="25.0" y="33.0"/>
+      <place name="pw1_2" x="35.0" y="33.0"/>
+      <place name="pb1_2" x="25.0" y="26.0"/>
+    </nodes>
+    <edges>
+      <arc head="tfa1" kind="INPUT" tail="pnf1">
+        <point x="11.0" y="8.0"/>
+      </arc>
+      <arc head="tfa2" kind="INPUT" tail="pnf1">
+        <point x="11.0" y="22.0"/>
+      </arc>
+      <arc head="tlo1" kind="INPUT" mult="2" mult-k="0.81142578125" mult-x="-5.0681611512004565E-5" mult-y="0.9999999999999982" tail="pin1">
+        <point x="18.87548828125" y="15.0"/>
+      </arc>
+      <arc head="pl1" kind="OUTPUT" tail="tlo1"/>
+      <arc head="tl1" kind="INPUT" tail="pl1"/>
+      <arc head="pw1" kind="OUTPUT" tail="tl1"/>
+      <arc head="pl2" kind="OUTPUT" tail="tlo1"/>
+      <arc head="tl2" kind="INPUT" tail="pl2"/>
+      <arc head="pw2" kind="OUTPUT" tail="tl2"/>
+      <arc head="ta1" kind="INPUT" tail="pw2"/>
+      <arc head="ta1" kind="INPUT" tail="pw1"/>
+      <arc head="pin1" kind="OUTPUT" mult="2" mult-y="-0.03347399767363157" tail="ta1">
+        <point x="41.0" y="25.0"/>
+        <point x="16.0" y="25.0"/>
+      </arc>
+      <arc head="tl1" kind="INHIBITOR" tail="pb1">
+        <point x="31.0" y="8.0"/>
+      </arc>
+      <arc head="tl2" kind="INHIBITOR" tail="pb2">
+        <point x="31.0" y="22.0"/>
+      </arc>
+      <arc head="pb1" kind="OUTPUT" tail="tfa1"/>
+      <arc head="pb2" kind="OUTPUT" tail="tfa2"/>
+      <arc head="tfa1_2" kind="INPUT" mult-k="0.39990234375" mult-x="4.8828125E-4" mult-y="0.5" tail="pnf1_2"/>
+      <arc head="tlo1_2" kind="INPUT" mult="2" mult-k="0.81142578125" mult-x="-5.0681611512004565E-5" mult-y="0.9999999999999982" tail="pin1">
+        <point x="18.87548828125" y="34.0"/>
+      </arc>
+      <arc head="pl1_2" kind="OUTPUT" mult="2" mult-x="0.0" tail="tlo1_2"/>
+      <arc head="tl1_2" kind="INPUT" tail="pl1_2"/>
+      <arc head="pw1_2" kind="OUTPUT" tail="tl1_2"/>
+      <arc head="ta1_2" kind="INPUT" mult="2" mult-x="0.0" tail="pw1_2"/>
+      <arc head="pin1" kind="OUTPUT" mult="2" mult-k="0.7844726562500001" mult-x="0.5" mult-y="-0.12496948118072027" tail="ta1_2">
+        <point x="41.0" y="38.0"/>
+        <point x="11.0" y="38.0"/>
+      </arc>
+      <arc head="tl1_2" kind="INHIBITOR" tail="pb1_2">
+        <point x="31.0" y="27.0"/>
+      </arc>
+      <arc head="pb1_2" kind="OUTPUT" tail="tfa1_2"/>
+    </edges>
+  </gspn>
+  <gspn name="2PL2F" show-color-cmd="false" show-fluid-cmd="false" show-timed-cmd="false" view-rates="false">
+    <nodes>
+      <place marking="1" name="pnf1" x="17.0" y="9.0"/>
+      <transition label-y="-2.0" name="tfa1" nservers-x="0.5" type="EXP" x="22.55" y="9.0"/>
+      <place label-y="-2.0" marking="M" name="pin1" x="12.0" y="26.0"/>
+      <transition label-y="-2.0" name="tlo1" nservers-x="0.5" type="EXP" x="22.55" y="16.0"/>
+      <transition label-y="2.0" name="tl1" nservers-x="0.5" type="EXP" x="32.55" y="16.0"/>
+      <transition label-y="-2.0" name="ta1" nservers-x="0.5" type="EXP" x="42.55" y="16.0"/>
+      <place name="pl1" x="27.0" y="16.0"/>
+      <place name="pw1" x="37.0" y="16.0"/>
+      <place name="pb1" x="27.0" y="9.0"/>
+      <constant consttype="INTEGER" name="M" value="2" x="7.0" y="26.0"/>
+      <place label-x="0.5" marking="1" name="pnf1_2" x="17.0" y="28.0"/>
+      <transition label-y="2.0" name="tfa1_2" nservers-x="0.5" type="EXP" x="22.55" y="28.0"/>
+      <transition label-y="-2.0" name="copy_tlo1" nservers-x="0.5" type="EXP" x="22.55" y="35.0"/>
+      <transition label-y="2.0" name="tl1_2" nservers-x="0.5" type="EXP" x="32.55" y="35.0"/>
+      <transition label-y="-2.0" name="ta1_2" nservers-x="0.5" type="EXP" x="42.55" y="35.0"/>
+      <place label-x="0.5" name="pl1_2" x="27.0" y="35.0"/>
+      <place name="pw1_2" x="37.0" y="35.0"/>
+      <place name="pb1_2" x="27.0" y="28.0"/>
+    </nodes>
+    <edges>
+      <arc head="tfa1" kind="INPUT" mult-k="0.0" tail="pnf1"/>
+      <arc head="tlo1" kind="INPUT" mult="2" mult-k="0.81142578125" mult-x="-5.0681611512004565E-5" mult-y="0.9999999999999982" tail="pin1">
+        <point x="20.87548828125" y="17.0"/>
+      </arc>
+      <arc head="pl1" kind="OUTPUT" mult="2" mult-x="0.0" tail="tlo1"/>
+      <arc head="tl1" kind="INPUT" mult-x="0.0" tail="pl1"/>
+      <arc head="pw1" kind="OUTPUT" tail="tl1"/>
+      <arc head="ta1" kind="INPUT" mult="2" mult-x="0.0" tail="pw1"/>
+      <arc head="pin1" kind="OUTPUT" mult="2" mult-x="0.5" mult-y="-0.04080641240004823" tail="ta1">
+        <point x="43.0" y="27.0"/>
+        <point x="18.0" y="27.0"/>
+      </arc>
+      <arc head="tl1" kind="INHIBITOR" tail="pb1">
+        <point x="33.0" y="10.0"/>
+      </arc>
+      <arc head="pb1" kind="OUTPUT" tail="tfa1"/>
+      <arc head="tfa1_2" kind="INPUT" mult-k="0.39990234375" mult-x="4.8828125E-4" mult-y="0.5" tail="pnf1_2"/>
+      <arc head="copy_tlo1" kind="INPUT" mult="2" mult-k="0.81142578125" mult-x="-5.0681611512004565E-5" mult-y="0.9999999999999982" tail="pin1">
+        <point x="20.87548828125" y="36.0"/>
+      </arc>
+      <arc head="pl1_2" kind="OUTPUT" mult="2" mult-x="0.0" tail="copy_tlo1"/>
+      <arc head="tl1_2" kind="INPUT" tail="pl1_2"/>
+      <arc head="pw1_2" kind="OUTPUT" tail="tl1_2"/>
+      <arc head="ta1_2" kind="INPUT" mult="2" mult-x="0.0" tail="pw1_2"/>
+      <arc head="pin1" kind="OUTPUT" mult="2" mult-k="0.7844726562500001" mult-x="0.5" mult-y="-0.12496948118072027" tail="ta1_2">
+        <point x="43.0" y="40.0"/>
+        <point x="13.0" y="40.0"/>
+      </arc>
+      <arc head="tl1_2" kind="INHIBITOR" tail="pb1_2">
+        <point x="33.0" y="29.0"/>
+      </arc>
+      <arc head="pb1_2" kind="OUTPUT" tail="tfa1_2"/>
+    </edges>
+  </gspn>
+  <gspn name="2PLfinal" show-color-cmd="false" show-fluid-cmd="false" show-timed-cmd="false" view-rates="false">
+    <nodes>
+      <place marking="1" name="o" x="12.0" y="6.0"/>
+      <transition label-y="-2.0" name="ft0" nservers-x="0.5" type="EXP" x="17.55" y="6.0"/>
+      <place label-y="-2.0" name="s" x="12.0" y="12.0"/>
+      <transition label-y="-2.0" name="ld" nservers-x="0.5" type="EXP" x="17.55" y="12.0"/>
+      <transition label-y="2.0" name="ln0" nservers-x="0.5" type="EXP" x="27.55" y="12.0"/>
+      <transition label-y="-2.0" name="as" nservers-x="0.5" type="EXP" x="37.55" y="12.0"/>
+      <place marking="M" name="w0" x="22.0" y="12.0"/>
+      <place marking="M" name="a0" x="32.0" y="12.0"/>
+      <place name="f1" x="22.0" y="6.0"/>
+      <constant consttype="INTEGER" name="M" value="2" x="5.0" y="19.0"/>
+    </nodes>
+    <edges>
+      <arc head="ft0" kind="INPUT" mult-k="0.0" tail="o"/>
+      <arc head="ld" kind="INPUT" mult="2" mult-k="0.81142578125" mult-x="-5.068161151022821E-5" mult-y="0.5" tail="s">
+        <point x="15.87548828125" y="13.0"/>
+      </arc>
+      <arc head="w0" kind="OUTPUT" mult="2" mult-k="0.39990234375" mult-x="0.0" mult-y="0.5" tail="ld"/>
+      <arc head="ln0" kind="INPUT" mult-x="0.0" tail="w0"/>
+      <arc head="a0" kind="OUTPUT" tail="ln0"/>
+      <arc head="as" kind="INPUT" mult="2" mult-x="0.0" mult-y="0.5" tail="a0"/>
+      <arc head="s" kind="OUTPUT" mult="2" mult-x="0.5" mult-y="-0.04080641240004823" tail="as">
+        <point x="38.0" y="18.5"/>
+        <point x="13.0" y="18.5"/>
+      </arc>
+      <arc head="ln0" kind="INHIBITOR" tail="f1">
+        <point x="28.0" y="7.0"/>
+      </arc>
+      <arc head="f1" kind="OUTPUT" tail="ft0"/>
+    </edges>
+  </gspn>
+  <measures gspn-name="symPL" name="RG of symPL" rapid-type="BUILD_RG" simplified-UI="true">
+    <assignments/>
+    <greatspn/>
+    <formulas>
+      <formula language="STAT"/>
+      <formula language="RG"/>
+    </formulas>
+  </measures>
+  <measures gspn-name="symPL" log-uuid="df18f6ff-0a6e-4bd1-9d97-0dc887ac15ec" name="SRG of symPL" rapid-type="BUILD_SYMRG" simplified-UI="true">
+    <assignments/>
+    <greatspn mode="SWN_SYM"/>
+    <formulas>
+      <formula language="STAT">
+        <result-table>
+          <stat-result name="STAT">
+            <bindings/>
+            <stat key="build_time" value="0 seconds"/>
+            <stat key="home_state" value="True"/>
+            <stat key="num_dead_markings" value="2"/>
+            <stat key="num_ordinary_dead_markings" value="8"/>
+            <stat key="num_ordinary_tangible_markings" value="73"/>
+            <stat key="num_ordinary_vanishing_markings" value="0"/>
+            <stat key="num_tangible_markings" value="21"/>
+            <stat key="num_vanishing_markings" value="0"/>
+          </stat-result>
+        </result-table>
+      </formula>
+      <formula language="RG"/>
+    </formulas>
+  </measures>
+  <measures gspn-name="symPLprio" name="RG of symPLprio" rapid-type="BUILD_RG" simplified-UI="true">
+    <assignments/>
+    <greatspn/>
+    <formulas>
+      <formula language="STAT"/>
+      <formula language="RG"/>
+    </formulas>
+  </measures>
+  <measures gspn-name="symPLprio" log-uuid="9d4796dc-e083-4869-93ec-5268a3f3da83" name="SRG of symPLprio" rapid-type="BUILD_SYMRG" simplified-UI="true">
+    <assignments/>
+    <greatspn mode="SWN_SYM"/>
+    <formulas>
+      <formula language="STAT">
+        <result-table>
+          <stat-result name="STAT">
+            <bindings/>
+            <stat key="build_time" value="0 seconds"/>
+            <stat key="home_state" value="True"/>
+            <stat key="num_dead_markings" value="2"/>
+            <stat key="num_ordinary_dead_markings" value="8"/>
+            <stat key="num_ordinary_tangible_markings" value="73"/>
+            <stat key="num_ordinary_vanishing_markings" value="192"/>
+            <stat key="num_tangible_markings" value="21"/>
+            <stat key="num_vanishing_markings" value="49"/>
+          </stat-result>
+        </result-table>
+      </formula>
+      <formula language="RG"/>
+    </formulas>
+  </measures>
+  <resource-list>
+    <document-log uuid="9d4796dc-e083-4869-93ec-5268a3f3da83">rO0ABXNyABRqYXZhLnV0aWwuTGlua2VkTGlzdAwpU11KYIgiAwAAeHB3BAAAACN0AJ0bWzBtRVhFQzogIkM6XFByb2dyYW0gRmlsZXNcR3JlYXRTUE5cYXBwXHBvcnRhYmxlX2dyZWF0c3BuXGJpblxXTlNSRy5leGUiICJDOlxVc2Vyc1xsb3JlbnpvXERlc2t0b3BcTVMucG5wcm8tU1JHIG9mIHN5bVBMcHJpby5zb2x1dGlvblxzeW1QTHByaW8iIC1ndWktc3RhdCAKdABjLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KdAAdVVNFIDogV05TUkcgbmV0bmFtZSBbLW9dWy1tXQp0AAEKdAAtVG8gcGxvdCB0aGUgZ2VuZXJhdGVkIFJHIGluIEdyYXBodml6IGZvcm1hdDoKdAA0ICAgICAgWy1kb3QtRiBmaWxlbmFtZS5kb3RdIFstbWF4LWRvdC1tYXJraW5ncyBtYXhdCnQANFBhcmFtZXRyaWMgbWFya2luZy9yYXRlIHBhcmFtZXRlcnMgY2FuIGJlIHNldCB3aXRoOgp0ADkgICAgICBbLW1wYXIgcGFyYW1fbmFtZSB2YWx1ZV0gIFstcnBhciBwYXJhbV9uYW1lIHZhbHVlXQp0AGMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp0AC9TZW5kIGZpbGVzIG5ldG5hbWUubmV0LCAuZGVmIHRvIGUtbWFpbCBhZGRyZXNzCnQAKmdyZWF0c3BuQGRpLnVuaXRvLml0IGlmIHlvdSBmaW5kIGFueSBidWcuCnQAYy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnQAAQp0AE1XQVJOSU5HIDogYSBkZWZhdWx0IGR5bmFtaWMgc3ViY2xhc3MgaGFzIGJlZW4gYWRkZWQgZm9yIHN0YXRpYyBzdWJjbGFzcyBQTF8wCnQATFdBUk5JTkcgOiBhIGRlZmF1bHQgZHluYW1pYyBzdWJjbGFzcyBoYXMgYmVlbiBhZGRlZCBmb3Igc3RhdGljIHN1YmNsYXNzIExfMAp0AAEKdAAqICoqKioqIFN5bWJvbGljIFJlYWNoYWJpbGl0eSBHcmFwaCAqKioqKiAKdAABCnQAGFRBTkdJQkxFIE1BUktJTkdTICA6IDIxCnQAGFZBTklTSElORyBNQVJLSU5HUyA6IDQ5CnQAF0RFQUQgTUFSS0lOR1MgICAgICA6IDIKdAABCnQAGFRPVEFMIE1BUktJTkdTICAgICA6IDcyCnQAAQp0ACogKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqIAp0AAEKdAAgT3JkaW5hcnkgdGFuZ2libGUgbWFya2luZ3MgOiA3Mwp0ACJPcmRpbmFyeSB2YW5pc2hpbmcgbWFya2luZ3MgOiAxOTIKdAAbT3JkaW5hcnkgZGVhZCBtYXJraW5ncyA6IDgKdAAkVGhlIGluaXRpYWwgbWFya2luZyBpcyBhIGhvbWUgc3RhdGUKdAAcVGltZSByZXF1aXJlZCAtLS0tLS0tLS0tPiAwCnQAAQp0ACogKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqIAp0AC1SZWFjaGFiaWxpdHkgZ3JhcGggY29udGFpbnMgZGVhZCBtYXJraW5ncyAhIQp0ACcbWzBYG1szMm0gUFJPQ0VTUyBFWElURUQgTk9STUFMTFkuG1swbQp4c3EAfgAAdwQAAAAjc3IAEWphdmEubGFuZy5Cb29sZWFuzSBygNWc+u4CAAFaAAV2YWx1ZXhwAXEAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAneA</document-log>
+    <document-log uuid="df18f6ff-0a6e-4bd1-9d97-0dc887ac15ec">rO0ABXNyABRqYXZhLnV0aWwuTGlua2VkTGlzdAwpU11KYIgiAwAAeHB3BAAAACN0AJUbWzBtRVhFQzogIkM6XFByb2dyYW0gRmlsZXNcR3JlYXRTUE5cYXBwXHBvcnRhYmxlX2dyZWF0c3BuXGJpblxXTlNSRy5leGUiICJDOlxVc2Vyc1xsb3JlbnpvXERlc2t0b3BcTVMucG5wcm8tU1JHIG9mIHN5bVBMLnNvbHV0aW9uXHN5bVBMIiAtZ3VpLXN0YXQgCnQAYy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnQAHVVTRSA6IFdOU1JHIG5ldG5hbWUgWy1vXVstbV0KdAABCnQALVRvIHBsb3QgdGhlIGdlbmVyYXRlZCBSRyBpbiBHcmFwaHZpeiBmb3JtYXQ6CnQANCAgICAgIFstZG90LUYgZmlsZW5hbWUuZG90XSBbLW1heC1kb3QtbWFya2luZ3MgbWF4XQp0ADRQYXJhbWV0cmljIG1hcmtpbmcvcmF0ZSBwYXJhbWV0ZXJzIGNhbiBiZSBzZXQgd2l0aDoKdAA5ICAgICAgWy1tcGFyIHBhcmFtX25hbWUgdmFsdWVdICBbLXJwYXIgcGFyYW1fbmFtZSB2YWx1ZV0KdABjLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KdAAvU2VuZCBmaWxlcyBuZXRuYW1lLm5ldCwgLmRlZiB0byBlLW1haWwgYWRkcmVzcwp0ACpncmVhdHNwbkBkaS51bml0by5pdCBpZiB5b3UgZmluZCBhbnkgYnVnLgp0AGMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp0AAEKdABNV0FSTklORyA6IGEgZGVmYXVsdCBkeW5hbWljIHN1YmNsYXNzIGhhcyBiZWVuIGFkZGVkIGZvciBzdGF0aWMgc3ViY2xhc3MgUExfMAp0AExXQVJOSU5HIDogYSBkZWZhdWx0IGR5bmFtaWMgc3ViY2xhc3MgaGFzIGJlZW4gYWRkZWQgZm9yIHN0YXRpYyBzdWJjbGFzcyBMXzAKdAABCnQAKiAqKioqKiBTeW1ib2xpYyBSZWFjaGFiaWxpdHkgR3JhcGggKioqKiogCnQAAQp0ABhUQU5HSUJMRSBNQVJLSU5HUyAgOiAyMQp0ABdWQU5JU0hJTkcgTUFSS0lOR1MgOiAwCnQAF0RFQUQgTUFSS0lOR1MgICAgICA6IDIKdAABCnQAGFRPVEFMIE1BUktJTkdTICAgICA6IDIzCnQAAQp0ACogKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqIAp0AAEKdAAgT3JkaW5hcnkgdGFuZ2libGUgbWFya2luZ3MgOiA3Mwp0ACBPcmRpbmFyeSB2YW5pc2hpbmcgbWFya2luZ3MgOiAwCnQAG09yZGluYXJ5IGRlYWQgbWFya2luZ3MgOiA4CnQAJFRoZSBpbml0aWFsIG1hcmtpbmcgaXMgYSBob21lIHN0YXRlCnQAHFRpbWUgcmVxdWlyZWQgLS0tLS0tLS0tLT4gMAp0AAEKdAAqICoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKiAKdAAtUmVhY2hhYmlsaXR5IGdyYXBoIGNvbnRhaW5zIGRlYWQgbWFya2luZ3MgISEKdAAnG1swWBtbMzJtIFBST0NFU1MgRVhJVEVEIE5PUk1BTExZLhtbMG0KeHNxAH4AAHcEAAAAI3NyABFqYXZhLmxhbmcuQm9vbGVhbs0gcoDVnPruAgABWgAFdmFsdWV4cAFxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3EAfgAncQB+ACdxAH4AJ3g</document-log>
+  </resource-list>
+</project>
