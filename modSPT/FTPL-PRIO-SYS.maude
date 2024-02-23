@@ -7,7 +7,7 @@ mod FTPL-PRIO-SYS is
   inc GSPN-EMU .
   *** prove lumpability
   op net1 : -> Net .
-  eq net1 =   [2 . p(< "s" ; 0 >),1 . p(< "VAN-ld-1.0" ; 0 >),nilP] |-> << "ld",0,1.0 >> ; 
+  eq net1 =  [2 . p(< "s" ; 0 >),1 . p(< "VAN-ld-1.0" ; 0 >),nilP] |-> << "ld",0,1.0 >> ; 
   [1 . p(< "VAN-ld-1.0" ; 0 >),1 . p(< "w" ; 0 > < "L" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 >),nilP] |-> << "ld-EXP",1,1.0 >> ;
    [1 . p(< "w" ; 0 > < "L" ; 0 >),1 . p(< "VAN-ln-1.0" ; 0 > < "L" ; 0 >),nilP] |-> << "ln1",0,1.0 >> ;
    [1 . p(< "w" ; 0 > < "L" ; 1 >),1 . p(< "VAN-ln-1.0" ; 0 > < "L" ; 1 >),nilP] |-> << "ln2",0,1.0 >>  ;
@@ -15,6 +15,7 @@ mod FTPL-PRIO-SYS is
    [1 . p(< "VAN-ln-1.0" ; 0 > < "L" ; 1 >),1 . p(< "a" ; 0 > < "L" ; 1 >),nilP] |-> << "ln2-EXP",1,1.0 >> ;
    [1 . p(< "a" ; 0 > < "L" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 >), 1 . p(< "VAN-as-1.0" ; 0 >),nilP] |-> << "as",0,1.0 >> ;
    [1 . p(< "VAN-as-1.0" ; 0 >),2 . p(< "s" ; 0 >),nilP] |-> << "as-EXP",1,1.0 >>  .
+
 
   op sys1 : -> System .
   eq sys1 = net1 2 . p(< "s" ; 0 >) .
