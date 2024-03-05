@@ -15,7 +15,26 @@ fmod GSPN is
   eq tag(Q |-> L) = tag(L) .
   op rate : Tran -> Float .
   eq rate(Q |-> L) = rate(L) .
+  *** checks whether a system's  transition is enabled (undefined the transition doesn't exist)
   op enabled : Tran System -> [Bool] .
  ceq enabled(T, (T ; T' ; N) M) = false if prio(T) < prio(T') /\ hasConcession(T', M) .
   eq enabled(T, (T ; N) M) = hasConcession(T, M) [owise] .
+  *** computes a system's enabled transitions (seen as a Net)
+  op enabled : System -> Net .
+  eq enabled(S:System) =  highPrio(haveConcession(S:System)) .
+  *** computes a system's transitions (seen as a Net) having concssion
+  op haveConcession : System -> Net .
+  eq haveConcession(S:System) = $haveConcession(S:System, emptyN) .
+  op $haveConcession : System Net -> Net .
+  eq $haveConcession(emptyN M, N) = N .
+ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if hasConcession(T, M) .
+ eq $haveConcession((T ; N) M, N') = $haveConcession(N M, N') [owise] .
+  *** calculates the higher priority transitions of a Net (seen as a Net in turn)
+  op highPrio : Net -> Net .
+  eq highPrio(N) = $highPrio(N, emptyN) .
+  op $highPrio : Net Net -> Net .
+  eq $highPrio(emptyN, N) = N .
+ ceq $highPrio(T ; N, T' ; N') = $highPrio(N, T) if prio(T) > prio(T') .
+ ceq $highPrio(T ; N, T' ; N') = $highPrio(N, T' ; N') if prio(T) < prio(T') .
+  eq $highPrio(T ; N, N') = $highPrio(N, T ; N') [owise] .
 endfm
