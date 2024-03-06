@@ -31,10 +31,9 @@ ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if hasConcessi
  eq $haveConcession((T ; N) M, N') = $haveConcession(N M, N') [owise] .
   *** calculates the higher priority transitions of a Net (seen as a Net in turn)
   op highPrio : Net -> Net .
-  eq highPrio(N) = $highPrio(N, emptyN) .
+  eq highPrio(emptyN) = emptyN .
+  eq highPrio(T ; N) = $highPrio(N, T) .
   op $highPrio : Net Net -> Net .
   eq $highPrio(emptyN, N) = N .
- ceq $highPrio(T ; N, T' ; N') = $highPrio(N, T) if prio(T) > prio(T') .
- ceq $highPrio(T ; N, T' ; N') = $highPrio(N, T' ; N') if prio(T) < prio(T') .
-  eq $highPrio(T ; N, N') = $highPrio(N, T ; N') [owise] .
+  eq $highPrio(T ; N, T' ; N') = if prio(T) > prio(T') then $highPrio(N, T) else if prio(T) < prio(T') then $highPrio(N, T' ; N') else $highPrio(N, T ; T' ; N') fi fi .
 endfm
