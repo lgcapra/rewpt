@@ -19,9 +19,6 @@ fmod GSPN is
   op enabled : Tran System -> [Bool] .
  ceq enabled(T, (T ; T' ; N) M) = false if prio(T) < prio(T') /\ hasConcession(T', M) .
   eq enabled(T, (T ; N) M) = hasConcession(T, M) [owise] .
-  *** computes a system's enabled transitions (seen as a Net)
-  op enabled : System -> Net .
-  eq enabled(S:System) =  highPrio(haveConcession(S:System)) .
   *** computes a system's transitions (seen as a Net) having concssion
   op haveConcession : System -> Net .
   eq haveConcession(S:System) = $haveConcession(S:System, emptyN) .
@@ -29,6 +26,13 @@ fmod GSPN is
   eq $haveConcession(emptyN M, N) = N .
 ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if hasConcession(T, M) .
  eq $haveConcession((T ; N) M, N') = $haveConcession(N M, N') [owise] .
+ *** computes a system's enabled transitions (seen as a Net) by considering priorities
+  op enabled : System -> Net .
+  *** eq enabled(S:System) =  highPrio(haveConcession(S:System)) .
+  *** this recursive version first calculates the high-priority subnet -- more efficient if priority trans. are present
+   op enabled : System -> Net .
+   eq enabled(emptyN M) = emptyN .
+ ceq enabled(N M) = if N'' == emptyN then enabled(detache(N, N') M) else N'' fi  if N =/= emptyN /\ N' := highPrio(N) /\ N'' := haveConcession(N' M) .
   *** calculates the higher priority transitions of a Net (seen as a Net in turn)
   op highPrio : Net -> Net .
   eq highPrio(emptyN) = emptyN .
@@ -36,8 +40,5 @@ ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if hasConcessi
   op $highPrio : Net Net -> Net .
   eq $highPrio(emptyN, N) = N .
   eq $highPrio(T ; N, T' ; N') = if prio(T) > prio(T') then $highPrio(N, T) else if prio(T) < prio(T') then $highPrio(N, T' ; N') else $highPrio(N, T ; T' ; N') fi fi .
-   *** this recursive version first calculates the high-priority subnet 
-   op enabled2 : System -> Net .
-   eq enabled2(emptyN M) = emptyN .
-  ceq enabled2(N M) = if N'' == emptyN then enabled2(detache(N, N') M) else N'' fi  if N =/= emptyN /\ N' := highPrio(N) /\ N'' := haveConcession(N' M) . 
+    
 endfm

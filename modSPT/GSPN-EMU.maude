@@ -3,8 +3,8 @@ in PT-NORM
 in GSPN
 
 mod GSPN-EMU is
- pr GSPN .
- pr PT-NORM{SPTlab} . *** not used (but some operators may be used in importing modules)
+ pr STATE-TRAN-SYS .
+ *** pr PT-NORM{SPTlab} . *** not used (but some operators may be used in importing modules)
  vars I O H M M' : Pbag . 
  vars N N' : Net .
  vars L L' : Tlab . *** tran. lab
