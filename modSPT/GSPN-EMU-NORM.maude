@@ -1,6 +1,7 @@
 *** defines the GSPN normalized firing rule
 in GSPN
 in PT-NORM
+in  STATE-TRAN-SYS
 
 mod GSPN-EMU-NORM is
   pr STATE-TRAN-SYS .

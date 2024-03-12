@@ -30,7 +30,7 @@ fmod STATE-TRAN-SYS is
   op $fire : Net Pbag SetOfSys -> SetOfSys .
   eq  $fire(emptyN, M, SS) = SS .
  ceq $fire(T ; N, M, (N' M', SS)) =  $fire(N, M, ((T ; N') M', SS)) if  M' := normalize(fire(t(T), M)) .
-  eq $fire(T ; N, M, SS) =  $fire(N, M, (T fire(t(T), M), SS)) [owise] .
+  eq $fire(T ; N, M, SS) =  $fire(N, M, (T normalize( fire(t(T), M) ), SS)) [owise] .
   *** the net corresponding to a set of systems 
   op net : SetOfSys -> Net . 
   eq net(SS) = $net(SS, emptyN) .
