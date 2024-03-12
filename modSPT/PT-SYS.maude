@@ -3,9 +3,9 @@ in PT-NET
 
 fmod PT-SYS{X :: TRIV} is
  pr PT-NET{X} .
- sorts ElSys System ElSimpSys SimpleSys .
+ sorts ElSys System .
  subsorts ElSys < System . *** PT system built of one Tran 
- op __ : Net Pbag  -> System      [ctor] .
+ op __ : Net Pbag  -> System    [ctor] .
  op __ : Tran Pbag  -> ElSys    [ctor] .
  
  op emptySys  : -> System . *** alias

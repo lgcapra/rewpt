@@ -10,7 +10,7 @@ mod GSPN-EMU-NORM is
   vars L L' : Tlab . *** tran. lab
   var Q Q' : Tmatrix .
   vars T T' : Tran .
-  var S : SetOfSys .
+  var S : STset .
  *** symbolic firing rule
 *** crl [firing] : N M => N normalize(fire(t(T),M)) if T ; N' := N  /\ enabled(T, N M)  [print "T = " T] .
 *** *** crl [firing] : N M => N normalize(M + O - I) if [I,O,H] |-> L ; N' := N  /\ I =/= O /\ enabled([I,O,H], M) .
@@ -19,5 +19,5 @@ mod GSPN-EMU-NORM is
 *** *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if [I,O,H] |-> L ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
 
 *** symbolic rule for state-transition representation of systems
-rl [statetran] : N M @ (N' M', S) => stateTran((N ; N' ; net(S)) M') .
+rl [st-firing] : NE: N M: M ST:(N' M', S) => toStateTran((N ; N' ; net(S)) M') .
 endm
