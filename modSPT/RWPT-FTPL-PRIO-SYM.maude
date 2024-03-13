@@ -67,4 +67,8 @@ crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 
 *** (paper versions)
 *** crl [ar1p] : N nilP => normalize(attach(N', faultyPL, "fPL") nilP)  if  p(L < "PL" ; I >) U Sp := places(N) /\ N' := detache(N, < "PL" ; I >)  .
 *** crl [ar2p] : N nilP => normalize(N'' nilP)  if p(L < "fPL" ; I >)  U Sp := places(N) /\  N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyN  . 
+
+*** NEW meta-rule for state-transition (firing)-base representation of GS(PN) 
+vars ST ST' : StateTranSys .
+crl [ST-meta-rule] : ST => toStateTran(Sys') if Sys := toSystem(ST) /\  Sys => Sys' /\ net(Sys) =/= net(Sys') . 
 endm  

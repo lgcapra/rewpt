@@ -1,41 +1,42 @@
-*** state-representation for SPN (GSPN) pointing out state-transitions -- suitable to translation into a LCTMC 
+in STATE-TRAN
+*** state-transition representation for SPN (GSPN) pointing out state-transitions due to firing rule -- suitable to translation into a LCTMC 
 fmod STATE-TRAN-SYS is 
-  pr GSPN .
   pr PT-NORM{SPTlab} .
-  pr SET{System{SPTlab}} * (sort Set{System{SPTlab}} to STset, sort NeSet{System{SPTlab}} to NeSTset, op empty to emptySTset) .
+  pr SET{StateTran} * (sort Set{StateTran} to STset, sort NeSet{StateTran} to NeSTset, op empty to emptySTset) .
+  
   sort StateTranSys .
   var T  : Tran .
   vars N N' : Net .
   vars M M' : Pbag .
   var ST :  StateTranSys .
-  var S : System .
-  var SS : STset .
+  var S : StateTran .
+  var STS : STset .
   *** description of a system pointing out (symbolic)state-transitions (2nd part, the prefix is the non-enabled net + marking)
   op NE:_ M:_ ST:_ : Net Pbag STset -> StateTranSys [ctor] .
   *** getters
   op st : StateTranSys -> STset . *** the set of enabled state-transitions, grouped into (equivalence) classes
-  eq st(NE: N M: M ST: SS) = SS .
+  eq st(NE: N M: M ST: STS) = STS .
   op ne : StateTranSys -> Net .
-  eq ne(NE: N M: M ST: SS) = N .
+  eq ne(NE: N M: M ST: STS) = N .
   op m : StateTranSys -> Pbag .
-  eq m(NE: N M: M ST: SS) = M .
-  *** to pass from a representation to the other
-  op toStateTran : System -> StateTranSys . *** main operator: builds the (symbolic) state-stransition view for a system
+  eq m(NE: N M: M ST: STS) = M .
+  *** to pass from a  representation to the other
+  op toStateTran : System -> StateTranSys . *** main operator: builds the (symbolic) state-stransition view for a PT system
  ceq toStateTran(N M) = NE: detache(N, N') M: M ST: fire(N', M) if N' := enabled(N M) . *** very intuitive
   op toSystem : StateTranSys -> System .
-  eq toSystem(NE: N M: M ST: SS) = (N ; net(SS)) M .
+  eq toSystem(NE: N M: M ST: STS) = (N ; net(STS)) M .
    *** calculates the firings (state-transitions) of a set of transitions (seen as a net) -- enabling is not considered!
   op fire : Net Pbag -> STset .
   eq fire(N, M) = $fire(N, M, emptySTset) .
   op $fire : Net Pbag STset -> STset .
-  eq  $fire(emptyN, M, SS) = SS .
- ceq $fire(T ; N, M, (N' M', SS)) =  $fire(N, M, ((T ; N') M', SS)) if  M' := normalize(fire(t(T), M)) .
-  eq $fire(T ; N, M, SS) =  $fire(N, M, (T normalize( fire(t(T), M) ), SS)) [owise] .
-  *** the net corresponding to a set of systems 
+  eq  $fire(emptyN, M, STS) = STS .
+ ceq $fire(T ; N, M, (N' --> M', STS)) =  $fire(N, M, ((T ; N')  --> M', STS)) if  M' := normalize(fire(t(T), M)) .
+  eq $fire(T ; N, M, STS) =  $fire(N, M, (T  --> normalize( fire(t(T), M) ), STS)) [owise] .
+  *** the net corresponding to a set of state-stansitions 
   op net : STset -> Net . 
-  eq net(SS) = $net(SS, emptyN) .
+  eq net(STS) = $net(STS, emptyN) .
   op $net : STset Net -> Net .
   eq $net(emptySTset, N) = N .
-  eq $net((N M, SS), N') = $net(SS, N ; N') .
+  eq $net((N  --> M, STS), N') = $net(STS, N ; N') .
  
 endfm
