@@ -18,6 +18,6 @@ mod GSPN-EMU-NORM is
 *** *** includes a further optimization: if the marked places are retained then index abstraction is skipped
 *** *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if [I,O,H] |-> L ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
 
-*** symbolic rule for state-transition representation of systems
+*** symbolic rule for state-transition representation of systems 
 rl [st-firing] : NE: N M: M ST: (N' --> M', S) => toStateTran((N ; N' ; net(S)) M') .
 endm
