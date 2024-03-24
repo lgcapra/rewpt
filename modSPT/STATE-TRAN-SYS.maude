@@ -12,7 +12,7 @@ fmod STATE-TRAN-SYS is
   var S : StateTran .
   var STS : STset .
   *** description of a system pointing out (symbolic)state-transitions (2nd part, the prefix is the non-enabled net + marking)
-  op NE:_ M:_ ST:_ : Net Pbag STset -> StateTranSys [ctor] .
+  op NE:_ M:_ ST:_ : Net Pbag STset -> StateTranSys [ctor format (n d n d n d d)] .
   *** getters
   op st : StateTranSys -> STset . *** the set of enabled state-transitions, grouped into (equivalence) classes
   eq st(NE: N M: M ST: STS) = STS .
@@ -21,8 +21,10 @@ fmod STATE-TRAN-SYS is
   op m : StateTranSys -> Pbag .
   eq m(NE: N M: M ST: STS) = M .
   *** to pass from a  representation to the other
-  op toStateTran : System -> StateTranSys . *** main operator: builds the (symbolic) state-stransition view for a PT system
+  op toStateTran : System -> StateTranSys . *** main operator: builds the (symbolic) state-stransition view for a PT with priorities
  ceq toStateTran(N M) = NE: detache(N, N') M: M ST: fire(N', M) if N' := enabled(N M) . *** very intuitive
+  op toStateTranSPN : System -> StateTranSys . *** assumes that there are no priorities
+ ceq toStateTranSPN(N M) = NE: detache(N, N') M: M ST: fire(N', M) if N' := haveConcession(N M) . *** very intuitive
   op toSystem : StateTranSys -> System .
   eq toSystem(NE: N M: M ST: STS) = (N ; net(STS)) M .
    *** calculates the firings (state-transitions) of a set of transitions (seen as a net) -- enabling is not considered!

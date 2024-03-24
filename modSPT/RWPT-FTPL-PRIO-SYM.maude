@@ -73,10 +73,10 @@ crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 
 vars ST ST' : StateTranSys .
 *** crl [ST-meta-rule] : ST => toStateTran(Sys') if Sys := toSystem(ST) /\  Sys => Sys' /\ net(Sys) =/= net(Sys') .
 
-crl [rewST1.1] : ST => toStateTran(normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL"))   
+crl [spnrew1-rate:2.0] : ST => toStateTran(normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL"))   
      if  N S := toSystem(ST)  /\ dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
 
-crl [rewST2.1] : ST  => toStateTran(normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL"))  if 
+crl [spnrew2-rate:1.0] : ST  => toStateTran(normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL"))  if 
         N S := toSystem(ST)  /\ S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
         S' := subag(S'', < "fPL" ; I >) .
 
