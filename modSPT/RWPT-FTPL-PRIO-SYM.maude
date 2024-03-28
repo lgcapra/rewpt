@@ -22,10 +22,16 @@ mod RWPT-FTPL-PRIO-SYM is
 *** crl [rew1] : N  S + 1 . p(< "f" ; J > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")
 ***     if dead (N S + 1 . p(< "f" ; J > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
 *** more readable
-crl [rew1.1] : N  S => normalize(join(Sys, setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
-     if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' .
-*** crl [rew1.1] : N  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) => normalize(join(Sys, setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
-***     if  dead (N S'' + 1 . p(< "f" ; J > L < "PL" ; I >)) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' .
+*** (different equivalent versions obtained using simple syntactical transformations)
+*** crl [rew1.1] : N  S => normalize(join(Sys, setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
+***     if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' .
+*** crl [rew1.1] : N  S + 1 . p(< "f" ; J > L < "PL" ; I >) => normalize(join(Sys, setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
+***    if  dead (N S + 1 . p(< "f" ; J > L < "PL" ; I >)) /\ S' := subag(S, < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S - S' .
+*** crl [rew1.1] : N  S + 1 . p(< "f" ; J > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I)) S - S', setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
+***    if  dead (N S + 1 . p(< "f" ; J > L < "PL" ; I >)) /\ S' := subag(S, < "PL" ; I >) .
+
+
+
 
 *** triggered by a local deadlock
 *** crl [rew1.2] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))   
@@ -82,5 +88,20 @@ crl [spnrew1-rate:2.0] : ST => toStateTran(normalize(join(Sys, setMark(setMark( 
 crl [spnrew2-rate:1.0] : ST  => toStateTran(normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL"))  if 
         N S := toSystem(ST)  /\ S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
         S' := subag(S'', < "fPL" ; I >) .
+
+
+*** NEW we compute the rewrite instances for each of the above rules
+var P : Place .
+var X : Set{Nat} .
+op rew1Instances : System -> Set{Nat} . *** the different instances of (free) variable I used in the rule (we should consider also J and L, i.e., the place)
+eq rew1Instances(N S) = if dead(N S) then $rew1Instances(S, emptyNat) else emptyNat fi .
+op $rew1Instances : Pbag Set{Nat} -> Set{Nat} .
+eq $rew1Instances(nilP, X) = X .
+eq $rew1Instances(S + 1 . p(< "f" ; J > L < "PL" ; I >), X) = $rew1Instances(S, I U X) .
+eq $rew1Instances(S + K . P, X) = $rew1Instances(S, X) [owise] . 
+
+*** alternatine rephrasing of spnrew1 based on instance pre-calculation
+crl [rew1.1Alt] : N S => normalize(join(detache(N, nomPL(I)) S'' - S', setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
+ if  I U X := rew1Instances(N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) .
 
 endm  
