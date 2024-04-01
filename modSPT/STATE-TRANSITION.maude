@@ -1,0 +1,17 @@
+*** a state-transition view for net with priorities 
+in GSPN
+
+fmod STATE-TRANSITION is 
+  pr GSPN .
+  pr BAG{SPTlab} * (sort Bag{SPTlab} to Tinst, sort NeBag{SPTlab} to NeTinst, op nil to nilTinst) .
+  var N : Tinst .
+  var M : Pbag .
+  sort StateTran .
+  op _-->_ : Tinst Pbag -> StateTran [ctor] .   *** a set of transitions leading to the same (possibly normalized) marking
+endfm
+
+*** trivial view
+
+view StateTransition from TRIV to STATE-TRANSITION is 
+ sort Elt to StateTran .
+endv
