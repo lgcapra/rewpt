@@ -11,12 +11,18 @@ mod GSPN-EMU-NORM is
   var Q Q' : Tmatrix .
   vars T T' : Tran .
   var S : STset .
- *** symbolic firing rule
-crl [firing] : N M => N normalize(fire(t(T),M)) if T ; N' := N  /\ enabled(T, N M)  .
-*** *** crl [firing] : N M => N normalize(M + O - I) if [I,O,H] |-> L ; N' := N  /\ I =/= O /\ enabled([I,O,H], M) .
-*** crl [firing] : (N ; Q |-> L) M => (N ; Q |-> L) normalize(M + O - I) if [I,O,H] := Q /\ I =/= O /\ enabled(Q, M)  [print "Q = " L] .
-*** *** includes a further optimization: if the marked places are retained then index abstraction is skipped
-*** *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if [I,O,H] |-> L ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
+  *** symbolic firing rule (with priorities)
+ *** crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N  /\ enabled(T, N M)  .
+  *** without priorities
+crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N  /\ hasConcession(T, M) .
+ 
+*** includes a further optimization: if the marked places are retained then index abstraction is skipped
+*** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if [I,O,H] |-> L ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
+
+*** alternative, using the enabled set (enabled should be used if priorities were present)
+ *** crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N /\ in(haveConcession(N M), T) .
+ *** with priorities
+*** crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N /\ in(enabled(N M), T) .
 
 *** symbolic rule for state-transition representation of systems 
 rl [spn-firing] : NE: N M: M ST: (N' --> M', S) => toStateTranSPN((N ; N' ; net(S)) M') .

@@ -92,16 +92,26 @@ crl [spnrew2-rate:1.0] : ST  => toStateTran(normalize(N'' set(S'' - S', p(< "s" 
 
 *** NEW we compute the rewrite instances for each of the above rules
 var P : Place .
-var X : Set{Nat} .
-op rew1Instances : System -> Set{Nat} . *** the different instances of (free) variable I used in the rule (we should consider also J and L, i.e., the place)
-eq rew1Instances(N S) = if dead(N S) then $rew1Instances(S, emptyNat) else emptyNat fi .
-op $rew1Instances : Pbag Set{Nat} -> Set{Nat} .
-eq $rew1Instances(nilP, X) = X .
-eq $rew1Instances(S + 1 . p(< "f" ; J > L < "PL" ; I >), X) = $rew1Instances(S, I U X) .
-eq $rew1Instances(S + K . P, X) = $rew1Instances(S, X) [owise] . 
+*** var X : Set{Nat} .
+*** op rew1Instances : System -> Set{Nat} [memo] . *** the different instances of (free) variable I used in the rule (we should consider also J and L, i.e., the place)
+*** eq rew1Instances(N S) = if dead(N S) then $rew1Instances(S, emptyNat) else emptyNat fi .
+*** op $rew1Instances : Pbag Set{Nat} -> Set{Nat} .
+*** eq $rew1Instances(nilP, X) = X .
+*** eq $rew1Instances(S + 1 . p(< "f" ; J > L < "PL" ; I >), X) = $rew1Instances(S, I U X) .
+*** eq $rew1Instances(S + K . P, X) = $rew1Instances(S, X) [owise] . 
 
 *** alternatine rephrasing of spnrew1 based on instance pre-calculation
+*** crl [rew1.1Alt] : N S => normalize(join(detache(N, nomPL(I)) S'' - S', setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
+***  if  I U X := rew1Instances(N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) .
+
+var X : Pset .
+op rew1Instances : System -> Pset [memo] . *** the different instances of (free) variable I used in the rule (we should consider also J and L, i.e., the place)
+eq rew1Instances(N S) = if dead(N S) then $rew1Instances(S, emptyPset) else emptyPset fi .
+op $rew1Instances : Pbag Pset -> Pset .
+eq $rew1Instances(nilP, X) = X .
+ceq $rew1Instances(S + 1 . P, X) = $rew1Instances(S, P U X) if p(< "f" ; J > L < "PL" ; I >) := P .
+eq $rew1Instances(S + K . P, X) = $rew1Instances(S, X) [owise] . 
 crl [rew1.1Alt] : N S => normalize(join(detache(N, nomPL(I)) S'' - S', setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
- if  I U X := rew1Instances(N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) .
+   if p(L < "PL" ; I >) U X := rew1Instances(N S) /\ S'' + 1 . p(L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) .
 
 endm  

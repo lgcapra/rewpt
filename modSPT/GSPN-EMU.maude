@@ -10,6 +10,13 @@ mod GSPN-EMU is
  vars L L' : Tlab . *** tran. lab
  var Q Q' : Tmatrix .
  vars T T' : Tran .
- *** ordinary firing rule
- crl [firing] : N M => N fire(t(T),M) if T ; N' := N  /\ enabled(T, N M) .
+ *** ordinary firing rule (with priorities)
+ *** crl [firing] : N M => N firing(T, M) if T ; N' := N  /\ enabled(T, N M) . 
+ *** without priorities
+ *** crl [firing] : N M => N firing(T, M) if T ; N' := N  /\ hasConcession(T, M) .
+ 
+ *** alternative, using the enabled set (enabled should be used if priorities were present)
+ crl [firing] : N M => N firing(T, M) if T ; N' := N /\ in(haveConcession(N M), T) .
+ *** with priorities
+ *** crl [firing] : N M => N firing(T, M) if T ; N' := N /\ in(enabled(N M), T) .
 endm

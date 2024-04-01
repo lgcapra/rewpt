@@ -43,6 +43,13 @@ ceq in(Q |-> L ; N, P) = true if in (Q, P) .
  *** test the existence of a Tran
  op in :  Net Tmatrix -> Bool . 
  eq in(N, Q) = $hasMapping(N, Q) .
+ op in : Net Tran -> Bool .
+ eq in(N ; T, T) = true .
+ eq in(N , T) = false [owise] .
+
+ *** firing effect (without checking the enabling)
+ op firing : Tran Pbag -> Pbag .
+ eq firing(Q |-> L, B) = fire(Q, B) .
 
  *** gets out the places of the net
  op places : Net -> Pset [memo] .
