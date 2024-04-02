@@ -41,6 +41,7 @@ ceq B - NeB = B  if B =/= NeB  [owise] .
  eq M * nil = nil .
  eq M * (N . X + B) = (M * N) . X + M * B .
  *** sets an element's multiplicity (if zero removes it from the bag)
+ op set  : Bag{X} X$Elt Int -> [Bag{X}] . *** for convenience (e.g., to allow for the difference)
  op set  : Bag{X} X$Elt Nat -> Bag{X} . 
  eq set(B, X, 0) = remove(B, X) .
  eq set(B + N . X, X, M) =  B + M . X  .

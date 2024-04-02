@@ -8,10 +8,10 @@ fmod FTPL-PRIO is
 
  ops sline sload sass sfault faultysload faultysass :  -> Tmatrix .
  ops line load ass fault faultyload faultyass : -> Tran . 
- ops cycle faultycycle faultyPL : -> Net .
+ ops cycle faultycycle faultyPL : -> Net [memo] .
  ops PL PLA nomPL faultyPL NfaultyPL : NzNat -> Net . 
  op faultySys : NzNat -> System . 
- op NPL  : NzNat NzNat -> Net . *** N (faulty) prod lines 0 .. N- 1 each of K lines
+ op NPL  : NzNat NzNat -> Net [memo]. *** N (faulty) prod lines 0 .. N- 1 each of K lines
  op NPLsys : NzNat NzNat NzNat -> System . *** N prod lines  each of K lines with K * M tokens (raw pieces)
 
  ops loadLab asLab : -> Tlab [memo] .
@@ -47,17 +47,5 @@ fmod FTPL-PRIO is
  eq  PLA(K) = merge(replAnd(line ; fault, K, "w", "a", loadLab, "s", asLab, "s", "L"), "o" "L") . *** note s used twice: it's at the same time in and out
  eq  PL(K)  = set(set(PLA(K), loadLab, i, "s", K), asLab, o, "s", K) .
  eq  NPL(N,K) = replOr(PLA(K), N, "s", "s", "PL") . 
-
- *** model in which "timed" transitions are expanded into a pair timed ; immediate
- *** the operators are "equivalent" to the above ones
- ops expcycle : -> Net .
- eq expcycle = expandAll(cycle, 0) .
- ops exPL  : NzNat -> Net . 
- *** eq exPL(K) = repl&share(expcycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), asLab U loadLab U tlabexp(load) U tlabexp(ass)) . *** a PL is built of K symmetric lines 
- eq exPL(K) = repl&share(expcycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >) U p(< plabexp(load) ; 0 >) U  p(< plabexp(ass) ; 0 >), asLab U loadLab U tlabexp(load) U tlabexp(ass)) . *** a PL is built of K symmetric lines 
- op expNPL  : NzNat NzNat -> Net . 
- eq expNPL(N, K) = repl&share(exPL(K), N, "PL", p(< "s" ; 0 >), emptyStlab) .
- op expNPLsys : NzNat NzNat NzNat -> System . 
- eq expNPLsys(N, K, M) = setMark(setMark(expNPL(N, K), "o" "PL", 1), "s", K * M) .
 
 endfm
