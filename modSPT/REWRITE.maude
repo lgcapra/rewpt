@@ -1,0 +1,17 @@
+*** a state-transition view of (net-) rewrites 
+in GSPN
+
+fmod REWRITE is 
+  pr GSPN .
+  pr BAG{SPTlab} * (sort Bag{SPTlab} to RuleSet, sort NeBag{SPTlab} to NeRuleSet, op nil to nilRset) .
+  var N :  RuleSet .
+  var M : Pbag .
+  sort RewGroup .
+  op _==>_ : RuleSet Pbag ->  RewGroup [ctor] .   *** a set of rewrites to the same (possibly normalized) marking
+endfm
+
+*** trivial view
+
+view RewGroup from TRIV to REWRITE is 
+ sort Elt to RewGroup .
+endv

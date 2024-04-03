@@ -1,0 +1,16 @@
+*** a state-transition view for net with priorities 
+in GSPN
+
+fmod FIRING is 
+  pr GSPN .
+  var N : Net .
+  var M : Pbag .
+  sort FiringGroup .
+  op _-->_ : Net Pbag -> FiringGroup [ctor] .   *** a set of transitions leading to the same (possibly normalized) marking
+endfm
+
+*** trivial view
+
+view FiringGroup from TRIV to FIRING is 
+ sort Elt to FiringGroup .
+endv
