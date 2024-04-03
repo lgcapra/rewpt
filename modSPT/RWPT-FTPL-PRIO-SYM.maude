@@ -123,7 +123,15 @@ ceq rule1(N S, p(L < "PL" ; I >)) = join(detache(N, nomPL(I)) S - S', setMark(se
 op rule2 : System Place -> [System] .
 ceq rule2(N S, p(L < "fPL" ; I >)) = detache(N, faultyPL(I)) set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + (| S' | - 1))  if S' := subag(S, < "fPL" ; I >) .
 
-op r1exe : System Pset -> SySet .
+***
+var Syset : SySet .
+op r1exe : System Pset -> [SySet] .
+eq r1exe(Sys, X) = $r1exe(Sys, X, emptySySet) .
+op $r1exe : System Pset SySet -> [SySet] .
+eq $r1exe(Sys, emptyPset, Syset) = Syset .
+eq $r1exe(Sys, P U X, Syset) = $r1exe(Sys, X, (Syset , rule1(Sys, P))) .
+op r1exe : System -> SySet .
+eq r1exe(Sys) = r1exe(Sys, rew1Instances(Sys)) .
 
-op r2exe : System Pset -> SySet .
+op r2exe : System Pset -> [SySet] .
 endm  
