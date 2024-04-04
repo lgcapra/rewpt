@@ -6,11 +6,9 @@ fmod REWRITE is
   pr BAG{SPTlab} * (sort Bag{SPTlab} to RuleSet, sort NeBag{SPTlab} to NeRuleSet, op nil to nilRset) .
   var R : RuleSet .
   var M : Pbag .
-  var S : System
+  var S : System .
   sort RewGroup .
   op _==>_ : RuleSet System ->  RewGroup [ctor] .   *** a set of rewrites to the same (possibly normalized) PT system
-  *** alternative
-  *** op _==>_ : RuleSet Pbag ->  RewGroup [ctor] .   *** a set of rewrites to the same (possibly normalized) marking
 endfm
 
 *** trivial view

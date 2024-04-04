@@ -27,7 +27,7 @@ fmod STATE-TRAN-SYS is
   eq rew(NE: N M: M FIRING: FS REW: RS) = RS .
 
   *** OPERATORE ASTRATTO (DOVREBBE ESSERE DEFINITO DA UNA TEORIA)
-  op allRew : System -> Rset .
+  op allRew : System -> Rset [memo] .
 
   *** to pass from a  representation to the other
   op toStateTran : System -> StateTranSys . *** main operator: builds the (symbolic) state-stransition view for a PT with priorities

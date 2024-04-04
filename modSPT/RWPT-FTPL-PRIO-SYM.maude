@@ -77,10 +77,8 @@ mod RWPT-FTPL-PRIO-SYM is
 *** crl [ar1p] : N nilP => normalize(attach(N', faultyPL, "fPL") nilP)  if  p(L < "PL" ; I >) U Sp := places(N) /\ N' := detache(N, < "PL" ; I >)  .
 *** crl [ar2p] : N nilP => normalize(N'' nilP)  if p(L < "fPL" ; I >)  U Sp := places(N) /\  N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyN  . 
 
-*** NEW meta-rule for state-transition (firing)-base representation of GS(PN) -- funziona solo se si disattiva firing per System terms
-**** e NON sono possibili trasformazioni strutturali in sequenza
-vars ST ST' : StateTranSys .
 *** rules for state-transition based representation directly derived from ordinary rules (working)
+vars ST ST' : StateTranSys .
 *** crl [spnrew1-rate:2.0] : ST => toStateTranSPN(normalize(join(Sys, setMark(setMark( faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL"))   
 ***     if  N S := toSystem(ST)  /\ dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S'   .
 
@@ -123,8 +121,6 @@ ceq rule2(N S, p(L < "fPL" ; I >)) = detache(N, faultyPL(I)) set(S - S', p(< "s"
 
 ***
 var R  : RuleSet .
-var Lt  : Tlab .
-var RG : RewGroup .
 var RS : Rset .
 *** given a PT system term and the set of instances of rule 1, calculates the set of groups of equivalent state transitions due to rule 1 
 op r1exe : System Pset -> [Rset] .
@@ -141,7 +137,7 @@ eq $r2exe(Sys, emptyPset, RS) = RS .
 ceq $r2exe(Sys, P U X, (RS , R ==> Sys') ) = $r2exe(Sys, X, (RS , R + 1 .  << "R2",0,1.0 >> ==> Sys' )) if Sys' := normalize(rule2(Sys, P)) .
  eq $r2exe(Sys, P U X, RS ) = $r2exe(Sys, X, (RS , 1 .  << "R2",0,1.0 >> ==> normalize(rule2(Sys, P))) ) [owise] .
  *** cumulative calculation of state transitions due to R1 and R2
- op allRew : System -> Rset .
+ op allRew : System -> Rset [memo] .
  eq allRew(Sys) = r1exe(Sys, rew1Instances(Sys)) , r2exe(Sys, rew2Instances(Sys)) .
  *** equivalent rewrites based on pre-calculation of rewrite instances
  *** crl [R1] : Sys => Sys' if  RS , R ==> Sys' := r1exe(Sys, rew1Instances(Sys)) .
