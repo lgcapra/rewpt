@@ -12,7 +12,7 @@ mod GSPN-EMU-NORM is
   vars T T' : Tran .
   var S : Fset .
   *** symbolic firing rule
-crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N  /\ hasConcession(T, M)  .
+*** crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N  /\ hasConcession(T, M)  .
   *** with priorities
 *** crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N  /\ enabled(T, N M) .
  
@@ -21,8 +21,8 @@ crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N  /\ hasConcession
  *** with priorities
 *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if T ; N' := N /\ enabled(T, N M)  /\ M' := firing(T, M) .
 
-
-*** symbolic rule for state-transition representation of systems 
-rl [spn-firing] : NE: N M: M FIRING: (N' --> M', S) => toStateTranSPN((N ; N' ; net(S)) M') .
-*** rl [gspn-firing] : NE: N M: M FIRING: (N' --> M', S) => toStateTran(N ; N' ; net(S)) M') .
+var RS : Rset .
+*** symbolic firing rule for state-transition representation of systems
+rl [spn-firing] : NE: N M: M FIRING: (N' --> M', S) REW: RS => toStateTranSPN((N ; N' ; net(S)) M') .
+*** rl [gspn-firing] : NE: N M: M FIRING: (N' --> M', S) REW: RS => toStateTran((N ; N' ; net(S)) M') .
 endm

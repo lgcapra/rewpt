@@ -80,14 +80,13 @@ mod RWPT-FTPL-PRIO-SYM is
 *** NEW meta-rule for state-transition (firing)-base representation of GS(PN) -- funziona solo se si disattiva firing per System terms
 **** e NON sono possibili trasformazioni strutturali in sequenza
 vars ST ST' : StateTranSys .
-*** crl [ST-meta-rule] : ST => toStateTranSPN(Sys') if Sys := toSystem(ST) /\  Sys => Sys' /\ net(Sys) =/= net(Sys') .
+*** rules for state-transition based representation directly derived from ordinary rules (working)
+*** crl [spnrew1-rate:2.0] : ST => toStateTranSPN(normalize(join(Sys, setMark(setMark( faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL"))   
+***     if  N S := toSystem(ST)  /\ dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S'   .
 
-crl [spnrew1-rate:2.0] : ST => toStateTranSPN(normalize(join(Sys, setMark(setMark( faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL"))   
-     if  N S := toSystem(ST)  /\ dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S'   .
-
-crl [spnrew2-rate:1.0] : ST  => toStateTranSPN(normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL"))  if 
-        N S := toSystem(ST)  /\ S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
-        S' := subag(S'', < "fPL" ; I >) .
+*** crl [spnrew2-rate:1.0] : ST  => toStateTranSPN(normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL"))  if 
+***        N S := toSystem(ST)  /\ S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
+***        S' := subag(S'', < "fPL" ; I >) .
 
 
 *** NEW we compute the rewrite instances for each of the above rules
@@ -145,6 +144,6 @@ ceq $r2exe(Sys, P U X, (RS , R ==> Sys') ) = $r2exe(Sys, X, (RS , R + 1 .  << "R
  op allRew : System -> Rset .
  eq allRew(Sys) = r1exe(Sys, rew1Instances(Sys)) , r2exe(Sys, rew2Instances(Sys)) .
  *** equivalent rewrites based on pre-calculation of rewrite instances
- crl [R1] : Sys => Sys' if  RS , R ==> Sys' := r1exe(Sys, rew1Instances(Sys)) .
- crl [R2] : Sys => Sys' if  RS , R ==> Sys' := r2exe(Sys, rew2Instances(Sys)) .
+ *** crl [R1] : Sys => Sys' if  RS , R ==> Sys' := r1exe(Sys, rew1Instances(Sys)) .
+ *** crl [R2] : Sys => Sys' if  RS , R ==> Sys' := r2exe(Sys, rew2Instances(Sys)) .
 endm  

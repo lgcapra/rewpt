@@ -13,22 +13,29 @@ fmod STATE-TRAN-SYS is
   var ST :  StateTranSys .
   var S : FiringGroup .
   var FS : Fset .
+  var RS : Rset .
   *** description of a system pointing out (symbolic)state-transitions (2nd part, the prefix is the non-enabled net + marking)
-  op NE:_ M:_ FIRING:_ : Net Pbag Fset -> StateTranSys [ctor format (n d n d n d d)] .
+  op NE:_ M:_ FIRING:_REW:_ : Net Pbag Fset Rset -> StateTranSys [ctor format (n d n d n d n d d)] .
   *** getters
   op fi : StateTranSys -> Fset . *** the set of enabled state-transitions, grouped into (equivalence) classes
-  eq fi(NE: N M: M FIRING: FS) = FS .
+  eq fi(NE: N M: M FIRING: FS REW: RS) = FS .
   op ne : StateTranSys -> Net .
-  eq ne(NE: N M: M FIRING: FS) = N .
+  eq ne(NE: N M: M FIRING: FS REW: RS) = N .
   op m : StateTranSys -> Pbag .
-  eq m(NE: N M: M FIRING: FS) = M .
+  eq m(NE: N M: M FIRING: FS REW: RS) = M .
+  op rew : StateTranSys -> Rset .
+  eq rew(NE: N M: M FIRING: FS REW: RS) = RS .
+
+  *** OPERATORE ASTRATTO (DOVREBBE ESSERE DEFINITO DA UNA TEORIA)
+  op allRew : System -> Rset .
+
   *** to pass from a  representation to the other
   op toStateTran : System -> StateTranSys . *** main operator: builds the (symbolic) state-stransition view for a PT with priorities
- ceq toStateTran(N M) = NE: detache(N, N') M: M FIRING: fire(N', M) if N' := enabled(N M) . *** very intuitive
+ ceq toStateTran(N M) = NE: detache(N, N') M: M FIRING: fire(N', M) REW: allRew(N M)  if N' := enabled(N M) . *** very intuitive
   op toStateTranSPN : System -> StateTranSys . *** assumes that there are no priorities
- ceq toStateTranSPN(N M) = NE: detache(N, N') M: M FIRING: fire(N', M) if N' := haveConcession(N M) . *** very intuitive
+ ceq toStateTranSPN(N M) = NE: detache(N, N') M: M FIRING: fire(N', M) REW: allRew(N M)  if N' := haveConcession(N M) . *** very intuitive
   op toSystem : StateTranSys -> System .
-  eq toSystem(NE: N M: M FIRING: FS) = (N ; net(FS)) M .
+  eq toSystem(NE: N M: M FIRING: FS REW: RS) = (N ; net(FS)) M .
    *** calculates the firings (state-transitions) of a set of (enabled) transitions (seen as a net)
   op fire : Net Pbag -> Fset .
   eq fire(N, M) = $fire(N, M, emptyFset) .
