@@ -8,6 +8,8 @@ fmod REWRITE is
   var M : Pbag .
   sort RewGroup .
   op _==>_ : RuleSet Pbag ->  RewGroup [ctor] .   *** a set of rewrites to the same (possibly normalized) marking
+  *** alternative
+  *** op _==>_ : RuleSet System ->  RewGroup [ctor] .   *** a set of rewrites to the same (possibly normalized) PT system
 endfm
 
 *** trivial view
