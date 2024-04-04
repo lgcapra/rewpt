@@ -4,6 +4,7 @@ in PT-NORM
 fmod STATE-TRAN-SYS is 
   pr PT-NORM{SPTlab} .
   pr SET{FiringGroup} * (sort Set{FiringGroup} to Fset, sort NeSet{FiringGroup} to NeFset, op empty to emptyFset) .
+  pr SET{RewGroup} * (sort Set{RewGroup} to Rset, sort NeSet{RewGroup} to NeRset, op empty to emptyRset) .
   
   sort StateTranSys .
   var T  : Tran .

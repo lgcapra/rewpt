@@ -6,13 +6,12 @@ mod PT-EMU{X :: TRIV} is
  vars I O H M M' : Pbag . 
  vars N N' : Net .
  var L : X$Elt . *** tran. lab
- var T : Tmatrix .
+ var T : Tran .
  *** ordinary firing rule
- *** crl [firing] : N M => N M + O - I if [I,O,H] |-> L ; N' := N  /\ I =/= O /\ enabled([I,O,H], M) .
- *** including PT-NORM
- *** crl [firing] : N M => N normalize(M + O - I) if [I,O,H] |-> L ; N' := N  /\ I =/= O /\ enabled([I,O,H], M) .
- crl [firing] : (N ; T |-> L) M => (N ; T |-> L) normalize(M + O - I) if [I,O,H] := T /\ I =/= O /\ hasConcession(T, M)  .
- *** includes a further optimization: if the marked places are retained then index abstraction is skipped
- *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if [I,O,H] |-> L ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
+ crl [firing] : N M => N firing(T, M) if N' ; T := N /\ hasConcession(T, M)  .
+ *** including normalization
+ *** crl [firing] : N M => N normalize(firing(T, M)) if N' ; T := N /\ hasConcession(T, M)  .
+ *** further optimization: if the marked places are retained then index abstraction is skipped
+ *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if T ; N' := N /\ hasConcession(T, M) /\ M' := firing(T, M)  .
 endm
 

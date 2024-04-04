@@ -3,7 +3,6 @@ in FTPL-PRIO-SYS-SYM
 *** PL system model (with priorities) including transformation -- "symbolic" version
 mod RWPT-FTPL-PRIO-SYM is
  pr  FTPL-PRIO-SYS-SYM .
- pr SET{System{SPTlab}} * (sort Set{System{SPTlab}} to SySet, sort NeSet{System{SPTlab}} to NeSySet, op empty to emptySySet) .
  vars N N' N'' : Net .
  vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : String .
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
@@ -24,8 +23,8 @@ mod RWPT-FTPL-PRIO-SYM is
 ***     if dead (N S + 1 . p(< "f" ; J > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
 *** more readable
 *** (different equivalent versions obtained using simple syntactical transformations)
-crl [rew1.1] : N  S => normalize(join(Sys, setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
-   if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' .
+*** crl [rew1.1] : N  S => normalize(join(Sys, setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
+***   if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' .
 *** crl [rew1.1] : N  S + 1 . p(< "f" ; J > L < "PL" ; I >) => normalize(join(Sys, setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
 ***    if  dead (N S + 1 . p(< "f" ; J > L < "PL" ; I >)) /\ S' := subag(S, < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S - S' .
 *** crl [rew1.1] : N  S + 1 . p(< "f" ; J > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I)) S - S', setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
@@ -50,9 +49,9 @@ crl [rew1.1] : N  S => normalize(join(Sys, setMark(setMark(faultySys(minNotIn(N,
 ***   N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\
 ***   dead(N' S + 1 . p(< "f" ; J > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
 *** more readable
-crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL")  if 
-        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
-        S' := subag(S'', < "fPL" ; I >) .
+*** crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL")  if 
+***        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
+***        S' := subag(S'', < "fPL" ; I >) .
 *** paper's version
 ***crl [rew2p] : N S => normalize(setMark(N'' S'' - S', "s" , | match(S, "s") | + | S' | ), "PL")  if 
 ***   S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\  dead(faultyPL(I) S)  /\ N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyN  /\
@@ -81,12 +80,12 @@ crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 
 *** NEW meta-rule for state-transition (firing)-base representation of GS(PN) -- funziona solo se si disattiva firing per System terms
 **** e NON sono possibili trasformazioni strutturali in sequenza
 vars ST ST' : StateTranSys .
-*** crl [ST-meta-rule] : ST => toStateTran(Sys') if Sys := toSystem(ST) /\  Sys => Sys' /\ net(Sys) =/= net(Sys') .
+*** crl [ST-meta-rule] : ST => toStateTranSPN(Sys') if Sys := toSystem(ST) /\  Sys => Sys' /\ net(Sys) =/= net(Sys') .
 
-crl [spnrew1-rate:2.0] : ST => toStateTran(normalize(join(Sys, setMark(setMark( faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL"))   
+crl [spnrew1-rate:2.0] : ST => toStateTranSPN(normalize(join(Sys, setMark(setMark( faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL"))   
      if  N S := toSystem(ST)  /\ dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S'   .
 
-crl [spnrew2-rate:1.0] : ST  => toStateTran(normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL"))  if 
+crl [spnrew2-rate:1.0] : ST  => toStateTranSPN(normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL"))  if 
         N S := toSystem(ST)  /\ S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
         S' := subag(S'', < "fPL" ; I >) .
 
@@ -124,18 +123,28 @@ op rule2 : System Place -> [System] .
 ceq rule2(N S, p(L < "fPL" ; I >)) = detache(N, faultyPL(I)) set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + (| S' | - 1))  if S' := subag(S, < "fPL" ; I >) .
 
 ***
-var Syset : SySet .
-*** op r1exe : System -> SySet .
-*** eq r1exe(Sys) = r1exe(Sys, rew1Instances(Sys)) .
-op r1exe : System Pset -> [SySet] .
-eq r1exe(Sys, X) = $r1exe(Sys, X, emptySySet) .
-op $r1exe : System Pset SySet -> [SySet] .
-eq $r1exe(Sys, emptyPset, Syset) = Syset .
-eq $r1exe(Sys, P U X, Syset) = $r1exe(Sys, X, (Syset , rule1(Sys, P))) .
-
-op r2exe : System Pset -> [SySet] .
-eq r2exe(Sys, X) = $r2exe(Sys, X, emptySySet) .
-op $r2exe : System Pset SySet -> [SySet] .
-eq $r2exe(Sys, emptyPset, Syset) = Syset .
-eq $r2exe(Sys, P U X, Syset) = $r2exe(Sys, X, (Syset , rule2(Sys, P))) .
+var R  : RuleSet .
+var Lt  : Tlab .
+var RG : RewGroup .
+var RS : Rset .
+*** given a PT system term and the set of instances of rule 1, calculates the set of groups of equivalent state transitions due to rule 1 
+op r1exe : System Pset -> [Rset] .
+eq r1exe(Sys, X) = $r1exe(Sys, X, emptyRset) .
+op $r1exe : System Pset Rset -> [Rset] .
+eq $r1exe(Sys, emptyPset, RS) = RS .
+ceq $r1exe(Sys, P U X, (RS , R ==> Sys') ) = $r1exe(Sys, X, (RS , R + 1 .  << "R1",0,2.0 >> ==> Sys' )) if Sys' := normalize(rule1(Sys, P)) .
+ eq $r1exe(Sys, P U X, RS ) = $r1exe(Sys, X, (RS , 1 .  << "R1",0,2.0 >> ==> normalize(rule1(Sys, P))) ) [owise] .
+*** the same for rule 2
+op r2exe : System Pset -> [Rset] .
+eq r2exe(Sys, X) = $r2exe(Sys, X, emptyRset) .
+op $r2exe : System Pset Rset -> [Rset] .
+eq $r2exe(Sys, emptyPset, RS) = RS .
+ceq $r2exe(Sys, P U X, (RS , R ==> Sys') ) = $r2exe(Sys, X, (RS , R + 1 .  << "R2",0,1.0 >> ==> Sys' )) if Sys' := normalize(rule2(Sys, P)) .
+ eq $r2exe(Sys, P U X, RS ) = $r2exe(Sys, X, (RS , 1 .  << "R2",0,1.0 >> ==> normalize(rule2(Sys, P))) ) [owise] .
+ *** cumulative calculation of state transitions due to R1 and R2
+ op allRew : System -> Rset .
+ eq allRew(Sys) = r1exe(Sys, rew1Instances(Sys)) , r2exe(Sys, rew2Instances(Sys)) .
+ *** equivalent rewrites based on pre-calculation of rewrite instances
+ crl [R1] : Sys => Sys' if  RS , R ==> Sys' := r1exe(Sys, rew1Instances(Sys)) .
+ crl [R2] : Sys => Sys' if  RS , R ==> Sys' := r2exe(Sys, rew2Instances(Sys)) .
 endm  

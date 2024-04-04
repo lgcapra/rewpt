@@ -4,12 +4,13 @@ in GSPN
 fmod REWRITE is 
   pr GSPN .
   pr BAG{SPTlab} * (sort Bag{SPTlab} to RuleSet, sort NeBag{SPTlab} to NeRuleSet, op nil to nilRset) .
-  var N :  RuleSet .
+  var R : RuleSet .
   var M : Pbag .
+  var S : System
   sort RewGroup .
-  op _==>_ : RuleSet Pbag ->  RewGroup [ctor] .   *** a set of rewrites to the same (possibly normalized) marking
+  op _==>_ : RuleSet System ->  RewGroup [ctor] .   *** a set of rewrites to the same (possibly normalized) PT system
   *** alternative
-  *** op _==>_ : RuleSet System ->  RewGroup [ctor] .   *** a set of rewrites to the same (possibly normalized) PT system
+  *** op _==>_ : RuleSet Pbag ->  RewGroup [ctor] .   *** a set of rewrites to the same (possibly normalized) marking
 endfm
 
 *** trivial view
