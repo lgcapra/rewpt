@@ -1,4 +1,5 @@
 in FIRING
+in REWRITE
 in PT-NORM
 *** state-transition representation for SPN (GSPN) pointing out state-transitions due to firing rule -- suitable to translation into a LCTMC 
 fmod STATE-TRAN-SYS is 

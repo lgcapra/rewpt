@@ -1,4 +1,4 @@
-in FTPL-PRIO-SYS-SYM
+in FTPL-PRIO-SYS-SYM-2
 
 *** PL system model (with priorities) including transformation -- "symbolic" version
 mod RWPT-FTPL-PRIO-SYM is

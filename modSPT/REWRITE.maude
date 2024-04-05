@@ -8,7 +8,7 @@ fmod REWRITE is
   var M : Pbag .
   var S : System .
   sort RewGroup .
-  op _==>_ : RuleSet System ->  RewGroup [ctor] .   *** a set of rewrites to the same (possibly normalized) PT system
+  op _-->_ : RuleSet System ->  RewGroup [ctor] .   *** a set of rewrites to the same (possibly normalized) PT system
 endfm
 
 *** trivial view

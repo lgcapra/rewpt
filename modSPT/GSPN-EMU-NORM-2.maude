@@ -1,7 +1,7 @@
 *** defines the GSPN normalized firing rule
 in GSPN
 in PT-NORM
-in  STATE-TRAN-SYS
+in  STATE-TRAN-SYS-2
 
 mod GSPN-EMU-NORM is
   pr STATE-TRAN-SYS .
@@ -9,7 +9,7 @@ mod GSPN-EMU-NORM is
   vars N N' : Net .
   var  T    : Tran .
   var  R    : RuleSet .
-  var  FS   : Fset .
+  var  FS   : Rset .
   var  RS   : Rset .
   var  Sys  : System .
 
@@ -24,10 +24,10 @@ mod GSPN-EMU-NORM is
 *** crl [cfiring] : N B => N normalize(B', support(B) == support(B')) if T ; N' := N /\ enabled(T, N B)  /\ B' := firing(T, B) .
 
 *** symbolic firing rule for state-transition representation of systems
-rl [spn-firing] : NE: N M: B FIRING: (N' --> B', FS) REW: RS => toStateTranSPN((N ; N' ; net(FS)) B') .
+rl [spn-firing] : NET: N M: B FIRING: (R --> emptyN B', FS) REW: RS => toStateTranSPN(N B') .
 *** rl [gspn-firing] : NE: N M: B FIRING: (N' --> B', FS) REW: RS => toStateTran((N ; N' ; net(FS)) B') .
 
 *** other symbolic (structural) rewrites
-rl [spn-rewrite] : NE: N M: B FIRING: FS REW: (RS , R --> Sys)  => toStateTranSPN(Sys) .
+rl [spn-rewrite] : NET: N M: B FIRING: FS REW: (RS , R --> Sys)  => toStateTranSPN(Sys) .
 *** rl [gspn-rewrite] : NE: N M: B FIRING: FS REW: (RS , R ==> Sys)  => toStateTranSPN(Sys) .
 endm
