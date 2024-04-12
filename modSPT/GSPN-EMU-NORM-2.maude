@@ -9,7 +9,7 @@ mod GSPN-EMU-NORM is
   vars N N' : Net .
   var  T    : Tran .
   var  R    : RuleSet .
-  var  FS   : Rset .
+  var  FS   : Fset .
   var  RS   : Rset .
   var  Sys  : System .
 
@@ -24,7 +24,7 @@ mod GSPN-EMU-NORM is
 *** crl [cfiring] : N B => N normalize(B', support(B) == support(B')) if T ; N' := N /\ enabled(T, N B)  /\ B' := firing(T, B) .
 
 *** symbolic firing rule for state-transition representation of systems
-rl [spn-firing] : NET: N M: B FIRING: (R --> emptyN B', FS) REW: RS => toStateTranSPN(N B') .
+rl [spn-firing] : NET: N M: B FIRING: (R --> B', FS) REW: RS => toStateTranSPN(N B') .
 *** rl [gspn-firing] : NE: N M: B FIRING: (N' --> B', FS) REW: RS => toStateTran((N ; N' ; net(FS)) B') .
 
 *** other symbolic (structural) rewrites
