@@ -1,0 +1,27 @@
+*** defines the "symbolic" GSPN firing rule with normalization of states
+in GSPN
+
+mod GSPN-EMU-SYM is
+ pr GSPN .
+ pr PT-NORM{SPTlab} .
+ vars I O H M M' : Pbag . 
+ vars N N' : Net .
+ vars L L' : Tlab . *** tran. lab
+ var Q Q' : Tmatrix .
+ vars T T' : Tran .
+ *** ordinary firing rule (with priorities)
+ crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N  /\ enabled(T, N M) . 
+ *** without priorities
+ *** crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N  /\ hasConcession(T, M) .
+
+ *** includes a further optimization: if the marked places are retained then index abstraction is skipped
+*** crl [cfiring] : N B => N normalize(B', support(B) == support(B')) if T ; N' := N /\ hasConcession(T, B)  /\ B' := firing(T, B) .
+ *** with priorities
+*** crl [cfiring] : N B => N normalize(B', support(B) == support(B')) if T ; N' := N /\ enabled(T, N B)  /\ B' := firing(T, B) .
+
+ 
+ *** alternative, using the enabled set
+ ***crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N /\ in(haveConcession(N M), T) .
+ *** with priorities
+ *** crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N /\ in(enabled(N M), T) .
+endm
