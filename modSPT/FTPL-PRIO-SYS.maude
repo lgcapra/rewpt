@@ -1,8 +1,0 @@
-in FTPL-PRIO
-in GSPN-EMU
-
-*** the PT system of the PL model (with priorities)
-mod FTPL-PRIO-SYS is
-  pr  FTPL-PRIO .
-  inc GSPN-EMU .
-endm
