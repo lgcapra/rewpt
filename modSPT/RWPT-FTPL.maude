@@ -20,27 +20,21 @@ mod RWPT-FTPL is
 ***crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
 ***       if (N' ; [2 . P1, 1 . P2 + 1 . P3, nilP ] |-> Tload  ; [1 . P3, 1 . P5, 1 . P7] |-> Tline2 ; [1 . P4 + 1 . P5, 2 . P1, nilP ] |-> Tass  ;[1 . P0, 1 . P7, nilP] |-> Tfail2 ) := N /\ dead(N S + 1 . P7)  .
 *** alternative rule coherent with normalization
- *** optimized version of nor1 exploiting the fact that the faulty PL do not need abstraction
-*** crl [rew1] : N  S + 1 . p(< "f" ; J > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")
-***     if dead (N S + 1 . p(< "f" ; J > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
 *** more readable
-crl [rew1.1] : N  S => join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |))   
-     if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
-*** triggered by a local deadlock
-*** crl [rew1.2] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))   
-***      if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
+*** crl [rew1.1] : N  S => join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |))   
+***     if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
 *** paper's version
 *** crl [rew1.1p] : N  S => normalize(setMark(setMark(attach(N', faultyPL, "fPL") S'' - S', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |),"fPL")   
   *** if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ N' := detache(N, < "PL" ; I >)  .
+*** triggered by a local deadlock
+crl [rew1.2] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))   
+      if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
 
 
 *** syr2 removes a faulty PL after a 2nd fault occurrence (analogous considerations to syr1)
 ***crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
 ***  dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
 *** version coherent with normalization
-*** crl [rew2] : N  S + 1 . p(< "f" ; J > L < "fPL" ; I >) => normalize(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL")  if 
-***   N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\
-***   dead(N' S + 1 . p(< "f" ; J > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
 *** more readable
 crl [rew2.1] : N S => N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |)  if 
         S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
@@ -49,18 +43,6 @@ crl [rew2.1] : N S => N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S'
 ***crl [rew2p] : N S => normalize(setMark(N'' S'' - S', "s" , | match(S, "s") | + | S' | ), "PL")  if 
 ***   S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\  dead(faultyPL(I) S)  /\ N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyN  /\
 ***   S' := subag(S'', < "fPL" ; I >) . 
-
-*** without normalization
-*** crl [rew1.1] : N  S => join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |))   
-***     if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
-*** triggered by a local deadlock
-*** crl [rew1.2] : N  S => join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |))   
-***      if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
-
-
-*** crl [rew2.1] : N S => N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |)  if 
-***       S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
-***       S' := subag(S'', < "fPL" ; I >) .
 
 *** marking abstractions (derived from readable versions)
 *** crl [ar1] : N  nilP => normalize(joinAbs(Sys, Sys'))   

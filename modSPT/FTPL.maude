@@ -11,14 +11,18 @@ fmod FTPL is
  op NPL  : NzNat NzNat -> Net [memo]. *** N (faulty) prod lines 0 .. N- 1 each of K lines
  op NPLsys : NzNat NzNat NzNat -> System . *** N prod lines  each of K lines with K * M tokens (raw pieces)
 
- ops loadLab asLab : -> Tlab [memo] .
- eq loadLab = << "ld",0, 1.0 >> .
- eq asLab = << "as",0, 1.0 >> .
+ ops loadLab asLab failLab workLab : -> Tlab [memo] .
+ eq loadLab = << "ld",0, 0.5 >> .
+ eq asLab = << "as",0, 2.0 >> .
+ eq workLab = << "ln",0, 0.1 >> .
+ eq failLab = << "ft",0, 0.001 >> .
+
+ 
 
  var I  : Nat . 
  vars N K M : NzNat .
- eq line =  [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 0 >), 1 . p(< "f" ; 0 >) ] |-> << "ln",0,1.0 >> .
- eq fault = [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ] |-> << "ft",0,1.0 >> .
+ eq line =  [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 0 >), 1 . p(< "f" ; 0 >) ] |-> workLab .
+ eq fault = [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ] |-> failLab .
  eq load  = [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] |-> loadLab .
  eq ass   = [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ]  |-> asLab .
  eq cycle = load ; line ; ass ; fault .
