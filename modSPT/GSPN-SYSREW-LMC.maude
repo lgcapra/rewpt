@@ -1,0 +1,8 @@
+*** this theory defines rewritable GSPN to use in a state-transition based representation for a LTCMC
+*** an operator must be defined which given a System (gspn) results in all system transformations, grouped into equivalent classes
+in GSPN-REWSET
+
+fth GSPN-SYSREW-LMC is 
+ including GSPN-REWSET .
+ op allRew : System -> Rset  [memo] .
+endfth
