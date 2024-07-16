@@ -1,10 +1,9 @@
-*** defines the GSPN (normalized) firing rule for the state representation encoding state-transitions used for LCTMC
-in GSPN
-in PT-NORM
+*** defines the GSPN (normalized) firing/rewrite rule(s) for the state representation encoding state-transitions used for LCTMC
+
 in  STATE-TRAN-SYS
 
-mod GSPN-EMU-LMC is
-  pr STATE-TRAN-SYS .
+mod GSPN-EMU-LMC{X :: GSPN-SYSREW-LMC} is
+  pr STATE-TRAN-SYS{X} .
   vars B B' : Pbag . 
   vars N N' : Net .
   var  T    : Tran .

@@ -28,12 +28,10 @@ fmod PT-SYS{X :: TRIV} is
  eq net(N S) = N .
  eq marking(N S) = S .
  
- *** Tran topological enabling
- op hasConcession : Tran Pbag  -> Bool .
- eq hasConcession(Q |-> L,  S) = hasConcession(Q, S) .
  *** net's transition topological  enabling (partial operation: defined if the Tran belongs to the net)
  op hasConcession : Tran System -> [Bool] .
- eq hasConcession(Q |-> L, (Q |-> L ; N) S) = hasConcession(Q, S) .
+ *** eq hasConcession(Q |-> L, (Q |-> L ; N) S) = hasConcession(Q, S) .
+ eq hasConcession(T, (T ; N) S) = hasConcession(q(T), S) .
  
  *** checks for a deadlock
  op dead : System -> Bool . 

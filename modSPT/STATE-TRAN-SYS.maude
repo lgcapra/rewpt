@@ -1,11 +1,9 @@
-in FIRING
-in REWRITE
+in GSPN-SYSREW-LMC
 in PT-NORM
 *** state-transition representation for SPN (GSPN) pointing out state-transitions due to firing rule -- suitable to translation into a LCTMC 
-fmod STATE-TRAN-SYS is 
+fmod STATE-TRAN-SYS{X :: GSPN-SYSREW-LMC} is 
   pr PT-NORM{SPTlab} .
   pr SET{FiringGroup} * (sort Set{FiringGroup} to Fset, sort NeSet{FiringGroup} to NeFset, op empty to emptyFset) .
-  pr SET{RewGroup} * (sort Set{RewGroup} to Rset, sort NeSet{RewGroup} to NeRset, op empty to emptyRset) .
   
   sort StateTranSys .
   var T  : Tran .
@@ -26,9 +24,6 @@ fmod STATE-TRAN-SYS is
   eq m(NE: N M: M FIRING: FS REW: RS) = M .
   op rew : StateTranSys -> Rset .
   eq rew(NE: N M: M FIRING: FS REW: RS) = RS .
-
-  *** OPERATORE ASTRATTO (DOVREBBE ESSERE DEFINITO DA UNA TEORIA)
-  op allRew : System -> Rset [memo] .
 
   *** to pass from a  representation to the other
   op toStateTran : System -> StateTranSys . *** main operator: builds the (symbolic) state-stransition view for a PT with priorities

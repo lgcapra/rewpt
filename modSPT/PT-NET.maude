@@ -3,7 +3,7 @@ in TMATRIX
 *** in ../shared/MAP+
 in ../shared/MAP-SET
 
-*** signature of a PT net : a PT net is a map Tmatrix -> Tag
+*** signature of a PT net : a PT net is a map Tmatrix -> X
 fmod PT-NET{X :: TRIV} is
  pr MAP-SET{Tmatrix,X} * (sort Map{Tmatrix,X} to Net, sort Entry{Tmatrix,X} to Tran, op emptyM to emptyN,
                         op emptyS to emptyTset) .
@@ -27,8 +27,8 @@ fmod PT-NET{X :: TRIV} is
  
  op lab : Tran -> X$Elt .
  eq lab(Q |-> L) = L .
- op t : Tran -> Tmatrix .
- eq t(Q |-> L) = Q .
+ op q : Tran -> Tmatrix .
+ eq q(Q |-> L) = Q .
   
 
  *** dead Tran
@@ -46,6 +46,10 @@ ceq in(Q |-> L ; N, P) = true if in (Q, P) .
  op in : Net Tran -> Bool .
  eq in(N ; T, T) = true .
  eq in(N , T) = false [owise] .
+
+ *** Tran topological enabling
+ op hasConcession : Tran Pbag  -> Bool .
+ eq hasConcession(Q |-> L,  B) = hasConcession(Q, B) .
 
  *** firing effect (without checking the enabling)
  op firing : Tran Pbag -> Pbag .
