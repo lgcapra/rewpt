@@ -15,7 +15,7 @@ fmod GSPN is
   eq tag(Q |-> L) = tag(L) .
   op rate : Tran -> Float .
   eq rate(Q |-> L) = rate(L) .
-  *** checks whether a system's  transition is enabled (undefined the transition doesn't exist)
+  *** checks whether a system's  transition is enabled (undefined if the transition doesn't exist)
   op enabled : Tran System -> [Bool] .
  ceq enabled(T, (T ; T' ; N) M) = false if prio(T) < prio(T') /\ hasConcession(T', M) .
   eq enabled(T, (T ; N) M) = hasConcession(T, M) [owise] .
