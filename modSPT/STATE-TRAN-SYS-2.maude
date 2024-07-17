@@ -44,7 +44,7 @@ fmod STATE-TRAN-SYS is
   eq fire(N, M) = $fire(N, M, emptyFset) .
   op $fire : Net Pbag Fset -> Fset .
   eq  $fire(emptyN, M, FS) = FS .
- ceq $fire(T ; N, M, (R --> M', FS)) =  $fire(N, M, (1 . lab(T) + R  -->  M', FS)) if  M' := normalize(fire(t(T), M)) .
-  eq $fire(T ; N, M, FS) =  $fire(N, M, (1 . lab(T)  --> normalize(fire(t(T), M)), FS)) [owise] .
+ ceq $fire(T ; N, M, (R --> M', FS)) =  $fire(N, M, (1 . lab(T) + R  -->  M', FS)) if  M' := normalize(fire(q(T), M)) .
+  eq $fire(T ; N, M, FS) =  $fire(N, M, (1 . lab(T)  --> normalize(fire(q(T), M)), FS)) [owise] .
   
 endfm
