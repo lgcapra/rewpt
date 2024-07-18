@@ -1,9 +1,9 @@
 *** signature of (stochastic) PT with priorities 
 in SPT-LAB
-in PT-SYS
+in PT-NORM
 
 fmod GSPN is 
-  pr PT-SYS{SPTlab} .
+  pr PT-NORM{SPTlab} .
   var Q Q' : Tmatrix .
   vars T T' : Tran .
   var L : Tlab .

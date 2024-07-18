@@ -1,8 +1,10 @@
-in FTPL-SYS-LMC
+in FTPL
+in GSPN-SYSREW-LMC
 
 *** rewritable PL system model for LCTMC 
 mod RWPT-FTPL-LMC is
- pr  FTPL-SYS-LMC .
+ pr  FTPL .
+ pr GSPN-REWSET .
  vars N N' N'' : Net .
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
  vars S S' S'' : Pbag .
@@ -79,3 +81,6 @@ ceq $r2exe(Sys, P U X, (RS , R --> Sys') ) = $r2exe(Sys, X, (RS , R + 1 .  labr2
  *** crl [R1] : Sys => Sys' if  RS , R --> Sys' := r1exe(Sys, rew1Instances(Sys)) .
  *** crl [R2] : Sys => Sys' if  RS , R --> Sys' := r2exe(Sys, rew2Instances(Sys)) .
 endm  
+
+view RewFtplLmc from GSPN-SYSREW-LMC to RWPT-FTPL-LMC is 
+endv
