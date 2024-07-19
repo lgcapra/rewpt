@@ -1,10 +1,8 @@
 in FTPL-SYS-SYM
-in PT-NORM
 
 *** stochastic rewritable PL system model
 mod RWPT-FTPL-SYM is
  pr FTPL-SYS-SYM .
- pr PT-NORM{SPTlab} .
  vars N N' N'' : Net .
  vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : String .
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
@@ -13,27 +11,28 @@ mod RWPT-FTPL-SYM is
  vars I Imin J : Nat .
  var W : String .
  vars L L' L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
- var Sys Sys' : System .
+ vars Sys Sys' : System .
  var Sp : Pset .
 
-*** arule coherent with normalization
+*** rule coherent with normalization
  *** optimized version of exploiting the fact that the faulty PL do not need abstraction
 *** crl [rew1] : N  S + 1 . p(< "f" ; J > L < "PL" ; I >) => normalize(join(detache(N, nomPL(I))  S - S', setMark(setMark(faultySys(minNotIn(N, "fPL")), "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")
 ***     if dead (N S + 1 . p(< "f" ; J > L < "PL" ; I >)) /\  S' := subag(S, < "PL" ; I >) .
 *** more readable
 *** crl [rew1.1] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))   
-***     if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
+***       if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
 *** paper's version
 *** crl [rew1.1p] : N  S => normalize(setMark(setMark(attach(N', faultyPL, "fPL") S'' - S', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |),"fPL")   
   *** if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ N' := detache(N, < "PL" ; I >)  .
+
 *** triggered by a local deadlock
 crl [rew1.2] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))   
-      if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
+    if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
 
 *** version coherent with normalization
 *** crl [rew2] : N  S + 1 . p(< "f" ; J > L < "fPL" ; I >) => normalize(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL")  if 
-***   N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\
-***   dead(N' S + 1 . p(< "f" ; J > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
+***    N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\ 
+***    dead(N' S + 1 . p(< "f" ; J > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
 *** more readable
 crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |))  if 
         S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
@@ -50,4 +49,5 @@ crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 
 *** (paper versions)
 *** crl [ar1p] : N nilP => normalize(attach(N', faultyPL, "fPL") nilP)  if  p(L < "PL" ; I >) U Sp := places(N) /\ N' := detache(N, < "PL" ; I >)  .
 *** crl [ar2p] : N nilP => normalize(N'' nilP)  if p(L < "fPL" ; I >)  U Sp := places(N) /\  N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyN  . 
+
 endm  

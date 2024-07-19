@@ -49,11 +49,16 @@ ceq in(Q |-> L ; N, P) = true if in (Q, P) .
 
  *** Tran topological enabling
  op hasConcession : Tran Pbag  -> Bool .
- eq hasConcession(Q |-> L,  B) = hasConcession(Q, B) .
+ *** eq hasConcession(Q |-> L,  B) = hasConcession(Q, B) .
+ eq hasConcession([I,O,H] |-> L, B) = I <= B and-then H > B .
+
+ 
 
  *** firing effect (without checking the enabling)
  op firing : Tran Pbag -> Pbag .
- eq firing(Q |-> L, B) = fire(Q, B) .
+ **** eq firing(Q |-> L, B) = fire(Q, B) .
+ eq firing([I,O,H] |-> L, B) = B + O - I .
+ 
 
  *** gets out the places of the net
  op places : Net -> Pset [memo] .

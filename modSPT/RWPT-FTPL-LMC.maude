@@ -5,6 +5,7 @@ in GSPN-SYSREW-LMC
 mod RWPT-FTPL-LMC is
  pr  FTPL .
  pr GSPN-REWSET .
+ pr SET+{System{SPTlab}} * (sort Set{System{SPTlab}} to Set{System}, sort NeSet{System{SPTlab}} to NeSet{System}, op emptyS to emptySS ) . *** NEW
  vars N N' N'' : Net .
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
  vars S S' S'' : Pbag .
@@ -76,10 +77,44 @@ ceq $r2exe(Sys, P U X, (RS , R --> Sys') ) = $r2exe(Sys, X, (RS , R + 1 .  labr2
  *** cumulative calculation of state transitions due to R1 and R2
  op allRew : System -> Rset [memo] .
  eq allRew(Sys) = r1exe(Sys, rew1Instances(Sys)) , r2exe(Sys, rew2Instances(Sys)) .
+ *** eq allRew(Sys) = rulexe(labr1, Sys) , rulexe(labr2, Sys) . *** use the simplified approach for rule econding
 
  *** equivalent rewrites based on pre-calculation of rewrite instances
  *** crl [R1] : Sys => Sys' if  RS , R --> Sys' := r1exe(Sys, rew1Instances(Sys)) .
  *** crl [R2] : Sys => Sys' if  RS , R --> Sys' := r2exe(Sys, rew2Instances(Sys)) .
+
+ 
+ *** new part: operators encoding rules (NEW version)
+ *** FUNZIONA se due match distinti producono termini distinti (non considerando la normaliz.)
+
+*** single application of a rule (partial operation, overloaded, without extra arg)
+var TL : Tlab .
+op rule : Tlab System -> [System] . *** one equation for each rule
+ceq rule(<< "R1",0,1.0 >>, N S) = join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |))   
+    if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  . 
+
+ceq rule(<< "R2",0,2.0 >> , N S) = N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |)  if 
+        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
+        S' := subag(S'', < "fPL" ; I >) .
+
+*** "global application of the rules (without normalization) "
+var SS : Set{System} .
+var TS : [System] .
+ops ruleApp : Tlab System -> Set{System} .
+ eq ruleApp(TL, Sys) =  $ruleApp(TL, Sys, emptySS) .
+op $ruleApp : Tlab System Set{System} -> Set{System} .
+ceq $ruleApp(TL, Sys, SS) = $ruleApp(TL, Sys, SS U TS) if TS := rule(TL, Sys) /\ TS :: System  /\ not(TS in SS) . 
+ eq $ruleApp(TL, Sys, SS) = SS [owise] .
+
+*** simplfied version using ruleApp 
+op rulexe : Tlab System -> Rset .
+eq rulexe(TL, Sys) = $rulexe(TL, ruleApp(TL, Sys), emptyRset) .
+
+op $rulexe : Tlab Set{System} Rset -> Rset .
+eq $rulexe(TL, emptySS, RS) = RS .
+ceq $rulexe(TL, Sys U SS, (RS , R --> Sys') ) = $rulexe(TL, SS, (RS , R + 1 .  TL --> Sys' )) if Sys' := normalize(Sys) .
+eq $rulexe(TL, Sys U SS, RS) = $rulexe(TL, SS, (RS , 1 .  TL --> normalize(Sys)) ) [owise] .
+
 endm  
 
 view RewFtplLmc from GSPN-SYSREW-LMC to RWPT-FTPL-LMC is 

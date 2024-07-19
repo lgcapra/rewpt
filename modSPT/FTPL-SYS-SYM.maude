@@ -1,6 +1,8 @@
+in FTPL
 in GSPN-EMU-SYM
 
 *** the (stochastic) PT system of the PL model (with state normalization)
 mod FTPL-SYS-SYM is
+  pr  FTPL .
   inc GSPN-EMU-SYM .
 endm
