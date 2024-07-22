@@ -1,4 +1,4 @@
-*** this module defines set of system rewrites
+*** this module defines a set of system rewriting rules
 in GSPN-REW-LMC
 
 fmod GSPN-REWSET is 
