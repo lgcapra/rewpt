@@ -1,16 +1,16 @@
-in GSPN-SYSREW-LMC
+in GSPN-SYSREW-LMC-2
 
 *** state-transition representation for SPN (GSPN) pointing out state-transitions due to firing rule -- suitable to translation into a LCTMC 
-*** alternative: equivalent firings are described using Tlab
+*** alternative: equivalent firings are described as Array{Pbag,Float0}, equivalent rewrites as Array{System,Float0}
 fmod STATE-TRAN-SYS{X :: GSPN-SYSREW-LMC} is 
-  pr SET{FireGroup} * (sort Set{FireGroup} to Fset, sort NeSet{FireGroup} to NeFset, op empty to emptyFset) .
-
+  pr ARRAY{Pbag,Float0}* (sort Entry{Pbag,Float0} to Fclass, sort Array{Pbag,Float0} to Fset, op empty to emptyFset, op _|->_ to _<-|_ ) .
+  
   sort StateTranSys .
   var T  : Tran .
   var N  : Net .
   var FS : Fset .
   var RS : Rset .
-  var R : RuleSet .
+  var R :  Float .
   vars M M' : Pbag .
   
   *** description of a system pointing out (symbolic)state-transitions (2nd part, the prefix is the non-enabled net + marking)
@@ -37,7 +37,7 @@ fmod STATE-TRAN-SYS{X :: GSPN-SYSREW-LMC} is
   eq fire(N, M) = $fire(N, M, emptyFset) .
   op $fire : Net Pbag Fset -> Fset .
   eq  $fire(emptyN, M, FS) = FS .
- ceq $fire(T ; N, M, (R --> M', FS)) =  $fire(N, M, (1 . lab(T) + R  -->  M', FS)) if  M' := normalize(fire(q(T), M)) .
-  eq $fire(T ; N, M, FS) =  $fire(N, M, (1 . lab(T)  --> normalize(fire(q(T), M)), FS)) [owise] .
+ ceq $fire(T ; N, M, M' <-| R ; FS) =  $fire(N, M, M' <-| rate(lab(T)) + R ; FS) if  M' := normalize(fire(q(T), M)) .
+  eq $fire(T ; N, M, FS) =  $fire(N, M, normalize(fire(q(T), M)) <-| rate(lab(T)) ; FS) [owise] .
 
 endfm

@@ -1,0 +1,7 @@
+*** this module defines a set of system rewriting rules
+*** in GSPN-REW-LMC-2-1
+in GSPN
+
+fmod GSPN-REWSET is 
+ pr ARRAY{GspnSys,Float0}* (sort Entry{GspnSys,Float0} to Rclass, sort Array{GspnSys,Float0} to Rset, op empty to emptyRset, op _|->_ to _<-|_ ) .
+endfm

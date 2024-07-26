@@ -1,4 +1,5 @@
 *** defines the GSPN (normalized) firing/rewrite rule(s) for the state representation encoding state-transitions used for LCTMC
+*** alternative using STATE-TRAN-SYS-2
 
 in  STATE-TRAN-SYS
 
@@ -13,10 +14,10 @@ mod GSPN-EMU-LMC{X :: GSPN-SYSREW-LMC} is
   var  Sys  : System .
 
 *** symbolic firing rule for state-transition representation of systems
-rl [spn-firing] : NE: N M: B FIRING: (N' --> B', FS) REW: RS => toStateTranSPN((N ; N' ; net(FS)) B') .
+rl [spn-firing] : NET: N M: B FIRING: (R --> B', FS) REW: RS => toStateTranSPN(N B') .
 *** rl [gspn-firing] : NE: N M: B FIRING: (N' --> B', FS) REW: RS => toStateTran((N ; N' ; net(FS)) B') .
 
 *** other symbolic (structural) rewrites
-rl [spn-rewrite] : NE: N M: B FIRING: FS REW: (RS , R --> Sys)  => toStateTranSPN(Sys) .
+rl [spn-rewrite] : NET: N M: B FIRING: FS REW: (RS , R --> Sys)  => toStateTranSPN(Sys) .
 *** rl [gspn-rewrite] : NE: N M: B FIRING: FS REW: (RS , R ==> Sys)  => toStateTranSPN(Sys) .
 endm

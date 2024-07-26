@@ -1,5 +1,5 @@
 in GSPN-EMU-LMC-2 
-in RWPT-FTPL-LMC
+in RWPT-FTPL-LMC-2
 
 *** the (stochastic) PT system of the PL model  -- "symbolic version" (alternative repr for LCTMC)
 mod FTPL-SYS-LMC is
