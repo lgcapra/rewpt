@@ -27,7 +27,8 @@ fmod STATE-TRAN-SYS{X :: GSPN-SYSREW-LMC} is
 
   *** to pass from a  representation to the other
   op toStateTran : System -> StateTranSys . *** main operator: builds the (symbolic) state-stransition view for a PT with priorities
-  eq toStateTran(N M) = NET: N  M: M FIRING: fire(enabled(N M), M) REW: allRew(N M) . *** very intuitive
+  *** eq toStateTran(N M) = NET: N  M: M FIRING: fire(enabled(N M), M) REW: allRew(N M) . *** very intuitive
+  eq toStateTran(Sys:System) = toStateTranSPN(Sys:System) . *** temporary aliasing
   op toStateTranSPN : System -> StateTranSys . *** no priorities
   eq toStateTranSPN(N M) = NET: N  M: M FIRING: fire(haveConcession(N M), M) REW: allRew(N M) . *** very intuitive
   op toSystem : StateTranSys -> System .
