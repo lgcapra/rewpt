@@ -1,72 +1,48 @@
-in TRAN<
-in IMATRIX<
-in BAGP<
-in ../shared/SORTABLE-MAP
+in shared/Vplace
+in shared/Vtran
+in shared/Vimatrix
+in shared/MAP-SET
 
 fmod PT-NET is
- inc SORTABLE-MAP{TRAN<,IMATRIX<} * (sort Map{TRAN<,IMATRIX<} to Net, sort Entry{TRAN<,IMATRIX<} to ImatrixT, op emptyM to emptyN,
-                                   sort List{TRAN<,IMATRIX<} to ListTMat, sort NeList{TRAN<,IMATRIX<} to NeListTMat,
-                                   op emptyPairList to emptyListTMat, op notAMap to notANet) .
- pr SORTABLE-LIST{TRAN<}  * (sort List{TRAN<} to ListT, sort NeList{TRAN<} to NeListT, op nil to emptyListT ) .
- pr SORTABLE-LIST{PLACE<} * (sort List{PLACE<} to ListP, sort NeList{PLACE<} to NeListP, op nil to emptyListP ) .
- pr COMPARABLE-LIST{BAGP<} * (sort List{BAGP<} to ListBagP, sort NeList{BAGP<} to NeListBagP, op nil to emptyListBagP ) .
+ pr MAP-SET{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
  
+ 
+ pr SET{Place} * (op empty to emptyP ) .
+
  var T : Tran .
  var N : Net .
  vars P P'  : Place .
- vars I O H : BagP .
+ vars B I O H : BagP .
  vars K K'  : NzNat .
  
- eq T |-> [I,I,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
+ eq T |-> [B,B,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 
  ops In Out Inh : Net Tran -> [BagP] . 
- eq In( (T |-> Q, N), T) = I(Q) .
- eq Out((T |-> Q, N), T) = O(Q) .
- eq Inh((T |-> Q, N), T) = H(Q) .
+ eq In( (T |-> Q ; N), T) = I(Q) .
+ eq Out((T |-> Q ; N), T) = O(Q) .
+ eq Inh((T |-> Q ; N), T) = H(Q) .
 
  op dead : ImatrixT -> Bool .  *** checks for structurally dead transitions 
  eq dead(T |-> [K . P + I, O, K' . P + H]) = K >= K' [metadata "dead t"] .
  eq dead(Q:ImatrixT) = false [owise] .
 
  op in :  Net Place -> Bool . *** test the existence of a place
-ceq in((T |-> Q, N), P) = true if in (Q, P) .
+ceq in((T |-> Q ; N), P) = true if in (Q, P) .
  eq in(N, P) = false [owise] .
 
  op in :  Net Tran -> Bool . *** test the existence of a transition
  eq in(N, T) = $hasMapping(N, T) .
 
- var S : SetP .
+ var S : Set{Place} .
  var Q : Imatrix .
  
- op places : Net -> SetP [memo] .
+ op places : Net -> Set{Place} [memo] .
  eq places(N) = $places(N, emptyP) .  
- op $places : Net SetP -> SetP . 
+ op $places : Net Set{Place} -> Set{Place} . 
  eq $places(emptyN, S) = S . 
  eq $places((T |-> Q , N), S) = $places(N, (S, places(Q))) .
 
- op placeList : Net -> ListP . *** returns the sorted list of places
- eq placeList(N) = $makeListP(places(N),emptyListP) .
- var L : ListP .
- op $makeListP : SetP ListP -> ListP . 
- eq $makeListP(emptyP, L) = sort(L) . 
- eq $makeListP((P, S), L) = $makeListP(S, P L) . 
+ op transitions : Net -> Set{Tran} .
+ eq transitions(N) = keySet(N) . 
 
- op tranList : Net -> ListT .  *** returns the sorted list of transitions
- eq tranList(N) = $makeListT(N,emptyListT) .
- var L' : ListT .
- op $makeListT : Net ListT -> ListT . 
- eq $makeListT(emptyN, L') = sort(L') . 
- eq $makeListT((T |-> Q, N), L') = $makeListT(N, T L') . 
-
- op bagList : Net Atype -> ListBagP . *** returns the sorted list of arc functions of a given type
- var LB : ListBagP .
- var A : Atype .
- eq bagList(N, A) = $makeListBagP(N, A, emptyListBagP) .
- op $makeListBagP : Net Atype ListBagP -> ListBagP .
- eq $makeListBagP(emptyN, A, LB) = sort(LB) . 
- eq $makeListBagP((T |-> Q, N), A, LB) = $makeListBagP(N, A, (Q(A)) LB) . 
-
- op swap : Net Place Place -> Net .
- eq swap((T |-> Q, N), P , P') = T |-> swap(Q,  P , P'), swap(N, P , P') .
- eq swap(emptyN, P , P') = emptyN .
 endfm
