@@ -1,3 +1,6 @@
+in MAP+
+in SET+
+
 fmod MAP-SET{X :: TRIV, Y :: TRIV} is 
   pr MAP+{X,Y}.
   pr SET+{X} .
