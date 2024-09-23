@@ -1,7 +1,6 @@
-in Vplace.maude
-in BAG.maude
+in shared/BAG-AND-SET.maude
 
 fmod BAGP is
- pr BAG{Place} * (sort Bag{Place} to BagP, sort NeBag{Place} to NeBagP, sort BagEl{Place} to BagElP,
-                   op nil to nilP) .
+ pr BAG-AND-SET{Place} * (sort Bag{Place} to BagP, sort NeBag{Place} to NeBagP, sort BagEl{Place} to BagElP,
+                   op nil to nilP, op emptyS to emptyP) .
 endfm

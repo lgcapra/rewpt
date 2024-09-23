@@ -8,3 +8,8 @@ fmod TRAN is
  op _<_ : Tran Tran -> Bool .
  eq t(N) < t(N') = N < N' .
 endfm
+
+*** default view
+view Tran from TRIV to TRAN is 
+ sort Elt to Tran . 
+endv

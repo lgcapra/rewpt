@@ -1,46 +1,43 @@
-in shared/Vplace
-in shared/Vtran
-in shared/Vimatrix
+in PLACE
+in TRAN
+in IMATRIX
 in shared/MAP-SET
 
 fmod PT-NET is
  pr MAP-SET{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
- 
- 
- pr SET{Place} * (op empty to emptyP ) .
 
  var T : Tran .
  var N : Net .
  vars P P'  : Place .
+ var S : Set{Place} .
  vars B I O H : BagP .
  vars K K'  : NzNat .
+ var Q : Imatrix .
  
  eq T |-> [B,B,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
+ceq T |-> [K . P + I, O, K' . P + H] = emptyN if K >= K' [metadata "dead t"] . *** structurally dead transition are erased
 
- ops In Out Inh : Net Tran -> [BagP] . 
- eq In( (T |-> Q ; N), T) = I(Q) .
- eq Out((T |-> Q ; N), T) = O(Q) .
- eq Inh((T |-> Q ; N), T) = H(Q) .
 
+ op enabled : ImatrixT BagP -> Bool .
+ eq enabled(T |-> Q, B) = enabled(Q, B) .
+ 
  op dead : ImatrixT -> Bool .  *** checks for structurally dead transitions 
  eq dead(T |-> [K . P + I, O, K' . P + H]) = K >= K' [metadata "dead t"] .
  eq dead(Q:ImatrixT) = false [owise] .
 
  op in :  Net Place -> Bool . *** test the existence of a place
-ceq in((T |-> Q ; N), P) = true if in (Q, P) .
+ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq in(N, P) = false [owise] .
 
  op in :  Net Tran -> Bool . *** test the existence of a transition
  eq in(N, T) = $hasMapping(N, T) .
 
- var S : Set{Place} .
- var Q : Imatrix .
  
  op places : Net -> Set{Place} [memo] .
  eq places(N) = $places(N, emptyP) .  
  op $places : Net Set{Place} -> Set{Place} . 
  eq $places(emptyN, S) = S . 
- eq $places((T |-> Q , N), S) = $places(N, (S, places(Q))) .
+ eq $places(T |-> Q ; N, S) = $places(N, S U places(Q)) .
 
  op transitions : Net -> Set{Tran} .
  eq transitions(N) = keySet(N) . 

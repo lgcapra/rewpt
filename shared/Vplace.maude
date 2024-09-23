@@ -1,3 +1,0 @@
-view Place from TRIV to PLACE is 
- sort Elt to Place . 
-endv

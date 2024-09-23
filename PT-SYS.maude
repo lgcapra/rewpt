@@ -1,33 +1,14 @@
-in shared/MAP+ 
-in IMATRIX
-in shared/Vimatrix
-in TRAN
-in shared/Vtran
+in PT-NET
 
-fmod PT-SYS is
- pr MAP+{Tran, Imatrix} * (sort Map{Tran, Imatrix} to Net, op emptyM to emptyN) .
+mod PT-SYS is
+ inc PT-NET .
  sort System .
  op __ : Net BagP -> [System] [ctor] .
- ops In Out Inh : Net Tran  -> [BagP] .
- op enabled : System Tran -> [Bool] .
- op dead : System -> Bool .
- op in : Net Place -> Bool . *** test the existence of a place
- var N  : Net .
+ vars N  N' : Net .
+ vars I O H M : BagP .
  var T : Tran .
- var P : Place .
- var I O H S : BagP .
- var Q : Imatrix .
- var K K' : NzNat .
- eq In((T |-> [I,O,H], N), T) = I .
- eq Out((T |-> [I,O,H], N), T) = O .
- eq Inh((T |-> [I,O,H], N), T) = H .
- eq in((T |-> Q, N), P) = in(Q, P) or-else in(N, P). 
- eq in(emptyN, P) = false .
- eq T |-> [I,I,H] = emptyN [metadata "null t"] .  
-ceq T |-> [K . P + I, O, K' . P + H] = emptyN if K >= K' [metadata "dead t"] .
-*** ceq N K . P + S = N S if in(N, P) = false [metadata "isolated p"] .
- eq enabled( (T |-> [I,O,H], N) S, T) = I <= S and-then H >' S .
-ceq dead((T |-> Q, N) S) = false if enabled( (T |-> Q, N) S, T) .
- eq dead(N S) = true [owise] .
-cmb N S : System if N =/= emptyN . *** a PT system cannot be "empty"
-endfm
+
+cmb N M : System if N =/= emptyN . *** a PT system cannot be "empty"
+
+crl [firing] : N M => N M + O - I if T |-> [I,O,H] ; N' := N /\ I <= M /\ H > M .
+endm
