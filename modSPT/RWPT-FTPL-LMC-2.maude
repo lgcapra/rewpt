@@ -72,12 +72,12 @@ op r2exe : System Pset -> [Rset] .
 eq r2exe(Sys, X) = $r2exe(Sys, X, emptyRset) .
 op $r2exe : System Pset Rset -> [Rset] .
 eq $r2exe(Sys, emptyPset, RS) = RS .
-ceq $r2exe(Sys, P U X, RS ; Sys' <-| R ) = $r2exe(Sys, X, RS ; Sys' <-| R + rate2  ) if Sys' := normalize(rule1(Sys, P)) .
- eq $r2exe(Sys, P U X, RS ) = $r2exe(Sys, X, RS ; normalize(rule1(Sys, P)) <-| rate2)  [owise] .
+ceq $r2exe(Sys, P U X, RS ; Sys' <-| R ) = $r2exe(Sys, X, RS ; Sys' <-| R + rate2  ) if Sys' := normalize(rule2(Sys, P)) .
+ eq $r2exe(Sys, P U X, RS ) = $r2exe(Sys, X, RS ; normalize(rule2(Sys, P)) <-| rate2)  [owise] .
  
  *** cumulative calculation of state transitions due to R1 and R2
  op allRew : System -> Rset [memo] .
- *** eq allRew(Sys) = r1exe(Sys, rew1Instances(Sys)) ; r2exe(Sys, rew2Instances(Sys)) .
+ ***eq allRew(Sys) = r1exe(Sys, rew1Instances(Sys)) ; r2exe(Sys, rew2Instances(Sys)) .
  eq allRew(Sys) = rulexe(<< "R1",0,1.0 >>, Sys) ; rulexe(<< "R2",0,2.0 >>, Sys) . *** use the simplified approach for rule econding
 
 

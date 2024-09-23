@@ -8,11 +8,10 @@ mod GSPN-EMU-LMC{X :: GSPN-SYSREW-LMC} is
   vars B B' : Pbag . 
   vars N N' : Net .
   var  T    : Tran .
-  var  R    : Float .
+  vars F R    : Float .
   var  FS   : Fset .
   var  RS   : Rset .
   var  Sys  : System .
-  var F : Float .
 
 *** symbolic firing rule for state-transition representation of systems
 rl [spn-firing] : NET: N M: B FIRING: (B' <-| F ; FS) REW: RS => toStateTranSPN(N B') .
