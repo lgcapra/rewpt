@@ -1,0 +1,71 @@
+*** a new, more effective net representation
+in TMATRIX
+
+in ../shared/MAP-SET
+
+*** signature of a PT net : a PT net is a map Tmatrix -> X
+fmod PT-NET{X :: TRIV} is
+ pr MAP-SET{Tmatrix,X} * (sort Map{Tmatrix,X} to Net, sort Entry{Tmatrix,X} to Tran, op emptyM to emptyN,
+                        op emptyS to emptyTset) .
+ pr SET+{X} * (op emptyS to emptyStlab) .
+
+ var  P : Place .
+ var L  : X$Elt .
+ var Z  : Set{X} .  
+ vars N N'  : Net .
+ vars T T' : Tran .
+ vars Y J  : Nat .
+ vars I O H B : Pbag .
+ vars S S' PS : Pset .
+ var Q  : Tmatrix . 
+ 
+ op lab : Tran -> X$Elt .
+ eq lab(Q |-> L) = L .
+ op q : Tran -> Tmatrix .
+ eq q(Q |-> L) = Q .
+  
+ *** dead Tran
+ op dead : Tran -> Bool .   
+ eq dead(Q |-> L) = dead(Q) .
+ 
+ *** test the existence of a place
+ op in :  Net Place -> Bool . 
+ceq in(Q |-> L ; N, P) = true if in (Q, P) .
+ eq in(N, P) = false [owise] .
+
+ *** test the existence of a Tran
+ op in :  Net Tmatrix -> Bool . 
+ eq in(N, Q) = $hasMapping(N, Q) .
+ op in : Net Tran -> Bool .
+ eq in(N ; T, T) = true .
+ eq in(N , T) = false [owise] .
+
+ *** Tran topological enabling
+ op hasConcession : Tran Pbag  -> Bool .
+ *** eq hasConcession(Q |-> L,  B) = hasConcession(Q, B) .
+ eq hasConcession([I,O,H] |-> L, B) = I <= B and-then H > B .
+
+  *** firing effect (without checking the enabling)
+ op firing : Tran Pbag -> Pbag .
+ **** eq firing(Q |-> L, B) = fire(Q, B) .
+ eq firing([I,O,H] |-> L, B) = B + O - I .
+ 
+ *** gets out the places of the net
+ op places : Net -> Pset [memo] .
+ eq places(N) = $places(N, emptyPset) .  
+ op $places : Net Pset -> Pset . 
+ eq $places(emptyN, S) = S . 
+ eq $places(Q |-> L ; N, S) = $places(N, S U places(Q)) .
+ 
+ *** removes self-loops
+ op clearup : Net -> Net .
+ eq clearup([I, I, H] |-> L ; N) = clearup(N) .
+ eq clearup(N) = N [owise] .
+  
+endfm
+
+*** trivial view to a PT-NET
+view PTnet{X :: TRIV} from TRIV to PT-NET{X} is 
+ sort Elt to Net .
+endv
+

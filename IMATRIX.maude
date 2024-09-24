@@ -1,0 +1,39 @@
+in BAGP
+in TRAN
+
+fmod IMATRIX is
+ pr BAGP .
+ sort Imatrix .
+ op [_,_,_] : BagP BagP BagP -> Imatrix [ctor] .
+ 
+ var P  : Place .
+ vars I O H M : BagP .
+ vars K K' : NzNat .
+ var Q  : Imatrix .
+  
+ ops I O H : Imatrix -> BagP .
+ eq I([I,O,H]) = I .
+ eq O([I,O,H]) = O .
+ eq H([I,O,H]) = H .
+
+ op in :  Imatrix Place -> Bool . *** test the existence of a place
+ eq in([I + K . P, O, H], P) = true .
+ eq in([I, O + K . P, H], P) = true .
+ eq in([I, O, H + K . P], P) = true .
+ eq in(Q, P) = false [owise] .
+
+ op places : Imatrix -> Set{Place} .
+ eq places([I,O,H]) = support(I) U support(O) U support(H) .
+
+ op enabled : Imatrix BagP -> Bool .
+ eq enabled([I,O,H], M) = I <= M and-then H > M .
+
+ op dead : Imatrix -> Bool .  *** checks for structurally dead transitions 
+ eq dead([K . P + I, O, K' . P + H]) = K >= K' [metadata "dead tq"] .
+ eq dead(Q) = false [owise] .
+
+endfm
+
+view Imatrix from TRIV to IMATRIX is 
+ sort Elt to Imatrix . 
+endv

@@ -1,0 +1,6 @@
+*** this module defines a set of system rewriting rules
+in GSPN-REW-LMC
+
+fmod GSPN-REWSET is 
+ pr SET{RewGroup} * (sort Set{RewGroup} to Rset, sort NeSet{RewGroup} to NeRset, op empty to emptyRset) .
+endfm

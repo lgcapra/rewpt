@@ -1,0 +1,15 @@
+fmod PLACE is
+protecting NAT .
+ sort Place .
+ op p : Nat -> Place [ctor] .
+ op subscript : Place -> Nat .
+ op _<_ : Place Place -> Bool .
+ var N : Nat .
+ eq subscript (p(N)) = N .
+endfm
+
+
+*** default view
+view Place from TRIV to PLACE is 
+ sort Elt to Place . 
+endv

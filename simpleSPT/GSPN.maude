@@ -1,0 +1,52 @@
+*** signature of (stochastic) PT with priorities 
+in SPT-LAB
+in PT-NORM
+
+fmod GSPN is 
+  pr PT-NORM{SPTlab} .
+  var Q Q' : Tmatrix .
+  vars T T' : Tran .
+  var L : Tlab .
+  vars N N' N'' : Net .
+  var M : Pbag .
+  op prio : Tran -> Nat .
+  eq prio(Q |-> L) = prio(L) .
+  op tag : Tran -> String .
+  eq tag(Q |-> L) = tag(L) .
+  op rate : Tran -> Float .
+  eq rate(Q |-> L) = rate(L) .
+  *** checks whether a system's  transition is enabled (undefined if the transition doesn't exist)
+  op enabled : Tran System -> [Bool] .
+ ceq enabled(T, (T ; T' ; N) M) = false if prio(T) < prio(T') /\ hasConcession(T', M) .
+  eq enabled(T, (T ; N) M) = hasConcession(T, M) [owise] .
+  *** computes a system's transitions (seen as a Net) having concession
+  op haveConcession : System -> Net [memo] .
+  eq haveConcession(S:System) = $haveConcession(S:System, emptyN) .
+  op $haveConcession : System Net -> Net .
+  eq $haveConcession(emptyN M, N) = N .
+ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if hasConcession(T, M) .
+ eq $haveConcession((T ; N) M, N') = $haveConcession(N M, N') [owise] .
+ *** computes the system's enabled transitions (seen as a Net) by considering priorities
+  op enabled : System -> Net .
+  *** first calculates (recursively) the highest-priority subnet -- more efficient if priority trans. are present
+  eq enabled(emptyN M) = emptyN .
+ ceq enabled(N M) = if N'' == emptyN then enabled(detache(N, N') M) else N'' fi  if N =/= emptyN /\ N' := highPrio(N) /\ N'' := haveConcession(N' M) .
+  *** calculates the higher priority transitions of a Net (seen as a Net in turn)
+  op highPrio : Net -> Net .
+  eq highPrio(emptyN) = emptyN .
+  eq highPrio(T ; N) = $highPrio(N, T) .
+  op $highPrio : Net Net -> Net .
+  eq $highPrio(emptyN, N) = N .
+  eq $highPrio(T ; N, T' ; N') = if prio(T) > prio(T') then $highPrio(N, T) else if prio(T) < prio(T') then $highPrio(N, T' ; N') else $highPrio(N, T ; T' ; N') fi fi .
+    
+endfm
+
+*** trivial views
+
+view Gspn from TRIV to GSPN is 
+ sort Elt to Net .
+endv
+
+view GspnSys from TRIV to GSPN is 
+ sort Elt to System .
+endv
