@@ -2,13 +2,9 @@ in PT-NET
 
 mod PT-SYS is
  inc PT-NET .
- sort System .
- op __ : Net BagP -> [System] [ctor] .
  vars N  N' : Net .
  vars I O H M : BagP .
- var T : Tran .
+ var T : ImatrixT .
 
-cmb N M : System if N =/= emptyN . *** a PT system cannot be "empty"
-
-crl [firing] : N M => N M + O - I if T |-> [I,O,H] ; N' := N /\ I <= M /\ H > M .
+ crl [firing] : N M => N firing(T, M) if T ; N' := N /\ enabled(T, M) .
 endm

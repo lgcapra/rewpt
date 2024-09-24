@@ -1,13 +1,7 @@
+in PT-NODE
+
 fmod PLACE is
- protecting NAT .
- protecting EXT-BOOL .
- sort Place .
- op p : Nat -> Place [ctor] .
- op subscript : Place -> Nat .
- op _<_ : Place Place -> Bool .
- vars N N' : Nat .
- eq subscript (p(N)) = N .
- eq p(N) < p(N') = N < N' .
+ protecting PT-NODE * (sort Node to Place, op n to p) .
 endfm
 
 

@@ -5,21 +5,28 @@ in shared/MAP-SET
 
 fmod PT-NET is
  pr MAP-SET{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
-
+ sort System .
+ 
  var T : Tran .
  var N : Net .
  vars P P'  : Place .
  var S : Set{Place} .
- vars B I O H : BagP .
+ vars M I O H : BagP .
  vars K K'  : NzNat .
  var Q : Imatrix .
  
- eq T |-> [B,B,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
+ op __ : Net BagP -> [System] [ctor] .
+ cmb N M : System if N =/= emptyN . *** a PT system cannot be "empty"
+ 
+ eq T |-> [M,M,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 ceq T |-> [K . P + I, O, K' . P + H] = emptyN if K >= K' [metadata "dead t"] . *** structurally dead transition are erased
 
 
  op enabled : ImatrixT BagP -> Bool .
- eq enabled(T |-> Q, B) = enabled(Q, B) .
+ eq enabled(T |-> [I,O,H], M) = I <= M and-then H > M . 
+
+ op firing : ImatrixT BagP -> BagP .
+ eq firing(T |-> [I,O,H], M) = (M - I) + O .
  
  op dead : ImatrixT -> Bool .  *** checks for structurally dead transitions 
  eq dead(T |-> [K . P + I, O, K' . P + H]) = K >= K' [metadata "dead t"] .

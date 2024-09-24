@@ -1,7 +1,0 @@
-in PT-EMU
-in RWPT-FMS
-in shared/Vrwfms 
-
-mod RWFMS-EMU is
- including PT-EMU{RWfms} .
-endm

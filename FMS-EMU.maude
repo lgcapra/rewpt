@@ -1,7 +1,0 @@
-in PT-EMU
-in PT-FMS
-in shared/Vfms 
-
-mod FMS-EMU is
- including PT-EMU{Fms} .
-endm
