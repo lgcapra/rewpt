@@ -14,18 +14,42 @@ view Match from TRIV to MATCH is
 endv
 
 mod PT-SYS is
- inc SET{Match} .
+ 
+ inc SET+{Match} * (op emptyS to noMatch) .
+ inc MAP+{BagP,Float} * (sort Entry{BagP,Float} to Fclass, sort Map{BagP,Float} to Fset, op emptyM to emptyFset, op _|->_ to _<-|_ ) .
+ inc CONVERSION .
+
  vars N  N' : Net .
  var S : System .
  var X : Set{Match} .
- vars I O H M : BagP .
+ vars M M' : BagP .
  var T : ImatrixT .
+ var Q : Imatrix .
+ var K : Nat .
+ var R : Float .
+ var FS : Fset .
+ *** firinf rule rates
+ op rates : ImatrixT BagP -> Float .
+ eq rates(t(1) |-> Q, M) = 0.4 .
+ eq rates(t(2) |-> Q, M) = float(M[p(3)]) * 0.4 .
+ eq rates(t(K) |-> Q, M) = 1.0 [owise] .
+ *** firing rule matches
  op matches : System -> Set{Match} .
- eq matches(S) = $matches(S, empty) .
+ eq matches(S) = $matches(S, noMatch) .
  op $matches : System Set{Match} -> Set{Match} .
-ceq $matches((T ; N) M, X) = < N,T,M > , X if enabled(T, M) /\ < N,T,M > in X == false .
+ceq $matches((T ; N) M, X) = $matches((T ; N) M, < N,T,M > U X) if enabled(T, M) /\ < N,T,M > in X == false .
  eq $matches(S, X) = X [owise] .
+ *** rule application
+ op ruleapp : Match -> System .
+ eq ruleapp(< N,T,M >) = (T ; N) firing(T, M) .
+ *** state transitions due to the rule
+  op state-transitions : System -> Fset .
+  eq state-transitions(S) = $state-transitions(matches(S), emptyFset) .
+  op $state-transitions : Set{Match} Fset -> Fset .
+  eq $state-transitions(noMatch, FS) = FS .
+ ceq $state-transitions(< N,T,M > U X, M' <-| R ; FS) =  $state-transitions(X, M' <-| rates(T, M) + R ; FS) if  M' := m(ruleapp(< N,T,M >)) .
+  eq $state-transitions(< N,T,M > U X, FS) =  $state-transitions(X, m(ruleapp(< N,T,M >)) <-| rates(T, M) ; FS) [owise] .
 
  *** crl [firing] : N M => N firing(T, M) if T ; N' := N /\ enabled(T, M) .
- crl [firing] : (T ; N) M => (T ; N) firing(T, M) if  enabled(T, M) .
+ crl [firing] : (T ; N) M => (T ; N) firing(T, M) if enabled(T, M) .
 endm

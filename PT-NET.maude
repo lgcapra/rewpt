@@ -17,6 +17,10 @@ fmod PT-NET is
  
  op __ : Net BagP -> [System] [ctor] .
  cmb N M : System if N =/= emptyN . *** a PT system cannot be "empty"
+ op n : System -> Net .
+ op m : System -> BagP .
+ eq n(N M) = N .
+ eq m(N M) = M .
  
  eq T |-> [M,M,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 ceq T |-> [K . P + I, O, K' . P + H] = emptyN if K >= K' [metadata "dead t"] . *** structurally dead transition are erased
