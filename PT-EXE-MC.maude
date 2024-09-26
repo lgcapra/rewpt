@@ -2,13 +2,16 @@ in PT-SYS-MC
 
 mod PT-EXE-MC is
  protecting PT-SYS .
- op net : -> Net .
- op m0  : -> BagP .  
+ op net : -> Net   [memo] .
+ op m0  : -> BagP  [memo] .  
+ 
  eq net = t(1) |-> [1 . p(1), 1 . p(2), nilP] ; 
           t(2) |-> [1 . p(1) + 2 . p(3), 1 . p(2) + 2 . p(3), nilP] ; 
           t(3) |-> [1 . p(3), 1 . p(4), nilP] ; 
           t(4) |-> [1 . p(2) , 1 . p(1), nilP] .
 
- eq m0  = 1 . p(1) +  2 . p(3) .
+ eq m0  = 1 . p(1) +  2 . p(3)  .
+
+ *** rl [restart] : M:BagP + 2 . p(4) => m0 .   *** infinite behaviour 
 endm
 
