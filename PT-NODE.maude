@@ -1,16 +1,7 @@
-fmod PT-NODE is
- protecting NAT .
- protecting EXT-BOOL .
+fmod PT-NODE{X :: TRIV} is
  sort Node .
- op n : Nat -> Node [ctor] .
- vars N N' : Nat .
- vars N1 N2 : Node .
- 
- op subscript : Node -> Nat .
- eq subscript (n(N)) = N .
- 
- op _<_ : Node Node -> Bool .
- eq n(N) < n(N') = N < N' .
- op _<=_ : Node Node -> Bool .
- eq N1 <= N2 = N1 == N2 or-else N1 < N2 .
+ op n : X$Elt -> Node [ctor] .
+ op lab : Node -> X$Elt .
+ var L : X$Elt .
+ eq lab(n(L)) = L . 
 endfm

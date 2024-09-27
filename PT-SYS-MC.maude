@@ -26,35 +26,40 @@ mod PT-SYS is
  var S : System .
  var X : Set{Match} .
  vars M M' : BagP .
- var T : ImatrixT .
+ var P : Place .
+ var T : Tran .
+ var I : ImatrixT .
  var Q : Imatrix .
  var K : Nat .
  var R : Float .
  var RS : Rset .
- *** firinf rule rates
- op rates : ImatrixT BagP -> Float .
- eq rates(t(1) |-> Q, M) = 0.4 .
- eq rates(t(2) |-> Q, M) = float(M[p(3)]) * 0.4 .
- eq rates(t(K) |-> Q, M) = 1.0 [owise] .
+ *** firing rule rates
+ op rates : ImatrixT -> Float .
+ eq rates(I) = rate(t(I)) .
+ op rates : ImatrixT BagP -> Float . *** alternative (marking dependent, e.g., based on the enabling degree)
+ eq rates(I, M) = rate(t(I)) * float(enabdegree(Q(I), M)) .
+ op enabdegree : Imatrix BagP -> NzNat .
+ *** definition of enabdegree 
+
  *** firing rule matches
  op matches : System -> Set{Match} [memo].
  eq matches(S) = $matches(S, noMatch) .
  op $matches : System Set{Match} -> Set{Match} .
-ceq $matches((T ; N) M, X) = $matches((T ; N) M, < N,T,M > U X) if enabled(T, M) /\ < N,T,M > in X == false .
+ceq $matches((I ; N) M, X) = $matches((I ; N) M, < N,I,M > U X) if enabled(I, M) /\ < N,I,M > in X == false .
  eq $matches(S, X) = X [owise] .
  *** rule application
  *** op ruleapp : Match -> System .
- *** eq ruleapp(< N,T,M >) = (T ; N) firing(T, M) .
+ *** eq ruleapp(< N,I,M >) = (I ; N) firing(I, M) .
  *** optimized
  op ruleapp : ImatrixT BagP -> BagP .
- eq ruleapp(T, M) = firing(T, M) .
+ eq ruleapp(I, M) = firing(I, M) .
  *** state transitions due to the rule -- grouped by rate
   op state-trans : System -> Rset [memo] .
   eq state-trans(S) = $state-trans(matches(S), emptyR) .
   op $state-trans : Set{Match} Rset -> Rset .
   eq $state-trans(noMatch, RS) = RS .
- ceq $state-trans(< N,T,M > U X, M' <-| R ; RS) =  $state-trans(X, M' <-| rates(T, M) + R ; RS) if  M' := ruleapp(T,M ) .
-  eq $state-trans(< N,T,M > U X, RS) =  $state-trans(X, ruleapp(T,M) <-| rates(T, M) ; RS) [owise] .
+ ceq $state-trans(< N,I,M > U X, M' <-| R ; RS) =  $state-trans(X, M' <-| rates(I) + R ; RS) if  M' := ruleapp(I,M ) .
+  eq $state-trans(< N,I,M > U X, RS) =  $state-trans(X, ruleapp(I,M) <-| rates(I) ; RS) [owise] .
 
  sort SysState .
  *** description of a PT system pointing out te state-trans, gathered by rates
@@ -64,5 +69,7 @@ ceq $matches((T ; N) M, X) = $matches((T ; N) M, < N,T,M > U X) if enabled(T, M)
  eq toSysState(S) = SYS: S STRAN: state-trans(S) . 
 *** firing rule according to the new state representation
 rl [firing] : SYS: N M STRAN: (M' <-| R ; RS)  => toSysState(N M') .
+
+rl [selftoinh] : T |-> [1 . P + M, 1 . P + M', nilP] => T |-> [M, M', 1 . P] .
  
 endm

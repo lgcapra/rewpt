@@ -1,19 +1,21 @@
 in PT-SYS
 
 mod PT-EXE is
- protecting PT-SYS .
+ inc PT-SYS .
  op net : -> Net  [memo] .
  op m0  : -> BagP [memo] .  
 
- op T1 : -> ImatrixT [memo] .
- eq T1 = t(1) |-> [1 . p(1), 1 . p(2), nilP] .
+ var T : Tran .
+ var P : Place .
+ vars B B' : BagP .
 
- eq net = T1 ; t(2) |-> [1 . p(1) + 2 . p(3), 1 . p(2) + 2 . p(3), nilP] ; 
-          t(3) |-> [1 . p(3), 1 . p(4), nilP] ; t(4) |-> [1 . p(2) , 1 . p(1), nilP] .
+ eq net =  t(< 1 ; 0.5 >) |-> [1 . p(1) + 1 . p(3), 1 . p(2) + 1 . p(3), nilP] ;
+           t(< 2 ; 0.4 >) |-> [2 . p(1) , 1 . p(1) + 1 . p(2), nilP] ; 
+           t(< 3 ; 1.0 >) |-> [1 . p(3), nilP, nilP] ;
+           t(< 4 ; 2.0 >) |-> [1 . p(2) , 1 . p(1), nilP] .
 
- eq m0  = 1 . p(1) +  2 . p(3) .
+ eq m0  = 2 . p(1) +  1 . p(3) .
 
- *** rl [restart] : M:BagP + 2 . p(4) => m0 . *** this rule is matched also by M = nilP  => infinite behaviour
- rl [remT1] : t(1) |-> [1 . p(1), 1 . p(2), nilP]  => emptyN .
+ rl [selftoinh] : T |-> [1 . P + B, 1 . P + B', nilP] => T |-> [B, B', 1 . P] .
 endm
 

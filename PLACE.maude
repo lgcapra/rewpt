@@ -1,7 +1,7 @@
 in PT-NODE
 
 fmod PLACE is
- protecting PT-NODE * (sort Node to Place, op n to p) .
+ protecting PT-NODE{Nat} * (sort Node to Place, op n to p, op lab to index) .
 endfm
 
 

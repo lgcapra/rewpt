@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- This project file has been saved by the New GreatSPN Editor, v.100 --><project name="Example for Maude MC" version="121">
+  <gspn name="GSPN" show-color-cmd="false" show-fluid-cmd="false" zoom="150">
+    <nodes>
+      <place label-x="-2.0" label-y="0.0" marking="2" name="P1" x="19.0" y="1.0"/>
+      <place label-x="2.0" label-y="0.0" marking="1" name="P3" x="7.0" y="1.0"/>
+      <place label-x="-1.0" name="P2" x="19.0" y="16.0"/>
+      <transition delay="0.5" delay-x="-2.5" label-x="-2.0" label-y="-1.0" name="T1" nservers-x="0.5" rotation="1.5707963267948966" type="EXP" x="14.55" y="8.0"/>
+      <transition delay="0.4" delay-x="1.0" label-x="1.5" label-y="-1.0" name="T2" nservers-x="0.5" rotation="1.5707963267948966" type="EXP" x="25.55" y="8.0"/>
+      <transition delay-x="-2.0" label-x="-1.5" label-y="-1.0" name="T3" nservers-x="0.5" rotation="1.5707963267948966" type="EXP" x="7.55" y="8.0"/>
+      <transition delay="2.0" label-x="1.0" name="T4" nservers-x="0.5" rotation="0.7853981633974483" type="EXP" x="28.55" y="16.0"/>
+    </nodes>
+    <edges>
+      <arc head="T1" kind="INPUT" tail="P1"/>
+      <arc head="P2" kind="OUTPUT" tail="T1"/>
+      <arc head="T2" kind="INPUT" mult="2" mult-x="-0.5" mult-y="0.5" tail="P1"/>
+      <arc head="P2" kind="OUTPUT" tail="T2"/>
+      <arc head="T3" kind="INPUT" tail="P3"/>
+      <arc head="P1" kind="OUTPUT" mult-k="0.77939453125" mult-x="0.5" mult-y="6.194208329457496E-4" tail="T2">
+        <point x="26.0" y="2.0"/>
+      </arc>
+      <arc head="T4" kind="INPUT" tail="P2"/>
+      <arc head="P1" kind="OUTPUT" mult-k="2.9999023437500005" tail="T4">
+        <point x="29.0" y="1.0"/>
+        <point x="21.0" y="1.0"/>
+      </arc>
+      <arc head="T1" kind="INPUT" tail="P3"/>
+      <arc head="P3" kind="OUTPUT" tail="T1"/>
+    </edges>
+  </gspn>
+  <gspn name="copy of GSPN" show-color-cmd="false" show-fluid-cmd="false" zoom="150">
+    <nodes>
+      <place label-x="-2.0" label-y="0.0" marking="2" name="P1" x="19.0" y="1.0"/>
+      <place label-x="2.0" label-y="0.0" marking="1" name="P3" x="7.0" y="1.0"/>
+      <place label-x="-1.0" name="P2" x="19.0" y="16.0"/>
+      <transition delay="0.5" delay-x="-2.5" label-x="-2.0" label-y="-1.0" name="T1" nservers-x="0.5" rotation="1.5707963267948966" type="EXP" x="14.55" y="8.0"/>
+      <transition delay="0.4" delay-x="1.0" label-x="1.5" label-y="-1.0" name="T2" nservers-x="0.5" rotation="1.5707963267948966" type="EXP" x="25.55" y="8.0"/>
+      <transition delay-x="-2.0" label-x="-1.5" label-y="-1.0" name="T3" nservers-x="0.5" rotation="1.5707963267948966" type="EXP" x="7.55" y="8.0"/>
+      <transition delay="2.0" label-x="1.0" name="T4" nservers-x="0.5" rotation="0.7853981633974483" type="EXP" x="28.55" y="16.0"/>
+    </nodes>
+    <edges>
+      <arc head="T1" kind="INPUT" tail="P1"/>
+      <arc head="P2" kind="OUTPUT" tail="T1"/>
+      <arc head="T2" kind="INPUT" mult="2" mult-x="-0.5" mult-y="0.5" tail="P1"/>
+      <arc head="P2" kind="OUTPUT" tail="T2"/>
+      <arc head="T3" kind="INPUT" tail="P3"/>
+      <arc head="P1" kind="OUTPUT" mult-k="0.77939453125" mult-x="0.5" mult-y="6.194208329457496E-4" tail="T2">
+        <point x="26.0" y="2.0"/>
+      </arc>
+      <arc head="T4" kind="INPUT" tail="P2"/>
+      <arc head="P1" kind="OUTPUT" mult-k="2.9999023437500005" tail="T4">
+        <point x="29.0" y="1.0"/>
+        <point x="21.0" y="1.0"/>
+      </arc>
+      <arc head="T1" kind="INHIBITOR" tail="P3"/>
+    </edges>
+  </gspn>
+  <measures gspn-name="GSPN" log-uuid="24c42cb2-24a7-4dbd-ae7a-7a26009690cc" name="RG of GSPN" rapid-type="BUILD_RG" simplified-UI="true">
+    <assignments/>
+    <greatspn/>
+    <formulas>
+      <formula language="STAT">
+        <result-table>
+          <stat-result name="STAT">
+            <bindings/>
+            <stat key="build_time" value="0 seconds"/>
+            <stat key="home_state" value="True"/>
+            <stat key="num_dead_markings" value="0"/>
+            <stat key="num_tangible_markings" value="6"/>
+            <stat key="num_vanishing_markings" value="0"/>
+          </stat-result>
+        </result-table>
+      </formula>
+      <formula language="RG"/>
+    </formulas>
+  </measures>
+  <resource-list>
+    <document-log uuid="24c42cb2-24a7-4dbd-ae7a-7a26009690cc">rO0ABXNyABRqYXZhLnV0aWwuTGlua2VkTGlzdAwpU11KYIgiAwAAeHB3BAAAAB10AI8bWzBtRVhFQzogIkM6XFByb2dyYW0gRmlsZXNcR3JlYXRTUE5cYXBwXHBvcnRhYmxlX2dyZWF0c3BuXGJpblxXTlJHLmV4ZSIgIkU6XGxvcmVuem9cRXhhbXBsZSBmb3IgTWF1ZGUgTUMtUkcgb2YgR1NQTi5zb2x1dGlvblxHU1BOIiAtZ3VpLXN0YXQgCnQAYy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnQAHFVTRSA6IFdOUkcgbmV0bmFtZSBbLW9dWy1tXQp0AAEKdAAtVG8gcGxvdCB0aGUgZ2VuZXJhdGVkIFJHIGluIEdyYXBodml6IGZvcm1hdDoKdAA0ICAgICAgWy1kb3QtRiBmaWxlbmFtZS5kb3RdIFstbWF4LWRvdC1tYXJraW5ncyBtYXhdCnQANFBhcmFtZXRyaWMgbWFya2luZy9yYXRlIHBhcmFtZXRlcnMgY2FuIGJlIHNldCB3aXRoOgp0ADkgICAgICBbLW1wYXIgcGFyYW1fbmFtZSB2YWx1ZV0gIFstcnBhciBwYXJhbV9uYW1lIHZhbHVlXQp0AGMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp0AC9TZW5kIGZpbGVzIG5ldG5hbWUubmV0LCAuZGVmIHRvIGUtbWFpbCBhZGRyZXNzCnQAKmdyZWF0c3BuQGRpLnVuaXRvLml0IGlmIHlvdSBmaW5kIGFueSBidWcuCnQAYy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnQAAQp0AAEKdAAhICoqKioqIFJlYWNoYWJpbGl0eSBHcmFwaCAqKioqKiAKdAABCnQAF1RBTkdJQkxFIE1BUktJTkdTICA6IDYKdAAXVkFOSVNISU5HIE1BUktJTkdTIDogMAp0ABdERUFEIE1BUktJTkdTICAgICAgOiAwCnQAAQp0ABdUT1RBTCBNQVJLSU5HUyAgICAgOiA2CnQAAQp0ACogKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqIAp0AAEKdAAkVGhlIGluaXRpYWwgbWFya2luZyBpcyBhIGhvbWUgc3RhdGUKdAAcVGltZSByZXF1aXJlZCAtLS0tLS0tLS0tPiAwCnQAAQp0ACogKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqIAp0ACcbWzBYG1szMm0gUFJPQ0VTUyBFWElURUQgTk9STUFMTFkuG1swbQp4c3EAfgAAdwQAAAAdc3IAEWphdmEubGFuZy5Cb29sZWFuzSBygNWc+u4CAAFaAAV2YWx1ZXhwAXEAfgAhcQB+ACFxAH4AIXEAfgAhcQB+ACFxAH4AIXEAfgAhcQB+ACFxAH4AIXEAfgAhcQB+ACFxAH4AIXEAfgAhcQB+ACFxAH4AIXEAfgAhcQB+ACFxAH4AIXEAfgAhcQB+ACFxAH4AIXEAfgAhcQB+ACFxAH4AIXEAfgAhcQB+ACFxAH4AIXEAfgAheA</document-log>
+  </resource-list>
+</project>

@@ -21,6 +21,11 @@ fmod PT-NET is
  op m : System -> BagP .
  eq n(N M) = N .
  eq m(N M) = M .
+ op t : ImatrixT -> Tran .
+ op Q : ImatrixT -> Imatrix .
+ eq t(T |-> Q) = T .
+ eq Q(T |-> Q) = Q .
+ 
  
  eq T |-> [M,M,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
 ceq T |-> [K . P + I, O, K' . P + H] = emptyN if K >= K' [metadata "dead t"] . *** structurally dead transition are erased
