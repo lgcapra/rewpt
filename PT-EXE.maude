@@ -16,6 +16,6 @@ mod PT-EXE is
 
  eq m0  = 2 . p(1) +  1 . p(3) .
 
- rl [selftoinh] : T |-> [1 . P + B, 1 . P + B', nilP] => T |-> [B, B', 1 . P] .
+ rl [selftoinh-inj-1.5] : T |-> [1 . P + B, 1 . P + B', nilP] => T |-> [B, B', 1 . P] . *** the rule is injective and has constant rate
 endm
 

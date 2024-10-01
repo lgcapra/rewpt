@@ -7,7 +7,9 @@ mod PT-EXE is
 
  var T : Tran .
  var P : Place .
- vars B B' : BagP .
+ vars B B' M : BagP .
+ var N : Net .
+ var RS : Rset-firing .
 
  eq net =  t(< 1 ; 0.5 >) |-> [1 . p(1) + 1 . p(3), 1 . p(2) + 1 . p(3), nilP] ;
            t(< 2 ; 0.4 >) |-> [2 . p(1) , 1 . p(1) + 1 . p(2), nilP] ; 
@@ -16,7 +18,7 @@ mod PT-EXE is
 
  eq m0  = 2 . p(1) +  1 . p(3) .
 
- rl [selftoinh] : T |-> [1 . P + B, 1 . P + B', nilP] => T |-> [B, B', 1 . P] .
- 
+ *** "optimized" encoding of selftoinh (the rule is injective and has constant rate)
+ rl [selftoinh-inj-1.5] : SYS: (N ; T |-> [1 . P + B, 1 . P + B', nilP]) M STRAN: RS  => toSysState((N ; T |-> [B, B', 1 . P]) M) .
  endm
 

@@ -4,11 +4,12 @@ in PT-NORM
 
 fmod GSPN is 
   pr PT-NORM{SPTlab} .
+  pr CONVERSION .
   var Q Q' : Tmatrix .
   vars T T' : Tran .
   var L : Tlab .
   vars N N' N'' : Net .
-  var M : Pbag .
+  vars M M' : Pbag .
   op prio : Tran -> Nat .
   eq prio(Q |-> L) = prio(L) .
   op tag : Tran -> String .
@@ -38,7 +39,21 @@ ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if hasConcessi
   op $highPrio : Net Net -> Net .
   eq $highPrio(emptyN, N) = N .
   eq $highPrio(T ; N, T' ; N') = if prio(T) > prio(T') then $highPrio(N, T) else if prio(T) < prio(T') then $highPrio(N, T' ; N') else $highPrio(N, T ; T' ; N') fi fi .
-    
+
+ *** firing rule rates
+  op rates-firing : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the enabling degree)
+  eq rates-firing(T, M) = rate(T) * float(enabdegree(T, M)) .
+  op enabdegree : Tran Pbag -> [NzNat] .
+  *** definition of enabdegree (assumes that T is enabled in M)
+  eq enabdegree(T, M) = enabdegree(I(q(T)), M) .
+  op enabdegree : NePbag NePbag -> [NzNat] .
+  eq enabdegree(B:NePbag, B':NePbag) = $enabdegree(B:NePbag, B':NePbag, 1000000000000000) .
+  op $enabdegree : NePbag NePbag NzNat -> [NzNat] .  
+  vars P P' : Place . 
+  vars K K' D : NzNat .
+  eq $enabdegree(K . P + M , K' . P + M', D) = $enabdegree(M , M', min(D, K' quo K)) .
+  eq $enabdegree(nilP, M, D) = D .
+
 endfm
 
 *** trivial views

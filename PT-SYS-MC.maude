@@ -18,7 +18,7 @@ endv
 mod PT-SYS is
  
  inc SET+{Match} * (op emptyS to noMatch) .
- inc MAP+{BagP,Float} * (sort Entry{BagP,Float} to Fclass, sort Map{BagP,Float} to Rset, 
+ inc MAP+{BagP,Float} * (sort Entry{BagP,Float} to Fclass, sort Map{BagP,Float} to Rset-firing, 
                           op emptyM to emptyR, op _|->_ to _<-|_ ) .
  inc CONVERSION .
 
@@ -32,44 +32,42 @@ mod PT-SYS is
  var Q : Imatrix .
  var K : Nat .
  var R : Float .
- var RS : Rset .
+ var RS : Rset-firing .
  *** firing rule rates
- op rates : ImatrixT -> Float .
- eq rates(I) = rate(t(I)) .
- op rates : ImatrixT BagP -> Float . *** alternative (marking dependent, e.g., based on the enabling degree)
- eq rates(I, M) = rate(t(I)) * float(enabdegree(Q(I), M)) .
+ op rates-firing : ImatrixT -> Float .
+ eq rates-firing(I) = rate(t(I)) .
+ op rates-firing : ImatrixT BagP -> Float . *** alternative (marking dependent, e.g., based on the enabling degree)
+ eq rates-firing(I, M) = rate(t(I)) * float(enabdegree(Q(I), M)) .
  op enabdegree : Imatrix BagP -> NzNat .
  *** definition of enabdegree 
 
  *** firing rule matches
- op matches : System -> Set{Match} [memo].
- eq matches(S) = $matches(S, noMatch) .
- op $matches : System Set{Match} -> Set{Match} .
-ceq $matches((I ; N) M, X) = $matches((I ; N) M, < N,I,M > U X) if enabled(I, M) /\ < N,I,M > in X == false .
- eq $matches(S, X) = X [owise] .
+ op matches-firing : System -> Set{Match} [memo].
+ eq matches-firing(S) = $matches-firing(S, noMatch) .
+ op $matches-firing : System Set{Match} -> Set{Match} .
+ceq $matches-firing((I ; N) M, X) = $matches-firing((I ; N) M, < N,I,M > U X) if enabled(I, M) /\ < N,I,M > in X = false .
+ eq $matches-firing(S, X) = X [owise] .
  *** rule application
- *** op ruleapp : Match -> System .
- *** eq ruleapp(< N,I,M >) = (I ; N) firing(I, M) .
+ *** op ruleapp-firing : Match -> System .
+ *** eq ruleapp-firing(< N,I,M >) = (I ; N) firing(I, M) .
  *** optimized
- op ruleapp : ImatrixT BagP -> BagP .
- eq ruleapp(I, M) = firing(I, M) .
- *** state transitions due to the rule -- grouped by rate
-  op state-trans : System -> Rset [memo] .
-  eq state-trans(S) = $state-trans(matches(S), emptyR) .
-  op $state-trans : Set{Match} Rset -> Rset .
-  eq $state-trans(noMatch, RS) = RS .
- ceq $state-trans(< N,I,M > U X, M' <-| R ; RS) =  $state-trans(X, M' <-| rates(I) + R ; RS) if  M' := ruleapp(I,M ) .
-  eq $state-trans(< N,I,M > U X, RS) =  $state-trans(X, ruleapp(I,M) <-| rates(I) ; RS) [owise] .
+ op ruleapp-firing : ImatrixT BagP -> BagP .
+ eq ruleapp-firing(I, M) = firing(I, M) .
+ *** state transitions due to the rule firing -- grouped by rate
+  op state-trans-firing : System -> Rset-firing [memo] .
+  eq state-trans-firing(S) = $state-trans-firing(matches-firing(S), emptyR) .
+  op $state-trans-firing : Set{Match} Rset-firing -> Rset-firing .
+  eq $state-trans-firing(noMatch, RS) = RS .
+ ceq $state-trans-firing(< N,I,M > U X, M' <-| R ; RS) =  $state-trans-firing(X, M' <-| rates-firing(I) + R ; RS) if  M' := ruleapp-firing(I,M ) .
+  eq $state-trans-firing(< N,I,M > U X, RS) =  $state-trans-firing(X, ruleapp-firing(I,M) <-| rates-firing(I) ; RS) [owise] .
 
  sort SysState .
- *** description of a PT system pointing out te state-trans, gathered by rates
- op SYS:_ STRAN:_ : System Rset -> SysState [ctor format (n d n d d)] .
+ *** description of a PT system pointing out the state-transitions, gathered by rates-firing
+ op SYS:_ STRAN:_ : System Rset-firing -> SysState [ctor format (n d n d d)] .
  *** translates a System term into a SysState
  op toSysState : System -> SysState .
- eq toSysState(S) = SYS: S STRAN: state-trans(S) . 
-*** firing rule according to the new state representation
+ eq toSysState(S) = SYS: S STRAN: state-trans-firing(S) . 
+*** firing rule encoded according to the new state representation
 rl [firing] : SYS: N M STRAN: (M' <-| R ; RS)  => toSysState(N M') .
-
-rl [selftoinh] : T |-> [1 . P + M, 1 . P + M', nilP] => T |-> [M, M', 1 . P] .
  
 endm
