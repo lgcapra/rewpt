@@ -21,9 +21,9 @@ mod RWPT-FTPL-LMC is
  vars R F : Float .
 
 *** 1st aproach (general) we compute the rewrite matches for each of the two rewrite rules of the PL system example
- ops rate1 rate2 : -> Float [memo]. *** rew labs (including rates)
- eq rate1 = 1.0  . 
- eq rate2 = 2.0  .
+*** ops rate1 rate2 : -> Float [memo]. *** rew labs (including rates)
+*** eq rate1 = 1.0  . 
+*** eq rate2 = 2.0  .
 *** 1st rule
 *** op rule1-matches : System -> Pset [memo] . *** the different instances of (free) variable I used in the rule (we should consider also J and L, i.e., the place)
 *** op $rule1-matches : Pbag Pset -> Pset .
@@ -93,18 +93,22 @@ op $ruleApp : String System Set{System} -> Set{System} .
 ceq $ruleApp(TL, Sys, SS) = $ruleApp(TL, Sys, SS U TS) if TS := rule(TL, Sys) /\ TS :: System  /\ not(TS in SS) . 
  eq $ruleApp(TL, Sys, SS) = SS [owise] .
 
-*** simplfied version using ruleApp 
+*** simplified version using ruleApp 
 op rulexe : String System -> Rset .
 eq rulexe(TL, Sys) = $rulexe(rule-rate(TL, Sys), ruleApp(TL, Sys), emptyRset) .
-
 op $rulexe : Float Set{System} Rset -> Rset .
 eq $rulexe(F, emptySS, RS) = RS .
 ceq $rulexe(F, Sys U SS, RS ; Sys' <-| R) = $rulexe(F, SS, RS ; Sys' <-| R + F ) if Sys' := normalize(Sys) .
 eq $rulexe(F, Sys U SS, RS) = $rulexe(F, SS, RS ; normalize(Sys) <-| F) [owise] .
 
  *** cumulative calculation of state transitions due to R1 and R2
+ vars Z Y : Set{String} .
  op allRew : System -> Rset [memo] .
- eq allRew(Sys) = rulexe("R1", Sys) ; rulexe("R2", Sys) . 
+ *** eq allRew(Sys) = rulexe("R1", Sys) ; rulexe("R2", Sys) . 
+ eq allRew(Sys) = $allRew(Sys, rule-labs, emptyRset) .
+ op $allRew : System Set{String} Rset -> Rset .
+ eq $allRew(Sys, emptyS, RS) = RS .
+ eq $allRew(Sys, W U Z, RS) = $allRew(Sys, Z, rulexe(W, Sys) ; RS) .
 
 endm  
 
