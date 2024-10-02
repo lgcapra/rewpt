@@ -14,8 +14,8 @@ mod GSPN-EMU-LMC{X :: GSPN-SYSREW-LMC} is
   var  Sys  : System .
 
 *** symbolic firing rule for state-transition representation of systems
-rl [spn-firing] : NET: N M: B FIRING: (B' <-| F ; FS) REW: RS => toStateTranSPN(N B') .
+rl [firing] : NET: N M: B FIRING: (B' <-| F ; FS) REW: RS => toStateTranSPN(N B') .
 
 *** other symbolic (structural) rewrites
-rl [spn-rewrite] : NET: N M: B FIRING: FS REW: (Sys <-| R ; RS)  => toStateTranSPN(Sys) .
+rl [rewrite] : NET: N M: B FIRING: FS REW: (Sys <-| R ; RS)  => toStateTranSPN(Sys) .
 endm

@@ -41,14 +41,15 @@ ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if hasConcessi
   eq $highPrio(T ; N, T' ; N') = if prio(T) > prio(T') then $highPrio(N, T) else if prio(T) < prio(T') then $highPrio(N, T' ; N') else $highPrio(N, T ; T' ; N') fi fi .
 
  *** firing rule rates
-  op rates-firing : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the enabling degree)
-  eq rates-firing(T, M) = rate(T) * float(enabdegree(T, M)) .
-  op enabdegree : Tran Pbag -> [NzNat] .
-  *** definition of enabdegree (assumes that T is enabled in M)
-  eq enabdegree(T, M) = enabdegree(I(q(T)), M) .
-  op enabdegree : NePbag NePbag -> [NzNat] .
-  eq enabdegree(B:NePbag, B':NePbag) = $enabdegree(B:NePbag, B':NePbag, 1000000000000000) .
-  op $enabdegree : NePbag NePbag NzNat -> [NzNat] .  
+  op firing-rate : Tran -> Float .
+  eq firing-rate(T) = rate(T) .
+  op firing-rate : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the enabling degree)
+  eq firing-rate(T, M) = rate(T) * float(enabdegree(I(q(T)), M)) .
+  *** definition of enabdegree: assumes that T is enabled in M
+  op enabdegree : Pbag Pbag -> [NzNat] .
+  eq enabdegree(nilP, M) = 1 . *** the input arc is null
+  eq enabdegree(B:NePbag, M) = $enabdegree(B:NePbag, M, 1000000000000000) .
+  op $enabdegree : Pbag Pbag NzNat -> [NzNat] .  
   vars P P' : Place . 
   vars K K' D : NzNat .
   eq $enabdegree(K . P + M , K' . P + M', D) = $enabdegree(M , M', min(D, K' quo K)) .

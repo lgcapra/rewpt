@@ -38,7 +38,7 @@ fmod STATE-TRAN-SYS{X :: GSPN-SYSREW-LMC} is
   eq fire(N, M) = $fire(N, M, emptyFset) .
   op $fire : Net Pbag Fset -> Fset .
   eq  $fire(emptyN, M, FS) = FS .
- ceq $fire(T ; N, M, M' <-| R ; FS) =  $fire(N, M, M' <-| rate(lab(T)) + R ; FS) if  M' := normalize(fire(q(T), M)) .
-  eq $fire(T ; N, M, FS) =  $fire(N, M, normalize(fire(q(T), M)) <-| rate(lab(T)) ; FS) [owise] .
+ ceq $fire(T ; N, M, M' <-| R ; FS) =  $fire(N, M, M' <-| firing-rate(T,M) + R ; FS) if  M' := normalize(fire(q(T), M)) .
+  eq $fire(T ; N, M, FS) =  $fire(N, M, normalize(fire(q(T), M)) <-| firing-rate(T,M) ; FS) [owise] .
 
 endfm
