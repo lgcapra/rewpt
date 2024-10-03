@@ -17,5 +17,5 @@ mod GSPN-EMU-LMC{X :: GSPN-SYSREW-LMC} is
 rl [firing] : NET: N M: B FIRING: (B' <-| F ; FS) REW: RS => toStateTranSPN(N B') .
 
 *** other symbolic (structural) rewrites
-rl [rewrite] : NET: N M: B FIRING: FS REW: (Sys <-| R ; RS)  => toStateTranSPN(Sys) .
+rl [net-rewrite] : NET: N M: B FIRING: FS REW: (Sys <-| R ; RS)  => toStateTranSPN(Sys) .
 endm

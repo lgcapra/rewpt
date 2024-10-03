@@ -12,10 +12,10 @@ fmod FTPL is
  op NPLsys : NzNat NzNat NzNat -> System . *** N prod lines  each of K lines with K * M tokens (raw pieces)
 
  ops loadLab asLab failLab workLab : -> Tlab [memo] .
- eq loadLab = << "ld",0, 0.5 >> .
- eq asLab = << "as",0, 2.0 >> .
- eq workLab = << "ln",0, 0.1 >> .
- eq failLab = << "ft",0, 0.001 >> .
+ eq loadLab = < "ld", 0.5,   1 > .
+ eq asLab =   < "as", 2.0,   0 > .
+ eq workLab = < "ln", 0.1,   1 > .
+ eq failLab = < "ft", 0.001, 1 > .
 
  
 

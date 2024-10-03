@@ -6,6 +6,9 @@ mod RWPT-FTPL-LMC is
  inc GSPN-REWSET .
  inc SET+{System{SPTlab}} * (sort Set{System{SPTlab}} to Set{System}, sort NeSet{System{SPTlab}} to NeSet{System}, op emptyS to emptySS ) . *** NEW
  inc SET+{String} * (sort emptyS to emptyR) .
+ inc SET+{Pair{System{SPTlab},Float}} * (sort Pair{System{SPTlab},Float} to Pair{System,Float},
+                                         sort Set{Pair{System{SPTlab},Float}} to Set{Pair{System,Float}}, 
+                                         sort NeSet{Pair{System{SPTlab},Float}} to NeSet{Pair{System,Float}}, sort emptyS to emptySR) .
  vars N N' N'' : Net .
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
  vars S S' S'' : Pbag .
@@ -87,11 +90,26 @@ ceq rule("R2", N S) = N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S'
 var TL : String .
 var SS : Set{System} .
 var TS : [System] .
-ops ruleApp : String System -> Set{System} .
- eq ruleApp(TL, Sys) =  $ruleApp(TL, Sys, emptySS) .
+op ruleApp : String System -> Set{System} .
+eq ruleApp(TL, Sys) =  $ruleApp(TL, Sys, emptySS) .
 op $ruleApp : String System Set{System} -> Set{System} .
 ceq $ruleApp(TL, Sys, SS) = $ruleApp(TL, Sys, SS U TS) if TS := rule(TL, Sys) /\ TS :: System  /\ not(TS in SS) . 
- eq $ruleApp(TL, Sys, SS) = SS [owise] .
+eq $ruleApp(TL, Sys, SS) = SS [owise] .
+
+*** alternative: it may be more efficient computing the rule's rates during rule's application
+op rule* : String System -> [Pair{System,Float}] .
+ceq rule*("R1", N S) = < join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)) ;  1.0 >    
+    if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  . 
+ceq rule*("R2", N S) = < N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |) ; 2.0 >  if 
+        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
+        S' := subag(S'', < "fPL" ; I >) .
+var SR : Set{Pair{System,Float}} . var psr : Pair{System,Float} .
+op ruleApp* : String System -> Set{Pair{System,Float}} .
+eq ruleApp*(TL, Sys) =  $ruleApp*(TL, Sys, emptySR) .
+op $ruleApp* : String System Set{Pair{System,Float}} -> Set{Pair{System,Float}} .
+ceq $ruleApp(TL, Sys, SR) = $ruleApp*(TL, Sys, SR U psr) if psr := rule*(TL, Sys) /\ 1st(psr) :: System  /\ not(psr in SR) . 
+eq $ruleApp(TL, Sys, SR) = SR [owise] .
+
 
 *** simplified version using ruleApp 
 op rulexe : String System -> Rset .
