@@ -4,20 +4,19 @@ in FTPL
 mod RWPT-FTPL-LMC is
  inc FTPL .
  inc GSPN-REWSET .
- inc SET+{System{SPTlab}} * (sort Set{System{SPTlab}} to Set{System}, sort NeSet{System{SPTlab}} to NeSet{System}, op emptyS to emptySS ) . *** NEW
- inc SET+{String} * (sort emptyS to emptyR) .
  inc SET+{Pair{System{SPTlab},Float}} * (sort Pair{System{SPTlab},Float} to Pair{System,Float},
                                          sort Set{Pair{System{SPTlab},Float}} to Set{Pair{System,Float}}, 
-                                         sort NeSet{Pair{System{SPTlab},Float}} to NeSet{Pair{System,Float}}, sort emptyS to emptySR) .
+                                         sort NeSet{Pair{System{SPTlab},Float}} to NeSet{Pair{System,Float}}, 
+                                         op emptyS to emptySF) .
+ inc SET+{String} .
+ 
  vars N N' N'' : Net .
- vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
  vars S S' S'' : Pbag .
  var K : NzNat .
- vars I Imin J : Nat .
+ vars I Imin J K' K'' : Nat .
  var W : String .
- vars L L' L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
+ var L : Lab .
  var Sys Sys' : System .
- var Sp : Pset .
  var P : Place .
  var X : Pset .
  var RS : Rset .
@@ -71,55 +70,40 @@ mod RWPT-FTPL-LMC is
 
  *** 2nd approach: operators encoding rules
  *** works if encoded rules are "injective" (distinct matches result in different terms, disregarding normalization) 
- *** new: rules' rate (possibly state dependent) specification
+ *** rules' rate (possibly state dependent) are embedded in rules' free variable R (also in the original rewrite rules)
 op  rule-labs  : -> Set{String} [ memo ] .
 eq  rule-labs = "R1" U "R2" . 
-ops rule-rate : String System -> [Float] .
-eq  rule-rate("R1", Sys) = 1.0 .
-eq  rule-rate("R2", Sys) = 2.0 .
-*** single application of a rule (partial operation, overloaded, without extra arg)
-op rule : String System -> [System] . *** one equation for each rule
-ceq rule("R1", N S) = join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |))   
-    if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  . 
 
-ceq rule("R2", N S) = N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |)  if 
-        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
-        S' := subag(S'', < "fPL" ; I >) .
+*** operator encoding a rule (partial operation, overloaded, without normalization) -- the rule's rate held by free var R
+op rule : String System -> [Pair{System,Float}] .
+ceq rule("R1", N S) = < join(detache(N, N') S'' - S', setMark(setMark(Sys', "w" "fPL", K'), "a" "fPL", K'')) ;  R >    
+     if   S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) 
+     /\ S' := subag(S'', < "PL" ; I >) /\ K' := | match(S', "w") | /\ K'' := | match(S', "a") |
+     /\ Sys' := faultySys(minNotIn(N, "fPL")) /\ R := 0.1 / float(K' + K'') . 
+ceq rule("R2", N S) = < N'' set(S'' - S', p(< "s" ; 0 >), K') ; R >  if 
+        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  
+        /\ N'' := detache(N, N') /\ N'' =/= emptyN /\ S' := subag(S'', < "fPL" ; I >)
+        /\ K' := S[p(< "s" ; 0 >)] + | S' | /\ R := 0.2 / float(K') .
 
-*** "global application of the rules (without normalization) "
-var TL : String .
-var SS : Set{System} .
-var TS : [System] .
-op ruleApp : String System -> Set{System} .
-eq ruleApp(TL, Sys) =  $ruleApp(TL, Sys, emptySS) .
-op $ruleApp : String System Set{System} -> Set{System} .
-ceq $ruleApp(TL, Sys, SS) = $ruleApp(TL, Sys, SS U TS) if TS := rule(TL, Sys) /\ TS :: System  /\ not(TS in SS) . 
-eq $ruleApp(TL, Sys, SS) = SS [owise] .
+var SF : Set{Pair{System,Float}} .
+var psf : Pair{System,Float} .
 
-*** alternative: it may be more efficient computing the rule's rates during rule's application
-op rule* : String System -> [Pair{System,Float}] .
-ceq rule*("R1", N S) = < join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)) ;  1.0 >    
-    if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  . 
-ceq rule*("R2", N S) = < N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |) ; 2.0 >  if 
-        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
-        S' := subag(S'', < "fPL" ; I >) .
-var SR : Set{Pair{System,Float}} . var psr : Pair{System,Float} .
-op ruleApp* : String System -> Set{Pair{System,Float}} .
-eq ruleApp*(TL, Sys) =  $ruleApp*(TL, Sys, emptySR) .
-op $ruleApp* : String System Set{Pair{System,Float}} -> Set{Pair{System,Float}} .
-ceq $ruleApp(TL, Sys, SR) = $ruleApp*(TL, Sys, SR U psr) if psr := rule*(TL, Sys) /\ 1st(psr) :: System  /\ not(psr in SR) . 
-eq $ruleApp(TL, Sys, SR) = SR [owise] .
+*** application of a rule (partial operation) without normalization
+op ruleApp : String System -> Set{Pair{System,Float}} .
+eq ruleApp(W, Sys) =  $ruleApp(W, Sys, emptySF) .
+op $ruleApp : String System Set{Pair{System,Float}} -> Set{Pair{System,Float}} .
+ceq $ruleApp(W, Sys, SF) = $ruleApp(W, Sys, SF U psf) if psf := rule(W, Sys) /\ 1st(psf) :: System  /\ not(psf in SF) . 
+eq $ruleApp(W, Sys, SF) = SF [owise] .
 
+*** bulk application of a rule, including normalzation and partitioning of rewrites based on rates 
+ op rulexe : String System -> Rset .
+ eq rulexe(W, Sys) = $rulexe(ruleApp(W, Sys), emptyRset) .
+ op $rulexe : Set{Pair{System,Float}} Rset -> Rset .
+ eq $rulexe(emptySF, RS) = RS .
+ceq $rulexe(< Sys ; F > U SF, RS ; Sys' <-| R) = $rulexe(SF, RS ; Sys' <-| R + F ) if Sys' := normalize(Sys) .
+ eq $rulexe(< Sys ; F > U SF, RS) = $rulexe(SF, RS ; normalize(Sys) <-| F) [owise] .
 
-*** simplified version using ruleApp 
-op rulexe : String System -> Rset .
-eq rulexe(TL, Sys) = $rulexe(rule-rate(TL, Sys), ruleApp(TL, Sys), emptyRset) .
-op $rulexe : Float Set{System} Rset -> Rset .
-eq $rulexe(F, emptySS, RS) = RS .
-ceq $rulexe(F, Sys U SS, RS ; Sys' <-| R) = $rulexe(F, SS, RS ; Sys' <-| R + F ) if Sys' := normalize(Sys) .
-eq $rulexe(F, Sys U SS, RS) = $rulexe(F, SS, RS ; normalize(Sys) <-| F) [owise] .
-
- *** cumulative calculation of state transitions due to R1 and R2
+*** application of all (injective) rules 
  vars Z Y : Set{String} .
  op allRew : System -> Rset [memo] .
  *** eq allRew(Sys) = rulexe("R1", Sys) ; rulexe("R2", Sys) . 

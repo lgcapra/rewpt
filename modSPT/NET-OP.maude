@@ -1,8 +1,8 @@
 *** net-algebra operators pointing out symmetries
-in PT-SYS
+in PT-NET
 
 fmod NET-OP{X :: TRIV} is
- pr PT-SYS{X} .
+ pr PT-NET{X} .
  vars P P' P'' : Place .
  vars T T' T'' : Tran .
  vars N N' : Net .

@@ -1,8 +1,8 @@
 *** generic PT with firing rule
-in PT-NET
+in SPN
 
-mod PT-SYS{X :: TRIV} is
- inc PT-NET{X} .
+mod SPN-SYS is
+ inc SPN .
  var M : Pbag . 
  var T : Tran .
  vars N N' : Net .

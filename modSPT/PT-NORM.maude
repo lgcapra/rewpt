@@ -1,10 +1,10 @@
 *** this module defines the operators to bring a Net (System) to a minimal/canonical form
 *** should be used in combination with NET-OP: i.e., assumes that models are built according
 *** to the net-operators there defined
-in PT-SYS
+in PT-NET
 
 fmod PT-NORM{X :: TRIV} is
- pr PT-SYS{X} .
+ pr PT-NET{X} .
  pr SET+{Nat} * (op emptyS to emptyNat) .
  vars P P' P'' : Place .
  vars S S' : Pset .

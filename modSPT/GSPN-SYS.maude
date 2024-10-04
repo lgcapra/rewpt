@@ -1,0 +1,11 @@
+*** defines the GSPN firing rule without normalization of states
+in GSPN
+
+mod GSPN-SYS is
+ pr GSPN .
+ var M  : Pbag . 
+ var T  : Tran .
+ vars N N' : Net .
+ *** takes priority into account
+ crl [firing] : N M => N firing(T, M) if T ; N' := N  /\ enabled(T, N M) . 
+endm

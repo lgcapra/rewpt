@@ -1,4 +1,5 @@
-*** signature of (stochastic) PT with priorities 
+*** signature of (stochastic) PT with priorities using net-algebra/manipulation symmetric operators
+*** and normalization
 in SPN
 
 fmod GSPN is 
@@ -29,7 +30,7 @@ endfm
 
 *** trivial views
 
-view Gspn from TRIV to GSPN is 
+view GspnNet from TRIV to GSPN is 
  sort Elt to Net .
 endv
 

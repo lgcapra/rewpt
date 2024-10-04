@@ -1,9 +1,10 @@
-*** signature of stochastic PT 
-in SPT-LAB
+*** signature of stochastic PT nets using net-algebra/manipulation symmetric operators
+*** and normalization
 in PT-NORM
+in PT-NET
   
 fmod SPN is 
-  pr PT-NORM{SPTlab} * (op info to policy) .
+  pr (PT-NORM{SPTlab} + NET-OP{SPTlab})* (op info to policy) .
   pr CONVERSION .
   var Q Q' : Tmatrix .
   vars T T' : Tran .
@@ -46,7 +47,7 @@ endfm
 
 *** trivial views
 
-view Spn from TRIV to SPN is 
+view SpnNet from TRIV to SPN is 
  sort Elt to Net .
 endv
 
