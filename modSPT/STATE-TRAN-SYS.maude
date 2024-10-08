@@ -1,16 +1,16 @@
-in GSPN-SYSREW-LMC
+in SPN-SYSREW-LMC
 
-*** state-transition representation for SPN (GSPN) pointing out state-transitions due to firing rule -- suitable to translation into a LCTMC 
-*** alternative: equivalent firings are described using Tlab
-fmod STATE-TRAN-SYS{X :: GSPN-SYSREW-LMC} is 
-  pr SET{FireGroup} * (sort Set{FireGroup} to Fset, sort NeSet{FireGroup} to NeFset, op empty to emptyFset) .
-
+*** state-transition representation for SPN pointing out state-transitions due to firing rule -- suitable to translation into a LCTMC 
+*** equivalent firings are described as Array{Pbag,Float0}, equivalent rewrites as Array{System,Float0}
+fmod STATE-TRAN-SYS{X :: SPN-SYSREW-LMC} is 
+  pr ARRAY{Pbag,Float0}* (sort Entry{Pbag,Float0} to Fclass, sort Array{Pbag,Float0} to Fset, op empty to emptyFset, op _|->_ to _<-|_ ) .
+  
   sort StateTranSys .
   var T  : Tran .
   var N  : Net .
   var FS : Fset .
   var RS : Rset .
-  var R : RuleSet .
+  var R :  Float .
   vars M M' : Pbag .
   
   *** description of a system pointing out (symbolic)state-transitions (2nd part, the prefix is the non-enabled net + marking)
@@ -27,17 +27,18 @@ fmod STATE-TRAN-SYS{X :: GSPN-SYSREW-LMC} is
 
   *** to pass from a  representation to the other
   op toStateTran : System -> StateTranSys . *** main operator: builds the (symbolic) state-stransition view for a PT with priorities
-  eq toStateTran(N M) = NET: N  M: M FIRING: fire(enabled(N M), M) REW: allRew(N M) . *** very intuitive
-  op toStateTranSPN : System -> StateTranSys . *** no priorities
-  eq toStateTranSPN(N M) = NET: N  M: M FIRING: fire(haveConcession(N M), M) REW: allRew(N M) . *** very intuitive
+  eq toStateTran(N M) = NET: N  M: M FIRING: allFiring(N M) REW: allRew(N M) . *** very intuitive
+  
+  *** calculates the firings (state-transitions) of a set of (enabled) transitions (seen as a net)
+  op allFiring : System -> Fset .
+  eq allFiring(N M) = $allFiring(haveConcession(N M), M, emptyFset) .
+  *** eq allFiring(N M) = $allFiring(enabled(N M), M, emptyFset) .
+  op $allFiring : Net Pbag Fset -> Fset .
+  eq $allFiring(emptyN, M, FS) = FS .
+ ceq $allFiring(T ; N, M, M' <-| R ; FS) =  $allFiring(N, M, M' <-| firing-rate(T,M) + R ; FS) if  M' := normalize(fire(q(T), M)) .
+  eq $allFiring(T ; N, M, FS) =  $allFiring(N, M, normalize(fire(q(T), M)) <-| firing-rate(T,M) ; FS) [owise] .
+  
+  *** other way round
   op toSystem : StateTranSys -> System .
   eq toSystem(NET: N M: M FIRING: FS REW: RS) = N M .
-   *** calculates the firings (state-transitions) of a set of (enabled) transitions (seen as a net)
-  op fire : Net Pbag -> Fset .
-  eq fire(N, M) = $fire(N, M, emptyFset) .
-  op $fire : Net Pbag Fset -> Fset .
-  eq  $fire(emptyN, M, FS) = FS .
- ceq $fire(T ; N, M, (R --> M', FS)) =  $fire(N, M, (1 . lab(T) + R  -->  M', FS)) if  M' := normalize(fire(q(T), M)) .
-  eq $fire(T ; N, M, FS) =  $fire(N, M, (1 . lab(T)  --> normalize(fire(q(T), M)), FS)) [owise] .
-
 endfm

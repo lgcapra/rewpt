@@ -1,7 +1,8 @@
 *** signature of stochastic PT nets using net-algebra/manipulation symmetric operators
 *** and normalization
 in PT-NORM
-in PT-NET
+in NET-OP
+in SPT-LAB
   
 fmod SPN is 
   pr (PT-NORM{SPTlab} + NET-OP{SPTlab})* (op info to policy) .

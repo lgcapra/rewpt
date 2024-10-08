@@ -1,0 +1,61 @@
+*** theory of SPN rules' encoding as operators
+fth SPN-RULE-OP is 
+ inc MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float}, sort Map{SpnSys,Float} to Map{System,Float}, op emptyM to emptyMSF, op _|->_ to _<-|_ ) .
+ inc SET+{String} * (op emptyS to emptyW).
+ op  rule-labs  : -> Set{String} .
+ op  rule : String System -> [Entry{System,Float}] .
+endfth
+
+*** rewritable PL system model for LCTMC 
+fmod SPN-TO-LMC is
+ pr MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float}, sort Map{SpnSys,Float} to Map{System,Float}, op emptyM to emptyMSF, op _|->_ to _<-|_ ) .
+ pr SET+{String} * (op emptyS to emptyW).
+ 
+ vars N N' N'' : Net .
+ vars S S' S'' : Pbag .
+ var K : NzNat .
+ vars I Imin J K' K'' : Nat .
+ var W : String .
+ var L : Lab .
+ var Sys  : System .
+ var Sys' : [System] .
+ var P : Place .
+ var X : Pset .
+ vars R F : Float .
+ vars RS SF : Map{System,Float} .
+ 
+ *** 2nd approach: operators encoding rules
+ *** works if encoded rules are "injective" (distinct matches result in different terms, disregarding normalization) 
+ 
+*** I seguenti due operatori dovrebbero essere passati da una teoria
+*** forse meglio condensarli in un terzo
+
+*** rules' rate (possibly state dependent) are embedded in rules' free variable R (also in the original rewrite rules)
+op  rule-labs  : -> Set{String} [ memo ] .
+*** operator encoding a rule (partial operation, overloaded, without normalization) -- the rule's rate held by free var R
+op rule : String System -> [Entry{System,Float}] .
+
+*** application of a rule (partial operation) without normalization
+op ruleApp : String System -> [Map{System,Float}] .
+eq ruleApp(W, Sys) =  $ruleApp(W, Sys, emptyMSF) .
+op $ruleApp : String System Map{System,Float} -> [Map{System,Float}] .
+ceq $ruleApp(W, Sys, SF) = $ruleApp(W, Sys, SF ; Sys' <-| F) if Sys' <-| F := rule(W, Sys) /\ Sys' :: System  /\ $hasMapping(SF, Sys') = false . 
+eq $ruleApp(W, Sys, SF) = SF [owise] .
+
+*** bulk application of a rule, including normalization and partitioning of rewrites based on rates 
+ op rulexe : String System -> Map{System,Float} .
+ eq rulexe(W, Sys) = $rulexe(ruleApp(W, Sys), emptyMSF) .
+ op $rulexe : Map{System,Float} Map{System,Float} -> Map{System,Float} .
+ eq $rulexe(emptyMSF, RS) = RS .
+ceq $rulexe( Sys <-| F ; SF, RS ; Sys' <-| R) = $rulexe(SF, RS ; Sys' <-| R + F ) if Sys' := normalize(Sys) .
+ eq $rulexe( Sys <-| F ; SF, RS) = $rulexe(SF, RS ; normalize(Sys) <-| F) [owise] .
+
+*** application of all (injective) rules 
+ vars Z Y : Set{String} .
+ op allRew : System -> Map{System,Float} [memo] .
+ eq allRew(Sys) = $allRew(Sys, rule-labs, emptyMSF) .
+ op $allRew : System Set{String} Map{System,Float} -> Map{System,Float} .
+ eq $allRew(Sys, emptyW, RS) = RS .
+ eq $allRew(Sys, W U Z, RS) = $allRew(Sys, Z, rulexe(W, Sys) ; RS) .
+
+endfm  

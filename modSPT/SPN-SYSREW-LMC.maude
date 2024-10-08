@@ -1,0 +1,8 @@
+*** this theory defines rewritable SPN to use in a state-transition based representation for a LTCMC
+*** an operator must be defined which given a System (spn) results in all system transformations, grouped into equivalent classes
+in SPN-REWSET
+
+fth SPN-SYSREW-LMC is 
+ including SPN-REWSET .
+ op allRew : System -> Rset  [memo] .
+endfth
