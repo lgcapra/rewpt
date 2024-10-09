@@ -1,6 +1,0 @@
-*** this module defines a set of system rewriting rules
-in SPN
-
-fmod SPN-REWSET is 
- pr ARRAY{SpnSys,Float0} * (sort Entry{SpnSys,Float0} to Rclass, sort Array{SpnSys,Float0} to Rset, op empty to emptyRset, op _|->_ to _<-|_ ) .
-endfm

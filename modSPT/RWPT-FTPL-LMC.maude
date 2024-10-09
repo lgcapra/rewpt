@@ -4,11 +4,10 @@ in FTPL
 *** rewritable PL system model for LCTMC 
 fmod RWPT-FTPL-LMC is
  pr FTPL .
- pr MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float},
-                          sort Map{SpnSys,Float} to Map{System,Float}, 
-                          sort NeMap{SpnSys,Float} to NeMap{System,Float}, 
-                          op _|->_ to _<-|_ , op emptyM to emptyMSF) .
  pr SET+{String} * (op emptyS to emptyW).
+
+ sort StateRate . *** denotes a state and an input rate
+ op _<-_ : System Float -> StateRate [ctor] .
  
  vars N N' N'' : Net .
  vars S S' S'' : Pbag .
@@ -19,8 +18,6 @@ fmod RWPT-FTPL-LMC is
  var Sys Sys' : System .
  var P : Place .
  var X : Pset .
- vars RS SF : Map{System,Float} .
- var psf : Entry{System,Float} .
  vars R F : Float .
  
 *** 1st aproach (general) we compute the rewrite matches for each of the two rewrite rules of the PL system example
@@ -57,15 +54,15 @@ fmod RWPT-FTPL-LMC is
 *** eq r1exe(Sys, X) = $r1exe(Sys, X, emptyRset) .
 *** op $r1exe : System Pset Map{SpnSys,Float} -> [Map{SpnSys,Float}] .
 *** eq $r1exe(Sys, emptyPset, RS) = RS .
-*** ceq $r1exe(Sys, P U X, RS ; Sys' <-| R ) = $r1exe(Sys, X, RS ; Sys' <-| R + rate1) if Sys' := normalize(rule1(Sys, P)) .
-***  eq $r1exe(Sys, P U X, RS ) = $r1exe(Sys, X, RS ; normalize(rule1(Sys, P)) <-| rate1)  [owise] .
+*** ceq $r1exe(Sys, P U X, RS ; Sys' <- R ) = $r1exe(Sys, X, RS ; Sys' <- R + rate1) if Sys' := normalize(rule1(Sys, P)) .
+***  eq $r1exe(Sys, P U X, RS ) = $r1exe(Sys, X, RS ; normalize(rule1(Sys, P)) <- rate1)  [owise] .
 *** the same for rule 2
 *** op r2exe : System Pset -> [Map{SpnSys,Float}] .
 *** eq r2exe(Sys, X) = $r2exe(Sys, X, emptyRset) .
 *** op $r2exe : System Pset Map{SpnSys,Float} -> [Map{SpnSys,Float}] .
 *** eq $r2exe(Sys, emptyPset, RS) = RS .
-*** ceq $r2exe(Sys, P U X, RS ; Sys' <-| R ) = $r2exe(Sys, X, RS ; Sys' <-| R + rate2  ) if Sys' := normalize(rule2(Sys, P)) .
-***  eq $r2exe(Sys, P U X, RS ) = $r2exe(Sys, X, RS ; normalize(rule2(Sys, P)) <-| rate2)  [owise] .
+*** ceq $r2exe(Sys, P U X, RS ; Sys' <- R ) = $r2exe(Sys, X, RS ; Sys' <- R + rate2  ) if Sys' := normalize(rule2(Sys, P)) .
+***  eq $r2exe(Sys, P U X, RS ) = $r2exe(Sys, X, RS ; normalize(rule2(Sys, P)) <- rate2)  [owise] .
 ***eq allRew(Sys) = r1exe(Sys, rule1-matches(Sys)) ; r2exe(Sys, rule2-matches(Sys)) .
  
 
@@ -75,18 +72,16 @@ fmod RWPT-FTPL-LMC is
 op  rule-labs  : -> Set{String} [ memo ] .
 eq  rule-labs = "R1" U "R2" . 
 
-*** operator encoding a rule (partial operation, overloaded, without normalization) -- the rule's rate held by free var R
-op rule : String System -> [Entry{System,Float}] .
-ceq rule("R1", N S) = join(detache(N, N') S'' - S', setMark(setMark(Sys', "w" "fPL", K'), "a" "fPL", K'')) <-|  R  if
-     S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) 
-     /\ S' := subag(S'', < "PL" ; I >) /\ K' := | match(S', "w") | /\ K'' := | match(S', "a") |
-     /\ Sys' := faultySys(minNotIn(N, "fPL")) /\ R := 0.1 / float(K' + K'') . 
-ceq rule("R2", N S) = N'' set(S'' - S', p(< "s" ; 0 >), K') <-| R   if 
-        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  
-        /\ N'' := detache(N, N') /\ N'' =/= emptyN /\ S' := subag(S'', < "fPL" ; I >)
-        /\ K' := S[p(< "s" ; 0 >)] + | S' | /\ R := 0.2 / float(K') .
+*** operator encoding a rule (partial operation,  without normalization) -- the rule's rate is held by free var R
+op rule : String System -> [StateRate] .
+ceq rule("R1", N S) = join(detache(N, N') S'' - S', setMark(setMark(Sys', "w" "fPL", K'), "a" "fPL", K'')) <-  0.1 / float(K' + K'')
+  if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) 
+     /\ K' := | match(S', "w") | /\ K'' := | match(S', "a") | /\ Sys' := faultySys(minNotIn(N, "fPL")) . 
+ceq rule("R2", N S) = N'' set(S'' - S', p(< "s" ; 0 >), K') <- 0.2 / float(K') 
+  if  S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  
+     /\ N'' := detache(N, N') /\ N'' =/= emptyN /\ S' := subag(S'', < "fPL" ; I >) /\ K' := S[p(< "s" ; 0 >)] + | S' | .
 
 endfm  
 
-*** view RewFtplLmc from SPN-SYSREW-LMC to RWPT-FTPL-LMC is 
-*** endv
+view FtplRule from SPN-RULE to RWPT-FTPL-LMC is 
+endv
