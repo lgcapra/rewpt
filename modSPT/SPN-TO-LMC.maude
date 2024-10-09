@@ -2,7 +2,8 @@
 fth SPN-RULE is 
  *** pr MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float}, sort Map{SpnSys,Float} to Map{System,Float}, 
  ***                           op emptyM to emptyMSF, op _|->_ to _<-|_ ) .
- pr SET+{String} * (op emptyS to emptyW).
+ pr SET+{String} * (op emptyS to emptyW) .
+ pr FLOAT .
  op  rule-labs  : -> Set{String} .
  sort StateRate State .
  op st : StateRate ->  State .
