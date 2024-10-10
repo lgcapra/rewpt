@@ -2,7 +2,7 @@
 fth SPN-RULE is 
  *** pr MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float}, sort Map{SpnSys,Float} to Map{System,Float}, 
  ***                           op emptyM to emptyMSF, op _|->_ to _<-|_ ) .
- pr SET+{String} * (op emptyS to emptyW) .
+ pr SET+{String} .
  pr FLOAT .
  op  rule-labs  : -> Set{String} .
  sort StateRate State .
@@ -14,7 +14,7 @@ endfth
 *** rewritable PL system model for LCTMC 
 fmod SPN-TO-LMC{X :: SPN-RULE} is
  pr MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float}, sort Map{SpnSys,Float} to Map{System,Float}, op emptyM to emptyMSF, op _|->_ to _<-|_ ) .
- *** pr SET+{String} * (op emptyS to emptyW).
+ *** pr SET+{String} .
  
  vars N N' N'' : Net .
  vars S S' S'' : Pbag .
@@ -55,7 +55,7 @@ ceq $rulexe( Sys <-| F ; SF, RS ; Sys' <-| R) = $rulexe(SF, RS ; Sys' <-| R + F 
  op allRew : System -> Map{System,Float} [memo] .
  eq allRew(Sys) = $allRew(Sys, rule-labs, emptyMSF) .
  op $allRew : System Set{String} Map{System,Float} -> Map{System,Float} .
- eq $allRew(Sys, emptyW, RS) = RS .
+ eq $allRew(Sys, emptyS, RS) = RS .
  eq $allRew(Sys, W U Z, RS) = $allRew(Sys, Z, rulexe(W, Sys) ; RS) .
 
 endfm  

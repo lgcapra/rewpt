@@ -1,0 +1,58 @@
+
+*** theory of SPN rules' encoding as operators
+fth RULE is 
+ pr SET+{String} .
+ pr FLOAT .
+ op  rule-labs  : -> Set{String} .
+ sort State Pair{State, Float} .
+ op rule : String State -> [Pair{State, Float}] .
+ op 1st : Pair{State, Float} -> State .
+ op 2nd : Pair{State, Float} -> Float .
+ op normalize : State -> State .
+endfth
+
+view State from TRIV to RULE is 
+ sort Elt to State . 
+endv
+
+*** rewritable PL system model for LCTMC 
+fmod MOD-TO-LMC{X :: RULE} is
+ pr MAP+{State,Float}{X} * (sort Entry{State,Float}{X} to Entry{X,Float}, sort Map{State,Float}{X} to Map{X,Float}, op emptyM to emptyMSF, op _|->_ to _<-|_ ) .
+ 
+ var W : String .
+ var S  : X$State .
+ var S' : [X$State] .
+
+ vars R F : Float .
+ vars RS SF : Map{X,Float} .
+ 
+ *** operators encoding rules
+ *** works if encoded rules are "injective" (distinct matches result in different terms, disregarding normalization) 
+
+ op toEntry : X$Pair{State, Float} -> Entry{X,Float} .
+ var SR : X$Pair{State, Float} .
+ eq toEntry(SR) = 1st(SR) <-| 2nd(SR) .
+*** application of a rule (partial operation) without normalization
+op ruleApp : String X$State -> [Map{X,Float}] .
+eq ruleApp(W, S) =  $ruleApp(W, S, emptyMSF) .
+op $ruleApp : String X$State Map{X,Float} -> [Map{X,Float}] .
+ceq $ruleApp(W, S, SF) = $ruleApp(W, S, SF ; S' <-| F) if S' <-| F := toEntry(rule(W, S)) /\ S' :: X$State  /\ $hasMapping(SF, S') = false . 
+eq $ruleApp(W, S, SF) = SF [owise] .
+
+*** bulk application of a rule, including normalization and partitioning of rewrites based on rates 
+ op rulexe : String X$State -> Map{X,Float} .
+ eq rulexe(W, S) = $rulexe(ruleApp(W, S), emptyMSF) .
+ op $rulexe : Map{X,Float} Map{X,Float} -> Map{X,Float} .
+ eq $rulexe(emptyMSF, RS) = RS .
+ceq $rulexe( S <-| F ; SF, RS ; S' <-| R) = $rulexe(SF, RS ; S' <-| R + F ) if S' := normalize(S) .
+ eq $rulexe( S <-| F ; SF, RS) = $rulexe(SF, RS ; normalize(S) <-| F) [owise] .
+
+*** application of all (injective) rules 
+ vars Z Y : Set{String} .
+ op allRew : X$State -> Map{X,Float} [memo] .
+ eq allRew(S) = $allRew(S, rule-labs, emptyMSF) .
+ op $allRew : X$State Set{String} Map{X,Float} -> Map{X,Float} .
+ eq $allRew(S, emptyS, RS) = RS .
+ eq $allRew(S, W U Z, RS) = $allRew(S, Z, rulexe(W, S) ; RS) .
+
+endfm  

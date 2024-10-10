@@ -1,14 +1,36 @@
 in FTPL
 *** in SPN-SYSREW-LMC
 
+
+*** injective (?) rule encoding as operators
+fmod RULE-MAP{S :: TRIV} is
+ pr MAP+{Pair{String,S},Pair{S,Float}} * (sort Entry{Pair{String,S},Pair{S,Float}} to rule,
+                                          sort Map{Pair{String,S},Pair{S,Float}} to rulemap,
+                                          op emptyM to emptyRmap).
+
+var Lx : Pair{String,S} .
+var Rx : Pair{S,Float} .
+var R : rule .
+op left  : rule -> Pair{String,S} .
+eq left(Lx |-> Rx) = Lx .
+op right : rule -> Pair{S,Float} .
+eq right(Lx |-> Rx) = Rx .
+ops source target : rule -> S$Elt .
+eq source(R) = 2nd(left(R)) .
+eq target(R) = 1st(right(R)) .
+op lab : rule -> String .
+eq lab(R) = 1st(left(R)) .
+op rate : rule -> Float .
+eq rate(R) = 2nd(right(R)) .
+endfm
+
 *** rewritable PL system model for LCTMC 
 fmod RWPT-FTPL-LMC is
  pr FTPL .
- pr SET+{String} * (op emptyS to emptyW).
+ pr SET+{String} .
+ pr PAIR{SpnSys, Float} * (sort Pair{SpnSys, Float} to Pair{System, Float}) .
+ *** pr RULE-MAP{SpnSys} * (sort Pair{SpnSys, Float} to Pair{System, Float}, sort Pair{String, SpnSys} to Pair{String, System} ) .
 
- sort StateRate . *** denotes a state and an input rate
- op _<-_ : System Float -> StateRate [ctor] .
- 
  vars N N' N'' : Net .
  vars S S' S'' : Pbag .
  var K : NzNat .
@@ -66,22 +88,29 @@ fmod RWPT-FTPL-LMC is
 ***eq allRew(Sys) = r1exe(Sys, rule1-matches(Sys)) ; r2exe(Sys, rule2-matches(Sys)) .
  
 
- *** 2nd approach: operators encoding rules
- *** works if encoded rules are "injective" (distinct matches result in different terms, disregarding normalization) 
+ *** 2nd approach: operators encoding rule s(partial operation,  without normalization) 
+ *** works if rules are "injective" (distinct matches result in different terms, disregarding normalization) 
  *** rules' rate (possibly state dependent) are embedded in rules' free variable R (also in the original rewrite rules)
-op  rule-labs  : -> Set{String} [ memo ] .
-eq  rule-labs = "R1" U "R2" . 
 
-*** operator encoding a rule (partial operation,  without normalization) -- the rule's rate is held by free var R
-op rule : String System -> [StateRate] .
-ceq rule("R1", N S) = join(detache(N, N') S'' - S', setMark(setMark(Sys', "w" "fPL", K'), "a" "fPL", K'')) <-  0.1 / float(K' + K'')
+op rule : String System -> [Pair{System,Float}] [ memo ].
+ceq rule("R1", N S) = < join(detache(N, N') S'' - S', setMark(setMark(Sys', "w" "fPL", K'), "a" "fPL", K'')) ;  0.1 / float(K' + K'') >
   if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) 
      /\ K' := | match(S', "w") | /\ K'' := | match(S', "a") | /\ Sys' := faultySys(minNotIn(N, "fPL")) . 
-ceq rule("R2", N S) = N'' set(S'' - S', p(< "s" ; 0 >), K') <- 0.2 / float(K') 
+ceq rule("R2", N S) = < N'' set(S'' - S', p(< "s" ; 0 >), K') ; 0.2 / float(K') >
   if  S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  
-     /\ N'' := detache(N, N') /\ N'' =/= emptyN /\ S' := subag(S'', < "fPL" ; I >) /\ K' := S[p(< "s" ; 0 >)] + | S' | .
+      /\ N'' := detache(N, N') /\ N'' =/= emptyN /\ S' := subag(S'', < "fPL" ; I >) /\ K' := S[p(< "s" ; 0 >)] + | S' | .
 
+op  rule-labs  : -> Set{String} [ memo ] .
+eq  rule-labs = "R1" U "R2" . 
 endfm  
 
-view FtplRule from SPN-RULE to RWPT-FTPL-LMC is 
+in MOD-TO-LMC
+
+view FtplRule from RULE to RWPT-FTPL-LMC is 
+  sort State to System .
+  sort Pair{State,Float} to Pair{System, Float} .
 endv
+
+fmod RWPT-TO-LMC is
+  pr MOD-TO-LMC{FtplRule} .
+endfm
