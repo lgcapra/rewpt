@@ -1,35 +1,11 @@
 in FTPL
 *** in SPN-SYSREW-LMC
 
-
-*** injective (?) rule encoding as operators
-fmod RULE-MAP{S :: TRIV} is
- pr MAP+{Pair{String,S},Pair{S,Float}} * (sort Entry{Pair{String,S},Pair{S,Float}} to rule,
-                                          sort Map{Pair{String,S},Pair{S,Float}} to rulemap,
-                                          op emptyM to emptyRmap).
-
-var Lx : Pair{String,S} .
-var Rx : Pair{S,Float} .
-var R : rule .
-op left  : rule -> Pair{String,S} .
-eq left(Lx |-> Rx) = Lx .
-op right : rule -> Pair{S,Float} .
-eq right(Lx |-> Rx) = Rx .
-ops source target : rule -> S$Elt .
-eq source(R) = 2nd(left(R)) .
-eq target(R) = 1st(right(R)) .
-op lab : rule -> String .
-eq lab(R) = 1st(left(R)) .
-op rate : rule -> Float .
-eq rate(R) = 2nd(right(R)) .
-endfm
-
 *** rewritable PL system model for LCTMC 
 fmod RWPT-FTPL-LMC is
  pr FTPL .
  pr SET+{String} .
  pr PAIR{SpnSys, Float} * (sort Pair{SpnSys, Float} to Pair{System, Float}) .
- *** pr RULE-MAP{SpnSys} * (sort Pair{SpnSys, Float} to Pair{System, Float}, sort Pair{String, SpnSys} to Pair{String, System} ) .
 
  vars N N' N'' : Net .
  vars S S' S'' : Pbag .
