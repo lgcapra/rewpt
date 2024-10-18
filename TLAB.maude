@@ -1,0 +1,24 @@
+*** signature of a (G)SPN transition : a triple (label,rate,info) where info may be interpreted as priority or firing semantics
+*** rappresentazione simile ma più intuitiva di modSPT
+fmod TLAB is
+ pr STRING .
+ pr FLOAT .
+ sort Tlab .
+ var W  : String .
+ var R  : Float .
+ var P  : Nat .  
+ op t : String Float Nat -> Tlab [ctor] . 
+ op tag :  Tlab  -> String .
+ op policy : Tlab  -> Nat .
+ op rate : Tlab  -> Float .
+ eq tag (t(W,R,P))    =  W .
+ eq policy(t(W,R,P))  =  P .
+ eq rate(t(W,R,P))    =  R .
+
+endfm
+
+*** trivial view to a TLAB
+view Tlab from TRIV to TLAB is 
+ sort Elt to Tlab .
+endv
+

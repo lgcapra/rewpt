@@ -1,0 +1,31 @@
+in PT-NET
+in TLAB
+
+*** Stochastic Petri Net
+
+fmod SPN is
+  pr PT-NET{Tlab} .
+  pr CONVERSION .
+  vars M M' : Pbag .
+  vars P P' : Place . 
+  var L : Tlab .
+  var Q : Tmatrix .
+  var T : Tran .
+  vars K K' D : NzNat .
+  *** firing rule rates
+  op firing-rate : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the transition firing policy)
+  *** eq firing-rate(T, M) = rate(T) . *** 1-server for all
+  eq firing-rate(L |-> Q, M) = if policy(L) == 1 then rate(L) else rate(L) * float(if policy(L) == 0 
+                           then enabdegree(I(Q), M) else min(policy(L), enabdegree(I(Q), M)) fi) fi .
+  *** definition of enabdegree: assumes that T is enabled in M
+  op enabdegree : Pbag Pbag -> [NzNat] .
+  eq enabdegree(nilP, M) = 1 . *** the input arc is null
+  eq enabdegree(B:NePbag, M) = $enabdegree(B:NePbag, M, 1000000000000000) .
+  op $enabdegree : Pbag Pbag NzNat -> [NzNat] .  
+  eq $enabdegree(K . P + M , K' . P + M', D) = $enabdegree(M , M', min(D, K' quo K)) .
+  eq $enabdegree(nilP, M, D) = D . 
+endfm
+
+view Spn from TRIV to SPN is 
+ sort Elt to System . 
+endv

@@ -1,61 +1,60 @@
-in PLACE
-in TRAN
-in IMATRIX
+in TMATRIX
 in shared/MAP-SET
 
-fmod PT-NET is
- pr MAP-SET{Tran,Imatrix} * (sort Map{Tran,Imatrix} to Net, sort Entry{Tran,Imatrix} to ImatrixT, op emptyM to emptyN) .
+*** simile a def in modSPT ma elementi invertiti, l e q al posto di t e Q ...
+fmod PT-NET{L :: TRIV} is
+ pr MAP-SET{L,Tmatrix} * (sort Map{L,Tmatrix} to Net, sort Entry{L,Tmatrix} to Tran, op emptyM to emptyNet) .
  sort System .
  
- var T : Tran .
+ var T : L$Elt .
  var N : Net .
  vars P P'  : Place .
- var S : Set{Place} .
- vars M I O H : BagP .
+ var S : Pset .
+ vars M I O H : Pbag .
  vars K K'  : NzNat .
- var Q : Imatrix .
+ var Q : Tmatrix .
  
- op __ : Net BagP -> [System] [ctor] .
- cmb N M : System if N =/= emptyN . *** a PT system cannot be "empty"
+ op __ : Net Pbag -> [System] [ctor] .
+ cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty"
  op n : System -> Net .
- op m : System -> BagP .
+ op m : System -> Pbag .
  eq n(N M) = N .
  eq m(N M) = M .
- op t : ImatrixT -> Tran .
- op Q : ImatrixT -> Imatrix .
- eq t(T |-> Q) = T .
- eq Q(T |-> Q) = Q .
+ op l : Tran -> L$Elt .
+ op q : Tran -> Tmatrix .
+ eq l(T |-> Q) = T .
+ eq q(T |-> Q) = Q .
  
  
- eq T |-> [M,M,H] = emptyN [metadata "null t"] . *** transitions not changing the marking are erased
-ceq T |-> [K . P + I, O, K' . P + H] = emptyN if K >= K' [metadata "dead t"] . *** structurally dead transition are erased
+ eq T |-> [M,M,H] = emptyNet [metadata "null t"] . *** transitions not changing the marking are erased
+ceq T |-> [K . P + I, O, K' . P + H] = emptyNet if K >= K' [metadata "dead t"] . *** structurally dead transition are erased
 
 
- op enabled : ImatrixT BagP -> Bool .
+ op enabled : Tran Pbag -> Bool .
  eq enabled(T |-> [I,O,H], M) = I <= M and-then H > M . 
 
- op firing : ImatrixT BagP -> BagP .
+ op firing : Tran Pbag -> Pbag .
  eq firing(T |-> [I,O,H], M) = (M - I) + O .
  
- op dead : ImatrixT -> Bool .  *** checks for structurally dead transitions 
+ op dead : Tran -> Bool .  *** checks for structurally dead transitions 
  eq dead(T |-> [K . P + I, O, K' . P + H]) = K >= K' [metadata "dead t"] .
- eq dead(Q:ImatrixT) = false [owise] .
+ eq dead(Q:Tran) = false [owise] .
 
  op in :  Net Place -> Bool . *** test the existence of a place
 ceq in(T |-> Q ; N, P) = true if in (Q, P) .
  eq in(N, P) = false [owise] .
 
- op in :  Net Tran -> Bool . *** test the existence of a transition
+ op in :  Net L$Elt -> Bool . *** test the existence of a transition
  eq in(N, T) = $hasMapping(N, T) .
 
  
- op places : Net -> Set{Place} [memo] .
- eq places(N) = $places(N, emptyP) .  
- op $places : Net Set{Place} -> Set{Place} . 
- eq $places(emptyN, S) = S . 
+ op places : Net -> Pset [memo] .
+ eq places(N) = $places(N, emptyPset) .  
+ op $places : Net Pset -> Pset . 
+ eq $places(emptyNet, S) = S . 
  eq $places(T |-> Q ; N, S) = $places(N, S U places(Q)) .
 
- op transitions : Net -> Set{Tran} .
+ op transitions : Net -> Set{L} .
  eq transitions(N) = keySet(N) . 
 
 endfm

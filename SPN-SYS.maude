@@ -1,0 +1,9 @@
+in PT-SYS
+in SPN
+
+*** Stochastic Petri Net plus firing rule
+
+mod SPN-SYS is
+  inc PT-SYS{Tlab} .
+  inc SPN .
+endm

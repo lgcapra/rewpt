@@ -1,10 +1,10 @@
 in PT-NET
 
-mod PT-SYS is
- inc PT-NET .
+mod PT-SYS{L :: TRIV} is
+ inc PT-NET{L} .
  vars N  N' : Net .
- vars I O H M : BagP .
- var T : ImatrixT .
+ vars I O H M : Pbag .
+ var T : Tran .
 
  *** crl [firing] : N M => N firing(T, M) if T ; N' := N /\ enabled(T, M) .
  crl [firing] : (T ; N) M => (T ; N) firing(T, M) if  enabled(T, M) .

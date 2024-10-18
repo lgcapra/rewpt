@@ -1,0 +1,86 @@
+in SPN
+
+*** rewrite rule encoding for deriving a CTMC
+
+fmod HET-LIST is 
+ protecting CONVERSION . 
+ 
+ sort List . 
+ op nil : -> List . 
+ op __ : Universal List -> List [ctor poly (1)] . 
+endfm
+
+*** match for the firing rule
+fmod FIREMATCH is
+ pr SPN .
+ sort Match Match2 .
+ op <_,_,_> : Net Tran Pbag -> Match [ctor] .   
+ op <_,_> : Tran Tran -> Match2 [comm ctor] .
+endfm
+
+
+*** default view
+view Match from TRIV to FIREMATCH is 
+ sort Elt to Match . 
+endv
+
+view Match2 from TRIV to FIREMATCH is 
+ sort Elt to Match2 . 
+endv
+
+
+mod SPN-SYS-MC is
+ ***inc SPN . 
+ inc SET+{Match} * (op emptyS to noMatch) .
+ inc SET+{Match2} * (op emptyS to noMatch2) .
+ inc MAP+{Pbag,Float} * (op emptyM to  emptyMTR) .
+ 
+  vars N  N' : Net .
+  var S : System .
+  var X : Set{Match} .
+  var X2 : Set{Match2} .
+  vars M M' : Pbag .
+  vars P P' : Place . 
+  var L : Tlab .
+  var Q : Tmatrix .
+  vars T T2 : Tran .
+  vars K K' D : NzNat .
+  var R : Float .
+  var RS : Map{Pbag,Float} .
+ 
+ *** firing rule matches: STESSA struttura per ogni regola
+ op firing-matches : System -> Set{Match} [memo].
+ eq firing-matches(S) = $firing-matches(S, noMatch) .
+ op $firing-matches : System Set{Match} -> Set{Match} .
+ ceq $firing-matches(S, X) = $firing-matches(S, < N,T,M > U X) if (T ; N) M := S /\ enabled(T, M) /\ < N,T,M > in X = false .
+ eq $firing-matches(S, X) = X [owise] .
+  *** firing rule matches: STESSA struttura per ogni regola
+ op firing-matches2 : System -> Set{Match2} [memo].
+ eq firing-matches2(S) = $firing-matches2(S, noMatch2) .
+ op $firing-matches2 : System Set{Match2} -> Set{Match2} .
+ ceq $firing-matches2(S, X2) = $firing-matches2(S, < T,T2 > U X2) if (T ; T2 ; N) M := S /\ enabled(T, M) /\ enabled(T2, M) /\ < T,T2 > in X2 = false .
+ eq $firing-matches2(S, X2) = X2 [owise] .
+ *** rule application
+ op firing-app : Match -> System .
+ eq firing-app(< N,T,M >) = (T ; N) firing(T, M) .
+ *** optimized
+ op firing-app : Tran Pbag -> Pbag .
+ eq firing-app(T, M) = firing(T, M) .
+ *** state transitions due to the rule firing -- grouped by rate
+  op firing-state-trans : System -> Map{Pbag,Float} [memo] .
+  eq firing-state-trans (S) = $firing-state-trans (firing-matches(S),  emptyMTR) .
+  op $firing-state-trans : Set{Match} Map{Pbag,Float} -> Map{Pbag,Float} .
+  eq $firing-state-trans (noMatch, RS) = RS .
+ ceq $firing-state-trans (< N,T,M > U X, M' |-> R ; RS) =  $firing-state-trans (X, M' |-> firing-rate(T, M) + R ; RS) if  M' := firing-app(T, M) .
+  eq $firing-state-trans (< N,T,M > U X, RS) =  $firing-state-trans (X, firing-app(T,M) |-> firing-rate(T, M) ; RS) [owise] .
+
+ sort SysState .
+ *** description of a PT system pointing out the state-transitions, gathered by firing-rate
+ op SYS:_ STRAN:_ : System Map{Pbag,Float} -> SysState [ctor format (n d n d d)] .
+ *** translates a System term into a SysState
+ op toSysState : System -> SysState .
+ eq toSysState(S) = SYS: S STRAN: firing-state-trans (S) . 
+*** firing rule encoded according to the new state representation
+rl [firing] : SYS: N M STRAN: (M' |-> R ; RS)  => toSysState(N M') .
+ 
+endm

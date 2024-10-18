@@ -1,0 +1,7 @@
+reduce in META-LEVEL : 
+    metaMatch(upModule('PT-EXE-MC, false), 
+         upTerm(N:Net ; T2:Tran ; T1:Tran) , 
+         upTerm(t("1", 5.0e-1, 1) |-> [1 . p(1) + 1 . p(3),1 . p(2) + 1 . p(3),nilP] ;
+    t("2", 4.0000000000000002e-1, 0) |-> [2 . p(1),1 . p(1) + 1 . p(2),nilP] ; t("3", 1.0, 1) |-> [1 . p(3),nilP,
+    nilP]), 
+         nil, 0) . 

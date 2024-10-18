@@ -1,21 +1,21 @@
 in PT-SYS
 
 mod PT-EXE is
- inc PT-SYS .
+ inc SPN-SYS .
  op net : -> Net  [memo] .
- op m0  : -> BagP [memo] .  
+ op m0  : -> Pbag  [memo] .  
 
- var T : Tran .
+ var T : Tlab .
  var P : Place .
- vars B B' : BagP .
+ vars B B' : Pbag  .
 
- eq net =  t(< 1 ; 0.5 >) |-> [1 . p(1) + 1 . p(3), 1 . p(2) + 1 . p(3), nilP] ;
-           t(< 2 ; 0.4 >) |-> [2 . p(1) , 1 . p(1) + 1 . p(2), nilP] ; 
-           t(< 3 ; 1.0 >) |-> [1 . p(3), nilP, nilP] ;
-           t(< 4 ; 2.0 >) |-> [1 . p(2) , 1 . p(1), nilP] .
+ eq net =  t("1", 0.5, 1) |-> [1 . p(1) + 1 . p(3), 1 . p(2) + 1 . p(3), nilP] ;
+           t("2", 0.4, 0) |-> [2 . p(1) , 1 . p(1) + 1 . p(2), nilP] ; 
+           t("3", 1.0, 1) |-> [1 . p(3), nilP, nilP] ;
+           t("4", 2.0, 1) |-> [1 . p(2) , 1 . p(1), nilP] .
 
  eq m0  = 2 . p(1) +  1 . p(3) .
 
- rl [selftoinh-inj-1.5] : T |-> [1 . P + B, 1 . P + B', nilP] => T |-> [B, B', 1 . P] . *** the rule is injective and has constant rate
+ rl [selftoinh-inj] : T |-> [1 . P + B, 1 . P + B', nilP] => T |-> [B, B', 1 . P] . *** the rule is injective and has constant rate
 endm
 
