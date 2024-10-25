@@ -6,13 +6,14 @@ fmod PT-NET{L :: TRIV} is
  pr MAP-SET{L,Tmatrix} * (sort Map{L,Tmatrix} to Net, sort Entry{L,Tmatrix} to Tran, op emptyM to emptyNet) .
  sort System .
  
- var T : L$Elt .
+ vars L L' : L$Elt .
+ vars T T' : Tran .
  var N : Net .
  vars P P'  : Place .
  var S : Pset .
  vars M I O H : Pbag .
  vars K K'  : NzNat .
- var Q : Tmatrix .
+ vars Q Q' : Tmatrix .
  
  op __ : Net Pbag -> [System] [ctor] .
  cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty"
@@ -22,39 +23,46 @@ fmod PT-NET{L :: TRIV} is
  eq m(N M) = M .
  op l : Tran -> L$Elt .
  op q : Tran -> Tmatrix .
- eq l(T |-> Q) = T .
- eq q(T |-> Q) = Q .
+ eq l(L |-> Q) = L .
+ eq q(L |-> Q) = Q .
  
  
- eq T |-> [M,M,H] = emptyNet [metadata "null t"] . *** transitions not changing the marking are erased
-ceq T |-> [K . P + I, O, K' . P + H] = emptyNet if K >= K' [metadata "dead t"] . *** structurally dead transition are erased
+ eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** transitions not changing the marking are erased
+ceq L |-> [K . P + I, O, K' . P + H] = emptyNet if K >= K' [metadata "dead t"] . *** structurally dead transition are erased
 
 
  op enabled : Tran Pbag -> Bool .
- eq enabled(T |-> [I,O,H], M) = I <= M and-then H > M . 
+ eq enabled(L |-> [I,O,H], M) = I <= M and-then H > M . 
 
  op firing : Tran Pbag -> Pbag .
- eq firing(T |-> [I,O,H], M) = (M - I) + O .
+ eq firing(L |-> [I,O,H], M) = (M - I) + O .
  
  op dead : Tran -> Bool .  *** checks for structurally dead transitions 
- eq dead(T |-> [K . P + I, O, K' . P + H]) = K >= K' [metadata "dead t"] .
+ eq dead(L |-> [K . P + I, O, K' . P + H]) = K >= K' [metadata "dead t"] .
  eq dead(Q:Tran) = false [owise] .
 
  op in :  Net Place -> Bool . *** test the existence of a place
-ceq in(T |-> Q ; N, P) = true if in (Q, P) .
+ceq in(L |-> Q ; N, P) = true if in (Q, P) .
  eq in(N, P) = false [owise] .
 
  op in :  Net L$Elt -> Bool . *** test the existence of a transition
- eq in(N, T) = $hasMapping(N, T) .
+ eq in(N, L) = $hasMapping(N, L) .
 
  
  op places : Net -> Pset [memo] .
  eq places(N) = $places(N, emptyPset) .  
  op $places : Net Pset -> Pset . 
  eq $places(emptyNet, S) = S . 
- eq $places(T |-> Q ; N, S) = $places(N, S U places(Q)) .
+ eq $places(L |-> Q ; N, S) = $places(N, S U places(Q)) .
 
  op transitions : Net -> Set{L} .
  eq transitions(N) = keySet(N) . 
+
+ ***  merges two transitions by assigning the resulting one the specified label
+ op merge : Tran  Tran L$Elt -> Tran .
+ eq merge(T, T', L) = L |-> q(T) + q(T') .
+ *** aggregates two transitions by assigning the resulting one the specified label
+ op aggregate : Tran  Tran L$Elt -> Tran .
+ceq aggregate(T, T', L) = L |-> [I(Q), O(Q'), H(Q) + H(Q')] if Q := q(T) /\ Q' := q(T') .
 
 endfm

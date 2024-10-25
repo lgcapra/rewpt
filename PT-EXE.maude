@@ -1,13 +1,15 @@
-in PT-SYS
+in SPN-SYS
 
 mod PT-EXE is
  inc SPN-SYS .
  op net : -> Net  [memo] .
  op m0  : -> Pbag  [memo] .  
 
- var T : Tlab .
+ vars L L' : Tlab .
+ vars T T' : Tran .
  var P : Place .
- vars B B' : Pbag  .
+ vars B B' M : Pbag  .
+ var N : Net .
 
  eq net =  t("1", 0.5, 1) |-> [1 . p(1) + 1 . p(3), 1 . p(2) + 1 . p(3), nilP] ;
            t("2", 0.4, 0) |-> [2 . p(1) , 1 . p(1) + 1 . p(2), nilP] ; 
@@ -16,6 +18,15 @@ mod PT-EXE is
 
  eq m0  = 2 . p(1) +  1 . p(3) .
 
- rl [selftoinh-inj] : T |-> [1 . P + B, 1 . P + B', nilP] => T |-> [B, B', 1 . P] . *** the rule is injective and has constant rate
+ *** example of rewrites
+
+ crl [merge] : (N ; T ; T')  M  =>  (N ; merge(T, T', L)) M if L := l(T) /\ L = l(T') /\ enabled(T, M) = false /\ enabled(T', M) = false .
+
+ crl [aggregate] :  (N ; T ; T')  M  =>  (N ; aggregate(T, T', t(tag(L) + tag(L'), rate(L) + rate(L'),policy(L)))) M 
+      if L := l(T) /\ L' := l(T') /\ policy(L) = policy(L') /\ O(q(T)) = I(q(T')) /\ enabled(T, M) = false /\ enabled(T', M) = false .
+
+ rl [selftoinh-inj] : L |-> [1 . P + B, 1 . P + B', nilP] => L |-> [B, B', 1 . P] . *** the rule is injective and has constant rate
+
+ rl [incoherent] : (N ; T ; T' ; merge(T, T', l(T))) M => (N ; T ; T')  M .
 endm
 

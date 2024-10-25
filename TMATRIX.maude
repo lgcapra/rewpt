@@ -7,7 +7,7 @@ fmod TMATRIX is
  op [_,_,_] : Pbag Pbag Pbag -> Tmatrix [ctor] .
  
  var P  : Place .
- vars I O H M : Pbag .
+ vars I O H M I' O' H' : Pbag .
  vars K K' : NzNat .
  var Q  : Tmatrix .
   
@@ -31,6 +31,10 @@ fmod TMATRIX is
  op dead : Tmatrix -> Bool .  *** checks for structurally dead transitions 
  eq dead([K . P + I, O, K' . P + H]) = K >= K' [metadata "dead tq"] .
  eq dead(Q) = false [owise] .
+
+ *** pair-wise sum
+ op _+_  : Tmatrix Tmatrix -> Tmatrix [prec 41 assoc comm] .
+ eq [I,O,H] + [I',O',H'] = [I' + I, O' + O, H' + H] .
 
 endfm
 

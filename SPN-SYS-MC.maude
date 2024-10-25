@@ -13,9 +13,8 @@ endfm
 *** match for the firing rule
 fmod FIREMATCH is
  pr SPN .
- sort Match Match2 .
+ sort Match .
  op <_,_,_> : Net Tran Pbag -> Match [ctor] .   
- op <_,_> : Tran Tran -> Match2 [comm ctor] .
 endfm
 
 
@@ -24,21 +23,15 @@ view Match from TRIV to FIREMATCH is
  sort Elt to Match . 
 endv
 
-view Match2 from TRIV to FIREMATCH is 
- sort Elt to Match2 . 
-endv
-
 
 mod SPN-SYS-MC is
  ***inc SPN . 
  inc SET+{Match} * (op emptyS to noMatch) .
- inc SET+{Match2} * (op emptyS to noMatch2) .
  inc MAP+{Pbag,Float} * (op emptyM to  emptyMTR) .
  
   vars N  N' : Net .
   var S : System .
   var X : Set{Match} .
-  var X2 : Set{Match2} .
   vars M M' : Pbag .
   vars P P' : Place . 
   var L : Tlab .
@@ -54,13 +47,7 @@ mod SPN-SYS-MC is
  op $firing-matches : System Set{Match} -> Set{Match} .
  ceq $firing-matches(S, X) = $firing-matches(S, < N,T,M > U X) if (T ; N) M := S /\ enabled(T, M) /\ < N,T,M > in X = false .
  eq $firing-matches(S, X) = X [owise] .
-  *** firing rule matches: STESSA struttura per ogni regola
- op firing-matches2 : System -> Set{Match2} [memo].
- eq firing-matches2(S) = $firing-matches2(S, noMatch2) .
- op $firing-matches2 : System Set{Match2} -> Set{Match2} .
- ceq $firing-matches2(S, X2) = $firing-matches2(S, < T,T2 > U X2) if (T ; T2 ; N) M := S /\ enabled(T, M) /\ enabled(T2, M) /\ < T,T2 > in X2 = false .
- eq $firing-matches2(S, X2) = X2 [owise] .
- *** rule application
+  *** rule application
  op firing-app : Match -> System .
  eq firing-app(< N,T,M >) = (T ; N) firing(T, M) .
  *** optimized
