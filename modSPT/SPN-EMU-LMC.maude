@@ -12,9 +12,10 @@ mod SPN-EMU-LMC{X :: SPN-SYSREW-LMC} is
   var  RS   : Rset .
   var  Sys  : System .
 
-*** symbolic firing rule for state-transition representation of systems
-rl [firing] : NET: N M: B FIRING: (B' <-| F ; FS) REW: RS => toStateTran(N B') .
 
-*** other symbolic (structural) rewrites
-rl [net-rewrite] : NET: N M: B FIRING: FS REW: (Sys <-| R ; RS)  => toStateTran(Sys) .
+ *** symbolic firing rule for state-transition representation of systems
+ rl [firing] : NET: N M: B FIRING: (B' <-| F ; FS) REW: RS => toStateTran(N B') .
+
+ *** other symbolic (structural) rewrites
+ rl [net-rewrite] : NET: N M: B FIRING: FS REW: (Sys <-| R ; RS)  => toStateTran(Sys) .
 endm

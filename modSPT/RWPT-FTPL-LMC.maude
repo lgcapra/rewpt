@@ -5,8 +5,9 @@ in FTPL
 fmod RWPT-FTPL-LMC is
  pr FTPL .
  pr SET+{String} .
- pr PAIR{SpnSys, Float} * (sort Pair{SpnSys, Float} to Pair{System, Float}) .
-
+ *** pr PAIR{SpnSys, Float} * (sort Pair{SpnSys, Float} to Pair{System, Float}) .
+ pr MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float}, sort Map{SpnSys,Float} to Map{System,Float}, op emptyM to emptyMSF) .
+ 
  vars N N' N'' : Net .
  vars S S' S'' : Pbag .
  var K : NzNat .
@@ -17,6 +18,8 @@ fmod RWPT-FTPL-LMC is
  var P : Place .
  var X : Pset .
  vars R F : Float .
+ vars RS SF : Map{System,Float} .
+ 
  
 *** 1st aproach (general) we compute the rewrite matches for each of the two rewrite rules of the PL system example
 *** ops rate1 rate2 : -> Float [memo]. *** rew labs (including rates)
@@ -68,25 +71,48 @@ fmod RWPT-FTPL-LMC is
  *** works if rules are "injective" (distinct matches result in different terms, disregarding normalization) 
  *** rules' rate (possibly state dependent) are embedded in rules' free variable R (also in the original rewrite rules)
 
-op rule : String System -> [Pair{System,Float}] [ memo ].
-ceq rule("R1", N S) = < join(detache(N, N') S'' - S', setMark(setMark(Sys', "w" "fPL", K'), "a" "fPL", K'')) ;  0.1 / float(K' + K'') >
-  if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) 
-     /\ K' := | match(S', "w") | /\ K'' := | match(S', "a") | /\ Sys' := faultySys(minNotIn(N, "fPL")) . 
-ceq rule("R2", N S) = < N'' set(S'' - S', p(< "s" ; 0 >), K') ; 0.2 / float(K') >
-  if  S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  
-      /\ N'' := detache(N, N') /\ N'' =/= emptyN /\ S' := subag(S'', < "fPL" ; I >) /\ K' := S[p(< "s" ; 0 >)] + | S' | .
+op rule : String System -> [Entry{System, Float}] [ memo ].
+ceq rule("R1", N S) = join(detache(N, N') S'' - S', setMark(setMark(Sys', "w" "fPL", K'), "a" "fPL", K'')) |->  0.1 / float(K' + K'')  
+   if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) 
+      /\ K' := | match(S', "w") | /\ K'' := | match(S', "a") | /\ Sys' := faultySys(minNotIn(N, "fPL")) . 
+ceq rule("R2", N S) = N'' set(S'' - S', p(< "s" ; 0 >), K') |-> 0.2 / float(K') 
+   if  S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  
+       /\ N'' := detache(N, N') /\ N'' =/= emptyN /\ S' := subag(S'', < "fPL" ; I >) /\ K' := S[p(< "s" ; 0 >)] + | S' | .
 
 op  rule-labs  : -> Set{String} [ memo ] .
-eq  rule-labs = "R1" U "R2" . 
+eq  rule-labs = "R1" U "R2" .
+
+*** application of a rule (partial operation) without normalization
+op ruleApp : String System -> [Map{System,Float}] .
+eq ruleApp(W, Sys) =  $ruleApp(W, Sys, emptyMSF) .
+op $ruleApp : String System Map{System,Float} -> [Map{System,Float}] .
+ceq $ruleApp(W, Sys, SF) = $ruleApp(W, Sys, SF ; Sys' |-> F) if Sys' |-> F := rule(W, Sys) /\ Sys' :: System  /\ $hasMapping(SF, Sys') = false . 
+eq $ruleApp(W, Sys, SF) = SF [owise] .
+
+*** bulk application of a rule, including normalization and partitioning of rewrites based on rates 
+op rulexe : String System -> Map{System,Float} .
+eq rulexe(W, Sys) = $rulexe(ruleApp(W, Sys), emptyMSF) .
+op $rulexe : Map{System,Float} Map{System,Float} -> Map{System,Float} .
+eq $rulexe(emptyMSF, RS) = RS .
+ceq $rulexe( Sys |-> F ; SF, RS ; Sys' |-> R) = $rulexe(SF, RS ; Sys' |-> R + F ) if Sys' := normalize(Sys) .
+eq $rulexe( Sys |-> F ; SF, RS) = $rulexe(SF, RS ; normalize(Sys) |-> F) [owise] .
+
+*** application of all (injective) rules 
+vars Z Y : Set{String} .
+op allRew : System -> Map{System,Float} [memo] .
+eq allRew(Sys) = $allRew(Sys, rule-labs, emptyMSF) .
+op $allRew : System Set{String} Map{System,Float} -> Map{System,Float} .
+eq $allRew(Sys, emptyS, RS) = RS .
+eq $allRew(Sys, W U Z, RS) = $allRew(Sys, Z, rulexe(W, Sys) ; RS) .
+
 endfm  
 
-in MOD-TO-LMC
+*** in MOD-TO-LMC
 
-view FtplRule from RULE to RWPT-FTPL-LMC is 
-  sort State to System .
-  sort Pair{State,Float} to Pair{System, Float} .
-endv
+*** view FtplRule from RULE to RWPT-FTPL-LMC is 
+*** sort State to System .
+*** endv
 
-fmod RWPT-TO-LMC is
-  pr MOD-TO-LMC{FtplRule} .
-endfm
+*** fmod RWPT-TO-LMC is
+*** pr MOD-TO-LMC{FtplRule} .
+*** endfm

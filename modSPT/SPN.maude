@@ -28,10 +28,10 @@ ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if hasConcessi
  *** firing rule rates
   op firing-rate : Tran -> Float .
   eq firing-rate(T) = rate(T) .
-  op firing-rate : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the transition firing policy)
+  op firing-rate : Tran Pbag -> Float . *** alternative (marking dependent, e.g., based on the transition firing policy)
   
   *** eq firing-rate(T, M) = rate(T) . *** 1-server for all
-  eq firing-rate(T, M) = if policy(T) == 1 then rate(T) else rate(T) * float(if policy(T) == 0 
+  eq firing-rate(T, M) = if I(q(T)) == nilP or-else policy(T) == 1 then rate(T) else rate(T) * float(if policy(T) == 0 
                            then enabdegree(I(q(T)), M) else min(policy(T), enabdegree(I(q(T)), M)) fi) fi .
   *** eq firing-rate(T, M) = rate(T) * float(enabdegree(I(q(T)), M)) . *** infinite server for all t
   *** definition of enabdegree: assumes that T is enabled in M
@@ -43,7 +43,7 @@ ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if hasConcessi
   vars K K' D : NzNat .
   eq $enabdegree(K . P + M , K' . P + M', D) = $enabdegree(M , M', min(D, K' quo K)) .
   eq $enabdegree(nilP, M, D) = D .
-
+  
 endfm
 
 *** trivial views

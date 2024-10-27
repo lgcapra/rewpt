@@ -1,7 +1,7 @@
 in SPN-SYS-MC
 
 mod PT-EXE is
- inc SPN-SYS-MC .
+ inc SPN-SYS-TO-MC .
  var T : Tlab .
  var P : Place .
  vars B B' M : Pbag  .
@@ -16,8 +16,8 @@ mod PT-EXE is
            t("4", 2.0, 1) |-> [1 . p(2) , 1 . p(1), nilP] .
  eq m0  = 2 . p(1) +  1 . p(3) .
  
- var RS : Map{Pbag,Float} .
+ *** var RS : Map{Pbag,Float} .
  *** "optimized" encoding of selftoinh (the rule is injective and has constant rate)
- rl [selftoinh-inj] : SYS: (N ; T |-> [1 . P + B, 1 . P + B', nilP]) M STRAN: RS  => toSysState((N ; T |-> [B, B', 1 . P]) M) .
+ *** rl [selftoinh-inj] : SYS: (N ; T |-> [1 . P + B, 1 . P + B', nilP]) M STRAN: RS  => toSysState((N ; T |-> [B, B', 1 . P]) M) .
  endm
 

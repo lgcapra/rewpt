@@ -8,12 +8,12 @@ fmod PT-NET{L :: TRIV} is
  
  vars L L' : L$Elt .
  vars T T' : Tran .
- var N : Net .
- vars P P'  : Place .
- var S : Pset .
+ vars N N' : Net .
+ vars P P' : Place .
  vars M I O H : Pbag .
  vars K K'  : NzNat .
  vars Q Q' : Tmatrix .
+ var  S : Pset .
  
  op __ : Net Pbag -> [System] [ctor] .
  cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty"
@@ -56,7 +56,15 @@ ceq in(L |-> Q ; N, P) = true if in (Q, P) .
  eq $places(L |-> Q ; N, S) = $places(N, S U places(Q)) .
 
  op transitions : Net -> Set{L} .
- eq transitions(N) = keySet(N) . 
+ eq transitions(N) = keySet(N) .
+
+ *** computes the system's enabled transitions (outcome seen as a sub-Net) 
+  op haveConcession : System -> Net [memo] .
+  eq haveConcession(S:System) = $haveConcession(S:System, emptyNet) .
+  op $haveConcession : System Net -> Net .
+  eq $haveConcession(emptyNet M, N) = N .
+ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if enabled(T, M) .
+ eq $haveConcession((T ; N) M, N') = $haveConcession(N M, N') [owise] . 
 
  ***  merges two transitions by assigning the resulting one the specified label
  op merge : Tran  Tran L$Elt -> Tran .

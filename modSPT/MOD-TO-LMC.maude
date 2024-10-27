@@ -1,13 +1,13 @@
 
-*** theory of SPN rules' encoding as operators
+*** theory of rules encoding as operators
 fth RULE is 
  pr SET+{String} .
  pr FLOAT .
  op  rule-labs  : -> Set{String} .
- sort State Pair{State, Float} .
- op rule : String State -> [Pair{State, Float}] .
- op 1st : Pair{State, Float} -> State .
- op 2nd : Pair{State, Float} -> Float .
+ sort State StateRate .
+ op st : StateRate ->  State .
+ op r  : StateRate ->  Float .
+ op rule : String State -> [StateRate] .
  op normalize : State -> State .
 endfth
 
@@ -15,7 +15,7 @@ view State from TRIV to RULE is
  sort Elt to State . 
 endv
 
-*** rewritable PL system model for LCTMC 
+*** rewritable PL X$Elt model for LCTMC 
 fmod MOD-TO-LMC{X :: RULE} is
  pr MAP+{State,Float}{X} * (sort Entry{State,Float}{X} to Entry{X,Float}, sort Map{State,Float}{X} to Map{X,Float}, op emptyM to emptyMSF, op _|->_ to _<-|_ ) .
  
@@ -29,9 +29,9 @@ fmod MOD-TO-LMC{X :: RULE} is
  *** operators encoding rules
  *** works if encoded rules are "injective" (distinct matches result in different terms, disregarding normalization) 
 
- op toEntry : X$Pair{State, Float} -> Entry{X,Float} .
- var SR : X$Pair{State, Float} .
- eq toEntry(SR) = 1st(SR) <-| 2nd(SR) .
+ op toEntry : X$StateRate -> Entry{X,Float} .
+ var SR : X$StateRate .
+ eq toEntry(SR) = st(SR) <-| r(SR) .
 *** application of a rule (partial operation) without normalization
 op ruleApp : String X$State -> [Map{X,Float}] .
 eq ruleApp(W, S) =  $ruleApp(W, S, emptyMSF) .

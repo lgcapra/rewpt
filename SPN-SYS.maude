@@ -7,3 +7,8 @@ mod SPN-SYS is
   inc PT-SYS{Tlab} .
   inc SPN .
 endm
+
+*** trivial view to PT-SYS (careful: same name as the view to PT-SYS)
+view System from TRIV to SPN-SYS is 
+ sort Elt to System .
+endv

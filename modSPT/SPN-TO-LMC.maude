@@ -1,21 +1,7 @@
-*** theory of SPN rules' encoding as operators
-fth SPN-RULE is 
- *** pr MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float}, sort Map{SpnSys,Float} to Map{System,Float}, 
- ***                           op emptyM to emptyMSF, op _|->_ to _<-|_ ) .
- pr SET+{String} .
- pr FLOAT .
- op  rule-labs  : -> Set{String} .
- sort StateRate State .
- op st : StateRate ->  State .
- op r  : StateRate ->  Float .
- op rule : String State -> [StateRate] .
-endfth
-
 *** rewritable PL system model for LCTMC 
-fmod SPN-TO-LMC{X :: SPN-RULE} is
- pr MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float}, sort Map{SpnSys,Float} to Map{System,Float}, op emptyM to emptyMSF, op _|->_ to _<-|_ ) .
- *** pr SET+{String} .
- 
+fmod SPN-TO-LMC is
+ pr MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float}, sort Map{SpnSys,Float} to Map{System,Float}, op emptyM to emptyMSF) .
+ pr SET+{String} .
  vars N N' N'' : Net .
  vars S S' S'' : Pbag .
  var K : NzNat .
@@ -29,17 +15,18 @@ fmod SPN-TO-LMC{X :: SPN-RULE} is
  vars R F : Float .
  vars RS SF : Map{System,Float} .
  
+ *** dovrebbero essere passato come parametro
+ op  rule-labs  : -> Set{String} [ memo ] .
+ op rule : String System -> [Entry{System, Float}] [ memo ].
+
  *** operators encoding rules
  *** works if encoded rules are "injective" (distinct matches result in different terms, disregarding normalization) 
-
- op toEntry : X$StateRate -> Entry{System,Float} .
- var SR : X$StateRate .
- eq toEntry(SR) = st(SR) <-| r(SR) .
+ 
 *** application of a rule (partial operation) without normalization
 op ruleApp : String System -> [Map{System,Float}] .
 eq ruleApp(W, Sys) =  $ruleApp(W, Sys, emptyMSF) .
 op $ruleApp : String System Map{System,Float} -> [Map{System,Float}] .
-ceq $ruleApp(W, Sys, SF) = $ruleApp(W, Sys, SF ; Sys' <-| F) if Sys' <-| F := toEntry(rule(W, Sys)) /\ Sys' :: System  /\ $hasMapping(SF, Sys') = false . 
+ceq $ruleApp(W, Sys, SF) = $ruleApp(W, Sys, SF ; Sys' |-> F) if Sys' |-> F := rule(W, Sys) /\ Sys' :: System  /\ $hasMapping(SF, Sys') = false . 
 eq $ruleApp(W, Sys, SF) = SF [owise] .
 
 *** bulk application of a rule, including normalization and partitioning of rewrites based on rates 
@@ -47,8 +34,8 @@ eq $ruleApp(W, Sys, SF) = SF [owise] .
  eq rulexe(W, Sys) = $rulexe(ruleApp(W, Sys), emptyMSF) .
  op $rulexe : Map{System,Float} Map{System,Float} -> Map{System,Float} .
  eq $rulexe(emptyMSF, RS) = RS .
-ceq $rulexe( Sys <-| F ; SF, RS ; Sys' <-| R) = $rulexe(SF, RS ; Sys' <-| R + F ) if Sys' := normalize(Sys) .
- eq $rulexe( Sys <-| F ; SF, RS) = $rulexe(SF, RS ; normalize(Sys) <-| F) [owise] .
+ceq $rulexe( Sys |-> F ; SF, RS ; Sys' |-> R) = $rulexe(SF, RS ; Sys' |-> R + F ) if Sys' := normalize(Sys) .
+ eq $rulexe( Sys |-> F ; SF, RS) = $rulexe(SF, RS ; normalize(Sys) |-> F) [owise] .
 
 *** application of all (injective) rules 
  vars Z Y : Set{String} .
