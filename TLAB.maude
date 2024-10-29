@@ -9,10 +9,10 @@ fmod TLAB is
  var P  : Nat .  
  op t : String Float Nat -> Tlab [ctor] . 
  op tag :  Tlab  -> String .
- op policy : Tlab  -> Nat .
+ op pol : Tlab  -> Nat .
  op rate : Tlab  -> Float .
  eq tag (t(W,R,P))    =  W .
- eq policy(t(W,R,P))  =  P .
+ eq pol(t(W,R,P))  =  P .
  eq rate(t(W,R,P))    =  R .
 
 endfm
