@@ -12,3 +12,7 @@ endm
 view System from TRIV to SPN-SYS is 
  sort Elt to System .
 endv
+
+view Net from TRIV to SPN-SYS is 
+  sort Elt to Net .
+endv

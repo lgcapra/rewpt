@@ -33,6 +33,10 @@ fmod SPN is
   eq pol(T) = pol(l(T)) .
 endfm
 
-view Spn from TRIV to SPN is 
+view System from TRIV to SPN is 
  sort Elt to System . 
+endv
+
+view Net from TRIV to SPN is 
+ sort Elt to Net . 
 endv

@@ -15,10 +15,10 @@ mod PT-EXE is
  var E : Nat .
  var Q : Tmatrix .
 
- eq net =  t("1", 0.5, 0) |-> [1 . p(1) + 1 . p(3), 1 . p(2) + 1 . p(3), nilP] ;
-           t("1", 0.4, 0) |-> [2 . p(1) , 1 . p(1) + 1 . p(2), nilP] ; 
-           t("3", 1.0, 1) |-> [1 . p(3), nilP, nilP] ;
-           t("4", 2.0, 1) |-> [1 . p(2) , 1 . p(1), nilP] .
+ eq net =  t("a", 0.5, 0) |-> [1 . p(1) + 1 . p(3), 1 . p(2) + 1 . p(3), nilP] ;
+           t("a", 0.4, 0) |-> [2 . p(1) , 1 . p(1) + 1 . p(2), nilP] ; 
+           t("b", 1.0, 1) |-> [1 . p(3), nilP, nilP] ;
+           t("c", 2.0, 1) |-> [1 . p(2) , 1 . p(1), nilP] .
 
  eq m0  = 2 . p(1) +  1 . p(3) .
 
@@ -30,7 +30,7 @@ mod PT-EXE is
  crl [agg] :  (N ; T ; T')  M  =>  (N ; aggregate(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E))) M 
       if E := pol(T) /\ E = pol(T') /\ O(q(T)) = I(q(T')) /\ enabled(T', M) = false /\ r := rate(T) /\ r' := rate(T') /\ aggRate:Float := 0.05 .
 
- crl [selftoinh-inj] : L |-> [1 . P + B, 1 . P + B', nilP] => L |-> [B, B', 1 . P] if selftoinhRate:Float := 0.01 . *** Net type rule is injective and has constant rate
+ *** crl [selftoinh-inj] : L |-> [1 . P + B, 1 . P + B', nilP] => L |-> [B, B', 1 . P] if selftoinhRate:Float := 0.01 . *** Net type rule is injective and has constant rate
 
  crl [fold] : L |-> Q ; L' |-> Q  =>  t(tag(L) + "-" + tag(L'),  rate(L) + rate(L'), E) |-> Q
       if E := pol(L) /\ E = pol(L') /\ foldRate:Float := 0.02 . *** Net type rule
