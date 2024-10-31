@@ -70,7 +70,7 @@ ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if enabled(T, 
  op merge : Tran  Tran L$Elt -> Tran .
  eq merge(T, T', L) = L |-> q(T) + q(T') .
  *** aggregates two transitions by assigning the resulting one the specified label
- op aggregate : Tran  Tran L$Elt -> Tran .
-ceq aggregate(T, T', L) = L |-> [I(Q), O(Q'), H(Q) + H(Q')] if Q := q(T) /\ Q' := q(T') .
+ op aggr : Tran  Tran L$Elt -> Tran .
+ceq aggr(T, T', L) = L |-> [I(Q), O(Q'), H(Q) + H(Q')] if Q := q(T) /\ Q' := q(T') .
 
 endfm

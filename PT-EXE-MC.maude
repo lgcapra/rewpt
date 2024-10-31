@@ -5,10 +5,12 @@ fmod PT-EXE is
  pr MATCH-CLASS{Net} .
  pr MATCH-CLASS{System} .
  pr MATCH-CLASS{Pbag} .
+ pr MATCH-CLASS{Tlab} .
+ pr MATCH-CLASS{Tmatrix} .
  pr SET+{Pair{Matches,System}} * (op <_;_> : Matches System -> Pair{Matches,System} to _-->_, 
-                                  op emptyS : -> Set{Pair{Matches,System}} to noMatchPair) .
- pr SET+{Pair{Matches,Net}} * (op <_;_> : Matches Net -> Pair{Matches,Net} to _-->_, 
-                                  op emptyS : -> Set{Pair{Matches,Net}} to noMatchPair) .
+                                  op emptyS : -> Set{Pair{Matches,System}} to noMatchPairS) .
+ *** pr SET+{Pair{Matches,Net}} * (op <_;_> : Matches Net -> Pair{Matches,Net} to _-->_, 
+ ***                                 op emptyS : -> Set{Pair{Matches,Net}} to noMatchPairN) .
  *** pr MAP+{Pbag,Float} * (op emptyM to  emptyMTR) .
     
  var P : Place .
@@ -18,6 +20,7 @@ fmod PT-EXE is
  vars S S' : System .
  var H : Matches .
  var X : Set{Pair{Matches,System}} .
+ *** var Z : Set{Pair{Matches,Net}} .
  var W : String .
  var E : Nat .
  vars r r' : Float .
@@ -36,35 +39,33 @@ fmod PT-EXE is
 
   *** encoding of firing rule matches: STESSA struttura per ogni regola
   op firing-matches : System -> Set{Pair{Matches,System}} .
-  eq firing-matches(S) = $firing-matches(S, noMatchPair) .
+  eq firing-matches(S) = $firing-matches(S, noMatchPairS) .
   op $firing-matches : System Set{Pair{Matches,System}} -> Set{Pair{Matches,System}} .
   ceq $firing-matches(S, X) = $firing-matches(S,  (N & T & M  --> S')  U X) if (T ; N) M := S /\ enabled(T, M) /\ 
          S' := (T ; N) firing(T, M)  /\  (N & T & M  --> S') in X = false /\ Rate:Float := firing-rate(T, M) .
   eq $firing-matches(S, X) = X [owise] .
   *** merge rule
   op merge-matches : System -> Set{Pair{Matches,System}} [memo].
-  eq merge-matches(S) = $merge-matches(S, noMatchPair) .
+  eq merge-matches(S) = $merge-matches(S, noMatchPairS) .
   op $merge-matches : System Set{Pair{Matches,System}} -> Set{Pair{Matches,System}} .
   ceq $merge-matches(S, X) = $merge-matches(S, (N & T , T' & M  --> S')  U X)  if (N ; T ; T') M := S /\ W := tag(T) /\ W = tag(T') /\ E := pol(T) /\
         E = pol(T') /\ enabled(T, M) = enabled(T', M) /\ S' := (N ; merge(T, T', t(W, rate(T) + rate(T'), E))) M  /\ (N & T , T' & M --> S') in X = false /\ Rate:Float := 0.02 .
   eq $merge-matches(S, X) = X [owise] .
   *** agg rule
-  op agg-matches : System -> Set{Pair{Matches,System}} .
-  eq agg-matches(S) = $agg-matches(S, noMatchPair) .
-  op $agg-matches : System Set{Pair{Matches,System}} -> Set{Pair{Matches,System}} .
-  ceq $agg-matches(S, X) = $agg-matches(S,  (N & T & T' & M  --> S')  U X) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ O(q(T)) = I(q(T')) /\ enabled(T', M) = false /\ 
-       r := rate(T) /\ r' := rate(T')  /\ S' := (N ; aggregate(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E))) M  /\ (N & T & M  --> S') in X = false /\ Rate:Float := 0.05 . 
-  eq $agg-matches(S, X) = X [owise] .
+  op aggr-matches : System -> Set{Pair{Matches,System}} .
+  eq aggr-matches(S) = $aggr-matches(S, noMatchPairS) .
+  op $aggr-matches : System Set{Pair{Matches,System}} -> Set{Pair{Matches,System}} .
+  ceq $aggr-matches(S, X) = $aggr-matches(S,  (N & T & T' & M  --> S')  U X) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ O(q(T)) = I(q(T')) /\ enabled(T', M) = false /\ 
+       r := rate(T) /\ r' := rate(T')  /\ S' := (N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E))) M  /\ (N & T & M  --> S') in X = false /\ Rate:Float := 0.05 . 
+  eq $aggr-matches(S, X) = X [owise] .
   
   *** fold rule (Net portion)
-  *** crl [fold] : L |-> Q ; L' |-> Q  =>  t(tag(L) + "-" + tag(L'),  rate(L) + rate(L'), E) |-> Q
-  ***    if E := pol(L) /\ E = pol(L') /\ foldRate:Float := 0.02 . *** Net type rule
-  op fold-matches : Net -> Set{Pair{Matches,Net}} [memo].
-  eq fold-matches(S) = $fold-matches(S, noMatchPair) .
-  op $fold-matches : Net Set{Pair{Matches,Net}} -> Set{Pair{Matches,Net}} .
-  ceq $fold-matches(S, X) = $fold-matches(S, (N & T , T' & M  --> S')  U X)  if (N ; T ; T') M := S /\ W := tag(T) /\ W = tag(T') /\ E := pol(T) /\
-        E = pol(T') /\ enabled(T, M) = enabled(T', M) /\ S' := (N ; fold(T, T', t(W, rate(T) + rate(T'), E))) M  /\ (N & T , T' & M --> S') in X = false /\ Rate:Float := 0.02 .
-  eq $fold-matches(S, X) = X [owise] .
+  *** op fold-matches : Net -> Set{Pair{Matches,Net}} [memo].
+  *** eq fold-matches(N) = $fold-matches(N, noMatchPairN) .
+  *** op $fold-matches : Net Set{Pair{Matches,Net}} -> Set{Pair{Matches,Net}} .
+  *** ceq $fold-matches(N, Z) = $fold-matches(N, (L & L' & Q  --> N')  U Z)  if L |-> Q ; L' |-> Q := N  /\ E := pol(L) /\
+  ***       E = pol(L') /\ N' := t(tag(L) + "-" + tag(L'),  rate(L) + rate(L'), E) |-> Q  /\ (L & L' & Q  --> N') in Z = false /\ Rate:Float := 0.02 .
+  *** eq $fold-matches(N, Z) = Z [owise] .
 
 endfm
 
