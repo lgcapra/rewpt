@@ -4,8 +4,11 @@ in SPN
 *** Stochastic Petri Net plus firing rule
 
 mod SPN-SYS is
-  inc PT-SYS{Tlab} .
-  inc SPN .
+ inc SPN .
+ var M : Pbag . 
+ var T : Tran .
+ vars N N' : Net .
+ crl [firing] : N M => N firing(T, M) if T ; N' := N  /\ enabled(T, M) /\ R:Float := firing-rate(T, M) .
 endm
 
 *** trivial view to PT-SYS (careful: same name as the view to PT-SYS)

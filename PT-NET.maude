@@ -26,10 +26,8 @@ fmod PT-NET{L :: TRIV} is
  eq l(L |-> Q) = L .
  eq q(L |-> Q) = Q .
  
- 
  eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** transitions not changing the marking are erased
 ceq L |-> [K . P + I, O, K' . P + H] = emptyNet if K >= K' [metadata "dead t"] . *** structurally dead transition are erased
-
 
  op enabled : Tran Pbag -> Bool .
  eq enabled(L |-> [I,O,H], M) = I <= M and-then H > M . 

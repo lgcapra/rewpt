@@ -1,0 +1,20 @@
+mod SPN-STATE-TRAN-SYS is
+  inc SPN-STATE-TRAN . 
+  vars N N'  : Net .
+  var S : System .
+  var RM : Set{Rate{Pbag}} .
+  var RN : Set{Rate{Net}} .
+  var RS : Set{Rate{System}} .
+  var R :  Float .
+  vars M M' : Pbag .
+  
+ *** rewrites that modify the marking
+ rl [M-rew] : NET: N M: M REWM: (RM U M' : R) REWN: RN REWS: RS => toStateTran(N M') .
+
+ *** rewrites that modify the net
+ rl [N-rew] : NET: N M: M REWM: RM REWN: (RN U N' : R) REWS: RS => toStateTran(N' M) . 
+
+ *** rewrites that modify the whole system
+rl [S-rew] : NET: N M: M REWM: RM REWN: RN REWS: (RS U S : R) => toStateTran(S) .
+endm
+

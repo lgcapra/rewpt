@@ -1,0 +1,74 @@
+*** state-transition representation for SPN pointing out state-transitions due to rewrite rules 
+in SPN
+in MATCH
+
+fmod STATE-TRAN{X :: TRIV} is
+   pr MATCHES .
+   pr FLOAT .
+   pr PAIR{X,Float} * (sort Pair{X,Float} to Rate{X}, op <_;_> to _:_, op 1st to target, op 2nd to rate) .
+   
+   sort StateTran{X} .
+   var M : Matches . var X : X$Elt . var F : Float .
+   op _-->_ : Matches Rate{X} -> StateTran{X} [ctor prec 50] .
+   *** getters
+   op match  : StateTran{X} -> Matches .
+   eq match(M --> X : F) = M . 
+   op target : StateTran{X} -> X$Elt .
+   eq target(M --> X : F) = X . 
+   op rate   : StateTran{X} -> Float .
+   eq rate(M --> X : F) = F . 
+endfm
+
+view StateTran{X :: TRIV} from TRIV to STATE-TRAN{X} is 
+   sort Elt to StateTran{X} . 
+endv
+
+view Rate{X :: TRIV} from TRIV to STATE-TRAN{X} is 
+   sort Elt to Rate{X} . 
+endv
+
+fmod STATE-TRAN-RATE{X :: TRIV} is
+   pr SET+{StateTran{X}}  * (op emptyS : -> Set{StateTran{X}} to noStateTran) .
+   pr SET+{Rate{X}} * (op emptyS : -> Set{Rate{X}} to noRate) .
+   var ST : Set{StateTran{X}} . var SR : Set{Rate{X}} .
+   var T : StateTran{X} . var X : X$Elt . var F : Float .
+   op cumrate : Set{StateTran{X}} ->  Set{Rate{X}} .
+   eq cumrate(ST) = $cumrate(ST, noRate) .
+   op $cumrate : Set{StateTran{X}} Set{Rate{X}} -> Set{Rate{X}} .
+  ceq $cumrate(T U ST, (X : F) U SR ) = $cumrate(ST, (X : F + rate(T)) U SR ) if target(T) = X .
+   eq $cumrate(T U ST, SR ) = $cumrate(ST, (target(T) : rate(T)) U SR ) [owise] .
+   eq $cumrate(noStateTran, SR ) = SR .
+endfm
+
+fmod SPN-STATE-TRAN is 
+  pr STATE-TRAN-RATE{System} * (op noStateTran to noStateTranS,  op noRate to noRateS) .
+  pr STATE-TRAN-RATE{Net} * (op noStateTran to noStateTranN,  op noRate to noRateN) .
+  pr STATE-TRAN-RATE{Pbag} * (op noStateTran to noStateTranM,  op noRate to noRateM) .
+
+  sort StateTranSys .
+  var T  : Tran .
+  var N  : Net .
+  var RM : Set{Rate{Pbag}} .
+  var RN : Set{Rate{Net}} .
+  var RS : Set{Rate{System}} .
+  var R :  Float .
+  vars M M' : Pbag .
+  
+  *** System description pointing out state-transitions
+  op NET:_ M:_ REWM:_REWN:_REWS:_ : Net Pbag Set{Rate{Pbag}} Set{Rate{Net}} Set{Rate{System}} -> StateTranSys [ctor] .
+  *** getters
+  op net : StateTranSys -> Net .
+  eq net(NET: N M: M REWM: RM REWN: RN REWS: RS) = N .
+  op m : StateTranSys -> Pbag .
+  eq m(NET: N M: M REWM: RM REWN: RN REWS: RS) = M .
+  op rewN : StateTranSys -> Set{Rate{Net}} .
+  eq rewN(NET: N M: M REWM: RM REWN: RN REWS: RS) = RN .
+  op rewM : StateTranSys -> Set{Rate{Pbag}} .
+  eq rewM(NET: N M: M REWM: RM REWN: RN REWS: RS) = RM .
+  op rewS : StateTranSys -> Set{Rate{System}} .
+  eq rewS(NET: N M: M REWM: RM REWN: RN REWS: RS) = RS .
+  
+  *** the other way round
+  op toSystem : StateTranSys -> System .
+  eq toSystem(NET: N M: M REWM: RM REWN: RN REWS: RS) = N M .
+endfm

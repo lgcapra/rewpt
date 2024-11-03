@@ -1,0 +1,24 @@
+fmod MATCH is
+  sort Match .
+endfm
+
+view Match from TRIV to MATCH is 
+ sort Elt to Match . 
+endv
+
+fmod MATCH-CLASS{X :: TRIV} is
+  pr MATCH .
+  sorts MatchGroup{X} MatchClass{X} .
+  subsort X$Elt < MatchGroup{X}  .
+  subsort MatchClass{X} < Match .
+  op _,_ : MatchGroup{X} MatchGroup{X} -> MatchGroup{X} [ctor assoc comm prec  21] .
+  op {_} : MatchGroup{X} -> MatchClass{X} [ctor prec 22 ] .
+endfm
+
+fmod MATCHES is
+  pr LIST{Match} * (sort List{Match} to Matches, sort NeList{Match} to NeMatches, op __ to _&_, op nil to emptyMatch) .
+endfm
+
+view Matches from TRIV to MATCHES is 
+ sort Elt to Matches . 
+endv
