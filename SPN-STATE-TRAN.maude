@@ -2,6 +2,7 @@
 in SPN
 in MATCH
 
+*** this module defines "triplets" (sort StateTran{X}) composed of a match and a pair (sort Rate{X}) built of a target state (sort X$elt) and a rate
 fmod STATE-TRAN{X :: TRIV} is
    pr MATCHES .
    pr FLOAT .
@@ -19,6 +20,8 @@ fmod STATE-TRAN{X :: TRIV} is
    eq rate(M --> X : F) = F . 
 endfm
 
+*** views to STATE-TRAN
+
 view StateTran{X :: TRIV} from TRIV to STATE-TRAN{X} is 
    sort Elt to StateTran{X} . 
 endv
@@ -27,6 +30,7 @@ view Rate{X :: TRIV} from TRIV to STATE-TRAN{X} is
    sort Elt to Rate{X} . 
 endv
 
+*** this module provides an operator to calculate the cumulative rates from a set of StateTran (i.e, triplets defining each a state transition given a match)
 fmod STATE-TRAN-RATE{X :: TRIV} is
    pr SET+{StateTran{X}}  * (op emptyS : -> Set{StateTran{X}} to noStateTran) .
    pr SET+{Rate{X}} * (op emptyS : -> Set{Rate{X}} to noRate) .
@@ -40,12 +44,14 @@ fmod STATE-TRAN-RATE{X :: TRIV} is
    eq $cumrate(noStateTran, SR ) = SR .
 endfm
 
+*** this module defines the syntax of the redundant state representation used for extracting a CTMC from a rewritable SPN
+*** for convenience, three different state-transitions are defined: those changing the marking, the net structure, and both of them 
 fmod SPN-STATE-TRAN is 
   pr STATE-TRAN-RATE{System} * (op noStateTran to noStateTranS,  op noRate to noRateS) .
   pr STATE-TRAN-RATE{Net} * (op noStateTran to noStateTranN,  op noRate to noRateN) .
   pr STATE-TRAN-RATE{Pbag} * (op noStateTran to noStateTranM,  op noRate to noRateM) .
 
-  sort StateTranSys .
+  sort SpnStateTran .
   var T  : Tran .
   var N  : Net .
   var RM : Set{Rate{Pbag}} .
@@ -54,21 +60,21 @@ fmod SPN-STATE-TRAN is
   var R :  Float .
   vars M M' : Pbag .
   
-  *** System description pointing out state-transitions
-  op NET:_ M:_ REWM:_REWN:_REWS:_ : Net Pbag Set{Rate{Pbag}} Set{Rate{Net}} Set{Rate{System}} -> StateTranSys [ctor] .
+  *** System (SPN) description pointing out state-transitions
+  op NET:_ M:_ REWM:_REWN:_REWS:_ : Net Pbag Set{Rate{Pbag}} Set{Rate{Net}} Set{Rate{System}} -> SpnStateTran [ctor  format (n d n d n d n d n d d)] .
   *** getters
-  op net : StateTranSys -> Net .
+  op net : SpnStateTran -> Net .
   eq net(NET: N M: M REWM: RM REWN: RN REWS: RS) = N .
-  op m : StateTranSys -> Pbag .
+  op m : SpnStateTran -> Pbag .
   eq m(NET: N M: M REWM: RM REWN: RN REWS: RS) = M .
-  op rewN : StateTranSys -> Set{Rate{Net}} .
+  op rewN : SpnStateTran -> Set{Rate{Net}} .
   eq rewN(NET: N M: M REWM: RM REWN: RN REWS: RS) = RN .
-  op rewM : StateTranSys -> Set{Rate{Pbag}} .
+  op rewM : SpnStateTran -> Set{Rate{Pbag}} .
   eq rewM(NET: N M: M REWM: RM REWN: RN REWS: RS) = RM .
-  op rewS : StateTranSys -> Set{Rate{System}} .
+  op rewS : SpnStateTran -> Set{Rate{System}} .
   eq rewS(NET: N M: M REWM: RM REWN: RN REWS: RS) = RS .
   
-  *** the other way round
-  op toSystem : StateTranSys -> System .
+  *** provides the usual description
+  op toSystem : SpnStateTran -> System .
   eq toSystem(NET: N M: M REWM: RM REWN: RN REWS: RS) = N M .
 endfm

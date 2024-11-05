@@ -1,10 +1,10 @@
+in SPN-EXE
 in SPN-STATE-TRAN
 
+*** this module re-defines the SPN example using the redundant state description used to derive a CTMC
 fmod SPN-MC-EXE is
  pr SPN-EXE .
- pr MATCH-CLASS{Net} .
- pr MATCH-CLASS{System} .
- pr MATCH-CLASS{Pbag} .
+ pr SPN-MC .
  pr MATCH-CLASS{Tlab} .
  pr MATCH-CLASS{Tmatrix} .
  pr SPN-STATE-TRAN .
@@ -21,38 +21,30 @@ fmod SPN-MC-EXE is
  var X : Set{StateTran{System}} .
  var Z : Set{StateTran{Net}} .
  var Y : Set{StateTran{Pbag}} .
- 
-  var XM : Matches .
-  *** encoding of rule matches: STESSA struttura per ogni regola
-  *** op firing-matches : System -> Set{StateTran{System}}  .
-  *** eq firing-matches(S) = $firing-matches(S, noStateTranS) .
-  *** op $firing-matches : System Set{StateTran{System}} -> Set{StateTran{System}} .
-  *** ceq $firing-matches(S, X) = $firing-matches(S,  (XM  --> S' : R)  U X) if (T ; N) M := S /\ enabled(T, M) /\ 
-      ***    S' := (T ; N) firing(T, M)  /\ R := firing-rate(T, M) /\  XM := {N} & {T} & {M} /\ (XM  --> S' : R) in X = false .
-  *** eq $firing-matches(S, X) = X [owise] .
-  *** OTTIMIZZATO
-  op firing-matches : System -> Set{StateTran{Pbag}}  .
-  eq firing-matches(S) = $firing-matches(S, noStateTranM) .
-  op $firing-matches : System Set{StateTran{Pbag}} -> Set{StateTran{Pbag}} .
-  ceq $firing-matches(S, Y) = $firing-matches(S,  (XM  --> M' : R)  U Y) if (T ; N) M := S /\ enabled(T, M) /\ 
-         M' := firing(T, M)  /\ R := firing-rate(T, M) /\  XM := {N} & {T} & {M} /\ (XM  --> M' : R) in Y = false .
-  eq $firing-matches(S, Y) = Y [owise] .
+ var XM : Matches .
 
-  *** merge rule
-  op merge-matches : System -> Set{StateTran{System}} [memo].
-  eq merge-matches(S) = $merge-matches(S, noStateTranS) .
-  op $merge-matches : System Set{StateTran{System}} -> Set{StateTran{System}} .
-  ceq $merge-matches(S, X) = $merge-matches(S, (XM  --> S' : R)  U X)  if (N ; T ; T') M := S /\ W := tag(T) /\ W = tag(T') /\ E := pol(T) /\
-        E = pol(T') /\ enabled(T, M) = enabled(T', M) /\ S' := (N ; merge(T, T', t(W, rate(T) + rate(T'), E))) M  /\ R := 0.02 /\ XM := {N} & {T , T'} & {M} /\ (XM --> S' : R) in X = false .
-  eq $merge-matches(S, X) = X [owise] .
+  *** encoding of rules defined in SPN-EXE-SYS
+  *** merge rule (optimized considering that the marking is not affected)
+  op merge-matches : System -> Set{StateTran{Net}} [memo].
+  eq merge-matches(S) = $merge-matches(S, noStateTranN) .
+  op $merge-matches : System Set{StateTran{Net}} -> Set{StateTran{Net}} .
+  ceq $merge-matches(S, Z) = $merge-matches(S, (XM  --> N' : R)  U Z)  if (N ; T ; T') M := S /\ W := tag(T) /\ W = tag(T') /\ E := pol(T) /\
+        E = pol(T') /\ enabled(T, M) = enabled(T', M) /\ N' := N ; merge(T, T', t(W, rate(T) + rate(T'), E))  /\ R := 0.02 /\ XM := {N} & {T , T'} & {M} /\ (XM --> N' : R) in Z = false .
+  eq $merge-matches(S, Z) = Z [owise] .
+  *** op merge-matches : System -> Set{StateTran{System}} [memo].
+  *** eq merge-matches(S) = $merge-matches(S, noStateTranS) .
+  *** op $merge-matches : System Set{StateTran{System}} -> Set{StateTran{System}} .
+  *** ceq $merge-matches(S, X) = $merge-matches(S, (XM  --> S' : R)  U X)  if (N ; T ; T') M := S /\ W := tag(T) /\ W = tag(T') /\ E := pol(T) /\
+  ***       E = pol(T') /\ enabled(T, M) = enabled(T', M) /\ S' := (N ; merge(T, T', t(W, rate(T) + rate(T'), E))) M  /\ R := 0.02 /\ XM := {N} & {T , T'} & {M} /\ (XM --> S' : R) in X = false .
+  *** eq $merge-matches(S, X) = X [owise] .
   
-  *** agg rule
-  op aggr-matches : System -> Set{StateTran{System}} .
-  eq aggr-matches(S) = $aggr-matches(S, noStateTranS) .
-  op $aggr-matches : System Set{StateTran{System}} -> Set{StateTran{System}} .
-  ceq $aggr-matches(S, X) = $aggr-matches(S,  (XM  --> S' : R)  U X) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ O(q(T)) = I(q(T')) /\ enabled(T', M) = false /\ 
-       r := rate(T) /\ r' := rate(T')  /\ S' := (N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E))) M   /\ R := 0.05 /\ XM := {N} & {T , T'} & {M} /\ (XM  --> S' : R) in X = false . 
-  eq $aggr-matches(S, X) = X [owise] .
+  *** aggr rule (optimized)
+  op aggr-matches : System -> Set{StateTran{Net}} .
+  eq aggr-matches(S) = $aggr-matches(S, noStateTranN) .
+  op $aggr-matches : System Set{StateTran{Net}} -> Set{StateTran{Net}} .
+  ceq $aggr-matches(S, Z) = $aggr-matches(S,  (XM  --> N' : R)  U Z) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ O(q(T)) = I(q(T')) /\ enabled(T', M) = false /\ 
+       r := rate(T) /\ r' := rate(T')  /\ N' := N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E))   /\ R := 0.05 /\ XM := {N} & {T , T'} & {M} /\ (XM  --> N' : R) in Z = false . 
+  eq $aggr-matches(S, Z) = Z [owise] .
   
   *** fold rule (Net portion)
   op fold-matches : Net -> Set{StateTran{Net}} [memo].
@@ -62,13 +54,17 @@ fmod SPN-MC-EXE is
          E = pol(L') /\ N' := N'' ; t("fold" ,  rate(L) + rate(L'), E) |-> Q  /\ R := 0.02 /\ XM := {N''} & {L , L'} & {Q} /\ (XM  --> N' : R) in Z = false  .
   eq $fold-matches(N, Z) = Z [owise] .
 
-  *** calculate the cumulative state-transition rates
+  *** calculate the cumulative state-transition rates (anche questi dovrebbero essere fattorizzati)
   op allRewM : System -> Set{Rate{Pbag}} .
   eq allRewM(S) = cumrate(firing-matches(S)) . 
   op allRewN : System -> Set{Rate{Net}} .
-  eq allRewN(N M) = cumrate(fold-matches(N)) .
+  eq allRewN(S) = cumrate(fold-matches(n(S)) U merge-matches(S) U aggr-matches(S)) .
   op allRewS : System -> Set{Rate{System}} .
-  eq allRewS(S) = cumrate(aggr-matches(S) U merge-matches(S)) .
+  eq allRewS(S) = cumrate(noStateTranS) .
+
+  *** Core operator:passes from the usual SPN representation to the redundant (point out state transitions) used to derive the CTM
+  op toStateTran : System -> SpnStateTran .
+  eq toStateTran(N M) = NET: N M: M REWM: allRewM(N M) REWN: allRewN(N M) REWS: allRewS(N M) . *** very intuitive
 
 endfm
 
