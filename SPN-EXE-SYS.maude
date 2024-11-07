@@ -8,7 +8,7 @@ mod SPN-EXE-SYS is
  vars L L' : Tlab .
  vars T T' : Tran .
  var P : Place .
- vars B B' M : Pbag  .
+ vars B B' M I O : Pbag  .
  vars r r' : Float .
  var N : Net .
  var W : String .
@@ -18,16 +18,23 @@ mod SPN-EXE-SYS is
  *** example of rewrites (other than firing)
 
  crl [merge] : (N ; T ; T')  M  =>  (N ; merge(T, T', t(W, rate(T) + rate(T'), E))) M 
-       if W := tag(T) /\ W = tag(T')  /\ E := pol(T) /\ E = pol(T') /\ enabled(T, M) = enabled(T', M) /\ mergeRate:Float := 0.02 .
+      if W := tag(T) /\ W = tag(T')  /\ E := pol(T) /\ E = pol(T') /\ enabled(T, M) = enabled(T', M) /\ mergeRate:Float := 0.02 .
 
- crl [aggr] :  (N ; T ; T')  M  =>  (N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E))) M 
-       if E := pol(T) /\ E = pol(T') /\ O(q(T)) = I(q(T')) /\ enabled(T', M) = false /\ r := rate(T) /\ r' := rate(T') /\ aggrRate:Float := 0.05 .
 
- *** example of "local" rule
+crl [aggr] :  (N ; T ; T')  M  =>  (N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E))) M 
+       if E := pol(T) /\ E = pol(T') /\ enabled(T', M) = false /\ I := I(q(T')) /\ O := O(q(T)) /\ O = I  /\
+       intersection(support(I), support(I(q(T)) + H(q(T))) U support(O(q(T')) + H(q(T'))) U places(N)) == emptyPset /\  
+       r := rate(T) /\ r' := rate(T') /\ aggrRate:Float := 0.05 .
+
+
+ *** examples of "local" rules
  crl [fold] : L |-> Q ; L' |-> Q  =>  t("fold", rate(L) + rate(L'), E) |-> Q
-       if E := pol(L) /\ E = pol(L') /\ foldRate:Float := 0.02 . *** Net type rule
+      if E := pol(L) /\ E = pol(L') /\ foldRate:Float := 0.02 . *** Net type rule
+
+ rl [remnoeffect] : L |-> [B,B,B'] => emptyNet . *** removes null-effect transitions 
 
  *** example of rule not satisfying coherence
- rl [incoherent] : (N ; T ; T' ; merge(T, T', l(T))) M => (N ; T ; T')  M . *** does not satisfy coherence
+ *** rl [incoherent] : (N ; T ; T' ; merge(T, T', l(T))) M => (N ; T ; T')  M . *** does not satisfy coherence
+ 
 endm
 

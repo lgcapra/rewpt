@@ -6,14 +6,9 @@ fmod PT-NET{L :: TRIV} is
  pr MAP-SET{L,Tmatrix} * (sort Map{L,Tmatrix} to Net, sort Entry{L,Tmatrix} to Tran, op emptyM to emptyNet) .
  sort System .
  
- vars L L' : L$Elt .
- vars T T' : Tran .
- vars N N' : Net .
- vars P P' : Place .
- vars M I O H : Pbag .
- vars K K'  : NzNat .
- vars Q Q' : Tmatrix .
- var  S : Pset .
+ vars L L' : L$Elt . vars T T' : Tran . vars N N' : Net .
+ vars P P' : Place . vars M I O H : Pbag . vars K K'  : NzNat .
+ vars Q Q' : Tmatrix . var  S : Pset .
  
  op __ : Net Pbag -> [System] [ctor] .
  cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty"
@@ -26,8 +21,9 @@ fmod PT-NET{L :: TRIV} is
  eq l(L |-> Q) = L .
  eq q(L |-> Q) = Q .
  
- eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** transitions not changing the marking are erased
-ceq L |-> [K . P + I, O, K' . P + H] = emptyNet if K >= K' [metadata "dead t"] . *** structurally dead transition are erased
+ *** eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** removes transitions not changing the marking
+*** ceq L |-> [K . P + I, O, K' . P + H] = emptyNet if K >= K' [metadata "dead t"] . *** removes structurally dead transitions
+ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places
 
  op enabled : Tran Pbag -> Bool .
  eq enabled(L |-> [I,O,H], M) = I <= M and-then H > M . 

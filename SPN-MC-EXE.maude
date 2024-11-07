@@ -1,5 +1,5 @@
 in SPN-EXE
-in SPN-STATE-TRAN
+in SPN-MC
 
 *** this module re-defines the SPN example using the redundant state description used to derive a CTMC
 fmod SPN-MC-EXE is
@@ -8,16 +8,9 @@ fmod SPN-MC-EXE is
  pr MATCH-CLASS{Tlab} .
  pr MATCH-CLASS{Tmatrix} .
  pr SPN-STATE-TRAN .
- var P : Place .
- vars T T' : Tran .
- vars B  B' M  M' : Pbag  .
- vars N N' N'' : Net .
- vars S S' : System .
- vars R r r' : Float .
- vars L L' : Tlab .
- var Q : Tmatrix .
- var W : String .
- var E : Nat .
+ var P : Place . vars T T' : Tran . vars B  B' M  M' I O : Pbag  .
+ vars N N' N'' : Net . vars S S' : System . vars R r r' : Float .
+ vars L L' : Tlab . var Q : Tmatrix . var W : String . var E : Nat .
  var X : Set{StateTran{System}} .
  var Z : Set{StateTran{Net}} .
  var Y : Set{StateTran{Pbag}} .
@@ -42,8 +35,10 @@ fmod SPN-MC-EXE is
   op aggr-matches : System -> Set{StateTran{Net}} .
   eq aggr-matches(S) = $aggr-matches(S, noStateTranN) .
   op $aggr-matches : System Set{StateTran{Net}} -> Set{StateTran{Net}} .
-  ceq $aggr-matches(S, Z) = $aggr-matches(S,  (XM  --> N' : R)  U Z) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ O(q(T)) = I(q(T')) /\ enabled(T', M) = false /\ 
-       r := rate(T) /\ r' := rate(T')  /\ N' := N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E))   /\ R := 0.05 /\ XM := {N} & {T , T'} & {M} /\ (XM  --> N' : R) in Z = false . 
+  ceq $aggr-matches(S, Z) = $aggr-matches(S,  (XM  --> N' : R)  U Z) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ enabled(T', M) = false /\
+     I := I(q(T')) /\ O := O(q(T)) /\ O = I /\ intersection(support(I), support(I(q(T)) + H(q(T))) U support(O(q(T')) + H(q(T'))) U places(N)) == emptyPset /\
+     r := rate(T) /\ r' := rate(T')  /\ N' := N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E)) /\
+     R := 0.05 /\ XM := {N} & {T , T'} & {M} /\ (XM  --> N' : R) in Z = false . 
   eq $aggr-matches(S, Z) = Z [owise] .
   
   *** fold rule (Net portion)
@@ -54,11 +49,21 @@ fmod SPN-MC-EXE is
          E = pol(L') /\ N' := N'' ; t("fold" ,  rate(L) + rate(L'), E) |-> Q  /\ R := 0.02 /\ XM := {N''} & {L , L'} & {Q} /\ (XM  --> N' : R) in Z = false  .
   eq $fold-matches(N, Z) = Z [owise] .
 
+  *** remnull rule (Net portion)
+  op remnull-matches : Net -> Set{StateTran{Net}} [memo].
+  eq remnull-matches(N) = $remnull-matches(N, noStateTranN) .
+  op $remnull-matches : Net Set{StateTran{Net}} -> Set{StateTran{Net}} .
+  ceq $remnull-matches(N, Z) = $remnull-matches(N, (XM  --> N' : R)  U Z)  if N'' ; L |-> [B,B,B'] := N  /\ R := 100.0 /\ 
+       N' := N'' ; emptyNet /\  XM := {N''} & {B, B'} & {L} /\ (XM  --> N' : R) in Z = false  .
+  eq $remnull-matches(N, Z) = Z [owise] .
+
+
   *** calculate the cumulative state-transition rates (anche questi dovrebbero essere fattorizzati)
   op allRewM : System -> Set{Rate{Pbag}} .
   eq allRewM(S) = cumrate(firing-matches(S)) . 
   op allRewN : System -> Set{Rate{Net}} .
-  eq allRewN(S) = cumrate(fold-matches(n(S)) U merge-matches(S) U aggr-matches(S)) .
+  eq allRewN(S) = cumrate(fold-matches(n(S)) U merge-matches(S) U aggr-matches(S) U remnull-matches(n(S))) .
+  *** eq allRewN(S) = cumrate(noStateTranN) .
   op allRewS : System -> Set{Rate{System}} .
   eq allRewS(S) = cumrate(noStateTranS) .
 
