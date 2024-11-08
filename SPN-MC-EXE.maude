@@ -36,7 +36,7 @@ fmod SPN-MC-EXE is
   eq aggr-matches(S) = $aggr-matches(S, noStateTranN) .
   op $aggr-matches : System Set{StateTran{Net}} -> Set{StateTran{Net}} .
   ceq $aggr-matches(S, Z) = $aggr-matches(S,  (XM  --> N' : R)  U Z) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ enabled(T', M) = false /\
-     I := I(q(T')) /\ O := O(q(T)) /\ O = I /\ intersection(support(I), support(I(q(T)) + H(q(T))) U support(O(q(T')) + H(q(T'))) U places(N)) == emptyPset /\
+     I := I(q(T')) /\ O := O(q(T)) /\ O = I /\ intersection(support(I),  places(N) U support(I(q(T)) + H(q(T)) + M + O(q(T')) + H(q(T')))) == emptyPset /\
      r := rate(T) /\ r' := rate(T')  /\ N' := N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E)) /\
      R := 0.05 /\ XM := {N} & {T , T'} & {M} /\ (XM  --> N' : R) in Z = false . 
   eq $aggr-matches(S, Z) = Z [owise] .

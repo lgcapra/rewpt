@@ -23,7 +23,7 @@ mod SPN-EXE-SYS is
 
 crl [aggr] :  (N ; T ; T')  M  =>  (N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E))) M 
        if E := pol(T) /\ E = pol(T') /\ enabled(T', M) = false /\ I := I(q(T')) /\ O := O(q(T)) /\ O = I  /\
-       intersection(support(I), support(I(q(T)) + H(q(T))) U support(O(q(T')) + H(q(T'))) U places(N)) == emptyPset /\  
+       intersection(support(I),  places(N) U support(I(q(T)) + H(q(T)) + M + O(q(T')) + H(q(T')))) == emptyPset /\  
        r := rate(T) /\ r' := rate(T') /\ aggrRate:Float := 0.05 .
 
 

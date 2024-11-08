@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- This project file has been saved by the New GreatSPN Editor, v.100 --><project name="ExeMaudeMC" version="121">
+  <gspn name="example" show-color-cmd="false" show-fluid-cmd="false" zoom="125">
+    <nodes>
+      <place alt-name-fn="LATEX_TEXT" label-x="2.0" label-y="0.0" marking="2" name="p1" shown-as="p_{1}" x="13.0" y="4.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="2.0" label-y="0.0" name="p2" shown-as="p_{2}" x="13.0" y="18.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" marking="1" name="p3" shown-as="p_{3}" x="20.0" y="4.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" name="p4" shown-as="p_{4}" x="20.0" y="18.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.6" label-x="-2.0" label-y="0.0" name="ta1" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_a" type="EXP" x="13.55" y="11.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="2.0" delay-x="-0.5" delay-y="2.0" name="te" nservers-x="0.5" rotation="3.141592653589793" shown-as="t_e" type="EXP" x="25.55" y="18.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.3" delay-x="-2.0" label-x="-2.0" label-y="0.0" name="ta2" nservers-x="-3.5" rotation="1.5707963267948966" shown-as="t_a" type="EXP" x="7.55" y="11.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay-x="1.0" label-x="2.0" label-y="-0.5" name="tb" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_b" type="EXP" x="20.55" y="11.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.25" delay-x="-1.0" delay-y="1.5" label-x="1.0" name="tc" nservers-x="0.5" rotation="2.356194490192345" shown-as="t_c" type="EXP" x="1.55" y="18.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="3.0" label-x="-1.5" label-y="-1.0" name="td" nservers-x="0.5" rotation="4.71238898038469" shown-as="t_d" type="EXP" x="20.55" y="23.0"/>
+      <place alt-name-fn="LATEX_TEXT" name="p5" shown-as="p_{5}" x="30.0" y="23.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.5" label-x="-2.0" label-y="0.0" name="tf" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_f" type="EXP" x="30.55" y="11.0"/>
+    </nodes>
+    <edges>
+      <arc head="ta1" kind="INPUT" tail="p1"/>
+      <arc head="p2" kind="OUTPUT" tail="ta1"/>
+      <arc head="ta2" kind="INPUT" mult-k="0.6428710937500001" mult-x="0.5" mult-y="0.0" tail="p1"/>
+      <arc head="p2" kind="OUTPUT" tail="ta2"/>
+      <arc head="tb" kind="INPUT" tail="p3"/>
+      <arc head="tc" kind="INPUT" mult="2" mult-x="0.0" mult-y="0.5" tail="p2"/>
+      <arc head="p1" kind="OUTPUT" mult="2" mult-k="1.2874023437499997" mult-x="0.101724623032033" mult-y="0.5" tail="tc">
+        <point x="2.0" y="5.0"/>
+      </arc>
+      <arc head="td" kind="INPUT" tail="p4"/>
+      <arc head="te" kind="INPUT" tail="p4"/>
+      <arc head="p4" kind="OUTPUT" tail="tb"/>
+      <arc head="p5" kind="OUTPUT" tail="td"/>
+      <arc head="p5" kind="OUTPUT" tail="te"/>
+      <arc head="tf" kind="INPUT" tail="p5"/>
+      <arc head="p3" kind="OUTPUT" tail="tf">
+        <point x="31.0" y="5.0"/>
+      </arc>
+      <arc head="ta1" kind="INHIBITOR" tail="p3"/>
+      <arc head="tb" kind="INPUT" mult-k="0.7143554687500001" mult-x="-4.8828125E-4" mult-y="-0.50048828125" tail="p1"/>
+      <arc head="p1" kind="OUTPUT" mult-k="1.21142578125" tail="tf">
+        <point x="31.0" y="2.5"/>
+        <point x="14.0" y="2.5"/>
+      </arc>
+    </edges>
+  </gspn>
+</project>
