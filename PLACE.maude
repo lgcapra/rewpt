@@ -1,11 +1,11 @@
 in PT-NODE
 
-fmod PLACE is
- protecting PT-NODE{Nat} * (sort Node to Place, op n to p, op lab to index) .
+fmod PLACE{L :: TRIV} is
+ protecting PT-NODE{L} * (sort Node to Place, op n to p) . *** we might use Place{L} instead of place
 endfm
 
 
-*** default view
-view Place from TRIV to PLACE is 
+*** default view 
+view Place{X :: TRIV} from TRIV to PLACE{X} is 
  sort Elt to Place . 
 endv

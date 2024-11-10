@@ -49,7 +49,10 @@ endfm
 fmod SPN-STATE-TRAN is 
   pr STATE-TRAN-RATE{System} * (op noStateTran to noStateTranS,  op noRate to noRateS) .
   pr STATE-TRAN-RATE{Net} * (op noStateTran to noStateTranN,  op noRate to noRateN) .
-  pr STATE-TRAN-RATE{Pbag} * (op noStateTran to noStateTranM,  op noRate to noRateM) .
+  pr STATE-TRAN-RATE{Pbag{Nat}} * (sort Rate{Pbag{Nat}} to Rate{Pbag}, sort StateTran{Pbag{Nat}} to StateTran{Pbag},
+            sort Set{Rate{Pbag{Nat}}} to Set{Rate{Pbag}}, sort NeSet{Rate{Pbag{Nat}}} to NeSet{Rate{Pbag}},
+            sort Set{StateTran{Pbag{Nat}}} to Set{StateTran{Pbag}}, sort NeSet{StateTran{Pbag{Nat}}} to NeSet{StateTran{Pbag}}, 
+            op noStateTran to noStateTranM,  op noRate to noRateM) .
 
   sort SpnStateTran .
   var T  : Tran .

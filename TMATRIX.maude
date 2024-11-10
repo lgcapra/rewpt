@@ -1,8 +1,8 @@
 in PBAG
 in TRAN
 
-fmod TMATRIX is
- pr PBAG .
+fmod TMATRIX{L :: TRIV} is
+ pr PBAG{L} .
  sort Tmatrix .
  op [_,_,_] : Pbag Pbag Pbag -> Tmatrix [ctor] .
  
@@ -38,6 +38,6 @@ fmod TMATRIX is
 
 endfm
 
-view Tmatrix from TRIV to TMATRIX is 
+view Tmatrix{L :: TRIV} from TRIV to TMATRIX{L} is 
  sort Elt to Tmatrix . 
 endv

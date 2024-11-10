@@ -4,7 +4,7 @@ in TLAB
 *** Stochastic Petri Net
 
 fmod SPN is
-  pr PT-NET{Tlab} .
+  pr PT-NET{Tlab, Nat} .
   pr CONVERSION .
   vars M M' : Pbag .
   vars P P' : Place . 

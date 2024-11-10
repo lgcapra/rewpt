@@ -2,8 +2,8 @@ in TMATRIX
 in shared/MAP-SET
 
 *** simile a def in modSPT ma elementi invertiti, l e q al posto di t e Q ...
-fmod PT-NET{L :: TRIV} is
- pr MAP-SET{L,Tmatrix} * (sort Map{L,Tmatrix} to Net, sort Entry{L,Tmatrix} to Tran, op emptyM to emptyNet) .
+fmod PT-NET{L :: TRIV, PL :: TRIV} is
+ pr MAP-SET{L,Tmatrix{PL}} * (sort Map{L,Tmatrix{PL}} to Net, sort Entry{L,Tmatrix{PL}} to Tran, op emptyM to emptyNet) .
  sort System .
  
  vars L L' : L$Elt . vars T T' : Tran . vars N N' : Net .

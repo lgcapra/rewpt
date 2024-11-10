@@ -6,7 +6,7 @@ fmod SPN-MC-EXE is
  pr SPN-EXE .
  pr SPN-MC .
  pr MATCH-CLASS{Tlab} .
- pr MATCH-CLASS{Tmatrix} .
+ pr MATCH-CLASS{Tmatrix{Nat}} * (sort MatchGroup{Tmatrix{Nat}} to MatchGroup{Tmatrix}, sort MatchClass{Tmatrix{Nat}} to MatchClass{Tmatrix} ) .
  pr SPN-STATE-TRAN .
  var P : Place . vars T T' : Tran . vars B  B' M  M' I O : Pbag  .
  vars N N' N'' : Net . vars S S' : System . vars R r r' : Float .
@@ -21,10 +21,13 @@ fmod SPN-MC-EXE is
   op merge-matches : System -> Set{StateTran{Net}} [memo].
   eq merge-matches(S) = $merge-matches(S, noStateTranN) .
   op $merge-matches : System Set{StateTran{Net}} -> Set{StateTran{Net}} .
+  *** ceq $merge-matches(S, Z) = $merge-matches(S, (XM  --> N' : R)  U Z)  if (N ; T ; T') M := S /\ W := tag(T) /\ W = tag(T') /\ E := pol(T) /\
+  ***       E = pol(T') /\ enabled(T, M) = enabled(T', M) /\ N' := N ; merge(T, T', t(W, rate(T) + rate(T'), E))  /\ R := 0.02 /\ XM := {N} & {T , T'} & {M} /\ (XM --> N' : R) in Z = false .
+  *** optimization: subset of variables used in match
   ceq $merge-matches(S, Z) = $merge-matches(S, (XM  --> N' : R)  U Z)  if (N ; T ; T') M := S /\ W := tag(T) /\ W = tag(T') /\ E := pol(T) /\
-        E = pol(T') /\ enabled(T, M) = enabled(T', M) /\ N' := N ; merge(T, T', t(W, rate(T) + rate(T'), E))  /\ R := 0.02 /\ XM := {N} & {T , T'} & {M} /\ (XM --> N' : R) in Z = false .
+        E = pol(T') /\ enabled(T, M) = enabled(T', M) /\ N' := N ; merge(T, T', t(W, rate(T) + rate(T'), E))  /\ R := 0.02 /\ XM := {T , T'}  /\ (XM --> N' : R) in Z = false .
   eq $merge-matches(S, Z) = Z [owise] .
-  *** op merge-matches : System -> Set{StateTran{System}} [memo].
+  *** op merge-matches : System -> Set{StateTran{System}} [memo]. *** full version (no optiimization)
   *** eq merge-matches(S) = $merge-matches(S, noStateTranS) .
   *** op $merge-matches : System Set{StateTran{System}} -> Set{StateTran{System}} .
   *** ceq $merge-matches(S, X) = $merge-matches(S, (XM  --> S' : R)  U X)  if (N ; T ; T') M := S /\ W := tag(T) /\ W = tag(T') /\ E := pol(T) /\
@@ -35,26 +38,35 @@ fmod SPN-MC-EXE is
   op aggr-matches : System -> Set{StateTran{Net}} .
   eq aggr-matches(S) = $aggr-matches(S, noStateTranN) .
   op $aggr-matches : System Set{StateTran{Net}} -> Set{StateTran{Net}} .
+  ***ceq $aggr-matches(S, Z) = $aggr-matches(S,  (XM  --> N' : R)  U Z) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ enabled(T', M) = false /\
+  ***   I := I(q(T')) /\ O := O(q(T)) /\ O = I /\ intersection(support(I),  places(N) U support(I(q(T)) + H(q(T)) + M + O(q(T')) + H(q(T')))) == emptyPset /\
+  ***   r := rate(T) /\ r' := rate(T')  /\ N' := N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E)) /\
+  ***   R := 0.05 /\ XM := {N} & {T , T'} & {M} /\ (XM  --> N' : R) in Z = false . 
+  *** optimization: subset of variables used in match
   ceq $aggr-matches(S, Z) = $aggr-matches(S,  (XM  --> N' : R)  U Z) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ enabled(T', M) = false /\
      I := I(q(T')) /\ O := O(q(T)) /\ O = I /\ intersection(support(I),  places(N) U support(I(q(T)) + H(q(T)) + M + O(q(T')) + H(q(T')))) == emptyPset /\
      r := rate(T) /\ r' := rate(T')  /\ N' := N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E)) /\
-     R := 0.05 /\ XM := {N} & {T , T'} & {M} /\ (XM  --> N' : R) in Z = false . 
+     R := 0.05 /\ XM := {T , T'}  /\ (XM  --> N' : R) in Z = false .
   eq $aggr-matches(S, Z) = Z [owise] .
   
   *** fold rule (Net portion)
   op fold-matches : Net -> Set{StateTran{Net}} [memo].
   eq fold-matches(N) = $fold-matches(N, noStateTranN) .
   op $fold-matches : Net Set{StateTran{Net}} -> Set{StateTran{Net}} .
+  *** ceq $fold-matches(N, Z) = $fold-matches(N, (XM  --> N' : R)  U Z)  if N'' ; L |-> Q ; L' |-> Q := N  /\ E := pol(L) /\
+  ***        E = pol(L') /\ N' := N'' ; t("fold" ,  rate(L) + rate(L'), E) |-> Q  /\ R := 0.02 /\ XM := {N''} & {L , L'} & {Q} /\ (XM  --> N' : R) in Z = false  .
   ceq $fold-matches(N, Z) = $fold-matches(N, (XM  --> N' : R)  U Z)  if N'' ; L |-> Q ; L' |-> Q := N  /\ E := pol(L) /\
-         E = pol(L') /\ N' := N'' ; t("fold" ,  rate(L) + rate(L'), E) |-> Q  /\ R := 0.02 /\ XM := {N''} & {L , L'} & {Q} /\ (XM  --> N' : R) in Z = false  .
+         E = pol(L') /\ N' := N'' ; t("fold" ,  rate(L) + rate(L'), E) |-> Q  /\ R := 0.02 /\ XM := {L , L'} & {Q} /\ (XM  --> N' : R) in Z = false  .
   eq $fold-matches(N, Z) = Z [owise] .
 
   *** remnull rule (Net portion)
   op remnull-matches : Net -> Set{StateTran{Net}} [memo].
   eq remnull-matches(N) = $remnull-matches(N, noStateTranN) .
   op $remnull-matches : Net Set{StateTran{Net}} -> Set{StateTran{Net}} .
+  *** ceq $remnull-matches(N, Z) = $remnull-matches(N, (XM  --> N' : R)  U Z)  if N'' ; L |-> [B,B,B'] := N  /\ R := 100.0 /\ 
+  ***     N' := N'' ; emptyNet /\  XM := {N''} & {B, B'} & {L} /\ (XM  --> N' : R) in Z = false  .
   ceq $remnull-matches(N, Z) = $remnull-matches(N, (XM  --> N' : R)  U Z)  if N'' ; L |-> [B,B,B'] := N  /\ R := 100.0 /\ 
-       N' := N'' ; emptyNet /\  XM := {N''} & {B, B'} & {L} /\ (XM  --> N' : R) in Z = false  .
+       N' := N'' ; emptyNet /\  XM := {B, B'} & {L} /\ (XM  --> N' : R) in Z = false  .
   eq $remnull-matches(N, Z) = Z [owise] .
 
 

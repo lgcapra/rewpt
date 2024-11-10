@@ -3,12 +3,12 @@ in ./shared/BAG-AND-SET
 in PLACE
 
 
-fmod PBAG is
- pr BAG-AND-SET{Place} * ( sort Bag{Place} to Pbag, sort NeBag{Place} to NePbag, sort ElBag{Place} to ElPbag, op nil to nilP, 
-                           sort Set{Place} to Pset, sort NeSet{Place} to NePset, op emptyS to emptyPset) .
+fmod PBAG{X :: TRIV} is
+ pr BAG-AND-SET{Place{X}} * ( sort Bag{Place{X}} to Pbag, sort NeBag{Place{X}} to NePbag, sort ElBag{Place{X}} to ElPbag, op nil to nilP, 
+                           sort Set{Place{X}} to Pset, sort NeSet{Place{X}} to NePset, op emptyS to emptyPset) .
 endfm
 
 
-view Pbag from TRIV to PBAG is 
+view Pbag{X :: TRIV} from TRIV to PBAG{X} is 
  sort Elt to Pbag .
 endv
