@@ -11,7 +11,7 @@ fmod PT-NET{L :: TRIV, PL :: TRIV} is
  vars Q Q' : Tmatrix . var  S : Pset .
  
  op __ : Net Pbag -> [System] [ctor] .
- cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty"
+ cmb N M : System if N =/= emptyNet and-then repeatedKeys?(N) == false . *** a PT system cannot be "empty" and have duplicated transitions
  op n : System -> Net .
  op m : System -> Pbag .
  eq n(N M) = N .
@@ -21,9 +21,10 @@ fmod PT-NET{L :: TRIV, PL :: TRIV} is
  eq l(L |-> Q) = L .
  eq q(L |-> Q) = Q .
  
- *** eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** removes transitions not changing the marking
+ ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places
+ eq L |-> [nilP, nilP, nilP] = emptyNet . *** removes isolated transitions
+*** eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** removes transitions not changing the marking
 *** ceq L |-> [K . P + I, O, K' . P + H] = emptyNet if K >= K' [metadata "dead t"] . *** removes structurally dead transitions
-ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places
 
  op enabled : Tran Pbag -> Bool .
  eq enabled(L |-> [I,O,H], M) = I <= M and-then H > M . 

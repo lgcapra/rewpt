@@ -27,11 +27,9 @@ crl [aggr] :  (N ; T ; T')  M  =>  (N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r 
        r := rate(T) /\ r' := rate(T') /\ aggrRate:Float := 0.05 .
 
 
- *** examples of "local" rules
+ *** examples of "local" rule
  crl [fold] : L |-> Q ; L' |-> Q  =>  t("fold", rate(L) + rate(L'), E) |-> Q
       if E := pol(L) /\ E = pol(L') /\ foldRate:Float := 0.02 . *** Net type rule
-
- rl [remnoeffect] : L |-> [B,B,B'] => emptyNet . *** removes null-effect transitions 
 
  *** example of rule not satisfying coherence
  *** rl [incoherent] : (N ; T ; T' ; merge(T, T', l(T))) M => (N ; T ; T')  M . *** does not satisfy coherence

@@ -59,22 +59,11 @@ fmod SPN-MC-EXE is
          E = pol(L') /\ N' := N'' ; t("fold" ,  rate(L) + rate(L'), E) |-> Q  /\ R := 0.02 /\ XM := {L , L'} & {Q} /\ (XM  --> N' : R) in Z = false  .
   eq $fold-matches(N, Z) = Z [owise] .
 
-  *** remnull rule (Net portion)
-  op remnull-matches : Net -> Set{StateTran{Net}} [memo].
-  eq remnull-matches(N) = $remnull-matches(N, noStateTranN) .
-  op $remnull-matches : Net Set{StateTran{Net}} -> Set{StateTran{Net}} .
-  *** ceq $remnull-matches(N, Z) = $remnull-matches(N, (XM  --> N' : R)  U Z)  if N'' ; L |-> [B,B,B'] := N  /\ R := 100.0 /\ 
-  ***     N' := N'' ; emptyNet /\  XM := {N''} & {B, B'} & {L} /\ (XM  --> N' : R) in Z = false  .
-  ceq $remnull-matches(N, Z) = $remnull-matches(N, (XM  --> N' : R)  U Z)  if N'' ; L |-> [B,B,B'] := N  /\ R := 100.0 /\ 
-       N' := N'' ; emptyNet /\  XM := {B, B'} & {L} /\ (XM  --> N' : R) in Z = false  .
-  eq $remnull-matches(N, Z) = Z [owise] .
-
-
   *** calculate the cumulative state-transition rates (anche questi dovrebbero essere fattorizzati)
   op allRewM : System -> Set{Rate{Pbag}} .
   eq allRewM(S) = cumrate(firing-matches(S)) . 
   op allRewN : System -> Set{Rate{Net}} .
-  eq allRewN(S) = cumrate(fold-matches(n(S)) U merge-matches(S) U aggr-matches(S) U remnull-matches(n(S))) .
+  eq allRewN(S) = cumrate(fold-matches(n(S)) U merge-matches(S) U aggr-matches(S)) .
   *** eq allRewN(S) = cumrate(noStateTranN) .
   op allRewS : System -> Set{Rate{System}} .
   eq allRewS(S) = cumrate(noStateTranS) .
