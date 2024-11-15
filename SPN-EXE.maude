@@ -14,6 +14,13 @@ fmod SPN-EXE is
            t("f", 0.5, 0) |-> [1 . p(5) , 1 . p(1) + 1 . p(3), nilP] .
 
  eq m0  = 2 . p(1) +  1 . p(3) .
-
 endfm
+
+in SPN-SYS
+*** system module (specifyng the example) with only the firing rule
+mod SPN-EXE-SYS is
+ inc SPN-EXE .
+ inc SPN-SYS .
+endm 
+
 

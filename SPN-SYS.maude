@@ -5,9 +5,7 @@ in SPN
 
 mod SPN-SYS is
  inc SPN .
- var M : Pbag . 
- var T : Tran .
- vars N N' : Net .
+ var M : Pbag . var T : Tran . vars N N' : Net .
  crl [firing] : N M => N firing(T, M) if T ; N' := N  /\ enabled(T, M) /\ R:Float := firing-rate(T, M) .
 endm
 

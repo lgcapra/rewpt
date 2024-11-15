@@ -14,7 +14,7 @@ fmod SPN-MC-EXE is
  var X : Set{StateTran{System}} .
  var Z : Set{StateTran{Net}} .
  var Y : Set{StateTran{Pbag}} .
- var XM : Matches .
+ var XM : Match .
 
   *** encoding of rules defined in SPN-EXE-SYS
   *** merge rule (optimized considering that the marking is not affected)

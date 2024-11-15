@@ -13,7 +13,7 @@ fmod SPN-MC is
  vars R : Float .
  var X : Set{StateTran{System}} .
  var Y : Set{StateTran{Pbag}} .
- var XM : Matches .
+ var XM : Match .
   *** encoding of firing rule: same structure for any rule
   *** non optimized version 
   *** op firing-matches : System -> Set{StateTran{System}}  .
