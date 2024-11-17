@@ -1,6 +1,7 @@
 *** rewritable PL system model for LCTMC 
 fmod SPN-TO-LMC is
- pr MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float}, sort Map{SpnSys,Float} to Map{System,Float}, op emptyM to emptyMSF) .
+ pr MAP+{SpnSys,Float} * (sort Entry{SpnSys,Float} to Entry{System,Float}, sort Map{SpnSys,Float} to Map{System,Float}, op emptyM to emptyMSF,
+                          op undefined : -> [Float] to undefinedRate ) .
  pr SET+{String} .
  vars N N' N'' : Net .
  vars S S' S'' : Pbag .
@@ -15,7 +16,7 @@ fmod SPN-TO-LMC is
  vars R F : Float .
  vars RS SF : Map{System,Float} .
  
- *** dovrebbero essere passato come parametro
+ *** dovrebbero essere passati come parametri
  op  rule-labs  : -> Set{String} [ memo ] .
  op rule : String System -> [Entry{System, Float}] [ memo ].
 

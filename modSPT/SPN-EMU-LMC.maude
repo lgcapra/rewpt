@@ -2,20 +2,20 @@
 
 in  STATE-TRAN-SYS
 
-mod SPN-EMU-LMC{X :: SPN-SYSREW-LMC} is
-  pr STATE-TRAN-SYS{X} .
+mod SPN-EMU-LMC is
+  pr STATE-TRAN-SYS .
   vars B B' : Pbag . 
   vars N N' : Net .
   var  T    : Tran .
   vars F R    : Float .
-  var  FS   : Fset .
-  var  RS   : Rset .
+  var  FS   : Map{Pbag,Float} .
+  var  RS   : Map{System,Float} .
   var  Sys  : System .
 
 
  *** symbolic firing rule for state-transition representation of systems
- rl [firing] : NET: N M: B FIRING: (B' <-| F ; FS) REW: RS => toStateTran(N B') .
+ rl [firing] : NET: N M: B FIRING: (B' |-> F ; FS) REW: RS => toStateTran(N B') .
 
  *** other symbolic (structural) rewrites
- rl [net-rewrite] : NET: N M: B FIRING: FS REW: (Sys <-| R ; RS)  => toStateTran(Sys) .
+ rl [net-rewrite] : NET: N M: B FIRING: FS REW: (Sys |-> R ; RS)  => toStateTran(Sys) .
 endm
