@@ -1,0 +1,46 @@
+*** state-transition representation for SPN pointing out state-transitions due to rewrite rules 
+in MATCH
+in shared/PAIR
+in shared/SET+
+
+*** this module defines "triplets" (sort StateTran{X}) composed of a match and a pair (sort Rate{X}) built of a target state (sort X$elt) and a rate
+fmod STATE-TRAN{X :: TRIV} is
+   pr MATCH .
+   pr FLOAT .
+   pr PAIR{X,Float} * (sort Pair{X,Float} to Rate{X}, op <_;_> to _:_, op 1st to target, op 2nd to rate) .
+   
+   sort StateTran{X} .
+   var M : Match . var X : X$Elt . var F : Float .
+   op _-->_ : Match Rate{X} -> StateTran{X} [ctor prec 50] .
+   *** getters
+   op match  : StateTran{X} -> Match .
+   eq match(M --> X : F) = M . 
+   op target : StateTran{X} -> X$Elt .
+   eq target(M --> X : F) = X . 
+   op rate   : StateTran{X} -> Float .
+   eq rate(M --> X : F) = F . 
+endfm
+
+*** views to STATE-TRAN
+
+view StateTran{X :: TRIV} from TRIV to STATE-TRAN{X} is 
+   sort Elt to StateTran{X} . 
+endv
+
+view Rate{X :: TRIV} from TRIV to STATE-TRAN{X} is 
+   sort Elt to Rate{X} . 
+endv
+
+*** this module provides an operator to calculate the cumulative rates from a set of StateTran (i.e, triplets defining each a state transition given a match)
+fmod STATE-TRAN-RATE{X :: TRIV} is
+   pr SET+{StateTran{X}}  * (op emptyS : -> Set{StateTran{X}} to noStateTran) .
+   pr SET+{Rate{X}} * (op emptyS : -> Set{Rate{X}} to noRate) .
+   var ST : Set{StateTran{X}} . var SR : Set{Rate{X}} .
+   var T : StateTran{X} . var X : X$Elt . var F : Float .
+   op cumrate : Set{StateTran{X}} ->  Set{Rate{X}} .
+   eq cumrate(ST) = $cumrate(ST, noRate) .
+   op $cumrate : Set{StateTran{X}} Set{Rate{X}} -> Set{Rate{X}} .
+  ceq $cumrate(T U ST, (X : F) U SR ) = $cumrate(ST, (X : F + rate(T)) U SR ) if target(T) = X .
+   eq $cumrate(T U ST, SR ) = $cumrate(ST, (target(T) : rate(T)) U SR ) [owise] .
+   eq $cumrate(noStateTran, SR ) = SR .
+endfm

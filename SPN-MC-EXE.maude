@@ -9,6 +9,7 @@ fmod SPN-MC-EXE is
  pr MATCH-CLASS{Tmatrix{Nat}} * (sort MatchGroup{Tmatrix{Nat}} to MatchGroup{Tmatrix}, sort MatchClass{Tmatrix{Nat}} to MatchClass{Tmatrix} ) .
  pr SPN-STATE-TRAN .
  var P : Place . vars T T' : Tran . vars B  B' M  M' I O : Pbag  .
+ 
  vars N N' N'' : Net . vars S S' : System . vars R r r' : Float .
  vars L L' : Tlab . var Q : Tmatrix . var W : String . var E : Nat .
  var X : Set{StateTran{System}} .
