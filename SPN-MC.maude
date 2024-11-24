@@ -5,9 +5,11 @@ fmod SPN-MC is
  pr MATCH-CLASS{System} .
  pr MATCH-CLASS{Pbag{Nat}} * (sort MatchGroup{Pbag{Nat}} to MatchGroup{Pbag}, sort MatchClass{Pbag{Nat}} to MatchClass{Pbag}) .
  pr MATCH-CLASS{Net} .
- pr SPN-STATE-TRAN  * (sort Set{StateTran{Pbag{Nat}}} to Set{StateTran{Pbag}}, sort NeSet{StateTran{Pbag{Nat}}} to NeSet{StateTran{Pbag}}).
+ pr SPN-STATE-TRAN .
+ *** pr SPN-STATE-TRAN  * (sort Set{StateTran{Pbag{Nat}}} to Set{StateTran{Pbag}}, sort NeSet{StateTran{Pbag{Nat}}} to NeSet{StateTran{Pbag}}).
  vars T T' : Tran .  vars M  M' : Pbag  . vars N N' N'' : Net . vars S S' : System .
- vars R : Float . var X : Set{StateTran{System}} . var Y : Set{StateTran{Pbag}} .
+ vars R : Float . var X : Set{StateTran{System}} . 
+ *** var Y : Set{StateTran{Pbag}} .
  var XM : Match .
   *** encoding of firing rule: same structure for any rule
   *** non optimized version 
@@ -19,16 +21,16 @@ fmod SPN-MC is
   *** eq $firing-matches(S, X) = X [owise] .
 
   *** "optimized" version: only the SPN marking is affected by the rule
-  op firing-matches : System -> Set{StateTran{Pbag}}  .
-  eq firing-matches(S) = $firing-matches(S, noStateTranM) .
-  op $firing-matches : System Set{StateTran{Pbag}} -> Set{StateTran{Pbag}} .
-  ceq $firing-matches(S, Y) = $firing-matches(S,  (XM  --> M' : R)  U Y)  if (T ; N) M := S /\ enabled(T, M) /\ 
-         M' := firing(T, M)  /\ R := firing-rate(T, M) /\  XM := {N} & {T} & {M} /\ (XM  --> M' : R) in Y = false .
+  op firing-matches : System -> Set{StateTran{System}} [memo] .
+  eq firing-matches(S) = $firing-matches(S, noStateTranS) .
+  op $firing-matches : System Set{StateTran{System}} -> Set{StateTran{System}} .
+  ceq $firing-matches(S, X) = $firing-matches(S,  (XM  --> S' : R)  U X)  if (T ; N) M := S /\ enabled(T, M) /\ 
+         S' := (T ; N) firing(T, M)  /\ R := firing-rate(T, M) /\  XM := {N} & {T} & {M} /\ (XM  --> S' : R) in X = false .
   *** optimization: subset of variables used in match
   *** ceq $firing-matches(S, Y) = $firing-matches(S,  (XM  --> M' : R)  U Y)  if (T ; N) M := S /\ enabled(T, M) /\ 
   ***        M' := firing(T, M)  /\ R := firing-rate(T, M) /\  XM := {T} /\ (XM  --> M' : R) in Y = false .
   
-  eq $firing-matches(S, Y) = Y [owise] .
+  eq $firing-matches(S, X) = X [owise] .
   
 endfm
 
