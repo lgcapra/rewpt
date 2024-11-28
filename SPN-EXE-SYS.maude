@@ -5,15 +5,8 @@ in SPN-SYS
 mod SPN-EXE-SYS is
  inc SPN-EXE .
  inc SPN-SYS .
- vars L L' : Tlab .
- vars T T' : Tran .
- var P : Place .
- vars B B' M I O : Pbag  .
- vars r r' : Float .
- var N : Net .
- var W : String .
- var E : Nat .
- var Q : Tmatrix .
+ vars L L' : Tlab . vars T T' : Tran . var P : Place . vars B B' M I O : Pbag  .
+ vars r r' : Float . var N : Net .var W : String . var E : Nat . var Q : Tmatrix .
 
  *** example of rewrites (other than firing)
 
@@ -30,6 +23,7 @@ crl [aggr] :  (N ; T ; T')  M  =>  (N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r 
  *** examples of "local" rule
  crl [fold] : L |-> Q ; L' |-> Q  =>  t("fold", rate(L) + rate(L'), E) |-> Q
       if E := pol(L) /\ E = pol(L') /\ foldRate:Float := 0.02 . *** Net type rule
+      
 
  *** example of rule not satisfying coherence
  *** rl [incoherent] : (N ; T ; T' ; merge(T, T', l(T))) M => (N ; T ; T')  M . *** does not satisfy coherence
