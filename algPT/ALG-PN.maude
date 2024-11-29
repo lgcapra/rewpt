@@ -34,7 +34,7 @@ fmod MARKING{X :: TRIV} is
   extending ALGPN-MARKING .
   protecting BAG{X} .
   sorts Pmarking{X}  Marking{X} .
-  subsort Pmarking{X} < Pmarking .
+  subsort Pmarking{X} < Pmarking Marking{X} .
   subsort Marking{X}  < Marking .
   op _|->_ : Place Bag{X} -> Pmarking{X} [ctor] .
   op _;_ : Marking{X} Marking{X} -> Marking{X} [ctor ditto] . *** overloading
