@@ -7,7 +7,7 @@ fmod ELIST{X :: TRIV} is
  *** wrap
  op `[_`] : List{X} -> Elist{X} [ctor] .
  op `[_`] : NeList{X} -> NeElist{X} [ctor] .
- mb `[nil`] : emptyList{X} .
+ mb [nil] : emptyList{X} .
 
  *** unwrap
  op list : Elist{X} -> List{X} .
