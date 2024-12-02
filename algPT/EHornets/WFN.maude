@@ -1,0 +1,12 @@
+in ../../PT-NET
+
+fmod WFN{TL :: TRIV} is
+  pr PT-NET{TL, String} . *** the place label is a string
+  pr CONVERSION .
+  sort Wfn Wfsys .
+  subsort Wfn < Net .
+  subsort Wfsys < System .
+  op __ : Wfn Pbag -> [Wfsys] [ctor ditto] .
+  var N : Net .
+  cmb N : Wfn if in(N, p("in")) and-then in(N, p("out")). *** da raffinare
+endfm
