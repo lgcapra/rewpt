@@ -1,4 +1,4 @@
-in ./BAG
+in ../shared/BAG
 in ./ELIST
 in ../PLACE
 
