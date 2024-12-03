@@ -6,7 +6,52 @@ fmod WFN{TL :: TRIV} is
   sort Wfn Wfsys .
   subsort Wfn < Net .
   subsort Wfsys < System .
-  op __ : Wfn Pbag -> [Wfsys] [ctor ditto] .
-  var N : Net .
-  cmb N : Wfn if in(N, p("in")) and-then in(N, p("out")). *** da raffinare
+  vars L L' : TL$Elt .
+  vars K K'  : NzNat .
+  var Q : Tmatrix .
+  op __ : Wfn Pbag -> Wfsys [ctor] .
+  op n : Wfsys -> Wfn . *** redundant (only for documentation)
+  vars N N' : Net .
+  vars I O H I' O' H' B : Pbag .
+  var P : Place .
+  ops onlyIn onlyOut isIn isOut isHin : Net Place -> Bool .
+  eq isIn(L |-> [I + K . P, O, H] ; N, P) = true .
+  eq isIn(N, P) = false [owise] .
+  eq isOut(L |-> [I, O + K . P, H] ; N, P) = true .
+  eq isOut(N, P) = false [owise] .
+  eq isHin(L |-> [I, O, H + K . P] ; N, P) = true .
+  eq isHin(N, P) = false [owise] .
+  eq onlyIn(N , P) =  isIn(N,P) and-then not(isOut(N,P) or-else isHin(N, P)) .
+  eq onlyOut(N , P) = isOut(N,P) and-then not(isIn(N,P) or-else isHin(N, P)) .
+
+cmb N : Wfn if onlyIn(N, p("in")) and-then onlyOut(N, p("out")).
+ ops par alt seq : Wfsys Wfsys -> Wfsys .
+ ops par seq : Net Net String -> Net .
+ ops par seq : Wfn Wfn String -> Wfn .
+ op alt : Net Net -> Net . *** implicitly associative and comm.
+ op alt : Wfn Wfn -> Wfn . *** implicitly associative and comm.
+ var S : String .
+ eq seq(L |-> [I, K . p("out") + O, H] ; N, L' |-> [I' + K' . p("in"),  O', H'] ; N', S) = L |-> [I, K . p(S) + O, H] ; N ; L' |-> [I' + K' . p(S),  O', H'] ; N' .
+ eq alt(N, N') = N ; N' . *** straightforward
+ 
+endfm
+
+in ../../TLAB
+
+fmod SWFN is
+  pr  WFN{Tlab} .
+endfm
+
+fmod WFN-EXE is
+ pr SWFN .
+ ops net net' : -> Net  [memo] .
+ ops m0 m0' : -> Pbag  [memo] .  
+
+ eq net =  t("a", 1.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
+
+ eq net' = t("b", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
+
+ eq m0  =  1 . p("out") .
+ eq m0'  = 2 . p("in")  .
+
 endfm
