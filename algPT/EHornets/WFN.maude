@@ -11,7 +11,7 @@ fmod WFN{TL :: TRIV} is
   vars I O H I' O' H' B B' : Pbag .
   var P : Place .
   *** var T : Tran .
-  vars S S' : String .
+  vars S S' S'' : String .
   var Y : System .
 
   ops isIn isOut isHin : Net Place -> Bool .
@@ -31,45 +31,80 @@ fmod WFN{TL :: TRIV} is
  op rename : Pbag String String -> Pbag .
  eq rename(K . p(S) + B, S, S') = K . p(S') + B .
  eq rename(B, S, S') = B [owise] .
- ops renameIO : Wfn String String -> System .
-ceq renameIO((N ; L |-> [I, O, H]) B, S, S') = (N ; L |-> [rename(I, "in", S), rename(O, "out", S), H]) rename(rename(B, "in", S),"out", S) if I[p("in")] =/= 0 /\ O[p("out")] =/= 0 .
-ceq renameOut((N ; L |-> [I, O, H]) B, S) = (N ; L |-> [rename(O, "out", S), O, H]) rename(B, "out", S) if O[p("out")] =/= 0 .
+ ops renameIO : Wfn String String -> System . *** optimized renaming of IO places of a wfn
+ eq renameIO(L |-> [I, O, H] B, S, S') = L |-> [rename(I, "in", S), rename(O, "out", S'), H] rename(rename(B, "in", S),"out", S') .
+ceq renameIO((N ; L |-> [I, O, H] ; L' |-> [I', O', H'])  B, S, S') = 
+         (N ; L |-> [rename(I, "in", S), O, H] ; L' |-> [I', rename(O', "out", S'), H'])  rename(rename(B, "in", S),"out", S')
+         if I[p("in")] =/= 0 /\ O'[p("out")] =/= 0 .
+ op cat : String String -> String . *** concatenates using a '-' if the first string is not empty 
+ eq cat("",S) = S .
+ eq cat(S, S') = S + "-" + S' [owise] .      
+ op cat : String Nat -> String . *** append an index to a string
+ eq cat(S, n:Nat) = cat(S, string(n:Nat, 10)) [owise] .
 
- ops getIn getOut : Wfn -> Tran .
- ceq getIn((N ; L |-> [I, O, H]) B) = L |-> [I, O, H] if I[p("in")] =/= 0 .
- ceq getOut((N ; L |-> [I, O, H]) B) = L |-> [I, O, H] if O[p("out")] =/= 0 .
-
- ops par seq : Wfn Wfn String -> Wfn  .
+ *** pa operators
+ op _+_ : System System -> System [comm 121] . *** net juxtaposition and sum of markings (lowest priority)
+ eq N B + N' B' = (N ; N') B + B' .
+ op seq : Wfn Wfn String -> Wfn  . *** the string parameter is used to rename the merged Out/In places of the operands  
  op alt : Wfn Wfn -> Wfn [comm] . *** implicitly associative
+ op par : Wfn Wfn String TL$Elt TL$Elt -> Wfn  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
+
  eq seq((L |-> [I, K . p("out") + O, H] ; N) B, (L' |-> [I' + K' . p("in"),  O', H'] ; N') B', S) = 
         (L |-> [I, K . p(S) + O, H] ; N ; L' |-> [I' + K' . p(S),  O', H'] ; N') rename(B, "out", S) + rename(B', "in", S) .
  eq alt(N B, N' B') = (N ; N') B + B' . *** straightforward
- 
- eq par(N B, N' B', S) = renamerenameIn(N B, S + "in-1")  .
- 
- *** the following equations are redundant
- vars W W' W'' : Wfn .
- eq alt(W,alt(W',W'')) = alt(alt(W,W'),W'') . *** associativity (given as equational attribute may result in a warning) 
- eq seq(W,seq(W',W'',S), S) = seq(seq(W,W',S),W'',S) . *** pseudo-associativity
+ vars W W' W'' : Wfn . vars in1 in2 out1 out2 : String .
+ceq par(W, W', S, L, L') = (L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP]) nilP +
+        renameIO(W, in1,  out1) + renameIO(W', in2, out2) 
+        if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
+        
+*** the following equations are redundant
+ eq alt(W,alt(W',W'')) = alt(alt(W,W'),W'') . *** associativity if given as equational attribute it may result in a warning 
  
 endfm
 
-in ../../TLAB
+fmod WFLAB is
+ pr STRING .
+ pr FLOAT .
+ sort Wflab .
+ vars L C : String . *** tag and channel - the empty string means that no channel is associated with the tran.
+ var R  : Float . var P  : Nat .  var W : Wflab .
+ op t : String String Float Nat -> Wflab [ctor] . 
+ op tag :  Wflab -> String .
+ op pol :  Wflab  -> Nat . *** firing policy
+ op rate : Wflab -> Float .
+ op ch :   Wflab   -> String .
+ eq tag (t(L,C,R,P)) =  L .
+ eq pol(t(L,C,R,P))  =  P .
+ eq rate(t(L,C,R,P)) =  R .
+ eq ch (t(L,C,R,P))  =  C .
+ op noCh :  Wflab -> Bool .
+ eq noCh(W) = ch(W) == "" .
+endfm
 
+*** trivial view to a TLAB
+view Wflab from TRIV to WFLAB is 
+ sort Elt to Wflab .
+endv
+
+*** stochastic wfn usable as net-tokens
 fmod SWFN is
-  pr  WFN{Tlab} .
+  pr  WFN{Wflab} .
 endfm
 
 fmod WFN-EXE is
  pr SWFN .
  ops net net' : -> Net  [memo] .
  ops m0 m0' : -> Pbag  [memo] .  
+ ops sys sys' seq1 alt1 par1 : -> System [memo] .
 
- eq net =  t("a", 1.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
-
- eq net' = t("b", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
-
+ eq net =  t("a", "", 1.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
+ eq net' = t("b", "", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
  eq m0  =  1 . p("out") .
  eq m0'  = 2 . p("in")  .
+ eq sys = net m0 .
+ eq sys' = net' m0' .
+ eq seq1 = seq(sys, sys', "in-out") .
+ eq alt1 = alt(sys, sys') .
+ eq par1 = par(sys, sys', "",  t("par", "", 1.0, 0), t("synch", "", 1.0, 0)) .
 
 endfm

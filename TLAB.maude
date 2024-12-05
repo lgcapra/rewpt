@@ -11,10 +11,9 @@ fmod TLAB is
  op tag :  Tlab  -> String .
  op pol : Tlab  -> Nat .
  op rate : Tlab  -> Float .
- eq tag (t(W,R,P))    =  W .
+ eq tag (t(W,R,P)) =  W .
  eq pol(t(W,R,P))  =  P .
- eq rate(t(W,R,P))    =  R .
-
+ eq rate(t(W,R,P)) =  R .
 endfm
 
 *** trivial view to a TLAB

@@ -3,12 +3,30 @@ in TLAB
 
 *** Stochastic Petri Net
 
-fmod SPN is
-  pr PT-NET{Tlab, Nat} .
+*** theory of a stochastic transition label
+fth STLAB is 
+ pr FLOAT .
+ pr NAT . 
+ sorts Lab Tag .
+ op rate : Lab -> Float . *** rate parameter
+ op pol  : Lab -> Nat . *** firing policy
+ op tag  : Lab -> Tag . *** any tag
+endfth
+
+view STLAB from TRIV to STLAB is
+  sort Elt to Lab . 
+endv
+
+*** view TRIV* from TRIV to TRIV is
+*** endv 
+
+*** spn parameterized in node labels
+fmod SPN-GEN{L :: STLAB, PL :: TRIV} is
+  pr PT-NET{STLAB, Triv}{L, PL} .
   pr CONVERSION .
   vars M M' : Pbag .
   vars P P' : Place . 
-  var L : Tlab .
+  var L : L$Lab .
   var Q : Tmatrix .
   var T : Tran .
   vars K K' D : NzNat .
@@ -25,13 +43,24 @@ fmod SPN is
   eq $enabdegree(K . P + M , K' . P + M', D) = $enabdegree(M , M', min(D, K' quo K)) .
   eq $enabdegree(nilP, M, D) = D . 
   *** getters
-  op tag  : Tran -> String .
+  op tag  : Tran -> L$Tag .
   op rate : Tran -> Float .
   op pol  : Tran -> Nat .
   eq tag(T) = tag(l(T)) .
   eq rate(T) = rate(l(T)) .
   eq pol(T) = pol(l(T)) .
 endfm
+
+view Stlab from STLAB to TLAB is 
+ sort Lab to Tlab .
+ sort Tag to String .
+endv
+
+*** spn definition based on TLAB and Nat
+fmod SPN is
+  pr SPN-GEN{Stlab, Nat} .
+endfm
+
 
 view System from TRIV to SPN is 
  sort Elt to System . 
