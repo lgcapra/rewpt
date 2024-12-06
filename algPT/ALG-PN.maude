@@ -6,7 +6,7 @@ in ../PLACE
 
 *** abstract specification of an algebraic net's marking
 fmod ALGPN-MARKING is 
- protecting PLACE{Nat}  .
+ protecting PLACE{String}  .
  protecting EXT-BOOL .
  sorts Pmarking Marking .
  subsort Pmarking < Marking .
@@ -67,7 +67,7 @@ mod ALG-PN-EXE is
  pr MARKING{Elist{Nat}} * (op nil : -> List{Nat} to nilLnat, op nil : -> Bag{Elist{Nat}} to nilELnat, op mark to markListN) .
  
  op init : -> Marking . *** alias - intial marking
- eq init =  p(1) |-> 1 . [nilLnat] ; p(2) |-> 2 . 1 + 3 . 2 . *** the list in p1 is initially empty 
+ eq init =  p("1") |-> 1 . [nilLnat] ; p("2") |-> 2 . 1 + 3 . 2 . *** the list in p1 is initially empty 
  
  var M : Marking .
  var B : Bag{Nat} .
@@ -79,15 +79,15 @@ mod ALG-PN-EXE is
   *** net transitions are encoded as rewrite rules
 
   *** given (at least) two elements in p2, t1 withdraws one by appending it to the list in p1 
-  crl [t1] : p(1) |-> 1 . [L]  ;  p(2) |-> K . N + B => p(1) |-> 1 . [L N ] ; p(2) |-> sd(K,1) . N + B  if K > 1 . *** ok
-  ***  rl  [t1-wrong] : p(1) |-> 1 . [L] ; p(2) |-> 2 . N + B => p(1) |-> 1 . [L N] ; p(2) |->  1 . N + B  . *** matches only the term 2 . N + B
+  crl [t1] : p("1") |-> 1 . [L]  ;  p("2") |-> K . N + B => p("1") |-> 1 . [L N ] ; p("2") |-> sd(K,1) . N + B  if K > 1 . *** ok
+  ***  rl  [t1-wrong] : p("1") |-> 1 . [L] ; p("2") |-> 2 . N + B => p("1") |-> 1 . [L N] ; p("2") |->  1 . N + B  . *** matches only the term 2 . N + B
  
  *** removes K elements from p2 by appending them to the list in p1 
-  rl [t2] : p(1) |-> 1 . [L] ; p(2) |-> K . N + B => p(1) |-> 1 . [L ncopies(N, K)] ; p(2) |->  B  . *** works
+  rl [t2] : p("1") |-> 1 . [L] ; p("2") |-> K . N + B => p("1") |-> 1 . [L ncopies(N, K)] ; p("2") |->  B  . *** works
  
   *** example of non deterministic-rule using TICK
   inc TICK .
-  crl [t4] : p(1) |-> 1 . [L] ; p(2) |-> K . K'' + B => p(1) |-> 1 . [L ncopies(sd(K, K'), K'')] ; p(2) |-> K' . K'' + B if  @ K => @ K' /\ K' < K .
+  crl [t4] : p("1") |-> 1 . [L] ; p("2") |-> K . K'' + B => p("1") |-> 1 . [L ncopies(sd(K, K'), K'')] ; p("2") |-> K' . K'' + B if  @ K => @ K' /\ K' < K .
 endm
 
 
@@ -116,9 +116,9 @@ mod NEST-ALG-PN-EXE is
   inc MARKING{AlgPNexe*} .
   inc MARKING{Nat} * (op nil to nilNat , op mark to markN) .
   op init : -> Marking . *** meta-net initial marking
-  eq init = p(0) |-> 1 . init* ; p(1) |-> 1 . init* ; p(3) |-> 2 . 3 .
+  eq init = p("0") |-> 1 . init* ; p("1") |-> 1 . init* ; p("3") |-> 2 . 3 .
   var M : Marking* .
   var K : NzNat .
   var B : Bag{AlgPNexe*} .
-  rl [meta-r] : p(0) |-> K . M ; p(1) |-> B  => p(0) |-> sd(K,1) . M ; p(1) |->  1 . M + B . *** one algebraic net is moved from p(0) to p(1)
+  rl [meta-r] : p("0") |-> K . M ; p("1") |-> B  => p("0") |-> sd(K,1) . M ; p("1") |->  1 . M + B . *** one algebraic net is moved from p("0") to p("1")
 endm

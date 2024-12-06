@@ -90,6 +90,9 @@ endv
 *** signature of stochastic wfn usable as net-tokens
 fmod SWFN is
   pr  WFN{Wflab} .
+  var L : Wflab .
+  op ch : Tran -> String . *** the channel of a transition
+  eq ch(L |-> Q:Tmatrix) = ch(L) .
 endfm
 
 *** this module defines the "autonomous" firing of stochastic wfn
@@ -112,17 +115,20 @@ endv
 *** examples of usage of pa operators
 mod WFN-EXE is
  inc SWFN-SYS .
- ops net net' : -> Net  [memo] .
- ops m0 m0' : -> Pbag  [memo] .  
- ops sys sys' seq1 alt1 par1 : -> System [memo] .
+ ops net net' net'' : -> Net  [memo] .
+ ops m0 m0' m0'' : -> Pbag  [memo] .  
+ ops wf wf' wf'' seq1 alt1 par1 : -> System [memo] .
 
- eq net =  t("a", "", 1.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
- eq net' = t("b", "", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
- eq m0  =  1 . p("out") .
+ eq net =  t("a", "ch1", 1.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
+ eq net' = t("b", "ch1", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
+ eq net'' = t("c", "", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
+
+ eq m0  =  1 . p("in") .
  eq m0'  = 2 . p("in")  .
- eq sys = net m0 .
- eq sys' = net' m0' .
- eq seq1 = seq(sys, sys', "in-out") .
- eq alt1 = alt(sys, sys') .
- eq par1 = par(sys, sys', "",  t("par", "", 1.0, 0), t("synch", "", 1.0, 0)) .
+ eq wf = net m0 .
+ eq wf' = net' m0 .
+ eq wf'' = net'' m0' .
+ eq seq1 = seq(wf, wf', "in-out") .
+ eq alt1 = alt(wf, wf') .
+ eq par1 = par(wf, wf', "",  t("par", "", 1.0, 0), t("synch", "", 1.0, 0)) .
 endm
