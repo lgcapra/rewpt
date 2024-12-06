@@ -6,9 +6,9 @@ in STATE-TRAN
 fmod SPN-STATE-TRAN-OPT is 
   pr STATE-TRAN-RATE{System} * (op noStateTran to noStateTranS,  op noRate to noRateS) .
   pr STATE-TRAN-RATE{Net} * (op noStateTran to noStateTranN,  op noRate to noRateN) .
-  pr STATE-TRAN-RATE{Pbag{Nat}} * (sort Rate{Pbag{Nat}} to Rate{Pbag}, sort StateTran{Pbag{Nat}} to StateTran{Pbag},
-            sort Set{Rate{Pbag{Nat}}} to Set{Rate{Pbag}}, sort NeSet{Rate{Pbag{Nat}}} to NeSet{Rate{Pbag}},
-            sort Set{StateTran{Pbag{Nat}}} to Set{StateTran{Pbag}}, sort NeSet{StateTran{Pbag{Nat}}} to NeSet{StateTran{Pbag}}, 
+  pr STATE-TRAN-RATE{Pbag{String}} * (sort Rate{Pbag{String}} to Rate{Pbag}, sort StateTran{Pbag{String}} to StateTran{Pbag},
+            sort Set{Rate{Pbag{String}}} to Set{Rate{Pbag}}, sort NeSet{Rate{Pbag{String}}} to NeSet{Rate{Pbag}},
+            sort Set{StateTran{Pbag{String}}} to Set{StateTran{Pbag}}, sort NeSet{StateTran{Pbag{String}}} to NeSet{StateTran{Pbag}}, 
             op noStateTran to noStateTranM,  op noRate to noRateM) .
 
   sort SpnStateTran .

@@ -3,7 +3,7 @@ in TLAB
 
 *** Stochastic Petri Net
 
-*** theory of a stochastic transition label
+*** theory of a stochastic PN transition label
 fth STLAB is 
  pr FLOAT .
  pr NAT . 
@@ -13,16 +13,15 @@ fth STLAB is
  op tag  : Lab -> Tag . *** any tag
 endfth
 
+
 view STLAB from TRIV to STLAB is
   sort Elt to Lab . 
 endv
 
-*** view TRIV* from TRIV to TRIV is
-*** endv 
 
-*** spn parameterized in node labels
-fmod SPN-GEN{L :: STLAB, PL :: TRIV} is
-  pr PT-NET{STLAB, Triv}{L, PL} .
+*** spn parameterized in tran labels: for some reasons, we cannot use the TRIV view to parameterize also place labels 
+fmod SPN-GEN{L :: STLAB} is
+  pr PT-NET{STLAB, String}{L} .
   pr CONVERSION .
   vars M M' : Pbag .
   vars P P' : Place . 
@@ -56,9 +55,9 @@ view Stlab from STLAB to TLAB is
  sort Tag to String .
 endv
 
-*** spn definition based on TLAB and Nat
+*** spn definition based on TLAB (and String) as node labels
 fmod SPN is
-  pr SPN-GEN{Stlab, Nat} .
+  pr SPN-GEN{Stlab} .
 endfm
 
 

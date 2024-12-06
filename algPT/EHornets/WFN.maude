@@ -1,11 +1,11 @@
-in ../../PT-NET
+in ../../SPN
 
-fmod WFN{TL :: TRIV} is
-  pr PT-NET{TL, String} . *** the place label is a string
-  pr CONVERSION .
+*** signature of stochastic wfn (parameterized in transition labels)
+fmod WFN{TL :: STLAB} is
+  pr SPN-GEN{TL} . *** place labels are strings
   sort Wfn .
   subsort Wfn < System .
-  vars L L' : TL$Elt .
+  vars L L' : TL$Lab .
   vars K K' U U' : NzNat .
   vars N N' : Net .
   vars I O H I' O' H' B B' : Pbag .
@@ -31,7 +31,7 @@ fmod WFN{TL :: TRIV} is
  op rename : Pbag String String -> Pbag .
  eq rename(K . p(S) + B, S, S') = K . p(S') + B .
  eq rename(B, S, S') = B [owise] .
- ops renameIO : Wfn String String -> System . *** optimized renaming of IO places of a wfn
+ op renameIO : Wfn String String -> System . *** optimized renaming of IO places of a wfn
  eq renameIO(L |-> [I, O, H] B, S, S') = L |-> [rename(I, "in", S), rename(O, "out", S'), H] rename(rename(B, "in", S),"out", S') .
 ceq renameIO((N ; L |-> [I, O, H] ; L' |-> [I', O', H'])  B, S, S') = 
          (N ; L |-> [rename(I, "in", S), O, H] ; L' |-> [I', rename(O', "out", S'), H'])  rename(rename(B, "in", S),"out", S')
@@ -43,25 +43,25 @@ ceq renameIO((N ; L |-> [I, O, H] ; L' |-> [I', O', H'])  B, S, S') =
  eq cat(S, n:Nat) = cat(S, string(n:Nat, 10)) [owise] .
 
  *** pa operators
- op _+_ : System System -> System [comm 121] . *** net juxtaposition and sum of markings (lowest priority)
+ op _+_ : System System -> System [comm prec 121] . *** net juxtaposition and sum of markings (lowest priority)
  eq N B + N' B' = (N ; N') B + B' .
  op seq : Wfn Wfn String -> Wfn  . *** the string parameter is used to rename the merged Out/In places of the operands  
  op alt : Wfn Wfn -> Wfn [comm] . *** implicitly associative
- op par : Wfn Wfn String TL$Elt TL$Elt -> Wfn  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
+ op par : Wfn Wfn String TL$Lab TL$Lab -> Wfn  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
 
  eq seq((L |-> [I, K . p("out") + O, H] ; N) B, (L' |-> [I' + K' . p("in"),  O', H'] ; N') B', S) = 
         (L |-> [I, K . p(S) + O, H] ; N ; L' |-> [I' + K' . p(S),  O', H'] ; N') rename(B, "out", S) + rename(B', "in", S) .
  eq alt(N B, N' B') = (N ; N') B + B' . *** straightforward
  vars W W' W'' : Wfn . vars in1 in2 out1 out2 : String .
-ceq par(W, W', S, L, L') = (L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP]) nilP +
-        renameIO(W, in1,  out1) + renameIO(W', in2, out2) 
-        if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
-        
-*** the following equations are redundant
- eq alt(W,alt(W',W'')) = alt(alt(W,W'),W'') . *** associativity if given as equational attribute it may result in a warning 
- 
+ ceq par(W, W', S, L, L') = (L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP]) nilP +
+    (renameIO(W, in1,  out1) + renameIO(W', in2, out2)) 
+       if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
+*** the following equations are redundant: associativity, if given as equational attribute, may result in a warning 
+ eq alt(W,alt(W',W'')) = alt(alt(W,W'),W'') . 
+  eq sy:System + (sy':System + sy'':System) = (sy:System + sy':System) + sy'':System .
 endfm
 
+*** label for stochastic wfn (contains a channel, seen as string)
 fmod WFLAB is
  pr STRING .
  pr FLOAT .
@@ -81,18 +81,37 @@ fmod WFLAB is
  eq noCh(W) = ch(W) == "" .
 endfm
 
-*** trivial view to a TLAB
-view Wflab from TRIV to WFLAB is 
- sort Elt to Wflab .
+*** view to a WFLAB
+view Wflab from STLAB to WFLAB is 
+ sort Lab to Wflab .
+ sort Tag to String .
 endv
 
-*** stochastic wfn usable as net-tokens
+*** signature of stochastic wfn usable as net-tokens
 fmod SWFN is
   pr  WFN{Wflab} .
 endfm
 
-fmod WFN-EXE is
- pr SWFN .
+*** this module defines the "autonomous" firing of stochastic wfn
+mod SWFN-SYS is
+ inc SWFN .
+ var M : Pbag . var T : Tran . vars N N' : Net .
+ crl [firing] : N M => N firing(T, M) if  T ; N' := N  /\ noCh(l(T)) /\ enabled(T, M) /\ R:Float := firing-rate(T, M) .
+endm
+
+*** trivial views to SWFN-SYS
+view System from TRIV to SWFN-SYS is 
+ sort Elt to System .
+endv
+
+view Wfn from TRIV to SWFN-SYS is 
+  sort Elt to Wfn .
+endv
+
+
+*** examples of usage of pa operators
+mod WFN-EXE is
+ inc SWFN-SYS .
  ops net net' : -> Net  [memo] .
  ops m0 m0' : -> Pbag  [memo] .  
  ops sys sys' seq1 alt1 par1 : -> System [memo] .
@@ -106,5 +125,4 @@ fmod WFN-EXE is
  eq seq1 = seq(sys, sys', "in-out") .
  eq alt1 = alt(sys, sys') .
  eq par1 = par(sys, sys', "",  t("par", "", 1.0, 0), t("synch", "", 1.0, 0)) .
-
-endfm
+endm
