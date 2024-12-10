@@ -1,0 +1,39 @@
+in BAG
+
+*** multisets implemented as commutative monoids
+fmod MSET{X :: TRIV} is
+ protecting BAG{X} .
+ sorts Mset{X} . 
+ subsort X$Elt < Mset{X} . 
+ op empty : -> Mset{X} . 
+ op __ : Mset{X} Mset{X} -> Mset{X} [assoc comm id: empty] .
+ op len : Mset{X} -> Nat .
+ eq len(empty) = 0 .
+ var M : Mset{X} .
+ eq len(M X:X$Elt) = 1 + len(M) .
+endfm
+
+*** links the two representations of multisets
+fmod MSET-BAG{X :: TRIV} is
+ pr MSET{X} .
+ pr BAG{X} .
+ op bag :  Mset{X} -> Bag{X} .
+ op mset : Bag{X} -> Mset{X} .
+ var X : X$Elt .
+ var K : NzNat .
+ vars B B' : Bag{X} .
+ vars M M' : Mset{X} .
+ eq mset(B) = $mset(B, empty) .
+ eq bag(M) = $bag(M, nil) .
+ op $mset : Bag{X} Mset{X} -> Mset{X} .
+ eq $mset(nil, M) = M .
+ eq $mset(K . X + B, M) = $mset(sd(K,1) . X + B, M X) . 
+ op $bag :  Mset{X} Bag{X} -> Bag{X} .
+ eq $bag(empty, B) = B .
+ eq $bag(M X, B) = $bag(M, B + 1 . X) . 
+endfm
+
+fmod MSET-STRING is
+  pr MSET-BAG{String} .
+endfm 
+
