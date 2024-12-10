@@ -1,0 +1,25 @@
+in PT-NET
+
+*** signature of a PT system parameterized in node labels
+fmod PT-SYS{L :: TRIV, PL :: TRIV} is
+  pr PT-NET{L, PL} .
+  sort System .
+  vars L L' : L$Elt . vars T T' : Tran . vars N N' : Net .
+  vars P P' : Place . vars M I O H : Pbag . vars K K'  : NzNat .
+  vars Q Q' : Tmatrix . var  S : Pset .
+  op __ : Net Pbag -> [System] [ctor] .
+  cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty" and have duplicated transitions
+  *** cmb N M : System if N =/= emptyNet and-then repeatedKeys?(N) == false . *** a PT system cannot be "empty" and have duplicated transitions
+  ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places
+  op n : System -> Net .
+  op m : System -> Pbag .
+  eq n(N M) = N .
+  eq m(N M) = M .
+   *** computes the system's enabled transitions (outcome seen as a sub-Net) 
+  op haveConcession : System -> Net [memo] .
+  eq haveConcession(S:System) = $haveConcession(S:System, emptyNet) .
+  op $haveConcession : System Net -> Net .
+  eq $haveConcession(emptyNet M, N) = N .
+ ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if enabled(T, M) .
+  eq $haveConcession((T ; N) M, N') = $haveConcession(N M, N') [owise] . 
+endfm

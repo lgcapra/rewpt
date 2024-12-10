@@ -19,8 +19,8 @@ view STLAB from TRIV to STLAB is
 endv
 
 
-*** spn parameterized in tran labels: for some reasons, we cannot use the TRIV view to parameterize also place labels 
-fmod SPN-GEN{L :: STLAB} is
+*** spn signature parameterized in tran labels: for some reasons, we cannot use the TRIV view to parameterize also place labels 
+fmod SPN-SIG{L :: STLAB} is
   pr PT-NET{STLAB, String}{L} .
   pr CONVERSION .
   vars M M' : Pbag .
@@ -57,7 +57,8 @@ endv
 
 *** spn definition based on TLAB (and String) as node labels
 fmod SPN is
-  pr SPN-GEN{Stlab} .
+  pr SPN-SIG{Stlab} .
+  pr PT-SYS{STLAB, String}{Stlab} .
 endfm
 
 

@@ -17,7 +17,7 @@ fmod ALGPN-MARKING is
  var P  : Place .
  vars Mp Mp' : Pmarking .
  var M : Marking .
-ceq welldef((Mp ; Mp' ; M)) = false if place(Mp) = place(Mp') .
+ceq welldef((Mp ; Mp' ; M)) = false if place(Mp) = place(Mp') . *** could be a memebership eq as an alternative
  eq welldef(M) = true  [owise] .
  op undefined : -> [Pmarking] .
  *** look-up
@@ -48,6 +48,28 @@ endfm
 *** parameterized view to MARKING
 view Marking{X :: TRIV} from TRIV to MARKING{X} is 
  sort Elt to Marking{X} . 
+endv
+
+in ../shared/MSET
+*** alternative representation of place marking based on MSET
+fmod MSET-MARKING{X :: TRIV} is
+  extending ALGPN-MARKING .
+  protecting MSET-BAG{X} .
+  sorts PmsetMarking{X}  MsetMarking{X} .
+  subsort PmsetMarking{X} < Pmarking MsetMarking{X} .
+  subsort MsetMarking{X}  < Marking .
+  op _|->_ : Place Mset{X} -> PmsetMarking{X} [ctor] .
+  op _;_ : PmsetMarking{X} PmsetMarking{X} -> PmsetMarking{X} [ctor ditto] . *** overloading
+  var B  : Mset{X} .
+  var P  : Place .
+  eq place(P |-> B) = P .
+  op mark : PmsetMarking{X} -> Mset{X} . *** careful! must be renamed when importing the module 
+  eq mark(P |-> B) = B .
+endfm
+
+*** parameterized view to MSET-MARKING
+view MsetMarking{X :: TRIV} from TRIV to MSET-MARKING{X} is 
+ sort Elt to MsetMarking{X} . 
 endv
 
 
@@ -81,13 +103,14 @@ mod ALG-PN-EXE is
   *** given (at least) two elements in p2, t1 withdraws one by appending it to the list in p1 
   crl [t1] : p("1") |-> 1 . [L]  ;  p("2") |-> K . N + B => p("1") |-> 1 . [L N ] ; p("2") |-> sd(K,1) . N + B  if K > 1 . *** ok
   ***  rl  [t1-wrong] : p("1") |-> 1 . [L] ; p("2") |-> 2 . N + B => p("1") |-> 1 . [L N] ; p("2") |->  1 . N + B  . *** matches only the term 2 . N + B
- 
+  
+  *** ncopies is defined in modified prelude 
  *** removes K elements from p2 by appending them to the list in p1 
-  rl [t2] : p("1") |-> 1 . [L] ; p("2") |-> K . N + B => p("1") |-> 1 . [L ncopies(N, K)] ; p("2") |->  B  . *** works
+ *** rl [t2] : p("1") |-> 1 . [L] ; p("2") |-> K . N + B => p("1") |-> 1 . [L ncopies(N, K)] ; p("2") |->  B  . *** works
  
   *** example of non deterministic-rule using TICK
-  inc TICK .
-  crl [t4] : p("1") |-> 1 . [L] ; p("2") |-> K . K'' + B => p("1") |-> 1 . [L ncopies(sd(K, K'), K'')] ; p("2") |-> K' . K'' + B if  @ K => @ K' /\ K' < K .
+  *** inc TICK .
+ *** crl [t4] : p("1") |-> 1 . [L] ; p("2") |-> K . K'' + B => p("1") |-> 1 . [L ncopies(sd(K, K'), K'')] ; p("2") |-> K' . K'' + B if  @ K => @ K' /\ K' < K .
 endm
 
 

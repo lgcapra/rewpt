@@ -1,0 +1,18 @@
+in WFN
+
+*** net-token marking (multiset of markings)
+fmod MULTI-MARKING{PL :: TRIV} is
+   pr BAG{Pbag{PL}} * (sort Bag{Pbag{PL}} to Mmarking, op nil to nilMM) .
+endfm 
+
+fmod WF-TOKEN{L :: TRIV, PL :: TRIV} is 
+  pr MULTI-MARKING{PL} .
+  pr PT-NET{L, PL} .
+  sort NetToken .
+  op __ : Net Mmarking -> [NetToken] [ctor] .
+  op n : NetToken -> Net .
+  op m : NetToken -> Mmarking .
+  var N : Net . var M : Mmarking .
+  eq n(N M) = N .
+  eq m(N M) = M .
+endfm

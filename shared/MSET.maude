@@ -2,7 +2,7 @@ in BAG
 
 *** multisets implemented as commutative monoids
 fmod MSET{X :: TRIV} is
- protecting BAG{X} .
+ pr NAT . 
  sorts Mset{X} . 
  subsort X$Elt < Mset{X} . 
  op empty : -> Mset{X} . 
@@ -33,7 +33,7 @@ fmod MSET-BAG{X :: TRIV} is
  eq $bag(M X, B) = $bag(M, B + 1 . X) . 
 endfm
 
-fmod MSET-STRING is
-  pr MSET-BAG{String} .
-endfm 
 
+view Mset{X :: TRIV} from TRIV to MSET-BAG{X} is
+   sort Elt to Mset{X} .
+endv
