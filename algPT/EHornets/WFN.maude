@@ -1,7 +1,7 @@
 in ../../SPN
 
 *** signature of stochastic wfn (parameterized in transition labels)
-fmod WFN{TL :: STLAB} is
+fmod WFN-SIG{TL :: STLAB} is
   pr SPN-SIG{TL} . *** place labels are strings
   *** sort Net .
   *** subsort Net < Net .
@@ -53,8 +53,7 @@ ceq renameIO(N ; L |-> [I, O, H] ; L' |-> [I', O', H'], S, S') =
  op alt : Net Net -> [Net] [comm] . *** implicitly associative
  op par : Net Net String TL$Lab TL$Lab -> [Net]  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
 
- *** eq seq((L |-> [I, K . p("out") + O, H] ; N) B, (L' |-> [I' + K' . p("in"),  O', H'] ; N') B', S) = 
- ***        (L |-> [I, K . p(S) + O, H] ; N ; L' |-> [I' + K' . p(S),  O', H'] ; N') rename(B, "out", S) + rename(B', "in", S) .
+ *** eq seq((L |-> [I, K . p("out") + O, H] ; N) B, (L' |-> [I' + K' . p("in"),  O', H'] ; N') B', S) = (L |-> [I, K . p(S) + O, H] ; N ; L' |-> [I' + K' . p(S),  O', H'] ; N') rename(B, "out", S) + rename(B', "in", S) .
  *** eq alt(N B, N' B') = (N ; N') B + B' . *** straightforward
  *** vars W W' W'' : Net . vars in1 in2 out1 out2 : String .
  *** ceq par(W, W', S, L, L') = (L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP]) nilP +
@@ -93,15 +92,18 @@ endv
 
 *** signature of stochastic wfn usable as net-tokens
 fmod SWFN is
-  pr  WFN{Wflab} .
+  pr  WFN-SIG{Wflab} .
   var L : Wflab .
   op ch : Tran -> String . *** the channel of a transition
   eq ch(L |-> Q:Tmatrix) = ch(L) .
 endfm
 
 *** this module defines the "autonomous" firing of stochastic wfn
+in ../../PT-SYS
+
 mod SWFN-SYS is
  inc SWFN .
+ inc PT-SYS{STLAB,String}{Wflab} .
  var M : Pbag . var T : Tran . vars N N' : Net .
  crl [firing] : N M => N firing(T, M) if  T ; N' := N  /\ noCh(l(T)) /\ enabled(T, M) /\ R:Float := firing-rate(T, M) .
 endm
@@ -129,10 +131,10 @@ mod WFN-EXE is
 
  eq m0  =  1 . p("in") .
  eq m0'  = 2 . p("in")  .
- *** eq wf = net m0 .
- *** eq wf' = net' m0 .
- *** eq wf'' = net'' m0' .
+ eq wf = net m0 .
+ eq wf' = net' m0 .
+ eq wf'' = net'' m0' .
  *** eq seq1 = seq(wf, wf', "in-out") .
- *** eq alt1 = alt(wf, wf') .
+ *** eq alt1 = alt(wf, wf')  .
  *** eq par1 = par(wf, wf', "",  t("par", "", 1.0, 0), t("synch", "", 1.0, 0)) .
 endm
