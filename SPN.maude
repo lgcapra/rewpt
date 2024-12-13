@@ -1,10 +1,10 @@
 in PT-NET
-in TLAB
 
 *** Stochastic Petri Net
+*** rappresentazione simile ma più intuitiva di modSPT
 
-*** theory of a stochastic PN transition label
-fth STLAB is 
+*** theory of stochastic transitions' labels
+fth STHLAB is 
  pr FLOAT .
  pr NAT . 
  sorts Lab Tag .
@@ -13,15 +13,14 @@ fth STLAB is
  op tag  : Lab -> Tag . *** any tag
 endfth
 
-
-view STLAB from TRIV to STLAB is
+view STHLAB from TRIV to STHLAB is
   sort Elt to Lab . 
 endv
 
 
 *** spn signature parameterized in tran labels: for some reasons, we cannot use the TRIV view to parameterize also place labels 
-fmod SPN-SIG{L :: STLAB} is
-  pr PT-NET{STLAB, String}{L} .
+fmod SPN-SIG{L :: STHLAB} is
+  pr PT-NET{STHLAB, String}{L} .
   pr CONVERSION .
   vars M M' : Pbag .
   vars P P' : Place . 
@@ -50,15 +49,36 @@ fmod SPN-SIG{L :: STLAB} is
   eq pol(T) = pol(l(T)) .
 endfm
 
-view Stlab from STLAB to TLAB is 
- sort Lab to Tlab .
+*** generic spn def
+fmod SPN-GEN{L :: STHLAB} is
+  pr SPN-SIG{L} .
+  pr PT-SYS{STHLAB, String}{L} .
+endfm
+
+*** spn transition label definition
+fmod TLAB is
+ pr STRING .
+ pr FLOAT .
+ sort Lab .
+ var W  : String .
+ var R  : Float .
+ var P  : Nat .  
+ op t : String Float Nat -> Lab [ctor] . 
+ op tag :  Lab  -> String .
+ op pol :  Lab  -> Nat .
+ op rate : Lab  -> Float .
+ eq tag (t(W,R,P)) =  W .
+ eq pol(t(W,R,P))  =  P .
+ eq rate(t(W,R,P)) =  R .
+endfm
+
+view Tlab from STHLAB to TLAB is 
  sort Tag to String .
 endv
 
-*** spn definition based on TLAB (and String) as node labels
+*** concrete spn definition based on TLAB (and String) as node labels
 fmod SPN is
-  pr SPN-SIG{Stlab} .
-  pr PT-SYS{STLAB, String}{Stlab} .
+  pr SPN-GEN{Tlab} .
 endfm
 
 

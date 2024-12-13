@@ -1,8 +1,8 @@
-in ../../SPN
+in NET-TOKEN
 
-*** signature of stochastic wfn (parameterized in transition labels)
-fmod WFN-SIG{TL :: STLAB} is
-  pr SPN-SIG{TL} . *** place labels are strings
+*** signature of stochastic wfn used as net tokens
+fmod WFN is
+  pr NET-TOKEN{Ntlab} . *** place labels are strings
   *** sort Net .
   *** subsort Net < Net .
   vars L L' : TL$Lab .
@@ -13,7 +13,10 @@ fmod WFN-SIG{TL :: STLAB} is
   *** var T : Tran .
   vars S S' S'' : String .
   *** var Y : System .
-
+  var L : Ntlab .
+  op ch : Tran -> String . *** the channel of a transition
+  
+  eq ch(L |-> Q:Tmatrix) = ch(L) 
   ops isIn isOut isHin : Net Place -> Bool .
   eq isIn(L |-> [I + K . P, O, H] ; N, P) = true .
   eq isIn(N, P) = false [owise] .
@@ -64,36 +67,10 @@ ceq renameIO(N ; L |-> [I, O, H] ; L' |-> [I', O', H'], S, S') =
  ***  eq sy:System + (sy':System + sy'':System) = (sy:System + sy':System) + sy'':System .
 endfm
 
-*** label for stochastic wfn (contains a channel, seen as string)
-fmod WFLAB is
- pr STRING .
- pr FLOAT .
- sort Wflab .
- vars L C : String . *** tag and channel - the empty string means that no channel is associated with the tran.
- var R  : Float . var P  : Nat .  var W : Wflab .
- op t : String String Float Nat -> Wflab [ctor] . 
- op tag :  Wflab -> String .
- op pol :  Wflab  -> Nat . *** firing policy
- op rate : Wflab -> Float .
- op ch :   Wflab   -> String .
- eq tag (t(L,C,R,P)) =  L .
- eq pol(t(L,C,R,P))  =  P .
- eq rate(t(L,C,R,P)) =  R .
- eq ch (t(L,C,R,P))  =  C .
- op noCh :  Wflab -> Bool .
- eq noCh(W) = ch(W) == "" .
-endfm
-
-*** view to a WFLAB
-view Wflab from STLAB to WFLAB is 
- sort Lab to Wflab .
- sort Tag to String .
-endv
-
 *** signature of stochastic wfn usable as net-tokens
 fmod SWFN is
-  pr  WFN-SIG{Wflab} .
-  var L : Wflab .
+  pr  WFN-SIG{Ntlab} .
+  var L : Ntlab .
   op ch : Tran -> String . *** the channel of a transition
   eq ch(L |-> Q:Tmatrix) = ch(L) .
 endfm
@@ -103,7 +80,7 @@ in ../../PT-SYS
 
 mod SWFN-SYS is
  inc SWFN .
- inc PT-SYS{STLAB,String}{Wflab} .
+ inc PT-SYS{STLAB,String}{Ntlab} .
  var M : Pbag . var T : Tran . vars N N' : Net .
  crl [firing] : N M => N firing(T, M) if  T ; N' := N  /\ noCh(l(T)) /\ enabled(T, M) /\ R:Float := firing-rate(T, M) .
 endm

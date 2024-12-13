@@ -1,18 +1,58 @@
-in WFN
+in ../../SPN
 
-*** net-token marking (multiset of markings)
-fmod MULTI-MARKING{PL :: TRIV} is
-   pr BAG{Pbag{PL}} * (sort Bag{Pbag{PL}} to Mmarking, op nil to nilMM) .
+*** theory of stochastic net-token transitions' labels
+fth NTHLAB is
+ inc STHLAB .
+ pr STRING .
+ op ch :   Lab   -> String . *** channel
+endfth
+
+view NTHLAB from STHLAB to NTHLAB is
+endv
+
+*** label for stochastic net-tokens (contains a channel, seen as a string)
+fmod NTLAB is
+ pr STRING .
+ pr FLOAT .
+ sort Lab .
+ vars L C : String . *** tag and channel - the empty string means that no channel is associated with the tran.
+ var R  : Float . var P  : Nat .  var W : Lab .
+ op t : String String Float Nat -> Lab [ctor] . 
+ op tag :  Lab -> String .
+ op pol :  Lab  -> Nat . *** firing policy
+ op rate : Lab -> Float .
+ op ch :   Lab   -> String .
+ eq tag (t(L,C,R,P)) =  L .
+ eq pol(t(L,C,R,P))  =  P .
+ eq rate(t(L,C,R,P)) =  R .
+ eq ch (t(L,C,R,P))  =  C .
+ op noCh :  Lab -> Bool .
+ eq noCh(W) = ch(W) == "" .
+endfm
+
+*** view to a NTLAB
+view Ntlab from NTHLAB to NTLAB is 
+ sort Tag to String .
+endv
+
+in ../../shared/MSET
+
+*** compact net-token marking description (multiset of markings)
+fmod NT-MARKING{PL :: TRIV} is
+   pr BAG{Pbag{PL}} * (sort Bag{Pbag{PL}} to NTmarking, op nil to nilMNT) .
+   *** pr MSET-BAG{Pbag{PL}} * (sort Mset{Pbag{PL}} to NTmarking, op empty to emptyMNT).
 endfm 
 
-fmod WF-TOKEN{L :: TRIV, PL :: TRIV} is 
-  pr MULTI-MARKING{PL} .
-  pr PT-NET{L, PL} .
+*** net-token representation with compact state (markings) 
+fmod NET-TOKEN{L :: NTHLAB} is 
+  pr NT-MARKING{String} .
+  *** pr SPN-SIG{NTHLAB}{L} . *** only the net's signature
+  pr SPN-GEN{NTHLAB}{L} . *** net plus marking
   sort NetToken .
-  op __ : Net Mmarking -> [NetToken] [ctor] .
+  op _._ : Net NTmarking -> [NetToken] [ctor] .
   op n : NetToken -> Net .
-  op m : NetToken -> Mmarking .
-  var N : Net . var M : Mmarking .
-  eq n(N M) = N .
-  eq m(N M) = M .
+  op m : NetToken -> NTmarking .
+  var N : Net . var M : NTmarking .
+  eq n(N . M) = N .
+  eq m(N . M) = M .
 endfm

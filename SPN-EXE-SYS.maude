@@ -5,7 +5,7 @@ in SPN-SYS
 mod SPN-EXE-SYS is
  inc SPN-EXE .
  inc SPN-SYS .
- vars L L' : Tlab . vars T T' : Tran . var P : Place . vars B B' M I O : Pbag  .
+ vars L L' : Lab . vars T T' : Tran . var P : Place . vars B B' M I O : Pbag  .
  vars r r' : Float . var N : Net . var W : String . var E : Nat . var Q : Tmatrix .
 
  *** example of rewrites (other than firing)
