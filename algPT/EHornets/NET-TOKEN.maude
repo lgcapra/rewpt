@@ -4,7 +4,7 @@ in ../../SPN
 fth NTHLAB is
  inc STHLAB .
  pr STRING .
- op ch :   Lab   -> String . *** channel
+ op ch :  Lab -> String . *** channel
 endfth
 
 view NTHLAB from STHLAB to NTHLAB is
@@ -26,8 +26,6 @@ fmod NTLAB is
  eq pol(t(L,C,R,P))  =  P .
  eq rate(t(L,C,R,P)) =  R .
  eq ch (t(L,C,R,P))  =  C .
- op noCh :  Lab -> Bool .
- eq noCh(W) = ch(W) == "" .
 endfm
 
 *** view to a NTLAB
@@ -39,20 +37,71 @@ in ../../shared/MSET
 
 *** compact net-token marking description (multiset of markings)
 fmod NT-MARKING{PL :: TRIV} is
-   pr BAG{Pbag{PL}} * (sort Bag{Pbag{PL}} to NTmarking, op nil to nilMNT) .
-   *** pr MSET-BAG{Pbag{PL}} * (sort Mset{Pbag{PL}} to NTmarking, op empty to emptyMNT).
+   pr BAG{Pbag{PL}} * (sort Bag{Pbag{PL}} to Bag{Pbag}, sort NeBag{Pbag{PL}} to NeBag{Pbag}, sort ElBag{Pbag{PL}} to ElBag{Pbag}, op nil to nilMNT) .
+   *** pr MSET-BAG{Pbag{PL}} * (sort Mset{Pbag{PL}} to Mset{Pbag}, op empty to emptyMNT).
 endfm 
 
 *** net-token representation with compact state (markings) 
 fmod NET-TOKEN{L :: NTHLAB} is 
   pr NT-MARKING{String} .
-  *** pr SPN-SIG{NTHLAB}{L} . *** only the net's signature
   pr SPN-GEN{NTHLAB}{L} . *** net plus marking
   sort NetToken .
-  op _._ : Net NTmarking -> [NetToken] [ctor] .
+  op __ : Net Bag{Pbag} -> NetToken [ctor] .
   op n : NetToken -> Net .
-  op m : NetToken -> NTmarking .
-  var N : Net . var M : NTmarking .
-  eq n(N . M) = N .
-  eq m(N . M) = M .
+  op m : NetToken -> Bag{Pbag} .
+  var N : Net .
+  var B : Bag{Pbag} .
+  eq n(N B) = N .
+  eq m(N B) = B .
+  op ch : Tran -> String . *** the channel of a transition
+  eq ch(T:Tran) = ch(l(T:Tran)) .
 endfm
+
+mod NET-TOKEN-SYS{L :: NTHLAB} is
+ inc NET-TOKEN{L} .
+ vars N N' : Net .
+ var B : Bag{Pbag} . 
+ vars M M' : Pbag .
+ var K : NzNat .
+ var T : Tran .
+ crl [ntaut-firing] : N B + K . M => N B + sd(K,1) . M + 1 . firing(T, M) if  T ; N' := N  /\ ch(T) == "" /\ enabled(T, M) /\ R:Float := firing-rate(T, M) .
+endm
+
+in ../ALG-PN
+
+view NetToken{L :: NTHLAB} from TRIV to NET-TOKEN{L} is
+ sort Elt to NetToken .
+endv
+
+*** definition of an eHornet marking parametric vs the net-tokens' transitions lab
+fmod EHORNET-MARKING-GEN{L :: NTHLAB} is
+   generated-by MSET-MARKING{NetToken{L}} * (sort Mset{NetToken{L}} to Mset{NetToken}, 
+                            sort Bag{NetToken{L}} to Bag{NetToken}, sort NeBag{NetToken{L}} to NeBag{NetToken}, sort ElBag{NetToken{L}} to ElBag{NetToken},
+                            sort MsetMarking{NetToken{L}} to  MsetMarking{NetToken}, sort  PmsetMarking{NetToken{L}} to  PmsetMarking{NetToken},
+                            op nil to nilNT, op empty to emptyNT ) .
+   var N : Net .
+   vars B B' : Bag{Pbag} . *** compact net-token markings
+   eq (N B) (N B') = N (B + B') . 
+endfm
+
+mod EHORNET is 
+  inc EHORNET-MARKING-GEN{Ntlab} .
+  inc NET-TOKEN-SYS{Ntlab} .
+endm
+
+*** examples of usage of pa operators
+mod EH-EXE is
+ inc EHORNET .
+ ops net net' net'' : -> Net  [memo] .
+ ops m0 m0' m0'' : -> Pbag  [memo] .  
+ ops nt nt' : -> NetToken [memo] .
+
+ eq net =  t("a", "ch1", 1.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
+ eq net' = t("b", "", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
+ eq net'' = t("c", "", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
+
+ eq m0  =  1 . p("in") .
+ eq m0'  = 2 . p("in")  .
+ eq nt = net (1 . m0) .
+ eq nt' = net' (1 . m0') .
+endm

@@ -1,11 +1,16 @@
 in SPN
 
 *** Stochastic Petri Net plus firing rule
-
-mod SPN-SYS is
- inc SPN .
+*** generic system module (parametric in T-labels)
+mod SPN-SYS-GEN{L :: STHLAB} is
+ inc SPN-GEN{L} .
  var M : Pbag . var T : Tran . vars N N' : Net .
  crl [firing] : N M => N firing(T, M) if T ; N' := N  /\ enabled(T, M) /\ R:Float := firing-rate(T, M) .
+endm
+
+*** concrete system module
+mod SPN-SYS is
+ inc SPN-SYS-GEN{Tlab} .
 endm
 
 *** trivial view to PT-SYS (careful: same name as the view to PT-SYS)

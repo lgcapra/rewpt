@@ -1,11 +1,11 @@
 in NET-TOKEN
 
 *** signature of stochastic wfn used as net tokens
-fmod WFN is
-  pr NET-TOKEN{Ntlab} . *** place labels are strings
-  *** sort Net .
-  *** subsort Net < Net .
-  vars L L' : TL$Lab .
+fmod WFN-TOKEN{L :: NTHLAB} is
+  pr NET-TOKEN{L} . *** place labels are strings
+  sort Wfn .
+  subsort Wfn < Net .
+  vars L L' : L$Lab .
   vars K K' U U' : NzNat .
   vars N N' : Net .
   vars I O H I' O' H' B B' : Pbag .
@@ -13,10 +13,7 @@ fmod WFN is
   *** var T : Tran .
   vars S S' S'' : String .
   *** var Y : System .
-  var L : Ntlab .
-  op ch : Tran -> String . *** the channel of a transition
   
-  eq ch(L |-> Q:Tmatrix) = ch(L) 
   ops isIn isOut isHin : Net Place -> Bool .
   eq isIn(L |-> [I + K . P, O, H] ; N, P) = true .
   eq isIn(N, P) = false [owise] .
@@ -54,7 +51,7 @@ ceq renameIO(N ; L |-> [I, O, H] ; L' |-> [I', O', H'], S, S') =
  *** eq N B + N' B' = (N ; N') B + B' .
  op seq : Net Net String -> [Net]  . *** the string parameter is used to rename the merged Out/In places of the operands  
  op alt : Net Net -> [Net] [comm] . *** implicitly associative
- op par : Net Net String TL$Lab TL$Lab -> [Net]  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
+ op par : Net Net String L$Lab L$Lab -> [Net]  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
 
  *** eq seq((L |-> [I, K . p("out") + O, H] ; N) B, (L' |-> [I' + K' . p("in"),  O', H'] ; N') B', S) = (L |-> [I, K . p(S) + O, H] ; N ; L' |-> [I' + K' . p(S),  O', H'] ; N') rename(B, "out", S) + rename(B', "in", S) .
  *** eq alt(N B, N' B') = (N ; N') B + B' . *** straightforward
@@ -67,37 +64,10 @@ ceq renameIO(N ; L |-> [I, O, H] ; L' |-> [I', O', H'], S, S') =
  ***  eq sy:System + (sy':System + sy'':System) = (sy:System + sy':System) + sy'':System .
 endfm
 
-*** signature of stochastic wfn usable as net-tokens
-fmod SWFN is
-  pr  WFN-SIG{Ntlab} .
-  var L : Ntlab .
-  op ch : Tran -> String . *** the channel of a transition
-  eq ch(L |-> Q:Tmatrix) = ch(L) .
-endfm
-
-*** this module defines the "autonomous" firing of stochastic wfn
-in ../../PT-SYS
-
-mod SWFN-SYS is
- inc SWFN .
- inc PT-SYS{STLAB,String}{Ntlab} .
- var M : Pbag . var T : Tran . vars N N' : Net .
- crl [firing] : N M => N firing(T, M) if  T ; N' := N  /\ noCh(l(T)) /\ enabled(T, M) /\ R:Float := firing-rate(T, M) .
-endm
-
-*** trivial views to SWFN-SYS
-view System from TRIV to SWFN-SYS is 
- sort Elt to System .
-endv
-
-view Net from TRIV to SWFN-SYS is 
-  sort Elt to Net .
-endv
-
 
 *** examples of usage of pa operators
 mod WFN-EXE is
- inc SWFN-SYS .
+ inc WFN-TOKEN{Ntlab} .
  ops net net' net'' : -> Net  [memo] .
  ops m0 m0' m0'' : -> Pbag  [memo] .  
  ops wf wf' wf'' seq1 alt1 par1 : -> System [memo] .
