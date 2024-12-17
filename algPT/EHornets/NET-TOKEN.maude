@@ -35,13 +35,13 @@ endv
 
 in ../../shared/MSET
 
-*** compact net-token marking description (multiset of markings)
+*** compact net-token marking description (multiset of markings) parametric in place labels
 fmod NT-MARKING{PL :: TRIV} is
    pr BAG{Pbag{PL}} * (sort Bag{Pbag{PL}} to Bag{Pbag}, sort NeBag{Pbag{PL}} to NeBag{Pbag}, sort ElBag{Pbag{PL}} to ElBag{Pbag}, op nil to nilMNT) .
    *** pr MSET-BAG{Pbag{PL}} * (sort Mset{Pbag{PL}} to Mset{Pbag}, op empty to emptyMNT).
 endfm 
 
-*** net-token representation with compact state (markings) 
+*** net-token representation with compact state (markings) description parametric in transition labels 
 fmod NET-TOKEN{L :: NTHLAB} is 
   pr NT-MARKING{String} .
   pr SPN-GEN{NTHLAB}{L} . *** net plus marking
@@ -57,6 +57,7 @@ fmod NET-TOKEN{L :: NTHLAB} is
   eq ch(T:Tran) = ch(l(T:Tran)) .
 endfm
 
+*** net-token including the object-autonomous firing rule
 mod NET-TOKEN-SYS{L :: NTHLAB} is
  inc NET-TOKEN{L} .
  vars N N' : Net .

@@ -4,10 +4,11 @@ in NET-TOKEN
 fmod WFN-TOKEN{L :: NTHLAB} is
   pr NET-TOKEN{L} . *** place labels are strings
   sort Wfn .
-  subsort Wfn < Net .
+  subsort Wfn < NetToken .
   vars L L' : L$Lab .
   vars K K' U U' : NzNat .
   vars N N' : Net .
+  var BB : Bag{Pbag} . 
   vars I O H I' O' H' B B' : Pbag .
   var P : Place .
   *** var T : Tran .
@@ -24,8 +25,8 @@ fmod WFN-TOKEN{L :: NTHLAB} is
   op wfnet? : Net -> Bool .
   eq wfnet?(N) = isIn(N,p("in")) and-then not(isOut(N,p("in")) or-else isHin(N, p("in"))) and-then 
                  isOut(N,p("out")) and-then not(isIn(N,p("out")) or-else isHin(N, p("out"))) .
-
- *** cmb Y : Net if wfnet?(n(Y)) . *** characterizes workflow-nets
+  
+  cmb N BB : Wfn if wfnet?(N) . *** characterizes workflow nets(-tokens)
 
  *** utilities
  op rename : Pbag String String -> Pbag .
@@ -74,7 +75,7 @@ mod WFN-EXE is
 
  eq net =  t("a", "ch1", 1.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
  eq net' = t("b", "ch1", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
- eq net'' = t("c", "", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
+ eq net'' = t("c", "", 2.0, 0) |-> [1 . p("a"), 1 . p("out"), nilP] .
 
  eq m0  =  1 . p("in") .
  eq m0'  = 2 . p("in")  .

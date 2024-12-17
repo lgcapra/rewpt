@@ -59,7 +59,7 @@ fmod MSET-MARKING{X :: TRIV} is
   subsort PmsetMarking{X} < Pmarking MsetMarking{X} .
   subsort MsetMarking{X}  < Marking .
   op _|->_ : Place Mset{X} -> PmsetMarking{X} [ctor] .
-  op _;_ : PmsetMarking{X} PmsetMarking{X} -> PmsetMarking{X} [ctor ditto] . *** overloading
+  op _;_ : MsetMarking{X} MsetMarking{X} -> MsetMarking{X} [ctor ditto] . *** overloading
   var B  : Mset{X} .
   var P  : Place .
   eq place(P |-> B) = P .
