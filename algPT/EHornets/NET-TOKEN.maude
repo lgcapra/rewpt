@@ -75,7 +75,7 @@ view NetToken{L :: NTHLAB} from TRIV to NET-TOKEN{L} is
 endv
 
 *** definition of an eHornet marking parametric vs the net-tokens' transitions lab
-fmod EHORNET-MARKING-GEN{L :: NTHLAB} is
+fmod EHORNET-GEN{L :: NTHLAB} is
    generated-by MSET-MARKING{NetToken{L}} * (sort Mset{NetToken{L}} to Mset{NetToken}, 
                             sort Bag{NetToken{L}} to Bag{NetToken}, sort NeBag{NetToken{L}} to NeBag{NetToken}, sort ElBag{NetToken{L}} to ElBag{NetToken},
                             sort MsetMarking{NetToken{L}} to  MsetMarking{NetToken}, sort  PmsetMarking{NetToken{L}} to  PmsetMarking{NetToken},
@@ -86,7 +86,7 @@ fmod EHORNET-MARKING-GEN{L :: NTHLAB} is
 endfm
 
 mod EHORNET is 
-  inc EHORNET-MARKING-GEN{Ntlab} .
+  inc EHORNET-GEN{Ntlab} .
   inc NET-TOKEN-SYS{Ntlab} .
 endm
 

@@ -1,11 +1,11 @@
 in NET-TOKEN
 
 *** signature of stochastic wfn used as net tokens
-fmod WFN-TOKEN{L :: NTHLAB} is
-  pr NET-TOKEN{L} . *** place labels are strings
+fmod WFN-TOKEN is
+  pr NET-TOKEN{Ntlab} . *** place labels are strings
   sort Wfn .
   subsort Wfn < NetToken .
-  vars L L' : L$Lab .
+  vars L L' : Lab .
   vars K K' U U' : NzNat .
   vars N N' : Net .
   var BB : Bag{Pbag} . 
@@ -32,14 +32,12 @@ fmod WFN-TOKEN{L :: NTHLAB} is
  op rename : Pbag String String -> Pbag .
  eq rename(K . p(S) + B, S, S') = K . p(S') + B .
  eq rename(B, S, S') = B [owise] .
- op renameIO : Net String String -> Net . *** optimized renaming of IO places of a wfn
+ op renameIO : Net String String -> Net . *** optimized renaming of IO places of a wf net
  eq renameIO(L |-> [I, O, H], S, S') = L |-> [rename(I, "in", S), rename(O, "out", S'), H] .
 ceq renameIO(N ; L |-> [I, O, H] ; L' |-> [I', O', H'], S, S') = 
          N ; L |-> [rename(I, "in", S), O, H] ; L' |-> [I', rename(O', "out", S'), H'] if I[p("in")] =/= 0 /\ O'[p("out")] =/= 0 .
-
-*** eq renameIO(L |-> [I, O, H] B, S, S') = L |-> [rename(I, "in", S), rename(O, "out", S'), H] rename(rename(B, "in", S),"out", S') .
-*** ceq renameIO((N ; L |-> [I, O, H] ; L' |-> [I', O', H'])  B, S, S') =  (N ; L |-> [rename(I, "in", S), O, H] ; L' |-> [I', rename(O', "out", S'), H'])  rename(rename(B, "in", S),"out", S')
-***   if I[p("in")] =/= 0 /\ O'[p("out")] =/= 0 .
+ op renameIO : System String String -> System . *** system version
+ eq renameIO(N B, S, S') = renameIO(N, S, S') rename(rename(B, "in", S), "out", S') .
  
  op cat : String String -> String . *** concatenates using a '-' if the first string is not empty 
  eq cat("",S) = S .
@@ -48,27 +46,33 @@ ceq renameIO(N ; L |-> [I, O, H] ; L' |-> [I', O', H'], S, S') =
  eq cat(S, n:Nat) = cat(S, string(n:Nat, 10)) [owise] .
 
  *** pa operators
- *** op _+_ : System System -> System [comm prec 121] . *** net juxtaposition and sum of markings (lowest priority)
- *** eq N B + N' B' = (N ; N') B + B' .
  op seq : Net Net String -> [Net]  . *** the string parameter is used to rename the merged Out/In places of the operands  
  op alt : Net Net -> [Net] [comm] . *** implicitly associative
- op par : Net Net String L$Lab L$Lab -> [Net]  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
+ op par : Net Net String Lab Lab -> [Net]  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
 
- *** eq seq((L |-> [I, K . p("out") + O, H] ; N) B, (L' |-> [I' + K' . p("in"),  O', H'] ; N') B', S) = (L |-> [I, K . p(S) + O, H] ; N ; L' |-> [I' + K' . p(S),  O', H'] ; N') rename(B, "out", S) + rename(B', "in", S) .
- *** eq alt(N B, N' B') = (N ; N') B + B' . *** straightforward
- *** vars W W' W'' : Net . vars in1 in2 out1 out2 : String .
- *** ceq par(W, W', S, L, L') = (L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP]) nilP +
- ***    (renameIO(W, in1,  out1) + renameIO(W', in2, out2)) 
- ***       if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
-*** the following equations are redundant: associativity, if given as equational attribute, may result in a warning 
+ eq seq(L |-> [I, K . p("out") + O, H] ; N, L' |-> [I' + K' . p("in"),  O', H'] ; N', S) = L |-> [I, K . p(S) + O, H] ; N ; L' |-> [I' + K' . p(S),  O', H'] ; N' .
+ *** rename(B, "out", S) + rename(B', "in", S) .
+ eq alt(N, N') = N ; N' .
+ *** B + B' . *** straightforward
+ vars W W' W'' : Net . 
+ vars in1 in2 out1 out2 : String .
+ ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP] ;
+       renameIO(N, in1,  out1) ; renameIO(N', in2, out2) 
+        if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
+***  the following equations are redundant: associativity, if given as equational attribute, may result in a warning 
 ***  eq alt(W,alt(W',W'')) = alt(alt(W,W'),W'') . 
  ***  eq sy:System + (sy':System + sy'':System) = (sy:System + sy':System) + sy'':System .
+endfm
+
+fmod EHORNET-WFN is
+  pr EHORNET-GEN{Ntlab} .
+  pr WFN-TOKEN .
 endfm
 
 
 *** examples of usage of pa operators
 mod WFN-EXE is
- inc WFN-TOKEN{Ntlab} .
+ inc EHORNET-WFN .
  ops net net' net'' : -> Net  [memo] .
  ops m0 m0' m0'' : -> Pbag  [memo] .  
  ops wf wf' wf'' seq1 alt1 par1 : -> System [memo] .

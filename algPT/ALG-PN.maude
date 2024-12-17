@@ -22,7 +22,7 @@ ceq welldef((Mp ; Mp' ; M)) = false if place(Mp) = place(Mp') . *** could be a m
  op undefined : -> [Pmarking] .
  *** look-up
  op _[_] : Marking Place -> [Pmarking] [prec 23] .
-ceq (M ; Mp)[P] = Mp if place(Mp) == P and-then $marked(M, P) = false .
+ceq (M ; Mp)[P] = Mp if place(Mp) = P /\ not($marked(M, P)) .
  eq M[P] = undefined [owise] .
  op $marked : Marking Place -> Bool .
 ceq $marked((M ; Mp), P) = true if place(Mp) = P .
