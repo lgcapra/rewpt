@@ -1,11 +1,13 @@
 *** def base, senza tutti gli operatori per gestire le etichette "strutturate" dellìapproccio modulare 
 in ./shared/BAG-AND-SET
+in ./shared/MSET
 in PLACE
 
 
 fmod PBAG{X :: TRIV} is
- pr BAG-AND-SET{Place{X}} * ( sort Bag{Place{X}} to Pbag, sort NeBag{Place{X}} to NePbag, sort ElBag{Place{X}} to ElPbag, op nil to nilP, 
-                           sort Set{Place{X}} to Pset, sort NeSet{Place{X}} to NePset, op emptyS to emptyPset) .
+ pr (BAG-AND-SET{Place{X}} + MSET-BAG{Place{X}}) * ( sort Bag{Place{X}} to Pbag, sort NeBag{Place{X}} to NePbag, sort ElBag{Place{X}} to ElPbag, op nil to nilP, 
+                           sort Set{Place{X}} to Pset, sort NeSet{Place{X}} to NePset, op emptyS to emptyPset,
+                           sort  Mset{Place{X}} to Pmset, op empty to emptyPmset ) .
 endfm
 
 

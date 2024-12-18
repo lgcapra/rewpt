@@ -41,20 +41,31 @@ fmod NT-MARKING{PL :: TRIV} is
    *** pr MSET-BAG{Pbag{PL}} * (sort Mset{Pbag{PL}} to Mset{Pbag}, op empty to emptyMNT).
 endfm 
 
+view Tran{L :: NTHLAB} from TRIV to SPN-GEN{NTHLAB}{L} is
+  sort Elt to Tran .
+endv
+
 *** net-token representation with compact state (markings) description parametric in transition labels 
 fmod NET-TOKEN{L :: NTHLAB} is 
   pr NT-MARKING{String} .
-  pr SPN-GEN{NTHLAB}{L} . *** net plus marking
+  *** pr SPN-GEN{NTHLAB}{L} . *** net plus marking
+  pr MSET-BAG{Tran{L}} * (op nil to nilT, op empty to emptyMsetT, sort Bag{Tran{L}} to Bag{Tran}, sort ElBag{Tran{L}} to ElBag{Tran},
+                         sort NeBag{Tran{L}} to NeBag{Tran}, sort Mset{Tran{L}} to Mset{Tran} ) .
   sort NetToken .
-  op __ : Net Bag{Pbag} -> NetToken [ctor] .
+  op __ : Net Bag{Pbag} -> [NetToken] [ctor] .
+  op hasInhibitors : Net -> Bool .
+  eq hasInhibitors(N ; L:L$Lab |-> [I:Pbag,O:Pbag,H:NePbag]) = true .
+  eq hasInhibitors(N) = false [owise] .
   op n : NetToken -> Net .
   op m : NetToken -> Bag{Pbag} .
   var N : Net .
   var B : Bag{Pbag} .
+  cmb N B : NetToken if hasInhibitors(N) = false . *** we suppose that net-tokens do not have inhibitor arcs
   eq n(N B) = N .
   eq m(N B) = B .
   op ch : Tran -> String . *** the channel of a transition
   eq ch(T:Tran) = ch(l(T:Tran)) .
+  op enabled : Bag{Tran} Pbag -> Bool .
 endfm
 
 *** net-token including the object-autonomous firing rule
@@ -65,7 +76,9 @@ mod NET-TOKEN-SYS{L :: NTHLAB} is
  vars M M' : Pbag .
  var K : NzNat .
  var T : Tran .
- crl [ntaut-firing] : N B + K . M => N B + sd(K,1) . M + 1 . firing(T, M) if  T ; N' := N  /\ ch(T) == "" /\ enabled(T, M) /\ R:Float := firing-rate(T, M) .
+ var NT : NetToken .
+ *** crl [ntaut-firing] : N B + K . M => N B + sd(K,1) . M + 1 . firing(T, M) if  T ; N' := N  /\ ch(T) == "" /\ I(T) <= M /\ R:Float := firing-rate(T, M) .
+ crl [ntaut-firing] : NT => (T ; N) B + sd(K,1) . M + 1 . firing(T, M) if (T ; N) B + K . M := NT /\ ch(T) = "" /\ I(T) <= M /\ R:Float := firing-rate(T, M) .
 endm
 
 in ../ALG-PN

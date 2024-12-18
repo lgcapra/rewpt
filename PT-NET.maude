@@ -13,6 +13,10 @@ fmod PT-NET{L :: TRIV, PL :: TRIV} is
  op q : Tran -> Tmatrix .
  eq l(L |-> Q) = L .
  eq q(L |-> Q) = Q .
+ ops I O H : Tran -> Pbag .
+ eq I(T) = I(q(T)) .
+ eq O(T) = O(q(T)) .
+ eq H(T) = H(q(T)) .
  
  eq L |-> [nilP, nilP, nilP] = emptyNet . *** removes isolated transitions
 *** eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** removes transitions not changing the marking
