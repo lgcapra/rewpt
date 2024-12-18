@@ -52,20 +52,35 @@ fmod NET-TOKEN{L :: NTHLAB} is
   pr MSET-BAG{Tran{L}} * (op nil to nilT, op empty to emptyMsetT, sort Bag{Tran{L}} to Bag{Tran}, sort ElBag{Tran{L}} to ElBag{Tran},
                          sort NeBag{Tran{L}} to NeBag{Tran}, sort Mset{Tran{L}} to Mset{Tran} ) .
   sort NetToken .
+  var N : Net .
+  var B : Bag{Pbag} . *** nested multiset
+  var TB : Bag{Tran} .
+  var T : Tran .
+  var PB : Pbag .
+  var K : NzNat .
   op __ : Net Bag{Pbag} -> [NetToken] [ctor] .
   op hasInhibitors : Net -> Bool .
   eq hasInhibitors(N ; L:L$Lab |-> [I:Pbag,O:Pbag,H:NePbag]) = true .
   eq hasInhibitors(N) = false [owise] .
   op n : NetToken -> Net .
   op m : NetToken -> Bag{Pbag} .
-  var N : Net .
-  var B : Bag{Pbag} .
   cmb N B : NetToken if hasInhibitors(N) = false . *** we suppose that net-tokens do not have inhibitor arcs
   eq n(N B) = N .
   eq m(N B) = B .
-  op ch : Tran -> String . *** the channel of a transition
+  op ch : Tran -> String . *** channel of a transition
   eq ch(T:Tran) = ch(l(T:Tran)) .
-  op enabled : Bag{Tran} Pbag -> Bool .
+  op enabled : Bag{Tran} Pbag -> Bool . *** cumulative enabling
+  op pre : Bag{Tran} -> Pbag .
+  eq pre(TB) = $pre(TB, nilP) .
+  op $pre : Bag{Tran} Pbag -> Pbag .
+  eq $pre(nilT, PB) = PB .
+  eq $pre(K . T + TB, PB) = $pre(TB, PB + K * I(T)) . 
+  op post : Bag{Tran} -> Pbag .
+  eq post(TB) = $post(TB, nilP) .
+  op $post : Bag{Tran} Pbag -> Pbag .
+  eq $post(nilT, PB) = PB .
+  eq $post(K . T + TB, PB) = $post(TB, PB + K * O(T)) . 
+
 endfm
 
 *** net-token including the object-autonomous firing rule

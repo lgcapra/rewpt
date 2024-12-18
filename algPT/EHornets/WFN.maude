@@ -15,16 +15,14 @@ fmod WFN-TOKEN is
   vars S S' S'' : String .
   *** var Y : System .
   
-  ops isIn isOut isHin : Net Place -> Bool .
-  eq isIn(L |-> [I + K . P, O, H] ; N, P) = true .
-  eq isIn(N, P) = false [owise] .
-  eq isOut(L |-> [I, O + K . P, H] ; N, P) = true .
-  eq isOut(N, P) = false [owise] .
-  eq isHin(L |-> [I, O, H + K . P] ; N, P) = true .
-  eq isHin(N, P) = false [owise] .
+  ops hasIn hasOut : Net Place -> Bool .
+  eq hasIn(L |-> [I + K . P, O, H] ; N, P) = true .
+  eq hasIn(N, P) = false [owise] .
+  eq hasOut(L |-> [I, O + K . P, H] ; N, P) = true .
+  eq hasOut(N, P) = false [owise] .
   op wfnet? : Net -> Bool .
-  eq wfnet?(N) = isIn(N,p("in")) and-then not(isOut(N,p("in")) or-else isHin(N, p("in"))) and-then 
-                 isOut(N,p("out")) and-then not(isIn(N,p("out")) or-else isHin(N, p("out"))) .
+  eq wfnet?(N) = hasIn(N,p("in")) and-then hasOut(N,p("out")) and-then 
+                 not(hasOut(N,p("in"))) and-then not(hasIn(N,p("out"))) .
   
   cmb N BB : Wfn if wfnet?(N) . *** characterizes workflow nets(-tokens)
 
@@ -59,9 +57,6 @@ ceq renameIO(N ; L |-> [I, O, H] ; L' |-> [I', O', H'], S, S') =
  ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP] ;
        renameIO(N, in1,  out1) ; renameIO(N', in2, out2) 
         if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
-***  the following equations are redundant: associativity, if given as equational attribute, may result in a warning 
-***  eq alt(W,alt(W',W'')) = alt(alt(W,W'),W'') . 
- ***  eq sy:System + (sy':System + sy'':System) = (sy:System + sy':System) + sy'':System .
 endfm
 
 fmod EHORNET-WFN is
@@ -75,7 +70,7 @@ mod WFN-EXE is
  inc EHORNET-WFN .
  ops net net' net'' : -> Net  [memo] .
  ops m0 m0' m0'' : -> Pbag  [memo] .  
- ops wf wf' wf'' seq1 alt1 par1 : -> System [memo] .
+ ops wf wf' wf'' seq1 alt1 par1 : -> [NetToken] [memo] .
 
  eq net =  t("a", "ch1", 1.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
  eq net' = t("b", "ch1", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
@@ -83,9 +78,9 @@ mod WFN-EXE is
 
  eq m0  =  1 . p("in") .
  eq m0'  = 2 . p("in")  .
- eq wf = net m0 .
- eq wf' = net' m0 .
- eq wf'' = net'' m0' .
+ eq wf = net 1 . m0 .
+ eq wf' = net' 1 . m0 .
+ eq wf'' = net'' 1 . m0' .
  *** eq seq1 = seq(wf, wf', "in-out") .
  *** eq alt1 = alt(wf, wf')  .
  *** eq par1 = par(wf, wf', "",  t("par", "", 1.0, 0), t("synch", "", 1.0, 0)) .
