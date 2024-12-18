@@ -45,9 +45,9 @@ ceq renameIO(N ; L |-> [I, O, H] ; L' |-> [I', O', H'], S, S') =
  op cat : String Nat -> String . *** append an index to a string
  eq cat(S, n:Nat) = cat(S, string(n:Nat, 10)) [owise] .
 
- *** pa operators
+ *** pa operators (partial functions)
  op seq : Net Net String -> [Net]  . *** the string parameter is used to rename the merged Out/In places of the operands  
- op alt : Net Net -> [Net] [comm] . *** implicitly associative
+ op alt : Net Net -> [Net] [assoc comm] . *** implicitly associative
  op par : Net Net String Lab Lab -> [Net]  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
 
  eq seq(L |-> [I, K . p("out") + O, H] ; N, L' |-> [I' + K' . p("in"),  O', H'] ; N', S) = L |-> [I, K . p(S) + O, H] ; N ; L' |-> [I' + K' . p(S),  O', H'] ; N' .

@@ -85,24 +85,13 @@ fmod EHORNET-GEN{L :: NTHLAB} is
    eq (N B) (N B') = N (B + B') . 
 endfm
 
-mod EHORNET is 
+fth SYNCH is
+ inc SPN-SIG{NTHLAB}{Ntlab} .
+ inc BAG{String} * (op nil to nilS) .
+ op synch : Net String -> Bag{String} . *** maps each rule (label) to a bag of channels
+endfth
+
+mod EHORNET{S :: SYNCH} is 
   inc EHORNET-GEN{Ntlab} .
   inc NET-TOKEN-SYS{Ntlab} .
-endm
-
-*** examples of usage of pa operators
-mod EH-EXE is
- inc EHORNET .
- ops net net' net'' : -> Net  [memo] .
- ops m0 m0' m0'' : -> Pbag  [memo] .  
- ops nt nt' : -> NetToken [memo] .
-
- eq net =  t("a", "ch1", 1.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
- eq net' = t("b", "", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
- eq net'' = t("c", "", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
-
- eq m0  =  1 . p("in") .
- eq m0'  = 2 . p("in")  .
- eq nt = net (1 . m0) .
- eq nt' = net' (1 . m0') .
 endm
