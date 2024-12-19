@@ -13,7 +13,6 @@ fmod WFN-TOKEN is
   var P : Place .
   *** var T : Tran .
   vars S S' S'' : String .
-  *** var Y : System .
   
   ops hasIn hasOut : Net Place -> Bool .
   eq hasIn(L |-> [I + K . P, O, H] ; N, P) = true .
@@ -23,8 +22,9 @@ fmod WFN-TOKEN is
   op wfnet? : Net -> Bool .
   eq wfnet?(N) = hasIn(N,p("in")) and-then hasOut(N,p("out")) and-then 
                  not(hasOut(N,p("in"))) and-then not(hasIn(N,p("out"))) .
-  
-  cmb N BB : Wfn if wfnet?(N) . *** characterizes workflow nets(-tokens)
+
+  var NT : NetToken .               
+  cmb NT : Wfn if wfnet?(n(NT)) . *** characterizes workflow nets(-tokens)
 
  *** utilities
  op rename : Pbag String String -> Pbag .
@@ -34,8 +34,6 @@ fmod WFN-TOKEN is
  eq renameIO(L |-> [I, O, H], S, S') = L |-> [rename(I, "in", S), rename(O, "out", S'), H] .
 ceq renameIO(N ; L |-> [I, O, H] ; L' |-> [I', O', H'], S, S') = 
          N ; L |-> [rename(I, "in", S), O, H] ; L' |-> [I', rename(O', "out", S'), H'] if I[p("in")] =/= 0 /\ O'[p("out")] =/= 0 .
- op renameIO : System String String -> System . *** system version
- eq renameIO(N B, S, S') = renameIO(N, S, S') rename(rename(B, "in", S), "out", S') .
  
  op cat : String String -> String . *** concatenates using a '-' if the first string is not empty 
  eq cat("",S) = S .
@@ -59,10 +57,10 @@ ceq renameIO(N ; L |-> [I, O, H] ; L' |-> [I', O', H'], S, S') =
         if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
 endfm
 
-fmod EHORNET-WFN is
-  pr EHORNET-GEN{Ntlab} .
-  pr WFN-TOKEN .
-endfm
+mod EHORNET-WFN is
+  inc EHORNET{Synch} .
+  inc WFN-TOKEN .
+endm
 
 
 *** examples of usage of pa operators
@@ -78,9 +76,9 @@ mod WFN-EXE is
 
  eq m0  =  1 . p("in") .
  eq m0'  = 2 . p("in")  .
- eq wf = net 1 . m0 .
- eq wf' = net' 1 . m0 .
- eq wf'' = net'' 1 . m0' .
+ eq wf = net m0 .
+ eq wf' = net' m0 .
+ eq wf'' = net'' m0' .
  *** eq seq1 = seq(wf, wf', "in-out") .
  *** eq alt1 = alt(wf, wf')  .
  *** eq par1 = par(wf, wf', "",  t("par", "", 1.0, 0), t("synch", "", 1.0, 0)) .
