@@ -58,11 +58,12 @@ fmod NT-STRUCT{L :: NTHLAB} is
                          sort NeBag{Tran{L}} to NeBag{Tran}, sort Mset{Tran{L}} to Mset{Tran} ) .
   pr MSET-BAG{String} * (op nil to nilS, op empty to emptyMsetS) .
   var N : Net .
-  var TB : Bag{Tran} .
   var T : Tran .
   var PB : Pbag .
   var K : NzNat .
   var SM : Mset{String} .
+  var SB : Bag{String} .
+  var TB : Bag{Tran} .
   var TM : Mset{Tran} .
   op hasInhibitor : Net -> Bool .
   eq hasInhibitor(N ; L:L$Lab |-> [I:Pbag,O:Pbag,H:NePbag]) = true .
@@ -85,6 +86,12 @@ fmod NT-STRUCT{L :: NTHLAB} is
   op $transitions : Net Mset{String} Mset{Tran} -> Mset{Tran} .
   eq $transitions(emptyNet, SM, TM) = TM .
   eq $transitions(T ; N, SM, TM) = $transitions(N, SM, if in(SM, ch(T)) then T TM else TM fi) . 
+  *** bag version (we might use the conversion op)
+  op transitions  : Net Bag{String} -> Bag{Tran} . *** net transitions matching a given channel
+  eq transitions(N, SB) = $transitions(N, SB, nilT) .
+  op $transitions : Net Bag{String} Bag{Tran} -> Bag{Tran} .
+  eq $transitions(emptyNet, SB, TB) = TB .
+  eq $transitions(T ; N, SB, TB) = $transitions(N, SB, if SB[ch(T)] =/= 0 then 1 . T + TB else TB fi) .
 endfm
 
 *** net-token representation with compact state (markings) description parametric in transition labels 
