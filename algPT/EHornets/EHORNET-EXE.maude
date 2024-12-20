@@ -1,15 +1,20 @@
 in ../ALG-PN 
 in NET-TOKEN
 
+*** an implementation of theory SYNCH
 fmod SYNCH-EXE is
   pr NT-STRUCT{Ntlab} .
   pr BAG{String} * (op nil to nilS) .
   op synch : Net String -> Bag{String} .
+  op theta : Net -> Bag{Tran} .
   var N : Net . 
   var T : Tran .
   var L : Lab .
- ceq  synch((T ; N), "T1") = (if tag(l(T)) == "a" then 2 else 1 fi) . ch(T)  if ch(T) =/= "" .
+ ceq  synch(T ; N, "T1") = (if tag(l(T)) == "a" then 2 else 1 fi) . ch(T)  if ch(T) =/= "" .
   eq  synch(N, W:String) = nilS [owise] . *** just an example
+ ceq theta(T ; N) = 2 . T if tag(l(T)) == "a" .
+ ceq theta(T ; N) = 1 . T if tag(l(T)) == "b" [owise] .
+  eq theta(N) = nilT [owise] .
 endfm
 
 *** view to a SYNCH-EXE
@@ -34,23 +39,21 @@ mod EHORNET-EXE is
  eq nt' = net m0' .
  eq nt'' = net' m0'' .
 
- op init : -> Marking . *** system-net initial marking
+ op init : -> Marking [memo] . *** system-net initial marking
  eq init = p("sys-1") |-> nt ; p("sys-2") |-> nt' ; p("sys-3") |-> nt'' ; p("sys-4") |-> emptyNT ;
            p("sys-5") |-> emptyNT ; p("sys-6") |-> emptyNT ; p("sys-7") |-> emptyNT .
  vars B B' B'' B1 B2 B3 B4 : Mset{NetToken} .
  vars X Y Z W N N' : Net .
  vars k k' : NzNat .
  vars M1 M2 M3 M4 : Mset{Pbag} .
-  *** system net transitions (encoded as rules)
-  *** pre(t1) = {p1,p2}, post{t1} = p3 ; removes one wfn from p1 and one from p2 and puts their alt in p2 (system autonomous) 
-crl [T1] : p("sys-1") |-> (X M1) B ;  p("sys-2") |-> (X M2)  B' ; p("sys-3") |-> (Y M3) B'' ; p("sys-4") |-> B1 ; p("sys-5") |-> B2 ; p("sys-6") |-> B3 ; p("sys-7") |-> B4 
+ vars TB TB' : Bag{Tran} .
+ vars b1 b2 b3 pre pre' cum cum' newm newm' : Pbag .
+ vars out1 out2 out3 out4 : Pmset .
+  *** system net synchronization transition (encoded as a rule)
+  *** pre(T1) = {p1,p2,3}, post{T1} = {p4,p5,p6,p7}  
+crl [T1] : p("sys-1") |-> (X b1 M1) B ;  p("sys-2") |-> (X b2 M2)  B' ; p("sys-3") |-> (Y b3 M3) B'' ; p("sys-4") |-> B1 ; p("sys-5") |-> B2 ; p("sys-6") |-> B3 ; p("sys-7") |-> B4 
           =>  
-            p("sys-1") |-> B ; p("sys-2") |-> B' ; p("sys-3") |-> B'' ; p("sys-4") |-> B1 (X M1) ; p("sys-5") |-> B2 (X M2) ; p("sys-6") |-> B3 (Y M3) ; p("sys-7") |-> B4 (Y M3)  
-            if false .
-
-crl [T1bis] : p("sys-1") |-> (X M1) B ;  p("sys-2") |-> (X M2)  B' ; p("sys-3") |-> (Y M3) B'' ; p("sys-4") |-> B1 ; p("sys-5") |-> B2 ; p("sys-6") |-> B3 ; p("sys-7") |-> B4 
-          =>  
-            p("sys-1") |-> B ; p("sys-2") |-> B' ; p("sys-3") |-> B'' ; p("sys-4") |-> B1 (X M1) ; p("sys-5") |-> B2 (X M2) ; p("sys-6") |-> B3 (Y M3) ; p("sys-7") |-> B4 (Y M3)  
-            if synch(X,"T1") == 2 . "ch1" .
-   
+          p("sys-1") |-> (X M1) B ; p("sys-2") |-> (X M2) B' ; p("sys-3") |-> (Y M3) B'' ; p("sys-4") |-> B1 (X bag(out1)) ; p("sys-5") |-> B2 (X bag(out2)) ; p("sys-6") |-> B3 (Y bag(out3)) ; p("sys-7") |-> B4 (Y bag(out4))  
+          if TB  := theta(X) /\ synch(X,"T1") = ch(TB) /\ cum := b1 + b2 /\ pre := pre(TB) /\ pre <= cum /\ out1 out2 := mset(cum + post(TB) - pre) /\
+             TB' := theta(Y) /\ synch(Y,"T1") = ch(TB') /\ cum' := b3 /\ pre' := pre(TB') /\ pre' <= cum' /\ out3 out4 := mset(cum' + post(TB') - pre') .
 endm

@@ -70,28 +70,22 @@ fmod NT-STRUCT{L :: NTHLAB} is
   eq hasInhibitor(N) = false [owise] .
   op ch : Tran -> String . *** channel of a transition
   eq ch(T:Tran) = ch(l(T:Tran)) .
-  *** op enabled : Bag{Tran} Pbag -> Bool . *** cumulative enabling
-  op pre : Bag{Tran} -> Pbag .
+  op pre : Bag{Tran} -> Pbag . *** cumulative pre-set
   eq pre(TB) = $pre(TB, nilP) .
   op $pre : Bag{Tran} Pbag -> Pbag .
   eq $pre(nilT, PB) = PB .
   eq $pre(K . T + TB, PB) = $pre(TB, PB + K * I(T)) . 
-  op post : Bag{Tran} -> Pbag .
+  op post : Bag{Tran} -> Pbag . *** cumulative post-set
   eq post(TB) = $post(TB, nilP) .
   op $post : Bag{Tran} Pbag -> Pbag .
   eq $post(nilT, PB) = PB .
   eq $post(K . T + TB, PB) = $post(TB, PB + K * O(T)) .
-  op transitions  : Net Mset{String} -> Mset{Tran} . *** net transitions matching a given channel
-  eq transitions(N, SM) = $transitions(N, SM, emptyMsetT) .
-  op $transitions : Net Mset{String} Mset{Tran} -> Mset{Tran} .
-  eq $transitions(emptyNet, SM, TM) = TM .
-  eq $transitions(T ; N, SM, TM) = $transitions(N, SM, if in(SM, ch(T)) then T TM else TM fi) . 
-  *** bag version (we might use the conversion op)
-  op transitions  : Net Bag{String} -> Bag{Tran} . *** net transitions matching a given channel
-  eq transitions(N, SB) = $transitions(N, SB, nilT) .
-  op $transitions : Net Bag{String} Bag{Tran} -> Bag{Tran} .
-  eq $transitions(emptyNet, SB, TB) = TB .
-  eq $transitions(T ; N, SB, TB) = $transitions(N, SB, if SB[ch(T)] =/= 0 then 1 . T + TB else TB fi) .
+  op ch : Bag{Tran} -> Bag{String} . *** ch extension to multisets
+  eq ch(TB) = $ch(TB, nilS) .
+  op $ch : Bag{Tran} Bag{String} -> Bag{String} .
+  eq $ch(nilT, SB) = SB .
+  var S : String .
+ ceq $ch(K . T + TB, SB) = $ch(TB, if S =/= "" then K . S + SB else SB fi) if S := ch(T) .
 endfm
 
 *** net-token representation with compact state (markings) description parametric in transition labels 
@@ -138,14 +132,15 @@ fmod EHORNET-GEN{L :: NTHLAB} is
                             sort MsetMarking{NetToken{L}} to  MsetMarking{NetToken}, sort  PmsetMarking{NetToken{L}} to  PmsetMarking{NetToken},
                             op nil to nilNT, op empty to emptyNT ) .
    var N : Net .
-   vars B B' : Mset{Pbag} . *** compact net-token markings
-   eq (N B) (N B') = N (B + B') . 
+   vars B B' : Mset{Pbag} . *** compact net-token markings' representation
+   eq (N B) (N B') = N (B B') . 
+   eq (N emptyMNT) = emptyNT .
 endfm
 
 fth SYNCH is
- inc NT-SPN{Ntlab} .
- inc BAG{String} * (op nil to nilS) .
+ inc NT-STRUCT{Ntlab} .
  op synch : Net String -> Bag{String} . *** maps each rule (label) to a bag of channels
+ op theta : Net -> Bag{Tran} . *** maps each net-token to a bag of transitions
 endfth
 
 mod EHORNET{S :: SYNCH} is 
