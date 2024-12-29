@@ -37,7 +37,6 @@ in ../../shared/MSET
 
 *** compact net-token marking description (multiset of markings) parametric in place labels
 fmod NT-MARKING{PL :: TRIV} is
-   *** pr BAG{Pbag{PL}} * (sort Bag{Pbag{PL}} to Bag{Pbag}, sort NeBag{Pbag{PL}} to NeBag{Pbag}, sort ElBag{Pbag{PL}} to ElBag{Pbag}, op nil to nilMNT) .
    pr MSET-BAG{Pbag{PL}} * (sort Mset{Pbag{PL}} to Mset{Pbag}, op empty to emptyMNT,
                             sort Bag{Pbag{PL}} to Bag{Pbag}, sort NeBag{Pbag{PL}} to NeBag{Pbag}, sort ElBag{Pbag{PL}} to ElBag{Pbag}, op nil to nilMNT).
 endfm 
@@ -116,7 +115,7 @@ mod NET-TOKEN-SYS{L :: NTHLAB} is
  var K : NzNat .
  var T : Tran .
  var NT : NetToken .
- crl [aut-firing] : NT => n(NT) B firing(T, M) if (T ; N) B M := NT /\ ch(T) = "" /\ I(T) <= M /\ R:Float := firing-rate(T, M) .
+ crl [aut-firing] : (T ; N) B M => (T ; N) B firing(T, M) if ch(T) = "" /\ I(T) <= M /\ R:Float := firing-rate(T, M) .
 endm
 
 in ../ALG-PN
@@ -125,7 +124,8 @@ view NetToken{L :: NTHLAB} from TRIV to NET-TOKEN{L} is
  sort Elt to NetToken .
 endv
 
-*** definition of an eHornet marking parametric vs the net-tokens' transitions lab
+
+*** definition of an eHornet marking parametric vs the net-tokens' transitions lab -- net-tokems may be of any type
 fmod EHORNET-GEN{L :: NTHLAB} is
    generated-by MSET-MARKING{NetToken{L}} * (sort Mset{NetToken{L}} to Mset{NetToken}, 
                             sort Bag{NetToken{L}} to Bag{NetToken}, sort NeBag{NetToken{L}} to NeBag{NetToken}, sort ElBag{NetToken{L}} to ElBag{NetToken},
@@ -137,13 +137,33 @@ fmod EHORNET-GEN{L :: NTHLAB} is
    eq (N emptyMNT) = emptyNT .
 endfm
 
+*** theory for particular types of net-tokens, defined through subsorting
+fth NET-TOKEN-TYPE is
+ inc NET-TOKEN{Ntlab} .
+ sort Token .
+ subsort Token < NetToken .
+endfth 
+
+*** trivial view to NET-TOKEN-TYPE
+view NetTokenType from TRIV to NET-TOKEN-TYPE is
+ sort Elt to Token .
+endv
+
+*** alternative eHORNET definition parameterized in the (sub)type of net-tokens -- transitions' lab is NTLAB 
+fmod EHORNET{NT :: NET-TOKEN-TYPE} is
+   generated-by MSET-MARKING{NetTokenType}{NT} * (sort Mset{NetTokenType}{NT} to Mset{NT}, 
+                            sort Bag{NetTokenType}{NT} to Bag{NT}, sort NeBag{NetTokenType}{NT} to NeBag{NT}, sort ElBag{NetTokenType}{NT} to ElBag{NT},
+                            sort MsetMarking{NetTokenType}{NT} to  MsetMarking{NT}, sort  PmsetMarking{NetTokenType}{NT} to  PmsetMarking{NT},
+                            op nil to nilNT, op empty to emptyNT ) .
+   var N : Net .
+   vars B B' : Mset{Pbag} . *** compact net-token markings' representation
+   eq (N B) (N B') = N (B B') . 
+   eq (N emptyMNT) = emptyNT .
+endfm 
+
+*** this theory defines the synchronization maps between system- and object-nets (not used here)
 fth SYNCH is
  inc NT-STRUCT{Ntlab} .
  op synch : Net String -> Bag{String} . *** maps each rule (label) to a bag of channels
  op theta : Net -> Bag{Tran} . *** maps each net-token to a bag of transitions
 endfth
-
-mod EHORNET{S :: SYNCH} is 
-  inc EHORNET-GEN{Ntlab} .
-  inc NET-TOKEN-SYS{Ntlab} .
-endm

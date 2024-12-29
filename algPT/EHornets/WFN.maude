@@ -1,6 +1,6 @@
 in NET-TOKEN
 
-*** signature of stochastic wfn used as net tokens
+*** signature of stochastic wfn net-tokens
 fmod WFN-TOKEN is
   pr NET-TOKEN{Ntlab} . *** place labels are strings
   sort Wfn .
@@ -20,8 +20,7 @@ fmod WFN-TOKEN is
   eq hasOut(L |-> [I, O + K . P, H] ; N, P) = true .
   eq hasOut(N, P) = false [owise] .
   op wfnet? : Net -> Bool .
-  eq wfnet?(N) = hasIn(N,p("in")) and-then hasOut(N,p("out")) and-then 
-                 not(hasOut(N,p("in"))) and-then not(hasIn(N,p("out"))) .
+  eq wfnet?(N) = hasIn(N,p("in")) and-then hasOut(N,p("out")) and-then not(hasOut(N,p("in"))) and-then not(hasIn(N,p("out"))) .
 
   var NT : NetToken .               
   cmb NT : Wfn if wfnet?(n(NT)) . *** characterizes workflow nets(-tokens)
@@ -30,56 +29,109 @@ fmod WFN-TOKEN is
  op rename : Pbag String String -> Pbag .
  eq rename(K . p(S) + B, S, S') = K . p(S') + B .
  eq rename(B, S, S') = B [owise] .
- op renameIO : Net String String -> Net . *** optimized renaming of IO places of a wf net
- eq renameIO(L |-> [I, O, H], S, S') = L |-> [rename(I, "in", S), rename(O, "out", S'), H] .
-ceq renameIO(N ; L |-> [I, O, H] ; L' |-> [I', O', H'], S, S') = 
-         N ; L |-> [rename(I, "in", S), O, H] ; L' |-> [I', rename(O', "out", S'), H'] if I[p("in")] =/= 0 /\ O'[p("out")] =/= 0 .
  
+ ops renameI renameO : Net String String -> Net . *** renaming restricted to Input/Output places of a net
+ eq renameI(N, S, S') = $renameI(N, emptyNet, S, S') .
+ op $renameI : Net Net String String -> Net .
+ eq $renameI(emptyNet, N, S, S') = N .
+ eq $renameI(N ; L |-> [I, O, H] , N', S, S') = $renameI(N, L |-> [rename(I, S, S'), O, H] ; N', S, S') .
+ eq renameO(N, S, S') = $renameO(N, emptyNet, S, S') .
+ op $renameO : Net Net String String -> Net .
+ eq $renameO(emptyNet, N, S, S') = N .
+ eq $renameO(N ; L |-> [I, O, H] , N', S, S') = $renameO(N, L |-> [I, rename(O, S, S'), H] ; N', S, S') .
+
  op cat : String String -> String . *** concatenates using a '-' if the first string is not empty 
  eq cat("",S) = S .
  eq cat(S, S') = S + "-" + S' [owise] .      
  op cat : String Nat -> String . *** append an index to a string
  eq cat(S, n:Nat) = cat(S, string(n:Nat, 10)) [owise] .
 
- *** pa operators (partial functions)
- op seq : Net Net String -> [Net]  . *** the string parameter is used to rename the merged Out/In places of the operands  
- op alt : Net Net -> [Net] [assoc comm] . *** implicitly associative
- op par : Net Net String Lab Lab -> [Net]  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
+ *** PA operators (work as expected if the operands are workflow-nets)
+ op seq : Net Net String -> Net  . *** the string parameter is used to rename the merged Out/In places of the operands  
+ op alt : Net Net -> Net [assoc comm] . *** implicitly associative
+ op par : Net Net String Lab Lab -> Net  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
 
- eq seq(L |-> [I, K . p("out") + O, H] ; N, L' |-> [I' + K' . p("in"),  O', H'] ; N', S) = L |-> [I, K . p(S) + O, H] ; N ; L' |-> [I' + K' . p(S),  O', H'] ; N' .
- *** rename(B, "out", S) + rename(B', "in", S) .
- eq alt(N, N') = N ; N' .
- *** B + B' . *** straightforward
+ eq seq(N, N', S) = renameO(N, "out", S) ; renameI(N',"in", S)  .
+ eq alt(N, N') = N ; N'  .
  vars W W' W'' : Net . 
  vars in1 in2 out1 out2 : String .
- ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP] ;
-       renameIO(N, in1,  out1) ; renameIO(N', in2, out2) 
+ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP] ;
+        renameO(renameI(N, "in", in1), "out", out1) ; renameO(renameI(N, "in", in2), "out", out2) 
         if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
 endfm
 
-mod EHORNET-WFN is
-  inc EHORNET{Synch} .
+*** maps the NET-TOKEN-TYPE theory to WFN-TOKEN
+view Wfn from NET-TOKEN-TYPE to WFN-TOKEN is
+  sort Token to Wfn .
+endv 
+
+
+*** wfn type net-tokens with the (autonomous) firing rule 
+mod WFN-TOKEN-SYS is 
   inc WFN-TOKEN .
+  inc NET-TOKEN-SYS{Ntlab} .
 endm
 
+*** an implementation of theory SYNCH
+fmod SYNCH-EXE is
+  pr NT-STRUCT{Ntlab} .
+  pr BAG{String} * (op nil to nilS) .
+  var  N : Net . 
+  var  T : Tran .
+  var  L : Lab .
+  op synch : Net String -> Bag{String} .
+  op theta : Net -> Bag{Tran} .
+ ceq  synch(T ; N, "T1") = (if tag(l(T)) == "a" then 2 else 1 fi) . ch(T)  if ch(T) =/= "" .
+  eq  synch(N, W:String) = nilS [owise] . *** just an example
+ ceq  theta(T ; N) = 2 . T if tag(l(T)) == "a" .
+ ceq  theta(T ; N) = 1 . T if tag(l(T)) == "b" [owise] .
+  eq  theta(N) = nilT [owise] .
+endfm
 
-*** examples of usage of pa operators
-mod WFN-EXE is
- inc EHORNET-WFN .
- ops net net' net'' : -> Net  [memo] .
+*** view to SYNCH-EXE
+view Synch from SYNCH to SYNCH-EXE is 
+endv
+
+mod EHORNET-WFN{S :: SYNCH} is
+  inc WFN-TOKEN-SYS .
+  inc EHORNET{Wfn} .
+  *** inc EHORNET-GEN{Ntlab} . *** (if you want to use the more general definition)
+endm
+
+*** simple example of stochastic EHornets, all places hold stochastic wfn
+mod EHORNET-EXE is
+ inc EHORNET-WFN{Synch} .
+ ops net net' : -> Net  [memo] . 
  ops m0 m0' m0'' : -> Pbag  [memo] .  
- ops wf wf' wf'' seq1 alt1 par1 : -> [NetToken] [memo] .
+ ops nt nt' nt'' : -> NetToken [memo] . *** the least sort is (should be) Wfn
 
  eq net =  t("a", "ch1", 1.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
- eq net' = t("b", "ch1", 2.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
- eq net'' = t("c", "", 2.0, 0) |-> [1 . p("a"), 1 . p("out"), nilP] .
+ eq net' = t("b", "ch2", 2.0, 0) |-> [1 . p("x") + 1 . p("in"), 1 . p("out"), nilP] ;
+           t("c", "", 3.0, 0) |-> [1 . p("in"), nilP, nilP] .
+ 
+ eq m0  =  1 . p("in") + 1 . p("out") .
+ eq m0'  = 1 . p("in")  .
+ eq m0'' = 1 . p("x") + 1 . p("in") .
+ eq nt = net m0 nilP .
+ eq nt' = net m0' .
+ eq nt'' = net' m0'' .
 
- eq m0  =  1 . p("in") .
- eq m0'  = 2 . p("in")  .
- eq wf = net m0 .
- eq wf' = net' m0 .
- eq wf'' = net'' m0' .
- *** eq seq1 = seq(wf, wf', "in-out") .
- *** eq alt1 = alt(wf, wf')  .
- *** eq par1 = par(wf, wf', "",  t("par", "", 1.0, 0), t("synch", "", 1.0, 0)) .
+ op init : -> Marking [memo] . *** system-net initial marking
+ eq init = p("sys-1") |-> nt ; p("sys-2") |-> nt' ; p("sys-3") |-> nt'' ; p("sys-4") |-> emptyNT ;
+           p("sys-5") |-> emptyNT ; p("sys-6") |-> emptyNT ; p("sys-7") |-> emptyNT .
+ vars B B' B'' B1 B2 B3 B4 : Mset{Wfn} .
+ vars X Y Z W N N' : Net .
+ vars k k' : NzNat .
+ vars M1 M2 M3 M4 : Mset{Pbag} .
+ vars TB TB' : Bag{Tran} .
+ vars b1 b2 b3 pre pre' cum cum' newm newm' : Pbag .
+ vars out1 out2 out3 out4 : Pmset .
+  *** system net synchronization transition (encoded as a rule) - pre(T1) = {p1,p2,3}, post{T1} = {p4,p5,p6,p7}  
+crl [T1] : p("sys-1") |-> (X b1 M1) B ;  p("sys-2") |-> (X b2 M2)  B' ; p("sys-3") |-> (Y b3 M3) B'' ; p("sys-4") |-> B1 ; p("sys-5") |-> B2 ; p("sys-6") |-> B3 ; p("sys-7") |-> B4 
+          =>  
+           p("sys-1") |-> (X M1) B ; p("sys-2") |-> (X M2) B' ; p("sys-3") |-> (Y M3) B'' ; p("sys-4") |-> B1 (X bag(out1)) ; p("sys-5") |-> B2 (X bag(out2)) ; p("sys-6") |-> B3 (Y bag(out3)) ; p("sys-7") |-> B4 (Y bag(out4))  
+           if TB  := theta(X) /\ synch(X,"T1") = ch(TB) /\ cum := b1 + b2 /\ pre := pre(TB) /\ pre <= cum /\ out1 out2 := mset(cum + post(TB) - pre) /\
+             TB' := theta(Y) /\ synch(Y,"T1") = ch(TB') /\ cum' := b3 /\ pre' := pre(TB') /\ pre' <= cum' /\ out3 out4 := mset(cum' + post(TB') - pre') /\ R:Float := 1.5 .
+ *** system net autonomous transition - pre(T2) = {p3}, post{T2} = {p7}
+crl [T2] : p("sys-3") |-> (X b3 M3) B ; p("sys-7") |-> B' => p("sys-3") |-> (X M3) B ; p("sys-7") |-> B' (X b3) if synch(X, "T2") == nilS /\ R:Float := 2.0 .
 endm
