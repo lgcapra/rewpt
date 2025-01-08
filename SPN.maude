@@ -3,36 +3,43 @@ in PT-NET
 *** Stochastic Petri Net
 *** rappresentazione simile ma più intuitiva di modSPT
 
-*** theory of stochastic transitions' labels
-fth STHLAB is 
- pr FLOAT .
- pr NAT . 
- sorts Lab Tag .
- op rate : Lab -> Float . *** rate parameter
- op pol  : Lab -> Nat . *** firing policy
- op tag  : Lab -> Tag . *** any tag
-endfth
 
-view STHLAB from TRIV to STHLAB is
-  sort Elt to Lab . 
+*** spn transition label definition (parametric in the tag description)
+fmod TLAB{L :: TRIV} is
+ pr FLOAT .
+ pr NAT .
+ sort Lab .
+ var W  : L$Elt .
+ var R  : Float .
+ var P  : Nat .  
+ op t : L$Elt Float Nat -> Lab [ctor] . 
+ op tag :  Lab  -> L$Elt .
+ op pol :  Lab  -> Nat .
+ op rate : Lab  -> Float .
+ eq tag(t(W,R,P))  =  W .
+ eq pol(t(W,R,P))  =  P .
+ eq rate(t(W,R,P)) =  R .
+endfm
+
+view Tlab{L :: TRIV} from TRIV to TLAB{L} is 
+ sort Elt to Lab .
 endv
 
-
 *** spn signature parameterized in tran labels: for some reasons, we cannot use the TRIV view to parameterize also place labels 
-fmod SPN-SIG{L :: STHLAB} is
-  pr PT-NET{STHLAB, String}{L} .
+fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
+  pr PT-NET{Tlab{L}, PL} .
   pr CONVERSION .
   vars M M' : Pbag .
   vars P P' : Place . 
-  var L : L$Lab .
+  var TL : Lab .
   var Q : Tmatrix .
   var T : Tran .
   vars K K' D : NzNat .
   *** firing rule rates
   op firing-rate : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the transition firing pol)
   *** eq firing-rate(T, M) = rate(T) . *** 1-server for all
-  eq firing-rate(L |-> Q, M) = if pol(L) == 1 then rate(L) else rate(L) * float(if pol(L) == 0 
-                           then enabdegree(I(Q), M) else min(pol(L), enabdegree(I(Q), M)) fi) fi .
+  eq firing-rate(TL |-> Q, M) = if pol(TL) == 1 then rate(TL) else rate(TL) * float(if pol(TL) == 0 
+                           then enabdegree(I(Q), M) else min(pol(TL), enabdegree(I(Q), M)) fi) fi .
   *** definition of enabdegree: assumes that T is enabled in M
   op enabdegree : Pbag Pbag -> [NzNat] .
   eq enabdegree(nilP, M) = 1 . *** the input arc is null
@@ -41,7 +48,7 @@ fmod SPN-SIG{L :: STHLAB} is
   eq $enabdegree(K . P + M , K' . P + M', D) = $enabdegree(M , M', min(D, K' quo K)) .
   eq $enabdegree(nilP, M, D) = D . 
   *** getters
-  op tag  : Tran -> L$Tag .
+  op tag  : Tran -> L$Elt .
   op rate : Tran -> Float .
   op pol  : Tran -> Nat .
   eq tag(T) = tag(l(T)) .
@@ -50,38 +57,17 @@ fmod SPN-SIG{L :: STHLAB} is
 endfm
 
 *** generic spn def
-fmod SPN-GEN{L :: STHLAB} is
-  pr SPN-SIG{L} .
-  pr PT-SYS{STHLAB, String}{L} .
+fmod SPN-GEN{L :: TRIV, PL :: TRIV} is
+  pr SPN-SIG{L, PL} .
+  pr PT-SYS{Tlab{L}, PL} .
 endfm
-
-*** spn transition label definition
-fmod TLAB is
- pr STRING .
- pr FLOAT .
- sort Lab .
- var W  : String .
- var R  : Float .
- var P  : Nat .  
- op t : String Float Nat -> Lab [ctor] . 
- op tag :  Lab  -> String .
- op pol :  Lab  -> Nat .
- op rate : Lab  -> Float .
- eq tag (t(W,R,P)) =  W .
- eq pol(t(W,R,P))  =  P .
- eq rate(t(W,R,P)) =  R .
-endfm
-
-view Tlab from STHLAB to TLAB is 
- sort Tag to String .
-endv
 
 *** concrete spn definition based on TLAB (and String) as node labels
 fmod SPN is
-  pr SPN-GEN{Tlab} .
+  pr SPN-GEN{String, String} .
 endfm
 
-
+*** views to SPN
 view System from TRIV to SPN is 
  sort Elt to System . 
 endv

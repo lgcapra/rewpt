@@ -36,7 +36,11 @@ fmod MSET-BAG{X :: TRIV} is
  eq $bag(M X, B) = $bag(M, B + 1 . X) . 
 endfm
 
-
+*** trivial views to MSET-BAG (one to Mset{X}, the other to Bag{X}) 
 view Mset{X :: TRIV} from TRIV to MSET-BAG{X} is
    sort Elt to Mset{X} .
+endv
+
+view MsetBag{X :: TRIV} from TRIV to MSET-BAG{X} is
+   sort Elt to Bag{X} .
 endv

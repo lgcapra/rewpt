@@ -1,15 +1,11 @@
 in SPN-EXE
 in SPN-MC
 
-view Lab from TRIV to TLAB is 
- sort Elt to Lab .
-endv
-
 *** this module re-defines the SPN example using the redundant state description used to derive a CTMC
 fmod SPN-MC-EXE is
  pr SPN-EXE .
  pr SPN-MC .
- pr MATCH-CLASS{Lab} .
+ pr MATCH-CLASS{Tlab{String}} .
  pr MATCH-CLASS{Tmatrix{String}} * (sort MatchGroup{Tmatrix{String}} to MatchGroup{Tmatrix}, sort MatchClass{Tmatrix{String}} to MatchClass{Tmatrix} ) .
  pr SPN-STATE-TRAN .
  var P : Place . vars T T' : Tran . vars B  B' M  M' I O : Pbag  .

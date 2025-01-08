@@ -1,36 +1,12 @@
 in ../../SPN
 
-*** theory of stochastic net-token transitions' labels
-fth NTHLAB is
- inc STHLAB .
- pr STRING .
- op ch :  Lab -> String . *** channel
-endfth
-
-view NTHLAB from STHLAB to NTHLAB is
-endv
-
-*** label for stochastic net-tokens (contains a channel, seen as a string)
-fmod NTLAB is
- pr STRING .
- pr FLOAT .
- sort Lab .
- vars L C : String . *** tag and channel - the empty string means that no channel is associated with the tran.
- var R  : Float . var P  : Nat .  var W : Lab .
- op t : String String Float Nat -> Lab [ctor] . 
- op tag :  Lab -> String .
- op pol :  Lab  -> Nat . *** firing policy
- op rate : Lab -> Float .
- op ch :   Lab   -> String .
- eq tag (t(L,C,R,P)) =  L .
- eq pol(t(L,C,R,P))  =  P .
- eq rate(t(L,C,R,P)) =  R .
- eq ch (t(L,C,R,P))  =  C .
+*** the tag of net-token transition, built of a parametric tag followed by a string representing a channel
+fmod TAG{L :: TRIV} is
+  protecting PAIR{L,String} * (sort Pair{L,String} to Tag, op <_;_> to _@_) .
 endfm
 
-*** view to a NTLAB
-view Ntlab from NTHLAB to NTLAB is 
- sort Tag to String .
+view Tag{L :: TRIV} from TRIV to TAG{L} is 
+ sort Elt to Tag .
 endv
 
 in ../../shared/MSET
@@ -41,34 +17,41 @@ fmod NT-MARKING{PL :: TRIV} is
                             sort Bag{Pbag{PL}} to Bag{Pbag}, sort NeBag{Pbag{PL}} to NeBag{Pbag}, sort ElBag{Pbag{PL}} to ElBag{Pbag}, op nil to nilMNT).
 endfm 
 
-*** signature of stochastic net-tokens
-fmod NT-SPN{L :: NTHLAB} is
-  pr SPN-SIG{NTHLAB}{L} . *** change to SPN-GEN if we want to import net + marking 
+
+*** signature of stochastic net-tokens (derived from that of SPN)
+fmod NT-SPN{L :: TRIV, PL :: TRIV} is
+  pr SPN-SIG{Tag{L}, PL} . *** change to SPN-GEN if we want to import net + marking 
+  var L : Lab . 
+  var T : Tran .
+  *** getters (for convenience)
+  op ch : Tran -> String .
+  eq ch(T) = ch(l(T)) . 
+  op ch : Lab  -> String .
+  eq ch(L) = 2nd(tag(L)) . *** channel (2nd part of tag) - the empty string means that no channel is associated with the tran.
 endfm
 
 *** trivial view of NT-SPN mapping Elt to Tran
-view Tran{L :: NTHLAB} from TRIV to NT-SPN{L} is
+view Tran{L :: TRIV, PL :: TRIV} from TRIV to NT-SPN{L, PL} is
   sort Elt to Tran .
 endv
 
+*** da qui vecchia def.
+
 *** net-tokens structure definition (without marking)
-fmod NT-STRUCT{L :: NTHLAB} is 
-  pr MSET-BAG{Tran{L}} * (op nil to nilT, op empty to emptyMsetT, sort Bag{Tran{L}} to Bag{Tran}, sort ElBag{Tran{L}} to ElBag{Tran},
-                         sort NeBag{Tran{L}} to NeBag{Tran}, sort Mset{Tran{L}} to Mset{Tran} ) .
+fmod NT-STRUCT{L :: TRIV, PL :: TRIV} is 
+  pr MSET-BAG{Tran{L, PL}} * (op nil to nilT, op empty to emptyMsetT, sort Bag{Tran{L, PL}} to Bag{Tran}, sort ElBag{Tran{L, PL}} to ElBag{Tran},
+                         sort NeBag{Tran{L, PL}} to NeBag{Tran}, sort Mset{Tran{L, PL}} to Mset{Tran} ) .
   pr MSET-BAG{String} * (op nil to nilS, op empty to emptyMsetS) .
   var N : Net .
   var T : Tran .
   var PB : Pbag .
   var K : NzNat .
-  var SM : Mset{String} .
   var SB : Bag{String} .
   var TB : Bag{Tran} .
   var TM : Mset{Tran} .
   op hasInhibitor : Net -> Bool .
-  eq hasInhibitor(N ; L:L$Lab |-> [I:Pbag,O:Pbag,H:NePbag]) = true .
+  eq hasInhibitor(N ; L:Lab |-> [I:Pbag,O:Pbag,H:NePbag]) = true .
   eq hasInhibitor(N) = false [owise] .
-  op ch : Tran -> String . *** channel of a transition
-  eq ch(T:Tran) = ch(l(T:Tran)) .
   op pre : Bag{Tran} -> Pbag . *** cumulative pre-set
   eq pre(TB) = $pre(TB, nilP) .
   op $pre : Bag{Tran} Pbag -> Pbag .
@@ -87,10 +70,11 @@ fmod NT-STRUCT{L :: NTHLAB} is
  ceq $ch(K . T + TB, SB) = $ch(TB, if S =/= "" then K . S + SB else SB fi) if S := ch(T) .
 endfm
 
-*** net-token representation with compact state (markings) description parametric in transition labels 
-fmod NET-TOKEN{L :: NTHLAB} is 
-  pr NT-MARKING{String} .
-  pr NT-STRUCT{L} .
+
+*** net-token representation with compact state (markings) description parametric in node labels 
+fmod NET-TOKEN{L :: TRIV, PL :: TRIV} is 
+  pr NT-MARKING{PL} .
+  pr NT-STRUCT{L, PL} .
   sort NetToken .
   var N : Net .
   var B : Mset{Pbag} . *** nested multiset
@@ -106,9 +90,14 @@ fmod NET-TOKEN{L :: NTHLAB} is
   eq m(N B) = B .
 endfm
 
+view NetToken{L :: TRIV, PL :: TRIV} from TRIV to NET-TOKEN{L, PL} is
+  sort Elt to NetToken .
+endv
+
+
 *** net-token including the object-autonomous firing rule
-mod NET-TOKEN-SYS{L :: NTHLAB} is
- inc NET-TOKEN{L} .
+mod NET-TOKEN-SYS{L :: TRIV, PL :: TRIV} is
+ inc NET-TOKEN{L, PL} .
  vars N N' : Net .
  var B : Mset{Pbag} . 
  vars M M' : Pbag .
@@ -120,16 +109,12 @@ endm
 
 in ../ALG-PN
 
-view NetToken{L :: NTHLAB} from TRIV to NET-TOKEN{L} is
- sort Elt to NetToken .
-endv
 
-
-*** definition of an eHornet marking parametric vs the net-tokens' transitions lab -- net-tokems may be of any type
-fmod EHORNET-GEN{L :: NTHLAB} is
-   generated-by MSET-MARKING{NetToken{L}} * (sort Mset{NetToken{L}} to Mset{NetToken}, 
-                            sort Bag{NetToken{L}} to Bag{NetToken}, sort NeBag{NetToken{L}} to NeBag{NetToken}, sort ElBag{NetToken{L}} to ElBag{NetToken},
-                            sort MsetMarking{NetToken{L}} to  MsetMarking{NetToken}, sort  PmsetMarking{NetToken{L}} to  PmsetMarking{NetToken},
+*** definition of an eHornet marking parametric vs the net-tokens' and system net's place labels -- net-tokems may be of any type and parametric in turn in node labels
+fmod EHORNET-GEN{L :: TRIV, PL :: TRIV, PL' :: TRIV} is
+   generated-by MSET-MARKING{NetToken{L, PL}, PL'} * (sort Mset{NetToken{L, PL}} to Mset{NetToken}, 
+                            sort Bag{NetToken{L, PL}} to Bag{NetToken}, sort NeBag{NetToken{L, PL}} to NeBag{NetToken}, sort ElBag{NetToken{L, PL}} to ElBag{NetToken},
+                            sort MsetMarking{NetToken{L, PL}} to  MsetMarking{NetToken}, sort  PmsetMarking{NetToken{L, PL}} to  PmsetMarking{NetToken},
                             op nil to nilNT, op empty to emptyNT ) .
    var N : Net .
    vars B B' : Mset{Pbag} . *** compact net-token markings' representation

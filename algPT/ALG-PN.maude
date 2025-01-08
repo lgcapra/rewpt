@@ -1,24 +1,21 @@
-in ../shared/BAG
+in ../shared/MSET
 in ./ELIST
 in ../PLACE
 
 **** Algebraic PN specification ***
 
 *** abstract specification of an algebraic net's marking
-fmod ALGPN-MARKING is 
- protecting PLACE{String}  .
+fmod ALGPN-MARKING{PL :: TRIV} is 
+ protecting PLACE{PL}  .
  protecting EXT-BOOL .
  sorts Pmarking Marking .
  subsort Pmarking < Marking .
  op emptyM : -> Marking [ctor] .
  op _;_ : Marking Marking -> Marking [ctor assoc comm id: emptyM prec 121 format (d r os d)] .
  op place : Pmarking -> Place .
- op welldef : Marking -> Bool .
  var P  : Place .
  vars Mp Mp' : Pmarking .
  var M : Marking .
-ceq welldef((Mp ; Mp' ; M)) = false if place(Mp) = place(Mp') . *** could be a memebership eq as an alternative
- eq welldef(M) = true  [owise] .
  op undefined : -> [Pmarking] .
  *** look-up
  op _[_] : Marking Place -> [Pmarking] [prec 23] .
@@ -30,30 +27,27 @@ ceq $marked((M ; Mp), P) = true if place(Mp) = P .
 endfm
 
 *** submarking of specific type
-fmod MARKING{X :: TRIV} is
-  extending ALGPN-MARKING .
-  protecting BAG{X} .
-  sorts Pmarking{X}  Marking{X} .
-  subsort Pmarking{X} < Pmarking Marking{X} .
-  subsort Marking{X}  < Marking .
-  op _|->_ : Place Bag{X} -> Pmarking{X} [ctor] .
-  op _;_ : Marking{X} Marking{X} -> Marking{X} [ctor ditto] . *** overloading
+fmod MARKING{X :: TRIV, PL :: TRIV} is
+  extending ALGPN-MARKING{PL} .
+  protecting MSET-BAG{X}  .
+  *** sorts Pmarking{X}  Marking{X} .
+  **** subsort Pmarking{X} < Pmarking Marking{X} .
+  *** subsort Marking{X}  < Marking .
+  *** op _|->_ : Place Bag{X} -> Pmarking{X} [ctor] .
+  op _|->_ : Place Bag{X} -> Pmarking [ctor] .
+  **** op _;_ : Marking{X} Marking{X} -> Marking{X} [ctor ditto] . *** overloading
   var B  : Bag{X} .
   var P  : Place .
   eq place(P |-> B) = P .
-  op mark : Pmarking{X} -> Bag{X} . *** careful! must be renamed when importing the module 
+  *** op mark : Pmarking{X} -> Bag{X} . *** careful! must be renamed when importing multiple times the module 
+  op mark : Pmarking -> Bag{X} . *** careful! must be renamed when importing multiple times the module 
   eq mark(P |-> B) = B .
 endfm
 
-*** parameterized view to MARKING
-view Marking{X :: TRIV} from TRIV to MARKING{X} is 
- sort Elt to Marking{X} . 
-endv
 
-in ../shared/MSET
 *** alternative representation of place marking based on MSET
-fmod MSET-MARKING{X :: TRIV} is
-  extending ALGPN-MARKING .
+fmod MSET-MARKING{X :: TRIV, PL :: TRIV} is
+  extending ALGPN-MARKING{PL} .
   protecting MSET-BAG{X} .
   sorts PmsetMarking{X}  MsetMarking{X} .
   subsort PmsetMarking{X} < Pmarking MsetMarking{X} .
@@ -67,50 +61,55 @@ fmod MSET-MARKING{X :: TRIV} is
   eq mark(P |-> B) = B .
 endfm
 
-*** parameterized view to MSET-MARKING
-view MsetMarking{X :: TRIV} from TRIV to MSET-MARKING{X} is 
- sort Elt to MsetMarking{X} . 
-endv
-
-
-*** count-down - used to simulate non-deterministic rewrites
-mod TICK is
-  protecting NAT .
-  sort Tick .
-  op @_ : Nat -> Tick .  
-  rl [tick] : @ X:NzNat =>  @ sd(X:NzNat, 1)  .
-endm
 
 *** EXAMPLE 1: algebraic net using (embedded) lists of naturals 
 mod ALG-PN-EXE is
  *** types of places
  *** we rename nil for convenience because it denotes both a BAG and a LIST
- pr MARKING{Nat} * (op nil to nilNat , op mark to markN) . *** renaming mark is mandatory !
- pr MARKING{Elist{Nat}} * (op nil : -> List{Nat} to nilLnat, op nil : -> Bag{Elist{Nat}} to nilELnat, op mark to markListN) .
+ pr MARKING{Nat,String} * (op nil to nilNat) . 
+ pr MARKING{Elist{Nat},String} * (op nil : -> List{Nat} to nilL, op nil : -> Bag{Elist{Nat}} to nilB, op mark to markL) . *** renaming mark is mandatory !
  
  op init : -> Marking . *** alias - intial marking
- eq init =  p("1") |-> 1 . [nilLnat] ; p("2") |-> 2 . 1 + 3 . 2 . *** the list in p1 is initially empty 
+ eq init =  p("1") |-> 1 . [nilL] ; p("2") |-> 2 . 1 + 3 . 2 . *** the list in p1 is initially empty 
  
  var M : Marking .
  var B : Bag{Nat} .
  var L : List{Nat} .
  var LB : Bag{Elist{Nat}} .
- var N : Nat .
+ var X : Nat .
  vars K K' K'' : NzNat .
  
   *** net transitions are encoded as rewrite rules
 
-  *** given (at least) two elements in p2, t1 withdraws one by appending it to the list in p1 
-  crl [t1] : p("1") |-> 1 . [L]  ;  p("2") |-> K . N + B => p("1") |-> 1 . [L N ] ; p("2") |-> sd(K,1) . N + B  if K > 1 . *** ok
-  ***  rl  [t1-wrong] : p("1") |-> 1 . [L] ; p("2") |-> 2 . N + B => p("1") |-> 1 . [L N] ; p("2") |->  1 . N + B  . *** matches only the term 2 . N + B
+  *** given (at least) two occurrences of an element in p2, t1 withdraws one by appending it to the list in p1 
+  crl [t1] : p("1") |-> 1 . [L]  ;  p("2") |-> K . X + B => p("1") |-> 1 . [L ; X] ; p("2") |-> sd(K,1) . X + B  if K > 1 . *** ok
+  ***  rl  [t1-wrong] : p("1") |-> 1 . [L] ; p("2") |-> 2 . X + B => p("1") |-> 1 . [L X] ; p("2") |->  1 . X + B  . *** matches only the term 2 . X + B
   
   *** ncopies is defined in modified prelude 
  *** removes K elements from p2 by appending them to the list in p1 
- *** rl [t2] : p("1") |-> 1 . [L] ; p("2") |-> K . N + B => p("1") |-> 1 . [L ncopies(N, K)] ; p("2") |->  B  . *** works
+ *** rl [t2] : p("1") |-> 1 . [L] ; p("2") |-> K . X + B => p("1") |-> 1 . [L ncopies(X, K)] ; p("2") |->  B  . *** works
  
   *** example of non deterministic-rule using TICK
   *** inc TICK .
  *** crl [t4] : p("1") |-> 1 . [L] ; p("2") |-> K . K'' + B => p("1") |-> 1 . [L ncopies(sd(K, K'), K'')] ; p("2") |-> K' . K'' + B if  @ K => @ K' /\ K' < K .
+endm
+
+*** same example using the alternative representation of multisets (only the 1st rule)
+mod ALG-PN-EXE-2 is
+ pr MSET-MARKING{Nat,String} . *** renaming mark is mandatory !
+ pr MSET-MARKING{Elist{Nat},String} *  (op nil : -> List{Nat} to nilL, op nil : -> Bag{Elist{Nat}} to nilB, op mark to markL) . *** renaming mark is mandatory  
+ 
+ op init : -> Marking . *** alias - intial marking
+ eq init =  p("1") |-> [nilL] ; p("2") |-> 1 1 2 2 2 . 
+ 
+ var M : Marking .
+ var B : Mset{Nat} .
+ var L : List{Nat} .
+ var LB : Mset{Elist{Nat}} .
+ var X : Nat .
+ vars K K' K'' : NzNat .
+ *** given (at least) two elements in p2, t1 withdraws one by appending it to the list in p1 
+ rl [t1-bis] : p("1") |-> [L]  ;  p("2") |-> X X B => p("1") |-> [L ; X] ; p("2") |-> X B . *** ok
 endm
 
 
@@ -124,7 +123,7 @@ endm
     inc ALG-PN-EXE * (sort Marking to Marking*, sort Pmarking to Pmarking*,
                       sort Marking{Nat} to Marking*{Nat}, sort Pmarking{Nat} to Pmarking*{Nat},
                       sort Marking{Elist{Nat}} to Marking*{Elist{Nat}}, sort Pmarking{Elist{Nat}} to Pmarking*{Elist{Nat}},
-                      op markN to markN*,  op markListN to  markListN*,
+                      op markN to markN*,  op markL to  markL*,
                       op emptyM to emptyM*, op init to init*, op undefined to undefined*, op _|->_ to _*|->_ ) .
 endm
 
@@ -136,8 +135,8 @@ endv
 
 ***  EXAMPLE 2: nested algebraic net: two places have as domain the alg-net defined above; the third place share the domain (Nat) with the base-level
 mod NEST-ALG-PN-EXE is
-  inc MARKING{AlgPNexe*} .
-  inc MARKING{Nat} * (op nil to nilNat , op mark to markN) .
+  inc MARKING{AlgPNexe*,String} .
+  inc MARKING{Nat,String} * (op nil to nilNat , op mark to markN) .
   op init : -> Marking . *** meta-net initial marking
   eq init = p("0") |-> 1 . init* ; p("1") |-> 1 . init* ; p("3") |-> 2 . 3 .
   var M : Marking* .
@@ -145,3 +144,5 @@ mod NEST-ALG-PN-EXE is
   var B : Bag{AlgPNexe*} .
   rl [meta-r] : p("0") |-> K . M ; p("1") |-> B  => p("0") |-> sd(K,1) . M ; p("1") |->  1 . M + B . *** one algebraic net is moved from p("0") to p("1")
 endm
+
+
