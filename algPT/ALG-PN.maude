@@ -12,32 +12,32 @@ fmod ALGPN-MARKING{PL :: TRIV} is
  subsort Pmarking < Marking .
  op emptyM : -> Marking [ctor] .
  op _;_ : Marking Marking -> Marking [ctor assoc comm id: emptyM prec 121 format (d r os d)] .
- op place : Pmarking -> Place .
- var P  : Place .
+ op place : Pmarking -> Place{PL} .
+ var P  : Place{PL} .
  vars Mp Mp' : Pmarking .
  var M : Marking .
  op undefined : -> [Pmarking] .
  *** look-up
- op _[_] : Marking Place -> [Pmarking] [prec 23] .
+ op _[_] : Marking Place{PL} -> [Pmarking] [prec 23] .
 ceq (M ; Mp)[P] = Mp if place(Mp) = P /\ not($marked(M, P)) .
  eq M[P] = undefined [owise] .
- op $marked : Marking Place -> Bool .
+ op $marked : Marking Place{PL} -> Bool .
 ceq $marked((M ; Mp), P) = true if place(Mp) = P .
   eq $marked(M, P) = false [owise] .
 endfm
 
-*** submarking of specific type
+*** AL-PN submarking of specific type (1st parameter) parametric in the label of places
 fmod MARKING{X :: TRIV, PL :: TRIV} is
   extending ALGPN-MARKING{PL} .
   protecting MSET-BAG{X}  .
   *** sorts Pmarking{X}  Marking{X} .
   **** subsort Pmarking{X} < Pmarking Marking{X} .
   *** subsort Marking{X}  < Marking .
-  *** op _|->_ : Place Bag{X} -> Pmarking{X} [ctor] .
-  op _|->_ : Place Bag{X} -> Pmarking [ctor] .
+  *** op _|->_ : Place{PL} Bag{X} -> Pmarking{X} [ctor] .
+  op _|->_ : Place{PL} Bag{X} -> Pmarking [ctor] .
   **** op _;_ : Marking{X} Marking{X} -> Marking{X} [ctor ditto] . *** overloading
   var B  : Bag{X} .
-  var P  : Place .
+  var P  : Place{PL} .
   eq place(P |-> B) = P .
   *** op mark : Pmarking{X} -> Bag{X} . *** careful! must be renamed when importing multiple times the module 
   op mark : Pmarking -> Bag{X} . *** careful! must be renamed when importing multiple times the module 
@@ -52,10 +52,10 @@ fmod MSET-MARKING{X :: TRIV, PL :: TRIV} is
   sorts PmsetMarking{X}  MsetMarking{X} .
   subsort PmsetMarking{X} < Pmarking MsetMarking{X} .
   subsort MsetMarking{X}  < Marking .
-  op _|->_ : Place Mset{X} -> PmsetMarking{X} [ctor] .
+  op _|->_ : Place{PL} Mset{X} -> PmsetMarking{X} [ctor] .
   op _;_ : MsetMarking{X} MsetMarking{X} -> MsetMarking{X} [ctor ditto] . *** overloading
   var B  : Mset{X} .
-  var P  : Place .
+  var P  : Place{PL} .
   eq place(P |-> B) = P .
   op mark : PmsetMarking{X} -> Mset{X} . *** careful! must be renamed when importing the module 
   eq mark(P |-> B) = B .

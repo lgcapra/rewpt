@@ -3,8 +3,8 @@ in SPN-STATE-TRAN
 *** this module re-defines the SPN definition according to the redundant state description used to derive a CTMC
 fmod SPN-MC is
  pr MATCH-CLASS{System} .
- pr MATCH-CLASS{Pbag{String}} * (sort MatchGroup{Pbag{String}} to MatchGroup{Pbag}, sort MatchClass{Pbag{String}} to MatchClass{Pbag}) .
  pr MATCH-CLASS{Net} .
+ pr MATCH-CLASS{Pbag{String}} * (sort MatchGroup{Pbag{String}} to MatchGroup{Pbag}, sort MatchClass{Pbag{String}} to MatchClass{Pbag}) .
  pr SPN-STATE-TRAN .
  *** pr SPN-STATE-TRAN  * (sort Set{StateTran{Pbag{String}}} to Set{StateTran{Pbag}}, sort NeSet{StateTran{Pbag{String}}} to NeSet{StateTran{Pbag}}).
  vars T T' : Tran .  vars M  M' : Pbag  . vars N N' N'' : Net . vars S S' : System .

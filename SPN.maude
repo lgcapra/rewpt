@@ -30,7 +30,7 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   pr PT-NET{Tlab{L}, PL} .
   pr CONVERSION .
   vars M M' : Pbag .
-  vars P P' : Place . 
+  vars P P' : Place{PL} . 
   var TL : Lab .
   var Q : Tmatrix .
   var T : Tran .
@@ -64,7 +64,7 @@ endfm
 
 *** concrete spn definition based on TLAB (and String) as node labels
 fmod SPN is
-  pr SPN-GEN{String, String} .
+  pr SPN-GEN{String, String} . *** makes sense because it's a "final" module
 endfm
 
 *** views to SPN

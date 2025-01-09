@@ -10,7 +10,7 @@ endm
 
 *** concrete system module
 mod SPN-SYS is
- inc SPN-SYS-GEN{String, String} .
+ inc SPN-SYS-GEN{String, String}  .
 endm
 
 *** trivial view to PT-SYS (careful: same name as the view to PT-SYS)

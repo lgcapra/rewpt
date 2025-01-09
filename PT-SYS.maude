@@ -5,7 +5,7 @@ fmod PT-SYS{L :: TRIV, PL :: TRIV} is
   pr PT-NET{L, PL} .
   sort System .
   vars L L' : L$Elt . vars T T' : Tran . vars N N' : Net .
-  vars P P' : Place . vars M I O H : Pbag . vars K K'  : NzNat .
+  vars P P' : Place{PL} . vars M I O H : Pbag . vars K K'  : NzNat .
   vars Q Q' : Tmatrix . var  S : Pset .
   op __ : Net Pbag -> [System] [ctor] .
   cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty" and have duplicated transitions
