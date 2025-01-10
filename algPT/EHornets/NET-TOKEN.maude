@@ -1,6 +1,8 @@
 in ../../SPN
+in ../../shared/MSET
+in ../ALG-PN
 
-*** the tag of net-token transition, built of a parametric tag followed by a string representing a channel
+*** tag of net-token transition, built of a parametric tag followed by a string representing a channel
 fmod TAG{L :: TRIV} is
   protecting PAIR{L,String} * (sort Pair{L,String} to Tag, op <_;_> to _@_) .
 endfm
@@ -9,7 +11,37 @@ view Tag{L :: TRIV} from TRIV to TAG{L} is
  sort Elt to Tag .
 endv
 
-in ../../shared/MSET
+*** signature of (stochastic) net-tokens (derived from that of SPN)
+fmod NT-SIG{L :: TRIV, PL :: TRIV} is
+  pr SPN-SIG{Tag{L}, PL} .
+  pr MSET-BAG{String} * (op nil to nilS, op empty to emptyMsetS) .
+  var TL : Lab .
+  var T  : Tran .
+  var N  : Net .
+  var PB : Pbag .
+  var S  : String .
+  var MS : Mset{String} .
+  op ch : Lab  -> String .
+  eq ch(TL) = 2nd(tag(TL)) .
+  op hasInhibitor : Net -> Bool .
+  eq hasInhibitor(N ; TL |-> [I:Pbag,O:Pbag,H:NePbag]) = true .
+  eq hasInhibitor(N) = false [owise] . 
+  op pre : Net -> Pbag . *** cumulative pre-set
+  eq pre(N) = $pre(N, nilP) .
+  op $pre : Net Pbag -> Pbag .
+  eq $pre(emptyNet, PB) = PB .
+  eq $pre(T ; N, PB) = $pre(N, PB + I(T)) . 
+  op post : Net -> Pbag . *** cumulative post-set
+  eq post(N) = $post(N, nilP) .
+  op $post : Net Pbag -> Pbag .
+  eq $post(emptyNet, PB) = PB .
+  eq $post(T ; N, PB) = $post(N, PB + O(T)) .
+  op ch : Net -> Mset{String} . *** channel(s) (2nd part of tag) - the empty string means that no channel is associated with a tran.
+  eq ch(N) = $ch(N, emptyMsetS) .
+  op $ch : Net Mset{String} -> Mset{String} .
+  eq $ch(emptyNet, MS) = MS .
+ ceq $ch(T ; N, MS) = $ch(N, if S =/= "" then S MS else MS fi) if S := ch(l(T)) .
+endfm
 
 *** compact net-token marking description (multiset of markings) parametric in place labels
 fmod NT-MARKING{PL :: TRIV} is
@@ -17,75 +49,17 @@ fmod NT-MARKING{PL :: TRIV} is
                             sort Bag{Pbag{PL}} to Bag{Pbag}, sort NeBag{Pbag{PL}} to NeBag{Pbag}, sort ElBag{Pbag{PL}} to ElBag{Pbag}, op nil to nilMNT).
 endfm 
 
-
-*** signature of (stochastic) net-tokens (derived from that of SPN)
-fmod NT-SIG{L :: TRIV, PL :: TRIV} is
-  pr SPN-SIG{Tag{L}, PL} . *** change to SPN-GEN if we want to import net + marking 
-  var L : Lab . 
-  var T : Tran .
-  *** getters (for convenience)
-  op ch : Tran -> String .
-  eq ch(T) = ch(l(T)) . 
-  op ch : Lab  -> String .
-  eq ch(L) = 2nd(tag(L)) . *** channel (2nd part of tag) - the empty string means that no channel is associated with the tran.
-endfm
-
-*** trivial view of NT-SIG mapping Elt to Tran
-view Tran{L :: TRIV, PL :: TRIV} from TRIV to NT-SIG{L, PL} is
-  sort Elt to Tran .
-endv
-
-*** da qui vecchia def.
-
-*** net-tokens structure definition (without marking)
-fmod NT-STRUCT{L :: TRIV, PL :: TRIV} is 
-  pr MSET-BAG{Tran{L, PL}} * (op nil to nilT, op empty to emptyMsetT, sort Bag{Tran{L, PL}} to Bag{Tran}, sort ElBag{Tran{L, PL}} to ElBag{Tran},
-                         sort NeBag{Tran{L, PL}} to NeBag{Tran}, sort Mset{Tran{L, PL}} to Mset{Tran} ) .
-  pr MSET-BAG{String} * (op nil to nilS, op empty to emptyMsetS) .
-  var N : Net .
-  var T : Tran .
-  var PB : Pbag .
-  var K : NzNat .
-  var SB : Bag{String} .
-  var TB : Bag{Tran} .
-  var TM : Mset{Tran} .
-  op hasInhibitor : Net -> Bool .
-  eq hasInhibitor(N ; L:Lab |-> [I:Pbag,O:Pbag,H:NePbag]) = true .
-  eq hasInhibitor(N) = false [owise] .
-  op pre : Bag{Tran} -> Pbag . *** cumulative pre-set
-  eq pre(TB) = $pre(TB, nilP) .
-  op $pre : Bag{Tran} Pbag -> Pbag .
-  eq $pre(nilT, PB) = PB .
-  eq $pre(K . T + TB, PB) = $pre(TB, PB + K * I(T)) . 
-  op post : Bag{Tran} -> Pbag . *** cumulative post-set
-  eq post(TB) = $post(TB, nilP) .
-  op $post : Bag{Tran} Pbag -> Pbag .
-  eq $post(nilT, PB) = PB .
-  eq $post(K . T + TB, PB) = $post(TB, PB + K * O(T)) .
-  op ch : Bag{Tran} -> Bag{String} . *** ch extension to multisets
-  eq ch(TB) = $ch(TB, nilS) .
-  op $ch : Bag{Tran} Bag{String} -> Bag{String} .
-  eq $ch(nilT, SB) = SB .
-  var S : String .
- ceq $ch(K . T + TB, SB) = $ch(TB, if S =/= "" then K . S + SB else SB fi) if S := ch(T) .
-endfm
-
-
 *** net-token representation with compact state (markings) description parametric in node labels 
 fmod NET-TOKEN{L :: TRIV, PL :: TRIV} is 
   pr NT-MARKING{PL} .
-  pr NT-STRUCT{L, PL} .
+  pr NT-SIG{L, PL} .
   sort NetToken .
   var N : Net .
-  var B : Mset{Pbag} . *** nested multiset
-  var TB : Bag{Tran} .
-  var T : Tran .
-  var PB : Pbag .
-  var K : NzNat .
+  var B : Mset{Pbag} . *** nested multiset of markings
   op __ : Net Mset{Pbag} -> [NetToken] [ctor] .
   op n : NetToken -> Net .
   op m : NetToken -> Mset{Pbag} .
-  cmb N B : NetToken if hasInhibitor(N) = false . *** we suppose that net-tokens do not have inhibitor arcs
+  cmb N B : NetToken if hasInhibitor(N) = false . *** net-tokens do not have inhibitor arcs
   eq n(N B) = N .
   eq m(N B) = B .
 endfm
@@ -94,21 +68,16 @@ view NetToken{L :: TRIV, PL :: TRIV} from TRIV to NET-TOKEN{L, PL} is
   sort Elt to NetToken .
 endv
 
-
 *** net-token including the object-autonomous firing rule
 mod NET-TOKEN-SYS{L :: TRIV, PL :: TRIV} is
  inc NET-TOKEN{L, PL} .
- vars N N' : Net .
- var B : Mset{Pbag} . 
- vars M M' : Pbag .
- var K : NzNat .
- var T : Tran .
+ var N  : Net .
+ var B  : Mset{Pbag} . 
+ var M  : Pbag .
+ var T  : Tran .
  var NT : NetToken .
  crl [aut-firing] : (T ; N) B M => (T ; N) B firing(T, M) if ch(T) = "" /\ I(T) <= M /\ R:Float := firing-rate(T, M) .
 endm
-
-in ../ALG-PN
-
 
 *** definition of an eHornet marking parametric vs the net-tokens' and system net's place labels -- net-tokems may be of any type and parametric in turn in node labels
 fmod EHORNET-GEN{L :: TRIV, PL :: TRIV, PL' :: TRIV} is
@@ -122,33 +91,23 @@ fmod EHORNET-GEN{L :: TRIV, PL :: TRIV, PL' :: TRIV} is
    eq (N emptyMNT) = emptyNT .
 endfm
 
-*** theory for particular types of net-tokens, defined through subsorting
-fth NET-TOKEN-TYPE is
- inc NET-TOKEN{Ntlab} .
+*** theory for particular types of net-tokens, defined through subsorting -- net-tokens' nodes' labels must be fixed
+fth NT-TYPE is
+ inc NET-TOKEN{String,String} * (sort Place{String} to Place ).
  sort Token .
  subsort Token < NetToken .
 endfth 
 
-*** trivial view to NET-TOKEN-TYPE
-view NetTokenType from TRIV to NET-TOKEN-TYPE is
+*** trivial view to NT-TYPE (with the same name as the theory)
+view NT-TYPE from TRIV to NT-TYPE is
  sort Elt to Token .
 endv
 
-*** alternative eHORNET definition parameterized in the (sub)type of net-tokens -- transitions' lab is NTLAB 
-fmod EHORNET{NT :: NET-TOKEN-TYPE} is
-   generated-by MSET-MARKING{NetTokenType}{NT} * (sort Mset{NetTokenType}{NT} to Mset{NT}, 
-                            sort Bag{NetTokenType}{NT} to Bag{NT}, sort NeBag{NetTokenType}{NT} to NeBag{NT}, sort ElBag{NetTokenType}{NT} to ElBag{NT},
-                            sort MsetMarking{NetTokenType}{NT} to  MsetMarking{NT}, sort  PmsetMarking{NetTokenType}{NT} to  PmsetMarking{NT},
-                            op nil to nilNT, op empty to emptyNT ) .
+*** alternative eHORNET definition parameterized in the (sub)type of net-tokens and system-net transitions' lab is NTLAB 
+fmod EHORNET{NT :: NT-TYPE, PL :: TRIV} is
+   generated-by MSET-MARKING{NT-TYPE, TRIV}{NT, PL} * (op nil to nilNT, op empty to emptyNT) .
    var N : Net .
-   vars B B' : Mset{Pbag} . *** compact net-token markings' representation
+   vars B B' : Mset{Pbag} . 
    eq (N B) (N B') = N (B B') . 
    eq (N emptyMNT) = emptyNT .
 endfm 
-
-*** this theory defines the synchronization maps between system- and object-nets (not used here)
-fth SYNCH is
- inc NT-STRUCT{Ntlab} .
- op synch : Net String -> Bag{String} . *** maps each rule (label) to a bag of channels
- op theta : Net -> Bag{Tran} . *** maps each net-token to a bag of transitions
-endfth

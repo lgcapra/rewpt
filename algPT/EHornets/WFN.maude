@@ -1,8 +1,8 @@
 in NET-TOKEN
 
-*** signature of stochastic wfn net-tokens
+*** signature of stochastic wfn net-tokens (parametric in transition's tag)
 fmod WFN-TOKEN is
-  pr NET-TOKEN{Ntlab} . *** place labels are strings
+  pr NET-TOKEN{String, String} * (sort Place{String} to Place) .
   sort Wfn .
   subsort Wfn < NetToken .
   vars L L' : Lab .
@@ -60,8 +60,8 @@ ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; 
         if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
 endfm
 
-*** maps the NET-TOKEN-TYPE theory to WFN-TOKEN
-view Wfn from NET-TOKEN-TYPE to WFN-TOKEN is
+*** maps the NT-TYPE theory to WFN-TOKEN
+view Wfn from NT-TYPE to WFN-TOKEN is
   sort Token to Wfn .
 endv 
 
@@ -69,23 +69,23 @@ endv
 *** wfn type net-tokens with the (autonomous) firing rule 
 mod WFN-TOKEN-SYS is 
   inc WFN-TOKEN .
-  inc NET-TOKEN-SYS{Ntlab} .
+  inc NET-TOKEN-SYS{String, String} * (sort Place{String} to Place) .
 endm
 
 *** an implementation of theory SYNCH
 fmod SYNCH-EXE is
-  pr NT-STRUCT{Ntlab} .
+  pr NT-SIG{String, String} .
   pr BAG{String} * (op nil to nilS) .
   var  N : Net . 
   var  T : Tran .
   var  L : Lab .
   op synch : Net String -> Bag{String} .
-  op theta : Net -> Bag{Tran} .
- ceq  synch(T ; N, "T1") = (if tag(l(T)) == "a" then 2 else 1 fi) . ch(T)  if ch(T) =/= "" .
+  op theta : Net -> Net . 
+ ceq  synch(T ; N , "T1") = (if tag(l(T)) == "a" then 2 else 1 fi) . ch(T)   if ch(T) =/= "" .
   eq  synch(N, W:String) = nilS [owise] . *** just an example
- ceq  theta(T ; N) = 2 . T if tag(l(T)) == "a" .
- ceq  theta(T ; N) = 1 . T if tag(l(T)) == "b" [owise] .
-  eq  theta(N) = nilT [owise] .
+ ceq  theta(T ; N) = T ; T if tag(l(T)) == "a" .
+ ceq  theta(T ; N) =  T if tag(l(T)) == "b" [owise] .
+  eq  theta(N) = emptyNet [owise] .
 endfm
 
 *** view to SYNCH-EXE
