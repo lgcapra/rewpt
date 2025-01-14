@@ -91,9 +91,15 @@ fmod EHORNET-GEN{L :: TRIV, PL :: TRIV, PL' :: TRIV} is
    eq (N emptyMNT) = emptyNT .
 endfm
 
+fth SYNCH is
+ inc NT-SIG{String,String} .
+ op synch : Net String -> Mset{String} . *** maps each rule (label) to a bag of channels
+ op theta : Net -> Net . 
+endfth
+
 *** theory for particular types of net-tokens, defined through subsorting -- net-tokens' nodes' labels must be fixed
 fth NT-TYPE is
- inc NET-TOKEN{String,String} * (sort Place{String} to Place ).
+ inc NET-TOKEN{String,String} .
  sort Token .
  subsort Token < NetToken .
 endfth 
@@ -103,11 +109,14 @@ view NT-TYPE from TRIV to NT-TYPE is
  sort Elt to Token .
 endv
 
-*** alternative eHORNET definition parameterized in the (sub)type of net-tokens and system-net transitions' lab is NTLAB 
-fmod EHORNET{NT :: NT-TYPE, PL :: TRIV} is
-   generated-by MSET-MARKING{NT-TYPE, TRIV}{NT, PL} * (op nil to nilNT, op empty to emptyNT) .
+*** alternative eHORNET definition parameterized in the (sub)type of net-tokens, system-net transitions' lab and synchronization
+fmod EHORNET{NT :: NT-TYPE, PL :: TRIV, SY :: SYNCH} is
+   generated-by MSET-MARKING{NT-TYPE, TRIV}{NT, PL} * (op nil to nilNT, op empty to emptyNT, sort Mset{NT-TYPE}{NT} to Mset{NT},
+             sort Place{TRIV}{PL} to Place{PL}, sort Bag{NT-TYPE}{NT} to Bag{NT}, sort ElBag{NT-TYPE}{NT} to ElBag{NT}, sort NeBag{NT-TYPE}{NT} to NeBag{NT},
+             sort MsetMarking{NT-TYPE}{NT} to MsetMarking{NT},  sort PmsetMarking{NT-TYPE}{NT} to PmsetMarking{NT}) .
    var N : Net .
    vars B B' : Mset{Pbag} . 
    eq (N B) (N B') = N (B B') . 
    eq (N emptyMNT) = emptyNT .
 endfm 
+

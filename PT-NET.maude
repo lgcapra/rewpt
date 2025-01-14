@@ -38,7 +38,6 @@ ceq in(L |-> Q ; N, P) = true if in (Q, P) .
 
  op in :  Net L$Elt -> Bool . *** test the existence of a transition
  eq in(N, L) = $hasMapping(N, L) .
-
  
  op places : Net -> Pset [memo] .
  eq places(N) = $places(N, emptyPset) .  
@@ -48,14 +47,6 @@ ceq in(L |-> Q ; N, P) = true if in (Q, P) .
 
  op transitions : Net -> Set{L} .
  eq transitions(N) = keySet(N) .
-
- *** computes the system's enabled transitions (outcome seen as a sub-Net) 
-  *** op haveConcession : System -> Net [memo] .
-  *** eq haveConcession(S:System) = $haveConcession(S:System, emptyNet) .
-  *** op $haveConcession : System Net -> Net .
-  *** eq $haveConcession(emptyNet M, N) = N .
-*** ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if enabled(T, M) .
- *** eq $haveConcession((T ; N) M, N') = $haveConcession(N M, N') [owise] . 
 
  ***  merges two transitions by assigning the resulting one the specified label
  op merge : Tran  Tran L$Elt -> Tran .
