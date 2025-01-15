@@ -75,8 +75,7 @@ mod NET-TOKEN-SYS{L :: TRIV, PL :: TRIV} is
  var B  : Mset{Pbag} . 
  var M  : Pbag .
  var T  : Tran .
- var NT : NetToken .
- crl [aut-firing] : (T ; N) B M => (T ; N) B firing(T, M) if ch(T) = "" /\ I(T) <= M /\ R:Float := firing-rate(T, M) .
+ crl [firing] : (T ; N) B M => (T ; N) B firing(T, M) if ch(T) = emptyMsetS /\ I(T) <= M /\ R:Float := firing-rate(T, M) .
 endm
 
 *** definition of an eHornet marking parametric vs the net-tokens' and system net's place labels -- net-tokems may be of any type and parametric in turn in node labels

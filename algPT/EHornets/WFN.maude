@@ -11,7 +11,6 @@ fmod WFN-TOKEN is
   var BB : Bag{Pbag} . 
   vars I O H I' O' H' B B' : Pbag .
   var P : Place{String} .
-  *** var T : Tran .
   vars S S' S'' : String .
   
   ops hasIn hasOut : Net Place{String} -> Bool .
@@ -69,7 +68,6 @@ endv
 *** an implementation of theory SYNCH
 fmod SYNCH-EXE is
   pr NT-SIG{String, String} .
-  *** pr BAG{String} * (op nil to nilS) .
   var  N : Net . 
   var  T : Tran .
   var  L : Lab .
