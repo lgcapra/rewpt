@@ -10,51 +10,43 @@ fmod WFN-TOKEN is
   vars N N' : Net .
   var BB : Bag{Pbag} . 
   vars I O H I' O' H' B B' : Pbag .
-  var P : Place{String} .
   vars S S' S'' : String .
-  
-  ops hasIn hasOut : Net Place{String} -> Bool .
-  eq hasIn(L |-> [I + K . P, O, H] ; N, P) = true .
-  eq hasIn(N, P) = false [owise] .
-  eq hasOut(L |-> [I, O + K . P, H] ; N, P) = true .
-  eq hasOut(N, P) = false [owise] .
-  op wfnet? : Net -> Bool .
-  eq wfnet?(N) = hasIn(N,p("in")) and-then hasOut(N,p("out")) and-then not(hasOut(N,p("in"))) and-then not(hasIn(N,p("out"))) .
-
   var NT : NetToken .               
+  
+  op wfnet? : Net -> Bool .
+  eq wfnet?(N) = isIn(N, p("in")) and-then isOut(N, p("out")) and-then not(isOut(N, p("in"))) and-then not(isIn(N, p("out"))) .
   cmb NT : Wfn if wfnet?(n(NT)) . *** characterizes workflow nets(-tokens)
 
  *** utilities
- op rename : Pbag String String -> Pbag .
- eq rename(K . p(S) + B, S, S') = K . p(S') + B .
- eq rename(B, S, S') = B [owise] .
+  op rename : Pbag String String -> Pbag .
+  eq rename(K . p(S) + B, S, S') = K . p(S') + B .
+  eq rename(B, S, S') = B [owise] .
  
- ops renameI renameO : Net String String -> Net . *** renaming restricted to Input/Output places of a net
- eq renameI(N, S, S') = $renameI(N, emptyNet, S, S') .
- op $renameI : Net Net String String -> Net .
- eq $renameI(emptyNet, N, S, S') = N .
- eq $renameI(N ; L |-> [I, O, H] , N', S, S') = $renameI(N, L |-> [rename(I, S, S'), O, H] ; N', S, S') .
- eq renameO(N, S, S') = $renameO(N, emptyNet, S, S') .
- op $renameO : Net Net String String -> Net .
- eq $renameO(emptyNet, N, S, S') = N .
- eq $renameO(N ; L |-> [I, O, H] , N', S, S') = $renameO(N, L |-> [I, rename(O, S, S'), H] ; N', S, S') .
+  ops renameI renameO : Net String String -> Net . *** renaming restricted to Input/Output places of a net
+  eq renameI(N, S, S') = $renameI(N, emptyNet, S, S') .
+  op $renameI : Net Net String String -> Net .
+  eq $renameI(emptyNet, N, S, S') = N .
+  eq $renameI(N ; L |-> [I, O, H] , N', S, S') = $renameI(N, L |-> [rename(I, S, S'), O, H] ; N', S, S') .
+  eq renameO(N, S, S') = $renameO(N, emptyNet, S, S') .
+  op $renameO : Net Net String String -> Net .
+  eq $renameO(emptyNet, N, S, S') = N .
+  eq $renameO(N ; L |-> [I, O, H] , N', S, S') = $renameO(N, L |-> [I, rename(O, S, S'), H] ; N', S, S') .
 
- op cat : String String -> String . *** concatenates using a '-' if the first string is not empty 
- eq cat("",S) = S .
- eq cat(S, S') = S + "-" + S' [owise] .      
- op cat : String Nat -> String . *** append an index to a string
- eq cat(S, n:Nat) = cat(S, string(n:Nat, 10)) [owise] .
+  op cat : String String -> String . *** concatenates using a '-' if the first string is not empty 
+  eq cat("",S) = S .
+  eq cat(S, S') = S + "-" + S' [owise] .      
+  op cat : String Nat -> String . *** append an index to a string
+  eq cat(S, n:Nat) = cat(S, string(n:Nat, 10)) [owise] .
 
- *** PA operators (work as expected if the operands are workflow-nets)
- op seq : Net Net String -> Net  . *** the string parameter is used to rename the merged Out/In places of the operands  
- op alt : Net Net -> Net [assoc comm] . *** implicitly associative
- op par : Net Net String Lab Lab -> Net  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
-
- eq seq(N, N', S) = renameO(N, "out", S) ; renameI(N',"in", S)  .
- eq alt(N, N') = N ; N'  .
- vars W W' W'' : Net . 
- vars in1 in2 out1 out2 : String .
-ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP] ;
+  *** PA operators (work as expected if the operands are workflow-nets)
+  op seq : Net Net String -> Net  . *** the string parameter is used to rename the merged Out/In places of the operands  
+  op alt : Net Net -> Net [assoc comm] . *** implicitly associative
+  op par : Net Net String Lab Lab -> Net  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
+  eq seq(N, N', S) = renameO(N, "out", S) ; renameI(N',"in", S)  .
+  eq alt(N, N') = N ; N'  .
+  vars W W' W'' : Net . 
+  vars in1 in2 out1 out2 : String .
+ ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP] ;
         renameO(renameI(N, "in", in1), "out", out1) ; renameO(renameI(N, "in", in2), "out", out2) 
         if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
 endfm

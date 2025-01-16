@@ -38,6 +38,14 @@ ceq in(L |-> Q ; N, P) = true if in (Q, P) .
 
  op in :  Net L$Elt -> Bool . *** test the existence of a transition
  eq in(N, L) = $hasMapping(N, L) .
+
+ ops isIn isOut isInH : Net Place{PL} -> Bool . *** check the existence of a place of given type
+ eq isIn(L |-> [I + K . P, O, H] ; N, P) = true .
+ eq isIn(N, P) = false [owise] .
+ eq isOut(L |-> [I, O + K . P, H] ; N, P) = true .
+ eq isOut(N, P) = false [owise] .
+ eq isInH(L |-> [I, O, H + K . P] ; N, P) = true .
+ eq isInH(N, P) = false [owise] .
  
  op places : Net -> Pset [memo] .
  eq places(N) = $places(N, emptyPset) .  
