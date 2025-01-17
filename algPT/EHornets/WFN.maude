@@ -64,10 +64,10 @@ fmod SYNCH-EXE is
   var  T : Tran .
   var  L : Lab .
   vars  S C : String .
-  op synch : Net String -> Mset{String} .
+  op synch : String -> Mset{String} .
   op theta : Net -> Net . 
- ceq synch(T ; N , "T1") = if S == "a" then C C else C fi  if S @ C := tag(T) /\ C =/= "" . 
-  eq  synch(N, W:String) = emptyMsetS [owise] . *** just an example
+  eq synch("T1") = "ch1" "ch1" "ch2" . 
+  eq  synch(W:String) = emptyMsetS [owise] . *** just an example
  ceq  theta(T ; N) = T ; T if 1st(tag(T)) == "a" .
  ceq  theta(T ; N) =  T if 1st(tag(T)) == "b" [owise] .
   eq  theta(N) = emptyNet [owise] .
@@ -79,7 +79,7 @@ endv
 
 *** simple example of stochastic EHornets, all places hold stochastic wfn
 mod EHORNET-EXE is
- inc NET-TOKEN-SYS{String, String}  .
+ *** inc NET-TOKEN-SYS{String, String}  . *** includes net-tokens' autonomous firing
  inc EHORNET{Wfn, Nat, Synch} .
  ops net net' : -> Net  [memo] . 
  ops m0 m0' m0'' : -> Pbag  [memo] .  
@@ -103,14 +103,14 @@ mod EHORNET-EXE is
  vars X Y Z W N N' : Net .
  vars k k' : NzNat .
  vars M1 M2 M3 M4 : Mset{Pbag} .
- vars b1 b2 b3 pre pre' cum cum' newm newm' : Pbag .
+ vars b1 b2 b3 pre pre' Pi2 cum' newm newm' : Pbag .
  vars out1 out2 out3 out4 : Pmset .
   *** system net synchronization transition (encoded as a rule) - pre(T1) = {p1,p2,3}, post{T1} = {p4,p5,p6,p7}  
 crl [T1] : p(1) |-> (X b1 M1) B ;  p(2) |-> (X b2 M2)  B' ; p(3) |-> (Y b3 M3) B'' ; p(4) |-> B1 ; p(5) |-> B2 ; p(6) |-> B3 ; p(7) |-> B4 
           =>  
            p(1) |-> (X M1) B ; p(2) |-> (X M2) B' ; p(3) |-> (Y M3) B'' ; p(4) |-> B1 (X bag(out1)) ; p(5) |-> B2 (X bag(out2)) ; p(6) |-> B3 (Y bag(out3)) ; p(7) |-> B4 (Y bag(out4))  
-           if N  := theta(X) /\ synch(X,"T1") = ch(N) /\ cum := b1 + b2 /\ pre := pre(N) /\ pre <= cum /\ out1 out2 := mset(cum + post(N) - pre) /\
-             N' := theta(Y) /\ synch(Y,"T1") = ch(N') /\ cum' := b3 /\ pre' := pre(N') /\ pre' <= cum' /\ out3 out4 := mset(cum' + post(N') - pre') /\ R:Float := 1.5 .
+           if X =/= Y /\ N  := theta(X) /\ N' := theta(Y) /\ synch("T1") = ch(N ; N') /\ Pi2 := b1 + b2 + b3 /\ pre := pre(N ; N') /\ pre <= Pi2 
+           /\ out1 out2 out3 out4 := mset(b1 + b2 + post(N) - pre(N)) mset(b3 + post(N') - pre(N')) /\ R:Float := 1.5 .
  *** system net autonomous transition - pre(T2) = {p3}, post{T2} = {p7}
-crl [T2] : p(3) |-> (X b3 M3) B ; p(7) |-> B' => p(3) |-> (X M3) B ; p(7) |-> B' (X b3) if synch(X, "T2") == emptyMsetS /\ R:Float := 2.0 .
+***crl [T2] : p(3) |-> (X b3 M3) B ; p(7) |-> B' => p(3) |-> (X M3) B ; p(7) |-> B' (X b3) if synch("T2") == emptyMsetS /\ R:Float := 2.0 .
 endm
