@@ -56,12 +56,20 @@ fmod NET-TOKEN{L :: TRIV, PL :: TRIV} is
   sort NetToken .
   var N : Net .
   var B : Mset{Pbag} . *** nested multiset of markings
+  vars M M' : Pbag .
   op __ : Net Mset{Pbag} -> [NetToken] [ctor] .
   op n : NetToken -> Net .
   op m : NetToken -> Mset{Pbag} .
   cmb N B : NetToken if hasInhibitor(N) = false . *** net-tokens do not have inhibitor arcs
   eq n(N B) = N .
   eq m(N B) = B .
+  op cum : Mset{Pbag} -> Pbag . *** cumulative marking
+  eq cum(B) = $cum(B, nilP) .
+  op $cum : Mset{Pbag} Pbag -> Pbag .
+  eq $cum(emptyMNT, M) = M .
+  eq $cum(B M', M) = $cum(B, M + M') .
+  op cum : NetToken -> Pbag .
+  eq cum(N B) = cum(B) .
 endfm
 
 view NetToken{L :: TRIV, PL :: TRIV} from TRIV to NET-TOKEN{L, PL} is
@@ -117,10 +125,25 @@ fmod EHORNET{NT :: NT-TYPE, PL :: TRIV, SY :: SYNCH} is
    generated-by MSET-MARKING{NT-TYPE, TRIV}{NT, PL} * (op nil to nilNT, op empty to emptyNT, sort Mset{NT-TYPE}{NT} to Mset{NT},
              sort Place{TRIV}{PL} to Place{PL}, sort Bag{NT-TYPE}{NT} to Bag{NT}, sort ElBag{NT-TYPE}{NT} to ElBag{NT}, sort NeBag{NT-TYPE}{NT} to NeBag{NT},
              sort MsetMarking{NT-TYPE}{NT} to MsetMarking{NT},  sort PmsetMarking{NT-TYPE}{NT} to PmsetMarking{NT}) .
-   var N : Net .
+   vars N N' : Net .
+   var P : Place{PL} .
    vars B B' : Mset{Pbag} . 
    eq (N B) (N B') = N (B B') . 
    eq (N emptyMNT) = emptyNT .
+   var MM : MsetMarking{NT} .
+   var PM : PmsetMarking{NT} .
+   var M : Pbag .
+   var MNT : Mset{NT} .
+   var NT : NT$Token .
+   op cum : PmsetMarking{NT} Net -> Pbag .
+   eq cum(P |-> (N B) MNT, N) = cum(B) .
+   eq cum(PM, N) = nilP [owise] .
+   op Pi2 : MsetMarking{NT} Net -> Pbag .
+   eq Pi2(MM, N) = $Pi2(MM, N, nilP) .
+   op $Pi2 : MsetMarking{NT} Net Pbag -> Pbag .
+   eq $Pi2((MM ; PM), N, M) = $Pi2(MM, N, cum(PM, N) + M) .
+   eq $Pi2(PM, N, M) = cum(PM, N) + M .
+   eq $Pi2(emptyM, N, B) = B .
 endfm
  
 
