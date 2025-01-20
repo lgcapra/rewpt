@@ -11,7 +11,8 @@ fmod WFN-TOKEN is
   var BB : Bag{Pbag} . 
   vars I O H I' O' H' B B' : Pbag .
   vars S S' S'' : String .
-  var NT : NetToken .               
+  var NT : NetToken .
+  var F : Float .               
   
   op wfnet? : Net -> Bool .
   eq wfnet?(N) = isIn(N, p("in")) and-then isOut(N, p("out")) and-then not(isOut(N, p("in"))) and-then not(isIn(N, p("out"))) .
@@ -49,6 +50,8 @@ fmod WFN-TOKEN is
  ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP] ;
         renameO(renameI(N, "in", in1), "out", out1) ; renameO(renameI(N, "in", in2), "out", out2) 
         if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
+  op elWfn : String String Float -> Tran . *** creates an elementary wfn with in-out places 
+  eq elWfn(S, S', F) = t(S @ S', F, 1) |-> [1 . p("in"), 1 . p("out"), nilP] . 
 endfm
 
 *** maps the NT-TYPE theory to WFN-TOKEN
@@ -80,14 +83,14 @@ endv
 *** simple example of stochastic EHornets, all places hold stochastic wfn
 mod EHORNET-EXE is
  inc NET-TOKEN-SYS{String, String}  . *** includes net-tokens' autonomous firing
- inc EHORNET{Wfn, Nat, Synch} .
+ inc EHORNET-SYNCH{Wfn, Nat, Synch} .
  ops net net' : -> Net  [memo] . 
  ops m0 m0' m0'' : -> Pbag  [memo] .  
  ops nt nt' nt'' : -> NetToken [memo] . *** the least sort is (should be) Wfn
 
- eq net =  t("a" @ "ch1", 1.0, 0) |-> [1 . p("in"), 1 . p("out"), nilP] .
- eq net' = t("b" @ "ch2", 2.0, 0) |-> [1 . p("x") + 1 . p("in"), 1 . p("out"), nilP] ;
-           t("c" @ "", 3.0, 0) |-> [1 . p("in"), nilP, nilP] .
+ eq net =  elWfn("a", "ch1", 1.0)  .
+ eq net' = t("b" @ "ch2", 2.0, 1) |-> [1 . p("x") + 1 . p("in"), 1 . p("out"), nilP] ;
+           t("c" @ "", 3.0, 1) |-> [1 . p("in"), nilP, nilP] .
  
  eq m0  =  1 . p("in") + 1 . p("out") .
  eq m0'  = 1 . p("in")  .
@@ -111,12 +114,29 @@ mod EHORNET-EXE is
 ***           p(1) |-> (X M1) B ; p(2) |-> (X M2) B' ; p(3) |-> (Y M3) B'' ; p(4) |-> B1 (X bag(out1)) ; p(5) |-> B2 (X bag(out2)) ; p(6) |-> B3 (Y bag(out3)) ; p(7) |-> B4 (Y bag(out4))  
 ***           if X =/= Y /\ N  := theta(X) /\ N' := theta(Y) /\ synch("T1") = ch(N ; N') /\ Pi2 := b1 + b2 + b3 /\ pre := pre(N ; N') /\ pre <= Pi2 
 ***           /\ out1 out2 out3 out4 := mset(b1 + b2 + post(N) - pre(N)) mset(b3 + post(N') - pre(N')) /\ R:Float := 1.5 .
-*** alternative
+*** alternative (similar, but symmetric in the management of the cumulative pre- and post-sets)
 crl [T1] : p(1) |-> (X b1 M1) B ;  p(2) |-> (X b2 M2)  B' ; p(3) |-> (Y b3 M3) B'' ; p(4) |-> B1 ; p(5) |-> B2 ; p(6) |-> B3 ; p(7) |-> B4 
           =>  
            p(1) |-> (X M1) B ; p(2) |-> (X M2) B' ; p(3) |-> (Y M3) B'' ; p(4) |-> B1 (X bag(out1)) ; p(5) |-> B2 (X bag(out2)) ; p(6) |-> B3 (Y bag(out3)) ; p(7) |-> B4 (Y bag(out4))  
            if X =/= Y /\ N  := theta(X) ; theta(Y) /\ synch("T1") = ch(N) /\ Pi2 := b1 + b2 + b3 /\ pre := pre(N) /\ pre <= Pi2 
            /\ out1 out2 out3 out4 := mset(Pi2 + post(N) - pre) /\ R:Float := 1.5 .
  *** system net autonomous transition - pre(T2) = {p3}, post{T2} = {p7}
-crl [T2] : p(3) |-> (X b3 M3) B ; p(7) |-> B' => p(3) |-> (X M3) B ; p(7) |-> B' (X b3) if synch("T2") == emptyMsetS /\ R:Float := 2.0 .
+ crl [T2] : p(3) |-> (X b3 M3) B ; p(7) |-> B' => p(3) |-> (X M3) B ; p(7) |-> B' (X b3) if synch("T2") == emptyMsetS /\ R:Float := 2.0 .
+endm
+
+*** battle of the sexes exampple
+mod EHORNET-BOS is
+ *** inc NET-TOKEN-SYS{String, String}  . *** includes net-tokens' autonomous firing
+ inc EHORNET{Wfn, String} . *** system net places labelled by strings
+ vars S S' : String .
+ var I : Nat .
+ op ag : String Nat -> Tran .
+ eq ag(S, I) = elWfn(S + string(I, 10), S, 1.0) . 
+ ops a0 b0 a1 b1 : -> Tran . 
+ eq a0 = ag("a", 0) .
+ eq a1 = ag("a", 1) .
+ eq b0 = ag("b", 0) .
+ eq b1 = ag("b", 1) .
+ op inc : Tran Float -> Tran . *** increase the transition rate
+ eq inc(t(L:Tag, F:Float, N:Nat) |-> Q:Tmatrix, D:Float) = t(L:Tag, F:Float + D:Float, N:Nat) |-> Q:Tmatrix .
 endm

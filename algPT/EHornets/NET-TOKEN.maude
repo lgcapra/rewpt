@@ -119,18 +119,19 @@ view NT-TYPE from TRIV to NT-TYPE is
  sort Elt to Token .
 endv
 
-*** alternative eHORNET (marking) definition parameterized in the (sub)type of net-tokens, system-net transitions' lab and synchronization
-*** all net tokens have the same type 
-fmod EHORNET{NT :: NT-TYPE, PL :: TRIV, SY :: SYNCH} is
+*** alternative eHORNET (marking) definition parameterized in the (sub)type of net-tokens and system-net transitions' lab
+*** all net tokens have the same type - the sort of system net places is renamed for safety
+fmod EHORNET{NT :: NT-TYPE, PL :: TRIV} is
    generated-by MSET-MARKING{NT-TYPE, TRIV}{NT, PL} * (op nil to nilNT, op empty to emptyNT, sort Mset{NT-TYPE}{NT} to Mset{NT},
-             sort Place{TRIV}{PL} to Place{PL}, sort Bag{NT-TYPE}{NT} to Bag{NT}, sort ElBag{NT-TYPE}{NT} to ElBag{NT}, sort NeBag{NT-TYPE}{NT} to NeBag{NT},
+             op p : PL$Elt -> Place{TRIV}{PL} to P, sort Place{TRIV}{PL} to SysPlace{PL},
+             sort Bag{NT-TYPE}{NT} to Bag{NT}, sort ElBag{NT-TYPE}{NT} to ElBag{NT}, sort NeBag{NT-TYPE}{NT} to NeBag{NT},
              sort MsetMarking{NT-TYPE}{NT} to MsetMarking{NT},  sort PmsetMarking{NT-TYPE}{NT} to PmsetMarking{NT}) .
    vars N N' : Net .
-   var P : Place{PL} .
+   var P : SysPlace{PL} .
    vars B B' : Mset{Pbag} . 
-   eq (N B) (N B') = N (B B') . 
+   eq (N B) (N B') = N (B B') . *** compact net-tokens' marking's representation
    eq (N emptyMNT) = emptyNT .
-   var MM : MsetMarking{NT} .
+   var MM : Marking .
    var PM : PmsetMarking{NT} .
    var M : Pbag .
    var MNT : Mset{NT} .
@@ -138,12 +139,17 @@ fmod EHORNET{NT :: NT-TYPE, PL :: TRIV, SY :: SYNCH} is
    op cum : PmsetMarking{NT} Net -> Pbag .
    eq cum(P |-> (N B) MNT, N) = cum(B) .
    eq cum(PM, N) = nilP [owise] .
-   op Pi2 : MsetMarking{NT} Net -> Pbag .
+   *** the following definition is useful if net tokens were represented by pairs Net Pbag instead of N Mset{Pbag} 
+   op Pi2 : Marking Net -> Pbag .
    eq Pi2(MM, N) = $Pi2(MM, N, nilP) .
-   op $Pi2 : MsetMarking{NT} Net Pbag -> Pbag .
+   op $Pi2 : Marking Net Pbag -> Pbag .
    eq $Pi2((MM ; PM), N, M) = $Pi2(MM, N, cum(PM, N) + M) .
-   eq $Pi2(PM, N, M) = cum(PM, N) + M .
    eq $Pi2(emptyM, N, B) = B .
+endfm
+
+*** alternative eHORNET (marking) definition parameterized in the (sub)type of net-tokens, system-net transitions' lab and synchronization
+fmod EHORNET-SYNCH{NT :: NT-TYPE, PL :: TRIV, SY :: SYNCH} is
+   pr EHORNET{NT, PL} .
 endfm
  
 
