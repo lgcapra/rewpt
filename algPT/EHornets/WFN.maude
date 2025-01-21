@@ -1,23 +1,17 @@
 in NET-TOKEN
 
-*** signature of stochastic wfn net-tokens (parametric in transition's tag)
-fmod WFN-TOKEN is
-  pr NET-TOKEN{String, String}  .
-  sort Wfn .
-  subsort Wfn < NetToken .
+fmod WFN{L :: TRIV} is
+  pr SPN-SIG{L, String} .
   vars L L' : Lab .
   vars K K' U U' : NzNat .
   vars N N' : Net .
-  var BB : Bag{Pbag} . 
   vars I O H I' O' H' B B' : Pbag .
   vars S S' S'' : String .
-  var NT : NetToken .
   var F : Float .               
   
   op wfnet? : Net -> Bool .
   eq wfnet?(N) = isIn(N, p("in")) and-then isOut(N, p("out")) and-then not(isOut(N, p("in"))) and-then not(isIn(N, p("out"))) .
-  cmb NT : Wfn if wfnet?(n(NT)) . *** characterizes workflow nets(-tokens)
-
+  
  *** utilities
   op rename : Pbag String String -> Pbag .
   eq rename(K . p(S) + B, S, S') = K . p(S') + B .
@@ -50,8 +44,27 @@ fmod WFN-TOKEN is
  ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP] ;
         renameO(renameI(N, "in", in1), "out", out1) ; renameO(renameI(N, "in", in2), "out", out2) 
         if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
+  op elWfn : Lab -> Tran .
+  eq elWfn(L) = L |-> [1 . p("in"), 1 . p("out"), nilP] .
+  op loop : Net Lab -> Net . *** "closure" of a Wfn
+  eq loop(N, L) = N ; L |-> [1 . p("out"), 1 . p("in"), nilP] . 
+endfm
+
+*** signature of stochastic wfn net-tokens (parametric in transition's tag)
+fmod WFN-TOKEN is
+  pr WFN{String} .
+  pr NET-TOKEN{String, String}  .
+  sort Wfn .
+  subsort Wfn < NetToken .
+  vars L L' : Lab .
+  vars K K' U U' : NzNat .
+  vars N N' : Net .
+  vars I O H I' O' H' B B' : Pbag .
+  vars S S' S'' : String .
+  var NT : NetToken .
+  var F : Float .               
+  cmb NT : Wfn if wfnet?(n(NT)) . *** characterizes workflow nets(-tokens)
   op elWfn : String String Float -> Tran . *** creates an elementary wfn with in-out places 
-  eq elWfn(S, S', F) = t(S @ S', F, 1) |-> [1 . p("in"), 1 . p("out"), nilP] . 
 endfm
 
 *** maps the NT-TYPE theory to WFN-TOKEN
@@ -126,17 +139,25 @@ endm
 
 *** battle of the sexes exampple
 mod EHORNET-BOS is
- *** inc NET-TOKEN-SYS{String, String}  . *** includes net-tokens' autonomous firing
- inc EHORNET{Wfn, String} . *** system net places labelled by strings
+ inc WFN-TOKEN . 
+ inc NET-TOKEN-SYS{String, String}  . *** includes net-tokens' autonomous firing
+ inc EHORNET-GEN{String, String, String} . *** system- and object-net places labelled by strings
  vars S S' : String .
  var I : Nat .
- op ag : String Nat -> Tran .
- eq ag(S, I) = elWfn(S + string(I, 10), S, 1.0) . 
+ op a : String Nat -> Tran .  *** encodes an action
+ceq a(S, I) = elWfn(S', S + S', 1.0) if S' := string(I, 10) . 
  ops a0 b0 a1 b1 : -> Tran . 
- eq a0 = ag("a", 0) .
- eq a1 = ag("a", 1) .
- eq b0 = ag("b", 0) .
- eq b1 = ag("b", 1) .
+ eq a0 = a("a", 0) .
+ eq a1 = a("a", 1) .
+ eq b0 = a("b", 0) .
+ eq b1 = a("b", 1) .
  op inc : Tran Float -> Tran . *** increase the transition rate
  eq inc(t(L:Tag, F:Float, N:Nat) |-> Q:Tmatrix, D:Float) = t(L:Tag, F:Float + D:Float, N:Nat) |-> Q:Tmatrix .
+ ops ag0 ag1 Bos Bos' Lbos : -> Net . *** aliasing
+ eq ag0 = alt(a0,b0) . eq ag1 = alt(a1,b1) .
+ ops start stop : -> Lab .
+ eq start = t("start" @ "", 1.0, 1) . eq stop = t("stop" @ "", 1.0, 1) .
+ eq Bos = par(ag0, ag1, "dec", start, stop) .
+ eq Lbos = loop(Bos, t("reset" @ "res", 1.0, 1)) .
+
 endm
