@@ -123,9 +123,9 @@ endv
 *** all net tokens have the same type - the sort of system net places is renamed for safety
 fmod EHORNET{NT :: NT-TYPE, PL :: TRIV} is
    generated-by MSET-MARKING{NT-TYPE, TRIV}{NT, PL} * (op nil to nilNT, op empty to emptyNT, sort Mset{NT-TYPE}{NT} to Mset{NT},
-             op p : PL$Elt -> Place{TRIV}{PL} to P, sort Place{TRIV}{PL} to SysPlace{PL},
+             sort Place{TRIV}{PL} to SysPlace{PL}, 
              sort Bag{NT-TYPE}{NT} to Bag{NT}, sort ElBag{NT-TYPE}{NT} to ElBag{NT}, sort NeBag{NT-TYPE}{NT} to NeBag{NT},
-             sort MsetMarking{NT-TYPE}{NT} to MsetMarking{NT},  sort PmsetMarking{NT-TYPE}{NT} to PmsetMarking{NT}) .
+             sort MsetMarking{NT-TYPE}{NT} to MsetMarking{NT},  sort PmsetMarking{NT-TYPE}{NT} to PmsetMarking{NT}) * (op p : PL$Elt -> SysPlace{PL} to P) .
    vars N N' : Net .
    var P : SysPlace{PL} .
    vars B B' : Mset{Pbag} . 
@@ -152,4 +152,7 @@ fmod EHORNET-SYNCH{NT :: NT-TYPE, PL :: TRIV, SY :: SYNCH} is
    pr EHORNET{NT, PL} .
 endfm
  
+fmod EHORNET-1{NT :: NT-TYPE} is
+   pr EHORNET{NT, Nat} .
+endfm 
 
