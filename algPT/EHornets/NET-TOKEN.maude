@@ -101,9 +101,9 @@ endfm
 *** theory for net-tokens' synchronization with system-net transitions
 *** theories cannot have parameters: net-tokens' node labels (tags) are of a given type (String, in this case)
 fth SYNCH is
- inc NT-SIG{String,String} .
+ *** inc NT-SIG{String,String} .
+ inc MSET-BAG{String} * (op nil to nilS, op empty to  emptyMsetS).
  op synch : String -> Mset{String} . *** maps each rule label (i.e., system-net transition) to a bag of channels -- should be "instance and/or object-net dependent"
- op theta : Net -> Net . *** maps each net-token into a multiset of transitions (a Net, for convenience)
 endfth
 
 *** theory for particular types of net-tokens, defined through subsorting -- net-tokens' nodes' labels must be fixed

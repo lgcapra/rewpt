@@ -1,13 +1,14 @@
 in NET-TOKEN
 
+*** workflow-nets' signature
 fmod WFN{L :: TRIV} is
-  pr SPN-SIG{L, String} .
-  vars L L' : Lab .
+  pr PT-NET{L, String} .
+  pr CONVERSION .
+  vars L L' : L$Elt .
   vars K K' U U' : NzNat .
   vars N N' : Net .
   vars I O H I' O' H' B B' : Pbag .
   vars S S' S'' : String .
-  var F : Float .               
   
   op wfnet? : Net -> Bool .
   eq wfnet?(N) = isIn(N, p("in")) and-then isOut(N, p("out")) and-then not(isOut(N, p("in"))) and-then not(isIn(N, p("out"))) .
@@ -36,7 +37,7 @@ fmod WFN{L :: TRIV} is
   *** PA operators (work as expected if the operands are workflow-nets)
   op seq : Net Net String -> Net  . *** the string parameter is used to rename the merged Out/In places of the operands  
   op alt : Net Net -> Net [assoc comm] . *** implicitly associative
-  op par : Net Net String Lab Lab -> Net  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
+  op par : Net Net String L$Elt L$Elt -> Net  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
   eq seq(N, N', S) = renameO(N, "out", S) ; renameI(N',"in", S)  .
   eq alt(N, N') = N ; N'  .
   vars W W' W'' : Net . 
@@ -44,34 +45,31 @@ fmod WFN{L :: TRIV} is
  ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP] ;
         renameO(renameI(N, "in", in1), "out", out1) ; renameO(renameI(N, "in", in2), "out", out2) 
         if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
-  op elWfn : Lab -> Tran .
+  op elWfn : L$Elt -> Tran .
   eq elWfn(L) = L |-> [1 . p("in"), 1 . p("out"), nilP] .
-  op loop : Net Lab -> Net . *** "closure" of a Wfn
+  op loop : Net L$Elt -> Net . *** "closure" of a Wfn
   eq loop(N, L) = N ; L |-> [1 . p("out"), 1 . p("in"), nilP] . 
+endfm
+
+*** stochastic wfn signature
+fmod S-WFN{L :: TRIV} is
+  pr WFN{Tlab{Tag{L}}} .
 endfm
 
 *** signature of stochastic wfn net-tokens (parametric in transition's tag)
 fmod WFN-TOKEN is
-  pr WFN{String} .
+  pr S-WFN{String} .
   pr NET-TOKEN{String, String}  .
   sort Wfn .
   subsort Wfn < NetToken .
-  vars L L' : Lab .
-  vars K K' U U' : NzNat .
-  vars N N' : Net .
-  vars I O H I' O' H' B B' : Pbag .
-  vars S S' S'' : String .
   var NT : NetToken .
-  var F : Float .               
-  cmb NT : Wfn if wfnet?(n(NT)) . *** characterizes workflow nets(-tokens)
-  op elWfn : String String Float -> Tran . *** creates an elementary wfn with in-out places 
+  cmb NT : Wfn if wfnet?(n(NT)) . *** characterizes workflow nets(-tokens) 
 endfm
 
 *** maps the NT-TYPE theory to WFN-TOKEN
 view Wfn from NT-TYPE to WFN-TOKEN is
   sort Token to Wfn .
 endv 
-
 
 *** an implementation of theory SYNCH
 fmod SYNCH-EXE is
@@ -81,7 +79,7 @@ fmod SYNCH-EXE is
   var  L : Lab .
   vars  S C : String .
   op synch : String -> Mset{String} .
-  op theta : Net -> Net . 
+  op theta : Net -> Net . *** not required
   eq synch("T1") = "ch1" "ch1" "ch2" . 
   eq  synch(W:String) = emptyMsetS [owise] . *** just an example
  ceq  theta(T ; N) = T ; T if 1st(tag(T)) == "a" .
@@ -101,7 +99,7 @@ mod EHORNET-EXE is
  ops m0 m0' m0'' : -> Pbag  [memo] .  
  ops nt nt' nt'' : -> NetToken [memo] . *** the least sort is (should be) Wfn
 
- eq net =  elWfn("a", "ch1", 1.0)  .
+ eq net =  elWfn(t("a" @ "ch1", 1.0, 1))  .
  eq net' = t("b" @ "ch2", 2.0, 1) |-> [1 . p("x") + 1 . p("in"), 1 . p("out"), nilP] ;
            t("c" @ "", 3.0, 1) |-> [1 . p("in"), nilP, nilP] .
  
@@ -131,33 +129,30 @@ mod EHORNET-EXE is
 crl [T1] : p(1) |-> (X b1 M1) B ;  p(2) |-> (X b2 M2)  B' ; p(3) |-> (Y b3 M3) B'' ; p(4) |-> B1 ; p(5) |-> B2 ; p(6) |-> B3 ; p(7) |-> B4 
           =>  
            p(1) |-> (X M1) B ; p(2) |-> (X M2) B' ; p(3) |-> (Y M3) B'' ; p(4) |-> B1 (X bag(out1)) ; p(5) |-> B2 (X bag(out2)) ; p(6) |-> B3 (Y bag(out3)) ; p(7) |-> B4 (Y bag(out4))  
-           if X =/= Y /\ N  := theta(X) ; theta(Y) /\ synch("T1") = ch(N) /\ Pi2 := b1 + b2 + b3 /\ pre := pre(N) /\ pre <= Pi2 
+           if X =/= Y /\ N ; N' := X ; Y /\ synch("T1") = ch(N) /\ Pi2 := b1 + b2 + b3 /\ pre := pre(N) /\ pre <= Pi2 
            /\ out1 out2 out3 out4 := mset(Pi2 + post(N) - pre) /\ R:Float := 1.5 .
  *** system net autonomous transition - pre(T2) = {p3}, post{T2} = {p7}
  crl [T2] : p(3) |-> (X b3 M3) B ; p(7) |-> B' => p(3) |-> (X M3) B ; p(7) |-> B' (X b3) if synch("T2") == emptyMsetS /\ R:Float := 2.0 .
 endm
 
-*** battle of the sexes exampple
+*** battle of the sexes example
 mod EHORNET-BOS is
- inc WFN-TOKEN . 
- inc NET-TOKEN-SYS{String, String}  . *** includes net-tokens' autonomous firing
+ inc S-WFN{String} . 
  inc EHORNET-GEN{String, String, String} . *** system- and object-net places labelled by strings
+ inc NET-TOKEN-SYS{String, String}  . *** includes net-tokens' autonomous firing
  vars S S' : String .
  var I : Nat .
  op a : String Nat -> Tran .  *** encodes an action
-ceq a(S, I) = elWfn(S', S + S', 1.0) if S' := string(I, 10) . 
- ops a0 b0 a1 b1 : -> Tran . 
- eq a0 = a("a", 0) .
- eq a1 = a("a", 1) .
- eq b0 = a("b", 0) .
- eq b1 = a("b", 1) .
+ceq a(S, I) = elWfn(t(S' @ S + S', 1.0, 1)) if S' := string(I, 10) . 
+ ops a0 b0 a1 b1 : -> Tran . *** aliasing
+ eq a0 = a("a", 0) . eq a1 = a("a", 1) . eq b0 = a("b", 0) . eq b1 = a("b", 1) .
  op inc : Tran Float -> Tran . *** increase the transition rate
  eq inc(t(L:Tag, F:Float, N:Nat) |-> Q:Tmatrix, D:Float) = t(L:Tag, F:Float + D:Float, N:Nat) |-> Q:Tmatrix .
  ops ag0 ag1 Bos Bos' Lbos : -> Net . *** aliasing
  eq ag0 = alt(a0,b0) . eq ag1 = alt(a1,b1) .
- ops start stop : -> Lab .
+ ops start stop : -> Lab . *** aliasing
  eq start = t("start" @ "", 1.0, 1) . eq stop = t("stop" @ "", 1.0, 1) .
- eq Bos = par(ag0, ag1, "dec", start, stop) .
- eq Lbos = loop(Bos, t("reset" @ "res", 1.0, 1)) .
-
+ eq Bos = par(ag0, ag1, "dec", start, stop) . *** the Bos wfn
+ eq Lbos = loop(Bos, t("reset" @ "res", 1.0, 1)) . *** it's not a wfn because of the loop
+ 
 endm

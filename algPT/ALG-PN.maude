@@ -144,5 +144,3 @@ mod NEST-ALG-PN-EXE is
   var B : Bag{AlgPNexe*} .
   rl [meta-r] : p("0") |-> K . M ; p("1") |-> B  => p("0") |-> sd(K,1) . M ; p("1") |->  1 . M + B . *** one algebraic net is moved from p("0") to p("1")
 endm
-
-

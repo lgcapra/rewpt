@@ -27,7 +27,7 @@ endv
 
 *** spn signature parameterized in tran labels: for some reasons, we cannot use the TRIV view to parameterize also place labels 
 fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
-  pr PT-NET{Tlab{L}, PL} .
+  pr PT-NET{Tlab{L}, PL}  .
   pr CONVERSION .
   vars M M' : Pbag .
   vars P P' : Place{PL} . 

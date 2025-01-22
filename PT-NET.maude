@@ -3,7 +3,8 @@ in shared/MAP-SET
 
 *** def. separata rete - sistema
 fmod PT-NET{L :: TRIV, PL :: TRIV} is
- generated-by MAP-SET{L,Tmatrix{PL}} * (sort Map{L,Tmatrix{PL}} to Net, sort Entry{L,Tmatrix{PL}} to Tran, op emptyM to emptyNet) .
+ generated-by MAP-SET{L,Tmatrix{PL}} * (sort Map{L,Tmatrix{PL}} to Net, sort Entry{L,Tmatrix{PL}} to Tran, op emptyM to emptyNet,
+                                        op emptyS to emptySlab) .
  
  vars L L' : L$Elt . vars T T' : Tran . vars N N' : Net .
  vars P P' : Place{PL} . vars M I O H : Pbag . vars K K'  : NzNat .
