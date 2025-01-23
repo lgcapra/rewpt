@@ -9,11 +9,18 @@ fmod MSET{X :: TRIV} is
  op __ : Mset{X} Mset{X} -> Mset{X} [assoc comm id: empty] .
  op len : Mset{X} -> Nat .
  eq len(empty) = 0 .
- var M : Mset{X} . var X : X$Elt .
+ vars M M' : Mset{X} .
+ var X : X$Elt .
  eq len(M X) = 1 + len(M) .
- op in : Mset{X} X$Elt -> Bool .
- eq in(M X, X) = true .
- eq in(M, X) = false [owise] .
+ op in : Mset{X} Mset{X} -> Bool . *** checks that the 1st mset contains the 2nd
+ eq in(M M', M) = true .
+ eq in(M, M') = false [owise] .
+ op _le_ : Mset{X} Mset{X} -> Bool .
+ eq M le M' = in(M', M) . *** renaming in
+ op supp : Mset{X} -> Mset{X} . *** support
+ eq supp(empty) = empty .
+ eq supp(M X X) = supp(M X) . 
+ eq supp(M) = M [owise] . 
 endfm
 
 *** links the two representations of multisets

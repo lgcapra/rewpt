@@ -34,6 +34,7 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   var TL : Lab .
   var Q : Tmatrix .
   var T : Tran .
+  vars F F' : Float .
   vars K K' D : NzNat .
   *** firing rule rates
   op firing-rate : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the transition firing pol)
@@ -54,6 +55,12 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   eq tag(T) = tag(l(T)) .
   eq rate(T) = rate(l(T)) .
   eq pol(T) = pol(l(T)) .
+  *** set a transition's rate
+  var L : L$Elt . var I : Nat . var N : Net .
+  op setRate : Tran Float -> Tran . *** change a transition's rate
+  eq setRate(t(L, F, I) |-> Q, F') = t(L, F', I) |-> Q .
+  op incRate : Tran Float -> Tran  .
+  eq incRate(T, F) = setRate(T,  F + rate(T)) .  
 endfm
 
 *** generic spn def

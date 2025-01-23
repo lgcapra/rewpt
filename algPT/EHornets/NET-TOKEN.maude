@@ -86,6 +86,14 @@ mod NET-TOKEN-SYS{L :: TRIV, PL :: TRIV} is
  crl [firing] : (T ; N) B M => (T ; N) B firing(T, M) if ch(T) = emptyMsetS /\ I(T) <= M /\ R:Float := firing-rate(T, M) .
 endm
 
+*** theory for net-tokens' synchronization with system-net transitions
+*** theories cannot have parameters: net-tokens' node labels (tags) are of a given type (String, in this case)
+fth SYNCH is
+ *** inc NT-SIG{String,String} .
+ inc MSET-BAG{String} * (op nil to nilS, op empty to  emptyMsetS).
+ op synch : String -> Mset{String} . *** maps each rule label (i.e., system-net transition) to a bag of channels -- should be "instance and/or object-net dependent"
+endfth
+
 *** definition of an eHornet marking parametric vs the net-tokens' and system net's place labels -- net-tokems may be of any type and parametric in turn in node labels
 fmod EHORNET-GEN{L :: TRIV, PL :: TRIV, PL' :: TRIV} is
    generated-by MSET-MARKING{NetToken{L, PL}, PL'} * (sort Mset{NetToken{L, PL}} to Mset{NetToken}, 
@@ -98,13 +106,11 @@ fmod EHORNET-GEN{L :: TRIV, PL :: TRIV, PL' :: TRIV} is
    eq (N emptyMNT) = emptyNT .
 endfm
 
-*** theory for net-tokens' synchronization with system-net transitions
-*** theories cannot have parameters: net-tokens' node labels (tags) are of a given type (String, in this case)
-fth SYNCH is
- *** inc NT-SIG{String,String} .
- inc MSET-BAG{String} * (op nil to nilS, op empty to  emptyMsetS).
- op synch : String -> Mset{String} . *** maps each rule label (i.e., system-net transition) to a bag of channels -- should be "instance and/or object-net dependent"
-endfth
+*** version with a Synch parameter
+fmod EHORNET-GEN-SYNCH{L :: TRIV, PL :: TRIV, PL' :: TRIV, SY :: SYNCH} is
+  pr EHORNET-GEN{L, PL, PL'} .
+endfm
+
 
 *** theory for particular types of net-tokens, defined through subsorting -- net-tokens' nodes' labels must be fixed
 *** theories cannot have parameters: net-tokens' node labels (tags) are of a given type (String, in this case)

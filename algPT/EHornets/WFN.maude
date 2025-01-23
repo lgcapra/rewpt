@@ -43,8 +43,8 @@ fmod WFN{L :: TRIV} is
   vars W W' W'' : Net . 
   vars in1 in2 out1 out2 : String .
  ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP] ;
-        renameO(renameI(N, "in", in1), "out", out1) ; renameO(renameI(N, "in", in2), "out", out2) 
-        if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 1) /\ in2 := cat(S', 2) /\ out1 := cat(S'', 1) /\ out2 := cat(S'', 2) .
+        renameO(renameI(N, "in", in1), "out", out1) ; renameO(renameI(N', "in", in2), "out", out2) 
+        if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 0) /\ in2 := cat(S', 1) /\ out1 := cat(S'', 0) /\ out2 := cat(S'', 1) .
   op elWfn : L$Elt -> Tran .
   eq elWfn(L) = L |-> [1 . p("in"), 1 . p("out"), nilP] .
   op loop : Net L$Elt -> Net . *** "closure" of a Wfn
@@ -129,30 +129,80 @@ mod EHORNET-EXE is
 crl [T1] : p(1) |-> (X b1 M1) B ;  p(2) |-> (X b2 M2)  B' ; p(3) |-> (Y b3 M3) B'' ; p(4) |-> B1 ; p(5) |-> B2 ; p(6) |-> B3 ; p(7) |-> B4 
           =>  
            p(1) |-> (X M1) B ; p(2) |-> (X M2) B' ; p(3) |-> (Y M3) B'' ; p(4) |-> B1 (X bag(out1)) ; p(5) |-> B2 (X bag(out2)) ; p(6) |-> B3 (Y bag(out3)) ; p(7) |-> B4 (Y bag(out4))  
-           if X =/= Y /\ N ; N' := X ; Y /\ synch("T1") = ch(N) /\ Pi2 := b1 + b2 + b3 /\ pre := pre(N) /\ pre <= Pi2 
+           if X =/= Y /\ N ; N' := X ; X ; Y /\ synch("T1") = ch(N) /\ Pi2 := b1 + b2 + b3 /\ pre := pre(N) /\ pre <= Pi2 
            /\ out1 out2 out3 out4 := mset(Pi2 + post(N) - pre) /\ R:Float := 1.5 .
  *** system net autonomous transition - pre(T2) = {p3}, post{T2} = {p7}
  crl [T2] : p(3) |-> (X b3 M3) B ; p(7) |-> B' => p(3) |-> (X M3) B ; p(7) |-> B' (X b3) if synch("T2") == emptyMsetS /\ R:Float := 2.0 .
 endm
 
+*** implementation of theory SYNCH for the bos example
+fmod SYNCH-BOS is
+  inc MSET-BAG{String} * (op nil to nilS, op empty to  emptyMsetS).
+  op synch : String -> Mset{String} .
+  eq synch("game:aa") = "a" "a" . 
+  eq synch("game:bb") = "b" "b" .
+  eq synch("game:ab") = "a" "b" .
+  eq synch(W:String) = emptyMsetS [owise] .
+endfm
+
+*** view to SYNCH-BOS
+view SynchBos from SYNCH to SYNCH-BOS is 
+endv
+
 *** battle of the sexes example
 mod EHORNET-BOS is
  inc S-WFN{String} . 
- inc EHORNET-GEN{String, String, String} . *** system- and object-net places labelled by strings
+ inc EHORNET-GEN-SYNCH{String, String, String, SynchBos} . *** system- and object-net places labelled by strings
  inc NET-TOKEN-SYS{String, String}  . *** includes net-tokens' autonomous firing
  vars S S' : String .
- var I : Nat .
+ var I K : Nat .
+ vars B B'  : Mset{NetToken} .
+ vars X X' N N' : Net .
+ vars M M' : Mset{Pbag} .
+ vars b b' pre pre' Pi2 cum' newm newm' : Pbag .
+ vars out : Pmset .
+ var L : Tag . vars D F R R' : Float . var Q : Tmatrix . var TL : Lab .
+ 
+ ops Delta Delta' MaxRate : -> Float [memo] . *** rate increment (pay-off)
+ eq Delta = 2.0 .
+ eq Delta' = 1.0 .
+ eq MaxRate = 100.0 .
  op a : String Nat -> Tran .  *** encodes an action
-ceq a(S, I) = elWfn(t(S' @ S + S', 1.0, 1)) if S' := string(I, 10) . 
+ eq a(S, I) = elWfn(t(string(I, 10) @ S , 1.0, 1)) . 
  ops a0 b0 a1 b1 : -> Tran . *** aliasing
  eq a0 = a("a", 0) . eq a1 = a("a", 1) . eq b0 = a("b", 0) . eq b1 = a("b", 1) .
- op inc : Tran Float -> Tran . *** increase the transition rate
- eq inc(t(L:Tag, F:Float, N:Nat) |-> Q:Tmatrix, D:Float) = t(L:Tag, F:Float + D:Float, N:Nat) |-> Q:Tmatrix .
+
+
  ops ag0 ag1 Bos Bos' Lbos : -> Net . *** aliasing
  eq ag0 = alt(a0,b0) . eq ag1 = alt(a1,b1) .
  ops start stop : -> Lab . *** aliasing
  eq start = t("start" @ "", 1.0, 1) . eq stop = t("stop" @ "", 1.0, 1) .
  eq Bos = par(ag0, ag1, "dec", start, stop) . *** the Bos wfn
  eq Lbos = loop(Bos, t("reset" @ "res", 1.0, 1)) . *** it's not a wfn because of the loop
- 
+
+ op init : -> Marking [memo] . *** system-net initial marking
+ eq init = p("game") |-> Lbos 1 . p("in") ; p("evaluated_game") |-> emptyNT .
+
+ vars T T' T'' : Tran .
+ *** the rules have a (partially) simplified form due to the "deterministic" behaviour of system-net transitions in the example
+ *** the final rate value of the synchronization has to be adjusted
+ *** the two plays aa and bb could be folded into a single rule (as done for the two other rewrites ab and ba)
+ crl [play-aa] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                 p("game") |-> (X' M) B ; p("evaluated_game") |-> B' (X' b + post(T ; T') - pre)    
+                    if T  ; T' ; T'' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0" /\ synch("game:aa") = ch(T ; T') /\ 
+                    R := rate(T) /\ R + Delta <= MaxRate /\ R' := rate(T') /\ R' + Delta <= MaxRate /\ pre := pre(T ; T') /\ pre <= b /\ 
+                    X' := setRate(T, R + Delta) ; setRate(T', R' + Delta') ; T'' ; N /\ Rate:Float := R * R' * 1.5 .
+ *** almost the same structure as aa -- the rate increases are swapped
+ crl [play-bb] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                 p("game") |-> (X' M) B ; p("evaluated_game") |-> B' (X' b + post(T ; T') - pre)    
+                    if T  ; T' ; T'' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0" /\ synch("game:bb") = ch(T ; T') /\
+                    R := rate(T) /\ R + Delta' <= MaxRate /\ R' := rate(T') /\ R' + Delta <= MaxRate /\ pre := pre(T ; T') /\ pre <= b /\
+                    X' := setRate(T, R + Delta') ; setRate(T', R' + Delta) ; T'' ; N /\ Rate:Float := R * R' * 1.5 .
+ *** folds a0b1 and b0a1
+ crl [play-ab] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                 p("game") |-> (X M) B ; p("evaluated_game") |-> B' (X b + post(T ; T') - pre)    
+                    if T  ; T' ; T'' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0" /\ 
+                    synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b /\ Rate:Float := rate(T) * rate(T'') * 3.0 .
+
+
 endm
