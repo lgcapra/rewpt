@@ -167,7 +167,7 @@ mod EHORNET-BOS is
  ops Delta Delta' MaxRate : -> Float [memo] . *** rate increment (pay-off)
  eq Delta = 2.0 .
  eq Delta' = 1.0 .
- eq MaxRate = 100.0 .
+ eq MaxRate = 10.0 .
  op a : String Nat Float -> Tran .  *** encodes an action
  eq a(S, I, F) = elWfn(t(string(I, 10) @ S , F, 1)) . 
  ops a0 b0 a1 b1 : -> Tran . *** aliasing
@@ -228,5 +228,5 @@ crl [reset] :    p("evaluated_game") |-> (X b M) B ; p("game")  |-> B' =>
 *** structural adaptation of object-nets (the rule is "symmetric")
 crl [adaptXor] : p("game") |-> (X b M) B  => p("game") |-> (X M) (X' b) B     
                     if T ;  T' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T')) = "0" /\ 
-                    R := rate(T) /\ R' := rate(T') /\ R / R' + R > 0.8 /\ X' := T ; N /\ Rate:Float := 1.5 .
+                    R := rate(T) /\ R' := rate(T') /\ R / (R' + R) > 0.8 /\ X' := T ; N /\ Rate:Float := 1.5 .
 endm
