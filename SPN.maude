@@ -59,8 +59,10 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   var L : L$Elt . var I : Nat . var N : Net .
   op setRate : Tran Float -> Tran . *** change a transition's rate
   eq setRate(t(L, F, I) |-> Q, F') = t(L, F', I) |-> Q .
-  op incRate : Tran Float -> Tran  .
-  eq incRate(T, F) = setRate(T,  F + rate(T)) .  
+  op in : Net L$Elt -> Bool . *** cheks that a Net contains an action with the specified tag
+ ceq in(T ; N, L) = true if tag(T) = L .
+  eq in(N, L) = false [owise] .
+
 endfm
 
 *** generic spn def

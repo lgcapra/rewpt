@@ -142,6 +142,7 @@ fmod SYNCH-BOS is
   eq synch("game:aa") = "a" "a" . 
   eq synch("game:bb") = "b" "b" .
   eq synch("game:ab") = "a" "b" .
+  eq synch("reset") = "reset" .
   eq synch(W:String) = emptyMsetS [owise] .
 endfm
 
@@ -167,19 +168,19 @@ mod EHORNET-BOS is
  eq Delta = 2.0 .
  eq Delta' = 1.0 .
  eq MaxRate = 100.0 .
- op a : String Nat -> Tran .  *** encodes an action
- eq a(S, I) = elWfn(t(string(I, 10) @ S , 1.0, 1)) . 
+ op a : String Nat Float -> Tran .  *** encodes an action
+ eq a(S, I, F) = elWfn(t(string(I, 10) @ S , F, 1)) . 
  ops a0 b0 a1 b1 : -> Tran . *** aliasing
- eq a0 = a("a", 0) . eq a1 = a("a", 1) . eq b0 = a("b", 0) . eq b1 = a("b", 1) .
-
+ eq a0 = a("a", 0, 1.0) . eq a1 = a("a", 1, 1.0) . eq b0 = a("b", 0, 1.0) . eq b1 = a("b", 1, 1.0) .
 
  ops ag0 ag1 Bos Bos' Lbos : -> Net . *** aliasing
  eq ag0 = alt(a0,b0) . eq ag1 = alt(a1,b1) .
  ops start stop : -> Lab . *** aliasing
- eq start = t("start" @ "", 1.0, 1) . eq stop = t("stop" @ "", 1.0, 1) .
+ eq start = t("start" @ "", 1.0, 1) . *** object-net autonomous
+ eq stop =  t("stop" @ "" , 1.0, 1) .  *** object-net autonomous
  eq Bos = par(ag0, ag1, "dec", start, stop) . *** the Bos wfn
- eq Lbos = loop(Bos, t("reset" @ "res", 1.0, 1)) . *** it's not a wfn because of the loop
-
+ eq Lbos = loop(Bos, t("" @ "reset", 1.0, 1)) . *** it's not a wfn because of the loop
+ 
  op init : -> Marking [memo] . *** system-net initial marking
  eq init = p("game") |-> Lbos 1 . p("in") ; p("evaluated_game") |-> emptyNT .
 
@@ -187,22 +188,42 @@ mod EHORNET-BOS is
  *** the rules have a (partially) simplified form due to the "deterministic" behaviour of system-net transitions in the example
  *** the final rate value of the synchronization has to be adjusted
  *** the two plays aa and bb could be folded into a single rule (as done for the two other rewrites ab and ba)
- crl [play-aa] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+ crl [playaa] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
                  p("game") |-> (X' M) B ; p("evaluated_game") |-> B' (X' b + post(T ; T') - pre)    
                     if T  ; T' ; T'' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0" /\ synch("game:aa") = ch(T ; T') /\ 
-                    R := rate(T) /\ R + Delta <= MaxRate /\ R' := rate(T') /\ R' + Delta <= MaxRate /\ pre := pre(T ; T') /\ pre <= b /\ 
+                    R := rate(T) /\ R + Delta <= MaxRate /\ R' := rate(T') /\ R' + Delta' <= MaxRate /\ pre := pre(T ; T') /\ pre <= b /\ 
                     X' := setRate(T, R + Delta) ; setRate(T', R' + Delta') ; T'' ; N /\ Rate:Float := R * R' * 1.5 .
  *** almost the same structure as aa -- the rate increases are swapped
- crl [play-bb] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+ crl [playbb] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
                  p("game") |-> (X' M) B ; p("evaluated_game") |-> B' (X' b + post(T ; T') - pre)    
                     if T  ; T' ; T'' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0" /\ synch("game:bb") = ch(T ; T') /\
                     R := rate(T) /\ R + Delta' <= MaxRate /\ R' := rate(T') /\ R' + Delta <= MaxRate /\ pre := pre(T ; T') /\ pre <= b /\
                     X' := setRate(T, R + Delta') ; setRate(T', R' + Delta) ; T'' ; N /\ Rate:Float := R * R' * 1.5 .
  *** folds a0b1 and b0a1
- crl [play-ab] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+ crl [playab] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
                  p("game") |-> (X M) B ; p("evaluated_game") |-> B' (X b + post(T ; T') - pre)    
                     if T  ; T' ; T'' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0" /\ 
-                    synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b /\ Rate:Float := rate(T) * rate(T'') * 3.0 .
+                    synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b /\ Rate:Float := rate(T) * rate(T') * 3.0 .
+
+*** play game with the "reduced" bos net (the two plays aa and bb could be folded into a single rule)
+crl [playaa-red] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                    p("game") |-> (X' M) B ; p("evaluated_game") |-> B' (X' b + post(T ; T') - pre)    
+                      if T  ; T' ; N := X  /\ 1st(tag(T)) = "0" /\ synch("game:aa") = ch(T ; T') /\ not(in(N, "0" @ "b")) /\
+                      R := rate(T) /\ R + Delta <= MaxRate /\ R' := rate(T') /\ R' + Delta' <= MaxRate /\ pre := pre(T ; T') /\ pre <= b /\ 
+                      X' := setRate(T, R + Delta) ; setRate(T', R' + Delta') ; N /\ Rate:Float := R * R' * 1.5 .
+crl [playbb-red] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                    p("game") |-> (X' M) B ; p("evaluated_game") |-> B' (X' b + post(T ; T') - pre)    
+                      if T  ; T' ; N := X  /\ 1st(tag(T)) = "0" /\ synch("game:bb") = ch(T ; T') /\ not(in(N, "0" @ "a")) /\
+                      R := rate(T) /\ R + Delta' <= MaxRate /\ R' := rate(T') /\ R' + Delta <= MaxRate /\ pre := pre(T ; T') /\ pre <= b /\ 
+                      X' := setRate(T, R + Delta') ; setRate(T', R' + Delta) ; N /\ Rate:Float := R * R' * 1.5 .
+crl [playab-red] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                    p("game") |-> (X M) B ; p("evaluated_game") |-> B' (X b + post(T ; T') - pre)    
+                      if T  ; T'  ; N := X  /\ 1st(tag(T)) = "0" /\ not(in(N, "0" @ if ch(T) == "a" then "b" else "a" fi)) /\
+                      synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b /\ Rate:Float := rate(T) * rate(T') * 3.0 .
+
+crl [reset] :    p("evaluated_game") |-> (X b M) B ; p("game")  |-> B' => 
+                 p("evaluated_game") |-> (X M) B ; p("game") |-> B' (X b + post(T) - pre)    
+                    if T ; N := X  /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b /\ Rate:Float := rate(T) * 1.0 .
 
 
 endm
