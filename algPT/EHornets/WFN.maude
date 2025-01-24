@@ -226,7 +226,7 @@ crl [reset] :    p("evaluated_game") |-> (X b M) B ; p("game")  |-> B' =>
                     if T ; N := X  /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b /\ Rate:Float := rate(T) * 1.0 .
 
 *** structural adaptation of object-nets (the rule is "symmetric")
-crl [adaptXor] : p("game") |-> (X M) B  => p("game") |-> ((T ; N) M) B     
+crl [adaptXor] : p("game") |-> (X b M) B  => p("game") |-> (X M) (X' b) B     
                     if T ;  T' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T')) = "0" /\ 
-                    R := rate(T) /\ R' := rate(T') /\ R / R' + R > 0.8 /\ Rate:Float := 1.5 .
+                    R := rate(T) /\ R' := rate(T') /\ R / R' + R > 0.8 /\ X' := T ; N /\ Rate:Float := 1.5 .
 endm
