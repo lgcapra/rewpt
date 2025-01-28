@@ -167,11 +167,11 @@ mod EHORNET-BOS is
  ops Delta Delta' MaxRate : -> Float [memo] . *** rate increment (pay-off)
  eq Delta = 3.0 .
  eq Delta' = 1.0 .
- eq MaxRate = 62.5 .
+ eq MaxRate = 1000.0 .
  op a : String Nat Float -> Tran .  *** encodes an action
  eq a(S, I, F) = elWfn(t(string(I, 10) @ S , F, 1)) . 
  ops a0 b0 a1 b1 : -> Tran . *** aliasing
- eq a0 = a("a", 0, 1.0) . eq a1 = a("a", 1, 1.0) . eq b0 = a("b", 0, 1.0) . eq b1 = a("b", 1, 1.0) .
+ eq a0 = a("a", 0, 70.0) . eq b0 = a("b", 0, 30.0) . eq a1 = a("a", 1, 55.0) .  eq b1 = a("b", 1, 45.0) .
 
  ops ag0 ag1 Bos Bos' Lbos : -> Net . *** aliasing
  eq ag0 = alt(a0,b0) . eq ag1 = alt(a1,b1) .
