@@ -1,0 +1,32 @@
+in FAIR-QUEUE
+
+*** redefinition of ALG-PN-EXE with sort-op renaming (so that the base and meta levels components of Marking are disjoint)
+*** all (subs)orts and ops of Marking should be renamed (to avoid conflicts, warnings for multiple imports, etc)
+*** the star symbol is appended to sorts and ops names - here the star means level 0, no star the meta-level 
+*** the renaming of sorts Marking and Pmarking is mandatory, the others ara mndatory only if in the meta-level some places
+*** have the same type as level-0 places: in the example below, Marking{Nat} is used in both levels (better an automatic renaming)
+ mod ALG-PN-EXE* is 
+    inc ALG-PN-EXE * (sort Marking to Marking*, sort Pmarking to Pmarking*,
+                      sort Marking{Nat} to Marking*{Nat}, sort Pmarking{Nat} to Pmarking*{Nat},
+                      sort Marking{Elist{Nat}} to Marking*{Elist{Nat}}, sort Pmarking{Elist{Nat}} to Pmarking*{Elist{Nat}},
+                      op markN to markN*,  op markL to  markL*,
+                      op emptyM to emptyM*, op init to init*, op undefined to undefined*, op _|->_ to _*|->_ ) .
+endm
+
+*** view to renamed  ALG-PN-EXE
+view AlgPNexe* from TRIV to ALG-PN-EXE* is 
+      sort Elt to Marking* . 
+endv
+
+
+***  EXAMPLE 2: nested algebraic net: two places have as domain the alg-net defined above; the third place share the domain (Nat) with the base-level
+mod NEST-ALG-PN-EXE is
+  inc MARKING{AlgPNexe*,String} .
+  inc MARKING{Nat,String} * (op nil to nilNat , op mark to markN) .
+  op init : -> Marking . *** meta-net initial marking
+  eq init = p("0") |-> 1 . init* ; p("1") |-> 1 . init* ; p("3") |-> 2 . 3 .
+  var M : Marking* .
+  var K : NzNat .
+  var B : Bag{AlgPNexe*} .
+  rl [meta-r] : p("0") |-> K . M ; p("1") |-> B  => p("0") |-> sd(K,1) . M ; p("1") |->  1 . M + B . *** one algebraic net is moved from p("0") to p("1")
+endm

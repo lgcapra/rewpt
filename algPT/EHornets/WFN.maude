@@ -81,7 +81,7 @@ fmod SYNCH-EXE is
   op synch : String -> Mset{String} .
   op theta : Net -> Net . *** not required
   eq synch("T1") = "ch1" "ch1" "ch2" . 
-  eq  synch(W:String) = emptyMsetS [owise] . *** just an example
+  eq  synch(W:String) = empty{String} [owise] . *** just an example
  ceq  theta(T ; N) = T ; T if 1st(tag(T)) == "a" .
  ceq  theta(T ; N) =  T if 1st(tag(T)) == "b" [owise] .
   eq  theta(N) = emptyNet [owise] .
@@ -111,8 +111,8 @@ mod EHORNET-EXE is
  eq nt'' = net' m0'' .
 
  op init : -> Marking [memo] . *** system-net initial marking
- eq init = p(1) |-> nt ; p(2) |-> nt' ; p(3) |-> nt'' ; p(4) |-> emptyNT ;
-           p(5) |-> emptyNT ; p(6) |-> emptyNT ; p(7) |-> emptyNT .
+ eq init = p(1) |-> nt ; p(2) |-> nt' ; p(3) |-> nt'' ; p(4) |-> empty{Wfn}  ;
+           p(5) |-> empty{Wfn}  ; p(6) |-> empty{Wfn}  ; p(7) |-> empty{Wfn}  .
  vars B B' B'' B1 B2 B3 B4 : Mset{Wfn} .
  vars X Y Z W N N' : Net .
  vars k k' : NzNat .
@@ -132,18 +132,18 @@ crl [T1] : p(1) |-> (X b1 M1) B ;  p(2) |-> (X b2 M2)  B' ; p(3) |-> (Y b3 M3) B
            if X =/= Y /\ N ; N' := X ; X ; Y /\ synch("T1") = ch(N) /\ Pi2 := b1 + b2 + b3 /\ pre := pre(N) /\ pre <= Pi2 
            /\ out1 out2 out3 out4 := mset(Pi2 + post(N) - pre) /\ R:Float := 1.5 .
  *** system net autonomous transition - pre(T2) = {p3}, post{T2} = {p7}
- crl [T2] : p(3) |-> (X b3 M3) B ; p(7) |-> B' => p(3) |-> (X M3) B ; p(7) |-> B' (X b3) if synch("T2") == emptyMsetS /\ R:Float := 2.0 .
+ crl [T2] : p(3) |-> (X b3 M3) B ; p(7) |-> B' => p(3) |-> (X M3) B ; p(7) |-> B' (X b3) if synch("T2") == empty{String} /\ R:Float := 2.0 .
 endm
 
 *** implementation of theory SYNCH for the bos example
 fmod SYNCH-BOS is
-  inc MSET-BAG{String} * (op nil to nilS, op empty to  emptyMsetS).
+  inc MSET-BAG{String} * (op nil to nilS).
   op synch : String -> Mset{String} .
   eq synch("game:aa") = "a" "a" . 
   eq synch("game:bb") = "b" "b" .
   eq synch("game:ab") = "a" "b" .
   eq synch("reset") = "reset" .
-  eq synch(W:String) = emptyMsetS [owise] .
+  eq synch(W:String) = empty{String} [owise] .
 endfm
 
 *** view to SYNCH-BOS
@@ -182,7 +182,7 @@ mod EHORNET-BOS is
  eq Lbos = loop(Bos, t("" @ "reset", 1.0, 1)) . *** it's not a wfn because of the loop
  
  op init : -> Marking [memo] . *** system-net initial marking
- eq init = p("game") |-> Lbos 1 . p("in") ; p("evaluated_game") |-> emptyNT .
+ eq init = p("game") |-> Lbos 1 . p("in") ; p("evaluated_game") |-> empty{NetToken}  .
 
  vars T T' T'' : Tran .
  *** the rules have a (partially) simplified form due to the "deterministic" behaviour of system-net transitions in the example
