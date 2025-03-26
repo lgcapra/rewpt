@@ -1,30 +1,11 @@
 *** embedded list (builds on built-in LIST) --- avoids preregularity issue, e.g., between terms like: 1 . 1 and 1 . 1 2
 fmod ELIST{X :: TRIV} is
- protecting LIST{X} * (op __  to _;_) .
- sorts NeElist{X} Elist{X} emptyList{X} .
- subsort NeElist{X} emptyList{X} < Elist{X} .
- 
+ protecting LIST{X} * (op __  to _`,_) .
+ sorts NeElist{X} Elist{X} .
+ subsort NeElist{X} < Elist{X} .
  *** wrap
  op `[_`] : List{X} -> Elist{X} [ctor] .
  op `[_`] : NeList{X} -> NeElist{X} [ctor] .
- mb [nil] : emptyList{X} .
-
- *** unwrap
- op list : Elist{X} -> List{X} .
- op list : NeElist{X} -> NeList{X} .
- eq list([L:List{X}]) = L:List{X} . 
- 
- *** uncomment if you want to define operators for embedded list
- *** op `[`] : -> Elist{X} [ctor] .
- *** op __ : Elist{X} Elist{X} -> Elist{X} [assoc id: `[`] prec 25] .
- *** op __ : NeElist{X} Elist{X} -> NeElist{X} [ditto] .
- *** op __ : Elist{X} NeElist{X} -> NeElist{X} [ditto] .
-
- *** var E E' : X$Elt .
- *** vars A L : List{X} .
- *** eq [nil] = [] .
- *** eq [A] [L] = [A L] .
- *** inherit all the other ops from LIST
 endfm
 
 *** parameterized trivial view to E-LIST{X}
