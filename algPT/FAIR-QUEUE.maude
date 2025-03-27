@@ -1,4 +1,4 @@
-in ./ELIST
+in ELIST
 in ALG-PN
 
 *** EXAMPLE:  algebraic net using two (embedded) lists where some tasks are non-deterministically picked up fairly from a repository
@@ -6,12 +6,12 @@ in ALG-PN
 *** version 1 using BAG
 mod FAIR-QUEUE is
  *** types of places
- *** we rename nil for convenience because it denotes both a BAG and a LIST
- pr MARKING{Nat,String} * (op nil to nilNat) . 
- pr MARKING{Elist{Nat},String} * (op nil : -> List{Nat} to nilL, op nil : -> Bag{Elist{Nat}} to nilB, op mark to markL) . *** renaming mark is mandatory !
+ *** we rename List.nil for convenience
+ pr MARKING{Nat,String} . 
+ pr MARKING{Elist{Nat},String} * (op mark to markL) . *** renaming mark is mandatory !
  
  op init : -> Marking . *** alias - intial marking and implicilty net's places' structure
- eq init =  p("queue") |-> 2 . [nilL] ; p("task") |-> 1 . 0 + 2 . 1 + 3 . 2 . *** the lists in p1 are initially empty 
+ eq init =  p("queue") |-> 2 . [niL{Nat}] ; p("task") |-> 1 . 0 + 2 . 1 + 3 . 2 . *** the lists in p1 are initially empty 
  
  var M : Marking .
  var B : Bag{Nat} .
@@ -23,7 +23,7 @@ mod FAIR-QUEUE is
   *** the algebraic net's transitions are encoded as rewrite rules
 
   *** witdraws two occurrences of an element from p("task"), by appending each occurrence to one of the list in p("queue")
-  crl [distribute-1] : p("queue") |-> 1 . [L]  + 1 . [L'] ;  p("task") |-> K . X + B => p("queue") |-> 1 . [L, X] + 1 . [L', X] ; p("task") |-> sd(K,2) . X + B  if K > 1 .
+crl [distribute-1] : p("queue") |-> 1 . [L]  + 1 . [L'] ;  p("task") |-> K . X + B => p("queue") |-> 1 . [L, X] + 1 . [L', X] ; p("task") |-> sd(K,2) . X + B  if K > 1 .
 
   *** the same as above, necessary to consider the case of identical queues 
 crl [distribute-2] : p("queue") |-> 2 . [L] ;  p("task") |-> K . X + B => p("queue") |-> 2 . [L, X] ; p("task") |-> sd(K,2) . X + B  if K > 1 . 

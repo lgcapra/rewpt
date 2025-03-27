@@ -1,6 +1,6 @@
 *** embedded list (builds on built-in LIST) --- avoids preregularity issue, e.g., between terms like: 1 . 1 and 1 . 1 2
 fmod ELIST{X :: TRIV} is
- protecting LIST{X} * (op __  to _`,_) .
+ protecting LIST{X} * (op __  to _`,_  , op nil : -> List{X} to niL{X}) .
  sorts NeElist{X} Elist{X} .
  subsort NeElist{X} < Elist{X} .
  *** wrap

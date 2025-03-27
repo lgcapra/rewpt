@@ -17,7 +17,7 @@ fmod BAG-AND-SET{X :: TRIV} is
  op support : NeBag{X} -> NeSet{X} .
  eq support(B) = $support(B, emptyS) .  
  op $support : Bag{X} Set{X} -> Set{X} . 
- eq $support(nil, S) = S . 
+ eq $support(nil{X}, S) = S . 
  eq $support(N . X + B, S) = $support(B, S U X) .
  
 endfm

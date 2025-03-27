@@ -6,10 +6,10 @@ in ALG-PN
 *** version 2 using MSET
 mod FAIR-QUEUE-2 is
  pr MSET-MARKING{Nat,String} . *** renaming mark is mandatory !
- pr MSET-MARKING{Elist{Nat},String} *  (op nil : -> List{Nat} to nilL, op nil : -> Bag{Elist{Nat}} to nilB, op mark to markL) . *** renaming mark is mandatory  
+ pr MSET-MARKING{Elist{Nat},String} *  (op mark to markL) . *** renaming mark is mandatory  
  
  op init : -> Marking . *** alias - intial marking
- eq init =  p("queue") |-> [nilL] [nilL] ; p("task") |-> 0 1 1 2 2 2 . 
+ eq init =  p("queue") |-> [niL{Nat}] [niL{Nat}] ; p("task") |-> 0 1 1 2 2 2 . 
  
  var M : Marking .
  var B : Mset{Nat} .

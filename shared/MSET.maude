@@ -32,9 +32,9 @@ fmod MSET-BAG{X :: TRIV} is
  vars B B' : Bag{X} .
  vars M M' : Mset{X} .
  eq mset(B) = $mset(B, empty{X}) .
- eq bag(M) = $bag(M, nil) .
+ eq bag(M) = $bag(M, nil{X}) .
  op $mset : Bag{X} Mset{X} -> Mset{X} .
- eq $mset(nil, M) = M .
+ eq $mset(nil{X}, M) = M .
  eq $mset(K . X + B, M) = $mset(sd(K,1) . X + B, M X) . 
  op $bag :  Mset{X} Bag{X} -> Bag{X} .
  eq $bag(empty{X}, B) = B .

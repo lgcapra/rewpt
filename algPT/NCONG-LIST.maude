@@ -1,0 +1,10 @@
+mod NCONG-LIST is
+ protecting LIST{Nat} .
+ var X : NeList{Nat} .
+ var Y : List{Nat} .
+ vars N N' : Nat .
+ rl [ncr1] : X head(X) => X .
+ rl [ncr2] : (N + 1) Y N  => N (N + 1) Y .
+ rl [r1]  : N Y N => N Y .
+ rl [r2] : s(N) Y N  => N s(N) Y . 
+endm

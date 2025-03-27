@@ -14,7 +14,7 @@ endv
 *** signature of (stochastic) net-tokens (derived from that of SPN)
 fmod NT-SIG{L :: TRIV, PL :: TRIV} is
   pr SPN-SIG{Tag{L}, PL} .
-  pr MSET-BAG{String} * (op nil to nilS) .
+  pr MSET-BAG{String} .
   var TL : Lab .
   var T  : Tran .
   var N  : Net .
@@ -46,7 +46,7 @@ endfm
 *** compact net-token marking description (multiset of markings) parametric in place labels
 fmod NT-MARKING{PL :: TRIV} is
    pr MSET-BAG{Pbag{PL}} * (sort Mset{Pbag{PL}} to Mset{Pbag}, op empty{Pbag{PL}} to empty{Pbag},
-                            sort Bag{Pbag{PL}} to Bag{Pbag}, sort NeBag{Pbag{PL}} to NeBag{Pbag}, sort ElBag{Pbag{PL}} to ElBag{Pbag}, op nil to nilMNT).
+                            sort Bag{Pbag{PL}} to Bag{Pbag}, sort NeBag{Pbag{PL}} to NeBag{Pbag}, sort ElBag{Pbag{PL}} to ElBag{Pbag}, op nil{String} to nilMNT).
 endfm 
 
 *** net-token representation with compact state (markings) description parametric in node labels 
@@ -90,7 +90,7 @@ endm
 *** theories cannot have parameters: net-tokens' node labels (tags) are of a given type (String, in this case)
 fth SYNCH is
  *** inc NT-SIG{String,String} .
- inc MSET-BAG{String} * (op nil to nilS, op empty to  empty{String}).
+ inc MSET-BAG{String} * (op nil{String} to nilS, op empty to  empty{String}).
  op synch : String -> Mset{String} . *** maps each rule label (i.e., system-net transition) to a bag of channels -- should be "instance and/or object-net dependent"
 endfth
 
@@ -99,7 +99,7 @@ fmod EHORNET-GEN{L :: TRIV, PL :: TRIV, PL' :: TRIV} is
    generated-by MSET-MARKING{NetToken{L, PL}, PL'} * (sort Mset{NetToken{L, PL}} to Mset{NetToken}, 
                             sort Bag{NetToken{L, PL}} to Bag{NetToken}, sort NeBag{NetToken{L, PL}} to NeBag{NetToken}, sort ElBag{NetToken{L, PL}} to ElBag{NetToken},
                             sort MsetMarking{NetToken{L, PL}} to  MsetMarking{NetToken}, sort  PmsetMarking{NetToken{L, PL}} to  PmsetMarking{NetToken},
-                            op nil to nilNT, op empty{NetToken{L, PL}} to empty{NetToken} ) .
+                            op nil{String} to nilNT, op empty{NetToken{L, PL}} to empty{NetToken} ) .
    var N : Net .
    vars B B' : Mset{Pbag} . *** compact net-token markings' representation
    eq (N B) (N B') = N (B B') . 
@@ -128,7 +128,7 @@ endv
 *** alternative eHORNET (marking) definition parameterized in the (sub)type of net-tokens and system-net transitions' lab
 *** all net tokens have the same type - the sort of system net places is renamed for safety
 fmod EHORNET{NT :: NT-TYPE, PL :: TRIV} is
-   generated-by MSET-MARKING{NT-TYPE, TRIV}{NT, PL} * (op nil to nilNT, op empty{NT-TYPE}{NT} to empty{NT}, sort Mset{NT-TYPE}{NT} to Mset{NT},
+   generated-by MSET-MARKING{NT-TYPE, TRIV}{NT, PL} * (op nil{String} to nilNT, op empty{NT-TYPE}{NT} to empty{NT}, sort Mset{NT-TYPE}{NT} to Mset{NT},
              sort Place{TRIV}{PL} to SysPlace{PL}, 
              sort Bag{NT-TYPE}{NT} to Bag{NT}, sort ElBag{NT-TYPE}{NT} to ElBag{NT}, sort NeBag{NT-TYPE}{NT} to NeBag{NT},
              sort MsetMarking{NT-TYPE}{NT} to MsetMarking{NT},  sort PmsetMarking{NT-TYPE}{NT} to PmsetMarking{NT})  .
