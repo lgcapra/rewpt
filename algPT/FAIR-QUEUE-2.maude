@@ -5,18 +5,17 @@ in ALG-PN
 
 *** version 2 using MSET
 mod FAIR-QUEUE-2 is
- pr MSET-MARKING{Nat,String} . *** renaming mark is mandatory !
+ pr MSET-MARKING{Nat,String} .
  pr MSET-MARKING{Elist{Nat},String} *  (op mark to markL) . *** renaming mark is mandatory  
  
  op init : -> Marking . *** alias - intial marking
- eq init =  p("queue") |-> [niL{Nat}] [niL{Nat}] ; p("task") |-> 0 1 1 2 2 2 . 
+ eq init =  p("queue") |-> [nil] [nil] ; p("task") |-> 0 1 1 2 2 2 . 
  
  var M : Marking .
  var B : Mset{Nat} .
  vars L L' : List{Nat} .
  var LB : Mset{Elist{Nat}} .
  var X : Nat .
- vars K K' K'' : NzNat .
  *** withdraws two occurrences of an element from p("task"), by appending each to one of the list in p("queue")
  rl [distribute] : p("queue") |-> [L] [L']  ;  p("task") |-> X X B => p("queue") |-> [L, X] [L', X] ; p("task") |-> B .
  

@@ -1,0 +1,51 @@
+in ./ELIST
+in ALG-PN
+
+*** EXAMPLE:  algebraic net shema using two (embedded) lists where some tasks are non-deterministically picked up fairly from a repository
+
+*** version using MSET
+mod FAIR-QUEUE-SCHEMA{X :: TRIV} is
+ pr MSET-MARKING{TRIV,String}{X} * (sort Mset{TRIV}{X} to Mset{X}, op empty{TRIV}{X} to empty{X},
+                                    sort PmsetMarking{TRIV}{X} to PmsetMarking{X}, sort MsetMarking{TRIV}{X} to MsetMarking{X}
+                                    ) .
+ pr MSET-MARKING{Elist{TRIV}{X},String} * (sort List{TRIV}{X} to List{X}, sort NeList{TRIV}{X} to NeList{X}, 
+                 op niL{TRIV}{X} to niL{X}, 
+                 sort Elist{TRIV}{X} to Elist{X}, sort NeElist{TRIV}{X} to NeElist{X},
+                 sort Mset{Elist{TRIV}{X}} to Mset{Elist{X}},  
+                 sort PmsetMarking{Elist{TRIV}{X}} to PmsetMarking{Elist{X}}, sort MsetMarking{Elist{TRIV}{X}} to MsetMarking{Elist{X}},
+                 op empty{Elist{TRIV}{X}} to empty{Elist{X}}, 
+                 op mark to markL
+                 ) . *** renaming mark is mandatory  
+ 
+ 
+ *** op init : -> Marking . *** alias - intial marking
+ *** eq init =  p("queue") |-> [niL{X}] [niL{X}] ; p("task") |-> X Y Y Z Z Z . 
+ *** we shoud define X Y Z as ops (that is, pseudo-variables) of sort X$Elt or (better) of a supersort Sup{X} of X$Elt
+ *** however, we can search using variables directly
+ *** e.g., 
+ *** search p("queue") |-> [niL{X}] [niL{X}] ; p("task") |-> X:X$Elt Y:X$Elt X:X$Elt Y:X$Elt =>! F:Marking .
+
+ 
+ var M : Marking .
+ var B : Mset{X} .
+ vars L L' : List{X} .
+ var LB : Mset{Elist{X}} .
+ vars X Y Z : X$Elt .
+ 
+ *** withdraws two occurrences of an element from p("task"), by appending each to one of the list in p("queue")
+ rl [distribute] : p("queue") |-> [L] [L']  ;  p("task") |-> X X B => p("queue") |-> [L, X] [L', X] ; p("task") |-> B .
+ 
+ *** withdraws residual single elements from p("task"), by appending them to one of the thw lists (randomly chosen) 
+crl [pick-up] : p("queue") |-> [L] [L'] ;  p("task") |-> X B => p("queue") |-> [L, X] [L'] ; p("task") |-> B if not(X leq B) .
+
+*** serves (removes) the head element of (from) one of the queues (chosen nondeterministically)
+rl [serve] : p("queue") |-> [X, L]  [L'] ;  p("task") |-> B => p("queue") |->  [L] [L'] ; p("task") |-> B X .
+endm
+
+*** example of instantiation with Nat
+
+mod FAIR-QUEUE-NAT is
+  inc FAIR-QUEUE-SCHEMA{Nat} . 
+  op init : -> Marking [memo] . 
+  eq init =  p("queue") |-> [nil] [nil] ; p("task") |-> 0 1 1 2 2 2 . 
+endm
