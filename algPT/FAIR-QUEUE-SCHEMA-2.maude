@@ -5,18 +5,8 @@ in ALG-PN
 
 *** version using MSET
 mod FAIR-QUEUE-SCHEMA{X :: TRIV} is
- pr MSET-MARKING{TRIV,String}{X} * (sort Mset{TRIV}{X} to Mset{X}, op empty{TRIV}{X} to empty{X},
-                                    sort PmsetMarking{TRIV}{X} to PmsetMarking{X}, sort MsetMarking{TRIV}{X} to MsetMarking{X}
-                                    ) .
- pr MSET-MARKING{Elist{TRIV}{X},String} * (sort List{TRIV}{X} to List{X}, sort NeList{TRIV}{X} to NeList{X}, 
-                 op niL{TRIV}{X} to niL{X}, 
-                 sort Elist{TRIV}{X} to Elist{X}, sort NeElist{TRIV}{X} to NeElist{X},
-                 sort Mset{Elist{TRIV}{X}} to Mset{Elist{X}},  
-                 sort PmsetMarking{Elist{TRIV}{X}} to PmsetMarking{Elist{X}}, sort MsetMarking{Elist{TRIV}{X}} to MsetMarking{Elist{X}},
-                 op empty{Elist{TRIV}{X}} to empty{Elist{X}}, 
-                 op mark to markL
-                 ) . *** renaming mark is mandatory  
- 
+ pr MS-MARKING-STR{X} .
+ pr MS-MARKING-STR{Elist{X}} * (op mark to markL ) . *** renaming mark is mandatory  
  
  *** op init : -> Marking . *** alias - intial marking
  *** eq init =  p("queue") |-> [niL{X}] [niL{X}] ; p("task") |-> X Y Y Z Z Z . 
@@ -24,7 +14,6 @@ mod FAIR-QUEUE-SCHEMA{X :: TRIV} is
  *** however, we can search using variables directly
  *** e.g., 
  *** search p("queue") |-> [niL{X}] [niL{X}] ; p("task") |-> X:X$Elt Y:X$Elt X:X$Elt Y:X$Elt =>! F:Marking .
-
  
  var M : Marking .
  var B : Mset{X} .
