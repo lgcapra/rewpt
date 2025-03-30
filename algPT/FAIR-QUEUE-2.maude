@@ -8,8 +8,8 @@ mod FAIR-QUEUE-2 is
  pr MS-MARKING-STR{Nat} .
  pr MS-MARKING-STR{Elist{Nat}} *  (op mark to markL) . *** renaming mark is mandatory  
  
- op init : -> Marking . *** alias - intial marking
- eq init =  p("queue") |-> [nil] [nil] ; p("task") |-> 0 1 1 2 2 2 . 
+ op m0 : -> Marking [memo] . *** alias - intial marking
+ eq m0 =  p("queue") |-> [nil] [nil] ; p("task") |-> 0 1 1 2 2 2 . 
  
  var M : Marking .
  var B : Mset{Nat} .
