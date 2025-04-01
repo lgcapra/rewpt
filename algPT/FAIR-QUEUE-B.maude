@@ -4,19 +4,19 @@ in ALG-PN
 *** EXAMPLE:  algebraic net using two (embedded) lists where some tasks are non-deterministically picked up fairly from a repository
 
 *** version 1 using BAG
-mod FAIR-QUEUE is
+mod FAIR-QUEUE-B{X :: TRIV} is
  *** types of places
- pr B-MARKING-STR{Nat} . 
- pr B-MARKING-STR{Elist{Nat}} * (op mark to markL) . *** renaming mark is mandatory !
+ pr B-MARKING-STR{X} . 
+ pr B-MARKING-STR{Elist{X}} * (op mark to markL) . *** renaming mark is mandatory !
  
- op m0 : -> Marking . *** alias - intial marking and implicilty net's places' structure
- eq m0 =  p("queue") |-> 2 . [nil] ; p("task") |-> 1 . 0 + 2 . 1 + 3 . 2 . *** the lists in p1 are initially empty 
+ *** op m0 : -> Marking . *** alias - intial marking and implicilty net's places' structure
+ *** eq m0 =  p("queue") |-> 2 . [nil] ; p("task") |-> 1 . 0 + 2 . 1 + 3 . 2 . *** the lists in p1 are initially empty 
  
  var M : Marking .
- var B : Bag{Nat} .
- vars L L' : List{Nat} .
- var LB : Bag{Elist{Nat}} .
- var X : Nat .
+ var B : Bag{X} .
+ vars L L' : List{X} .
+ var LB : Bag{Elist{X}} .
+ var X : X$Elt .
  var K : NzNat .
  
   *** the algebraic net's transitions are encoded as rewrite rules
@@ -38,7 +38,14 @@ rl [serve-1] : p("queue") |-> 1 . [X, L]  + 1 . [L'] ;  p("task") |-> B => p("qu
 
 *** the same as serve-1 ...
 rl [serve-2] : p("queue") |-> 2 . [X, L] ;  p("task") |-> B => p("queue") |-> 1 . [X, L] + 1 . [L] ; p("task") |-> B + 1 . X .
-
   
 endm
+
+mod FAIR-QUEUE-NAT-B is
+  inc FAIR-QUEUE-B{Nat} . 
+  op m0 : -> Marking . *** alias - intial marking and implicilty net's places' structure
+  eq m0 =  p("queue") |-> 2 . [nil] ; p("task") |-> 4 . 0 + 3 . 1 + 4 . 2 . *** the lists in p1 are initially empty 
+
+endm
+
 
