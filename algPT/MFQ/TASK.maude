@@ -1,0 +1,19 @@
+*** a task is described by a label (any type) and the residual burst time
+fmod TASK{X :: TRIV} is
+  pr INT .
+  sort Task . 
+  op  _@_ : X$Elt Nat -> Task  [ctor] .
+  op lab : Task -> X$Elt [memo] . *** task's descriptor
+  op time  : Task -> Nat . *** task's left burst time
+  op dec : Task NzNat -> Task . *** decrease task's time
+  var T : Nat . var K : NzNat . 
+  var L : X$Elt .
+  eq lab(L @ T) = L .
+  eq time(L @ T) = T .
+  eq dec(L @ T, K) = L @ max(0, T - K) .
+endfm 
+
+*** parametric trivial view of TASK
+view Task{X :: TRIV} from TRIV to TASK{X} is
+  sort Elt to Task .
+endv

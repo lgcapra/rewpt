@@ -1,0 +1,19 @@
+in ../ALG-PN
+
+*** EXAMPLE:  algebraic net shema for a multilevel feedback queue 
+
+*** version using MSET
+mod MFQ{X :: TRIV} is
+ pr MS-MARKING-STR{Task{X}} .
+ pr MS-MARKING-STR{Queue{X}} * (op mark to markQ ) . *** renaming mark is mandatory  
+
+endm
+
+*** example of instantiation with Nat
+
+mod MFQ-STR is
+   inc MFQ{String} . 
+   op m0 : -> Marking [memo] . 
+   eq m0 =  p("queue") |-> (Q: nil TS: 2 PI: 0) (Q: nil TS: 3 PI: 1) (Q: nil TS: inf PI: 2) ; p("task") |-> ("a" @ 0) ("a" @ 0) ("a" @ 0) ("b" @ 1) ("b" @ 1)  . 
+
+endm
