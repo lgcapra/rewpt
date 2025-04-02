@@ -1,11 +1,26 @@
 in ../ALG-PN
+in RR-QUEUE
 
 *** EXAMPLE:  algebraic net shema for a multilevel feedback queue 
 
 *** version using MSET
 mod MFQ{X :: TRIV} is
- pr MS-MARKING-STR{Task{X}} .
- pr MS-MARKING-STR{Queue{X}} * (op mark to markQ ) . *** renaming mark is mandatory  
+ pr MS-MARKING-STR{Task{X}} *  (sort PmsMarking{Task{X}} to PmsMarking{Task}, 
+                               sort  Mset{Task{X}} to  Mset{Task}, op empty{Task{X}} to empty{Task}) .
+ pr MS-MARKING-STR{Queue{X}} * (sort PmsMarking{Queue{X}} to PmsMarking{Queue}, sort Mset{Queue{X}} to Mset{Queue},
+                                op empty{Queue{X}} to  empty{Queue}, op mark to markQ ) . *** renaming mark is mandatory
+
+ vars Q Q' : Queue .
+ var MQ : Mset{Queue} .
+ 
+ *** sort QUEUE-NET .
+ *** subsort QUEUE-NET < Mset{Queue} .
+   
+ op maxPi : Mset{Queue} -> [Queue] . *** the queue with the highest priority
+ eq maxPi(Q MQ) = $maxPi(MQ, Q) .
+ op $maxPi : Mset{Queue} Queue -> Queue .
+ eq $maxPi(Q MQ, Q') = if pi(Q) > pi(Q') then $maxPi(MQ, Q) else $maxPi(MQ, Q') fi .
+ eq $maxPi(empty{Queue}, Q) = Q .
 
 endm
 
