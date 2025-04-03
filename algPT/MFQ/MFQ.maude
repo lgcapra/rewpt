@@ -11,7 +11,7 @@ mod MFQ{X :: TRIV} is
                                 op empty{Queue{X}} to  empty{Queue}, op mark to markQ ) . *** renaming mark is mandatory
 
  vars Q Q' : Queue .
- var MQ : Mset{Queue} .
+ vars MQ MQ' : Mset{Queue} .
  
  op repeated : Mset{Queue} -> Bool . *** checks for repeated priority
  ceq repeated(Q Q' MQ) = true if pi(Q) = pi(Q') .
@@ -23,8 +23,12 @@ mod MFQ{X :: TRIV} is
  eq in(MQ, N) = false [owise] .
 
  op normalize : Mset{Queue} -> [Mset{Queue}] . *** normalizes the priority values of a network of queue so that they fall in 0..len-1
- ceq normalize(MQ) = $normalize(MQ, empty{Queue}) if repeated(MQ) = false .
- op $normalize : Mset{Queue} Mset{Queue} -> Mset{Queue} .
+ ceq normalize(MQ) = $normalize(MQ, 0, empty{Queue}) if repeated(MQ) = false .
+ op $normalize : Mset{Queue} Nat Mset{Queue} -> Mset{Queue} .
+ ceq $normalize(MQ, N, MQ') = MQ if N == len(MQ) .
+ ceq $normalize(Q MQ, N, MQ') = $normalize(MQ, s(N), Q MQ') if pi(Q) = s(N) .
+ ceq $normalize(Q MQ, N, MQ') = $normalize(MQ, N, Q MQ') if pi(Q) <= N .
+ eq $normalize(MQ, N, MQ') = $normalize(MQ, s(N), MQ') [owise] .
    
  op maxPi : Mset{Queue} -> [Queue] . *** the queue with the highest priority
  eq maxPi(Q MQ) = $maxPi(MQ, Q) .
@@ -39,6 +43,6 @@ endm
 mod MFQ-STR is
    inc MFQ{String} . 
    op m0 : -> Marking [memo] . 
-   eq m0 =  p("queue") |-> (Q: nil TS: 2 PI: 0) (Q: nil TS: 3 PI: 1) (Q: nil TS: inf PI: 2) ; p("task") |-> ("a" @ 0) ("a" @ 0) ("a" @ 0) ("b" @ 1) ("b" @ 1)  . 
+   eq m0 =  p("queue") |-> (Q: nil TS: 2 PI: 0) (Q: nil TS: 3 PI: 1) (Q: nil TS: inf PI: 3) ; p("task") |-> ("a" @ 0) ("a" @ 0) ("a" @ 0) ("b" @ 1) ("b" @ 1)  . 
 
 endm
