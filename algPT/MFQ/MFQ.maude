@@ -1,40 +1,32 @@
 in ../ALG-PN
-in RR-QUEUE
+in QUEUE
 
 *** EXAMPLE:  algebraic net shema for a multilevel feedback queue 
 
 *** version using MSET
 mod MFQ{X :: TRIV} is
  pr MS-MARKING-STR{Task{X}} *  (sort PmsMarking{Task{X}} to PmsMarking{Task}, 
-                               sort  Mset{Task{X}} to  Mset{Task}, op empty{Task{X}} to empty{Task}) .
- pr MS-MARKING-STR{Queue{X}} * (sort PmsMarking{Queue{X}} to PmsMarking{Queue}, sort Mset{Queue{X}} to Mset{Queue},
+                               sort  Mset{Task{X}} to  Mset{Task}, sort NeMset{Task{X}} to  NeMset{Task}, op empty{Task{X}} to empty{Task}) .
+ pr MS-MARKING-STR{Queue{X}} * (sort PmsMarking{Queue{X}} to PmsMarking{Queue}, sort Mset{Queue{X}} to Mset{Queue}, sort NeMset{Queue{X}} to NeMset{Queue},
                                 op empty{Queue{X}} to  empty{Queue}, op mark to markQ ) . *** renaming mark is mandatory
 
  vars Q Q' : Queue .
  vars MQ MQ' : Mset{Queue} .
+ var K : NzNat .
  
- op repeated : Mset{Queue} -> Bool . *** checks for repeated priority
- ceq repeated(Q Q' MQ) = true if pi(Q) = pi(Q') .
- eq repeated(MQ) = false [owise] .
-
- op in : Mset{Queue} Nat -> Bool . *** check that a queue with the given priority is present in the network
- var N : Nat .
- eq in((Q: L:List{Task} TS: K:NzNat PI: N) MQ, N) = true .
- eq in(MQ, N) = false [owise] .
-
- op normalize : Mset{Queue} -> [Mset{Queue}] . *** normalizes the priority values of a network of queue so that they fall in 0..len-1
- ceq normalize(MQ) = $normalize(MQ, 0, empty{Queue}) if repeated(MQ) = false .
- op $normalize : Mset{Queue} Nat Mset{Queue} -> Mset{Queue} .
- ceq $normalize(MQ, N, MQ') = MQ if N == len(MQ) .
- ceq $normalize(Q MQ, N, MQ') = $normalize(MQ, s(N), Q MQ') if pi(Q) = s(N) .
- ceq $normalize(Q MQ, N, MQ') = $normalize(MQ, N, Q MQ') if pi(Q) <= N .
- eq $normalize(MQ, N, MQ') = $normalize(MQ, s(N), MQ') [owise] .
-   
- op maxPi : Mset{Queue} -> [Queue] . *** the queue with the highest priority
- eq maxPi(Q MQ) = $maxPi(MQ, Q) .
- op $maxPi : Mset{Queue} Queue -> Queue .
- eq $maxPi(Q MQ, Q') = if pi(Q) > pi(Q') then $maxPi(MQ, Q) else $maxPi(MQ, Q') fi .
- eq $maxPi(empty{Queue}, Q) = Q .
+ op rePeated : Mset{Queue} -> Bool . *** checks for repeated time slice
+ ceq rePeated(Q Q' MQ) = true if ts(Q) = ts(Q') .
+ eq rePeated(MQ) = false [owise] .
+ 
+ op first : NeMset{Queue} -> Queue [memo] . *** the queue with the highest priority (min ts)
+ eq first(MQ) = first(MQ, inf) .
+ op first : NeMset{Queue} NzNat -> Queue . 
+ eq first(Q MQ, K) = $first(MQ, Q, K) .
+ op $first : Mset{Queue} Queue NzNat -> Queue .
+ eq $first(Q MQ, Q', K) = if ts(Q) < ts(Q') and-then ts(Q) < K then $first(MQ, Q, K) else $first(MQ, Q', K) fi .
+ eq $first(empty{Queue}, Q, K) = Q .
+ op firstNe : NeMset{Queue} -> [Queue] . *** the first non-empty queue
+ceq firstNe(Q MQ) = if empty(Q) then firstNe(MQ) else Q fi if Q = first(Q MQ) .      
 
 endm
 
@@ -43,6 +35,22 @@ endm
 mod MFQ-STR is
    inc MFQ{String} . 
    op m0 : -> Marking [memo] . 
-   eq m0 =  p("queue") |-> (Q: nil TS: 2 PI: 0) (Q: nil TS: 3 PI: 1) (Q: nil TS: inf PI: 3) ; p("task") |-> ("a" @ 0) ("a" @ 0) ("a" @ 0) ("b" @ 1) ("b" @ 1)  . 
+   eq m0 =  p("queue") |-> (q: nil ts: inf) (q: nil ts: 2) (q: nil ts: 1) ; p("task") |-> ("a" @ 2) ("a" @ 2) ("a" @ 2) ("b" @ 1) ("b" @ 1)  . 
+
+   var M : Marking .
+   var B : Mset{Task} .
+   vars L L' : List{Task} .
+   var T : Task .
+   vars Q Q' : Queue .
+   vars MQ MQ' : Mset{Queue} .
+   vars K K' : NzNat . 
+ 
+ *** append a task to the highest priority queue
+ crl [assign] : p("queue") |-> Q MQ ;  p("task") |-> T B => p("queue") |-> add(Q, T) MQ ; p("task") |-> B  
+              if Q = first(Q MQ) .
+ *** dovrebbe shiftare un task da un livello ad un altro (se ci sono almeno due livelli e il livello più alto non è vuoto)             
+ crl [serve] : p("queue") |-> MQ  => p("queue") |-> (q: L ts: K) add(Q', dec(T, K)) MQ'  
+      if Q Q' MQ' := MQ /\ Q = firstNe(MQ) /\ (q: T, L ts: K) := Q  /\ K < time(T) /\ Q' = first(Q' MQ', K)  .
 
 endm
+

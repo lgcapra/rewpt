@@ -6,11 +6,13 @@ fmod TASK{X :: TRIV} is
   op lab : Task -> X$Elt [memo] . *** task's descriptor
   op time  : Task -> Nat . *** task's left burst time
   op dec : Task NzNat -> Task . *** decrease task's time
-  var T : Nat . var K : NzNat . 
+  op set : Task Nat -> Task . *** set task's time
+  vars N N' : Nat . var K : NzNat . 
   var L : X$Elt .
-  eq lab(L @ T) = L .
-  eq time(L @ T) = T .
-  eq dec(L @ T, K) = L @ max(0, T - K) .
+  eq lab(L @ N) = L .
+  eq time(L @ N) = N .
+  eq dec(L @ N, K) = L @ max(0, N - K) .
+  eq set(L @ N, N') = L @ N' .
 endfm 
 
 *** parametric trivial view of TASK

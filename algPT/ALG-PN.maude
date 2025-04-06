@@ -74,7 +74,7 @@ endfm
 
 *** partial instantiation of MS-MARKING using strings as place labels
 fmod MS-MARKING-STR{X :: TRIV} is
-   pr MS-MARKING{TRIV,String}{X} * (sort Mset{TRIV}{X} to Mset{X}, op empty{TRIV}{X} to empty{X},
+   pr MS-MARKING{TRIV,String}{X} * (sort Mset{TRIV}{X} to Mset{X}, sort NeMset{TRIV}{X} to NeMset{X}, op empty{TRIV}{X} to empty{X},
         sort PmsMarking{TRIV}{X} to PmsMarking{X},
         sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X}, sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}
         ) .

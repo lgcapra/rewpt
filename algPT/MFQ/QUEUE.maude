@@ -1,0 +1,80 @@
+in TASK
+
+*** Round Robin (FIFO) queue - builds on predefined LIST and on TASK
+fmod QUEUE{X :: TRIV} is
+ protecting LIST{Task{X}} * (sort List{Task{X}} to List{Task}, sort NeList{Task{X}} to NeList{Task}, op __  to _`,_ ) .
+ sorts Queue NeQueue .
+ subsort NeQueue < Queue .
+ op q:_ts:_ : List{Task} NzNat -> Queue .
+ op inf : -> NzNat [memo] . *** alias for a big value representing the infinity
+ eq inf = 1000000000000000000000000000000000000000 .
+ var K : NzNat .
+ var L : List{Task} .
+ var T : Task .
+ var Q : Queue .
+ mb (q: NeL:NeList{Task} ts: K) : NeQueue . 
+ op ts : Queue -> NzNat . *** time slice of the queue (infinite means fifo)
+ op q :  Queue -> List{Task} . *** list of tasks
+ eq ts(q: L ts: K) = K .
+ eq q(q: L ts: K)  = L .
+ op add : Queue Task -> NeQueue .
+ eq add((q: L ts: K), T) = q: L, T ts: K .
+ op first : NeQueue -> Task .
+ eq first(q: T, L ts: K) = T .
+ op empty : Queue -> Bool .
+ eq empty(Q) = q(Q) == nil .
+endfm
+
+*** parameterized trivial view
+view Queue{X :: TRIV} from TRIV to QUEUE{X} is 
+ sort Elt to Queue . 
+endv
+
+*** a network of queues
+fmod QUEUE-NET{X :: TRIV} 
+ is protecting LIST{Queue{X}} * (sort List{Queue{X}} to Qnet, sort NeList{Queue{X}} to NeQnet,
+                                op nil : -> List{Queue{X}} to nilQnet, op __  to _`,_ ) .
+ vars Q Q' : Queue .
+ vars QN QN' : Qnet .
+ 
+ op ordered : Qnet -> Bool [memo] . *** checks for ordering (notice that ordered implies with no repeated priority)
+ ceq ordered(QN, Q, Q', QN') = false if ts(Q) >= ts(Q') .
+ eq ordered(QN) = true [owise] .
+
+ op firstNe : NeQnet -> [Queue] . *** the first non-empty queue, if any
+ eq firstNe(Q, QN) = if empty(Q) == false then Q else firstNe(QN) fi .  
+ 
+endfm
+
+*** parameterized trivial view
+view Qnet{X :: TRIV} from TRIV to QUEUE-NET{X} is 
+ sort Elt to Qnet . 
+endv
+
+in ../ALG-PN
+
+mod MFQ-2{X :: TRIV} is
+ pr MS-MARKING-STR{Task{X}} *  (sort PmsMarking{Task{X}} to PmsMarking{Task}, 
+                               sort  Mset{Task{X}} to  Mset{Task}, sort NeMset{Task{X}} to  NeMset{Task}, op empty{Task{X}} to empty{Task}) .
+ pr MS-MARKING-STR{Qnet{X}} * (sort PmsMarking{Qnet{X}} to PmsMarking{Qnet}, sort Mset{Qnet{X}} to Mset{Qnet}, sort NeMset{Qnet{X}} to NeMset{Qnet},
+                                op empty{Qnet{X}} to  empty{Qnet}, op mark to markQ ) . *** renaming mark is mandatory
+
+ vars Q Q' : Queue .
+ vars QN QN' : Qnet .
+ var T : Task .
+ var B : Mset{Task} .
+ var L : List{Task} .
+ var K : NzNat .
+ 
+ *** append a task (selected non deterministically) to the header queue
+  rl [assign] : p("queue") |-> Q, QN ;  p("task") |-> T B => p("queue") |-> add(Q, T), QN ; p("task") |-> B  .
+  *** serve a task that finishes its burst
+crl  p("queue") |-> QN, Q, QN' ;  p("task") |-> B => p("queue") |-> QN, (q: L ts: K), QN' ;  p("task") |-> B set(T, 0) 
+      if Q = firstNe(QN, Q) /\ (q: T, L ts: K) := Q /\ time(T) <= K .  
+endm
+
+mod MFQ-STR is
+   inc MFQ-2{String} . 
+   op m0 : -> Marking [memo] . 
+   eq m0 =  p("queue") |-> (q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf)  ; p("task") |-> ("a" @ 1)  ("a" @ 1) ("b" @ 2)  . 
+endm
