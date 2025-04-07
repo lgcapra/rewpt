@@ -2,7 +2,7 @@
 fmod TASK{X :: TRIV} is
   pr INT .
   sort Task . 
-  op  _@_ : X$Elt Nat -> Task  [ctor] .
+  op  _@_ : X$Elt Nat -> Task  [ctor prec 40]  .
   op lab : Task -> X$Elt [memo] . *** task's descriptor
   op time  : Task -> Nat . *** task's left burst time
   op dec : Task NzNat -> Task . *** decrease task's time

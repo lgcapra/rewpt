@@ -1,13 +1,13 @@
 in TASK
 
-*** Round Robin (FIFO) queue - builds on predefined LIST and on TASK
+*** Round Robin (FIFO) queue - builds on predefined module LIST and on module TASK
 fmod QUEUE{X :: TRIV} is
  protecting LIST{Task{X}} * (sort List{Task{X}} to List{Task}, sort NeList{Task{X}} to NeList{Task}, op __  to _`,_ ) .
  sorts Queue NeQueue .
  subsort NeQueue < Queue .
  op q:_ts:_ : List{Task} NzNat -> Queue .
  op inf : -> NzNat [memo] . *** alias for a big value representing the infinity
- eq inf = 1000000000000000000000000000000000000000 .
+ eq inf = 10000 .
  var K : NzNat .
  var L : List{Task} .
  var T : Task .
@@ -19,8 +19,6 @@ fmod QUEUE{X :: TRIV} is
  eq q(q: L ts: K)  = L .
  op add : Queue Task -> NeQueue .
  eq add((q: L ts: K), T) = q: L, T ts: K .
- op first : NeQueue -> Task .
- eq first(q: T, L ts: K) = T .
  op empty : Queue -> Bool .
  eq empty(Q) = q(Q) == nil .
 endfm
@@ -46,6 +44,7 @@ fmod QUEUE-NET{X :: TRIV}
  
 endfm
 
+
 *** parameterized trivial view
 view Qnet{X :: TRIV} from TRIV to QUEUE-NET{X} is 
  sort Elt to Qnet . 
@@ -53,7 +52,7 @@ endv
 
 in ../ALG-PN
 
-mod MFQ-2{X :: TRIV} is
+mod MFQ{X :: TRIV} is
  pr MS-MARKING-STR{Task{X}} *  (sort PmsMarking{Task{X}} to PmsMarking{Task}, 
                                sort  Mset{Task{X}} to  Mset{Task}, sort NeMset{Task{X}} to  NeMset{Task}, op empty{Task{X}} to empty{Task}) .
  pr MS-MARKING-STR{Qnet{X}} * (sort PmsMarking{Qnet{X}} to PmsMarking{Qnet}, sort Mset{Qnet{X}} to Mset{Qnet}, sort NeMset{Qnet{X}} to NeMset{Qnet},
@@ -64,17 +63,37 @@ mod MFQ-2{X :: TRIV} is
  var T : Task .
  var B : Mset{Task} .
  var L : List{Task} .
- var K : NzNat .
+ vars K K' : NzNat .
+ var X : X$Elt .
+
  
  *** append a task (selected non deterministically) to the header queue
   rl [assign] : p("queue") |-> Q, QN ;  p("task") |-> T B => p("queue") |-> add(Q, T), QN ; p("task") |-> B  .
-  *** serve a task that finishes its burst
-crl  p("queue") |-> QN, Q, QN' ;  p("task") |-> B => p("queue") |-> QN, (q: L ts: K), QN' ;  p("task") |-> B set(T, 0) 
-      if Q = firstNe(QN, Q) /\ (q: T, L ts: K) := Q /\ time(T) <= K .  
+*** serve a task that finishes its residual time burst
+crl [serve-exhausted] : p("queue") |-> QN, Q, QN' ;  p("served") |-> B  => p("queue") |-> QN, (q: L ts: K), QN' ;  p("served") |-> B (X @ 0) 
+      if Q = firstNe(QN, Q) /\ (q: X @ K', L ts: K) := Q /\ K' <= K .  
+*** serve a task that doesn't exhaust its burst, by appending the task to the next-level queue
+crl [serve-notexh-shift] : p("queue") |-> QN, Q, Q', QN'  => p("queue") |-> QN, (q: L ts: K), add(Q', X @ K' - K), QN'  
+      if Q = firstNe(QN, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
+*** serve a task that doesn't exhaust its burst, in the event the queue is the last (possibly the only)
+crl [serve-notexh-last] : p("queue") |-> QN, Q  => p("queue") |-> QN, (q: L, X @ K' - K ts: K)  
+      if Q = firstNe(QN, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
+
 endm
 
+*** instance of MFQ using strings as task labels
 mod MFQ-STR is
-   inc MFQ-2{String} . 
+   inc MFQ{String} . 
+   op burst : String -> [NzNat] [memo].
+   eq burst("a") = 1 .
+   eq burst("b") = 4 .
+   op tsk : String -> [Task] .
+   var s : String .
+   eq tsk(s) = s @ burst(s) .
    op m0 : -> Marking [memo] . 
-   eq m0 =  p("queue") |-> (q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf)  ; p("task") |-> ("a" @ 1)  ("a" @ 1) ("b" @ 2)  . 
+   eq m0 =  p("queue") |-> (q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf)  ; p("task") |-> tsk("a") tsk("a")tsk("b")  ; p("served") |-> empty{Task} . 
+   var T : Task .
+   vars B B' : Mset{Task} .
+   *** uncomment the following rule if you want the model becomes live (otherwise it enters an absorbing state)
+   *** rl [reset] : p("served") |-> B s @ 0 ; p("task") |->  B' => p("served") |-> B ; p("task") |->  B' tsk(s) .
 endm

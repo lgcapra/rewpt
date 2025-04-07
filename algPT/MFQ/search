@@ -1,0 +1,3 @@
+search m0 =>* F:Marking such that NQ:Qnet := markQ(F:Marking[p("queue")]) /\ NQ'':Qnet, Q:Queue, NQ':Qnet := NQ:Qnet /\ ts(Q:Queue) = inf /\ not(empty(Q:Queue)) .
+
+search m0 =>* F:Marking such that NQ:Qnet := markQ(F:Marking[p("queue")]) /\ NQ':Qnet, Q:Queue, Q':Queue, NQ'':Qnet := NQ:Qnet /\ ts(Q:Queue) = 2 /\ ts(Q':Queue) = inf /\ not(empty(Q':Queue)) /\ not(empty(Q:Queue)) .
