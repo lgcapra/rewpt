@@ -1,0 +1,5 @@
+in QUEUE
+
+mod MFQ-RECONF is
+  inc MS-MARKING-STR{Mfq} * (op mark to markM) .
+endm
