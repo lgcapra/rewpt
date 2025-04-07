@@ -3,10 +3,12 @@ in BAG
 *** multisets implemented as commutative monoids
 fmod MSET{X :: TRIV} is
  pr NAT . 
- sorts Mset{X} . 
- subsort X$Elt < Mset{X} . 
+ sorts Mset{X} NeMset{X} . 
+ subsort X$Elt < NeMset{X} < Mset{X} . 
  op empty{X} : -> Mset{X} [ctor] . 
  op __ : Mset{X} Mset{X} -> Mset{X} [ctor assoc comm id: empty{X}] .
+ op __ : NeMset{X} Mset{X} -> NeMset{X} [ctor ditto] .
+
  op len : Mset{X} -> Nat .
  eq len(empty{X}) = 0 .
  vars M M' : Mset{X} .

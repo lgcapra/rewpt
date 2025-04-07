@@ -97,3 +97,7 @@ mod MFQ-STR is
    *** uncomment the following rule if you want the model becomes live (otherwise it enters an absorbing state)
    *** rl [reset] : p("served") |-> B s @ 0 ; p("task") |->  B' => p("served") |-> B ; p("task") |->  B' tsk(s) .
 endm
+
+view Mfq from TRIV to MFQ-STR is
+   sort Elt to Marking .
+endv 

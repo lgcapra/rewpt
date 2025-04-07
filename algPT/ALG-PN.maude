@@ -28,7 +28,8 @@ endfm
 *** AL-PN submarking of specific type (1st parameter) parametric in the label of places
 fmod B-MARKING{X :: TRIV, PL :: TRIV} is
   extending ALGPN-MARKING{PL} .
-  protecting MSET-BAG{X}  .
+  *** protecting MSET-BAG{X}  . *** if we want to use both representations
+  protecting BAG{X} .
   sort Pmarking{X} .
   subsort Pmarking{X} < Pmarking . 
   op _|->_ : Place{PL} Bag{X} -> Pmarking{X} [ctor] .
@@ -49,7 +50,8 @@ endfm
 *** alternative (similar) representation of place marking based on MSET
 fmod MS-MARKING{X :: TRIV, PL :: TRIV} is
   extending ALGPN-MARKING{PL} .
-  protecting MSET-BAG{X} .
+  *** protecting MSET-BAG{X} .
+  protecting MSET{X} .
   sort PmsMarking{X} .
   subsort PmsMarking{X} < Pmarking .
   op _|->_ : Place{PL} Mset{X} -> PmsMarking{X} [ctor] .
@@ -67,16 +69,16 @@ endfm
 *** partial instantiation of B-MARKING using strings as place labels
 fmod B-MARKING-STR{X :: TRIV} is
    pr B-MARKING{TRIV,String}{X} * (sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X},
-                  sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}, sort Pmarking{TRIV}{X} to Pmarking{X},
-                  sort Mset{TRIV}{X} to Mset{X}, op empty{TRIV}{X} to empty{X}
+                  sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}, sort Pmarking{TRIV}{X} to Pmarking{X}
+                  *** , sort Mset{TRIV}{X} to Mset{X}, op empty{TRIV}{X} to empty{X}
                   ) .
 endfm
 
 *** partial instantiation of MS-MARKING using strings as place labels
 fmod MS-MARKING-STR{X :: TRIV} is
    pr MS-MARKING{TRIV,String}{X} * (sort Mset{TRIV}{X} to Mset{X}, sort NeMset{TRIV}{X} to NeMset{X}, op empty{TRIV}{X} to empty{X},
-        sort PmsMarking{TRIV}{X} to PmsMarking{X},
-        sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X}, sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}
+        sort PmsMarking{TRIV}{X} to PmsMarking{X}
+        *** , sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X}, sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}
         ) .
 endfm
 
