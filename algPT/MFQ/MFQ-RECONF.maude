@@ -1,5 +1,7 @@
 in QUEUE
 
 mod MFQ-RECONF is
-  inc MS-MARKING-STR{Mfq} * (op mark to markM) .
+  inc MARKING-STR{Mfq} * (op mark to metaMark) .
+  op meta-m0 : -> Marking .
+  eq meta-m0 = p("meta-mfq") |-> m0 .
 endm

@@ -1,4 +1,5 @@
 in TASK
+in ../ELIST
 
 *** Round Robin (FIFO) queue - builds on predefined module LIST and on module TASK
 fmod QUEUE{X :: TRIV} is
@@ -29,18 +30,19 @@ view Queue{X :: TRIV} from TRIV to QUEUE{X} is
 endv
 
 *** a network of queues
+*** op __  to _`,_  
 fmod QUEUE-NET{X :: TRIV} 
- is protecting LIST{Queue{X}} * (sort List{Queue{X}} to Qnet, sort NeList{Queue{X}} to NeQnet,
-                                op nil : -> List{Queue{X}} to nilQnet, op __  to _`,_ ) .
+ is protecting ELIST{Queue{X}} * (sort Elist{Queue{X}} to Qnet, sort NeElist{Queue{X}} to NeQnet,
+                                 sort List{Queue{X}} to List{Queue}, sort NeElist{Queue{X}} to NeElist{Queue},
+                                 op nil : -> List{Queue{X}} to nilQnet ).
  vars Q Q' : Queue .
- vars QN QN' : Qnet .
- 
- op ordered : Qnet -> Bool [memo] . *** checks for ordering (notice that ordered implies with no repeated priority)
- ceq ordered(QN, Q, Q', QN') = false if ts(Q) >= ts(Q') .
- eq ordered(QN) = true [owise] .
+ vars LQ LQ' : List{Queue} .
+ op ordered : List{Queue} -> Bool [memo] . *** checks for ordering (notice that ordered implies with no repeated priority)
+ ceq ordered(LQ, Q, Q', LQ') = false if ts(Q) >= ts(Q') .
+ eq ordered(LQ) = true [owise] .
 
- op firstNe : NeQnet -> [Queue] . *** the first non-empty queue, if any
- eq firstNe(Q, QN) = if empty(Q) == false then Q else firstNe(QN) fi .  
+ op firstNe : List{Queue} -> [Queue] . *** the first non-empty queue, if any
+ eq firstNe(Q, LQ) = if empty(Q) == false then Q else firstNe(LQ) fi .  
  
 endfm
 
@@ -53,13 +55,16 @@ endv
 in ../ALG-PN
 
 mod MFQ{X :: TRIV} is
- pr MS-MARKING-STR{Task{X}} *  (sort PmsMarking{Task{X}} to PmsMarking{Task}, 
+ pr MARKING-STR{Task{X}} *  (sort Pmarking{Task{X}} to Pmarking{Task}, 
                                sort  Mset{Task{X}} to  Mset{Task}, sort NeMset{Task{X}} to  NeMset{Task}, op empty{Task{X}} to empty{Task}) .
- pr MS-MARKING-STR{Qnet{X}} * (sort PmsMarking{Qnet{X}} to PmsMarking{Qnet}, sort Mset{Qnet{X}} to Mset{Qnet}, sort NeMset{Qnet{X}} to NeMset{Qnet},
-                                op empty{Qnet{X}} to  empty{Qnet}, op mark to markQ ) . *** renaming mark is mandatory
+ pr MARKING-STR{Qnet{X}} * (sort Pmarking{Qnet{X}} to Pmarking{Qnet}, sort Mset{Qnet{X}} to Mset{Qnet}, sort NeMset{Qnet{X}} to NeMset{Qnet},
+                                op empty{Qnet{X}} to  empty{Qnet}, op mark to markQnet) . *** renaming mark is mandatory
+ *** uncomment if you want to represent the place "fail" as a normal place
+ *** pr MARKING-STR{Queue{X}}  * (sort Pmarking{Queue{X}} to Pmarking{Queue}, sort Mset{Queue{X}} to Mset{Queue}, sort NeMset{Queue{X}} to NeMset{Queue},
+ ***                               op empty{Queue{X}} to empty{Queue}, op mark to markQ ) . *** renaming mark is mandatory
 
  vars Q Q' : Queue .
- vars QN QN' : Qnet .
+ vars LQ LQ' LQ'' : List{Queue} .
  var T : Task .
  var B : Mset{Task} .
  var L : List{Task} .
@@ -68,30 +73,34 @@ mod MFQ{X :: TRIV} is
 
  
  *** append a task (selected non deterministically) to the header queue
-  rl [assign] : p("queue") |-> Q, QN ;  p("task") |-> T B => p("queue") |-> add(Q, T), QN ; p("task") |-> B  .
+  rl [assign] : p("queue") |-> [Q, LQ] ;  p("task") |-> T B => p("queue") |-> [add(Q, T), LQ] ; p("task") |-> B  .
 *** serve a task that finishes its residual time burst
-crl [serve-exhausted] : p("queue") |-> QN, Q, QN' ;  p("served") |-> B  => p("queue") |-> QN, (q: L ts: K), QN' ;  p("served") |-> B (X @ 0) 
-      if Q = firstNe(QN, Q) /\ (q: X @ K', L ts: K) := Q /\ K' <= K .  
+crl [serve-exhausted] : p("queue") |-> [LQ, Q, LQ'] ;  p("served") |-> B  => p("queue") |-> [LQ, (q: L ts: K), LQ'] ;  p("served") |-> B (X @ 0) 
+      if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' <= K .  
 *** serve a task that doesn't exhaust its burst, by appending the task to the next-level queue
-crl [serve-notexh-shift] : p("queue") |-> QN, Q, Q', QN'  => p("queue") |-> QN, (q: L ts: K), add(Q', X @ K' - K), QN'  
-      if Q = firstNe(QN, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
+crl [serve-notexh-shift] : p("queue") |-> [LQ, Q, Q', LQ']  => p("queue") |-> [LQ, (q: L ts: K), add(Q', X @ K' - K), LQ']  
+      if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
 *** serve a task that doesn't exhaust its burst, in the event the queue is the last (possibly the only)
-crl [serve-notexh-last] : p("queue") |-> QN, Q  => p("queue") |-> QN, (q: L, X @ K' - K ts: K)  
-      if Q = firstNe(QN, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
+crl [serve-notexh-last] : p("queue") |-> [LQ, Q]  => p("queue") |-> [LQ, (q: L, X @ K' - K ts: K)]  
+      if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
+*** simulates a failure on a queue in the network
+rl [fail] :  p("queue") |-> [LQ, Q, LQ'] ; p("fail") |-> [LQ'']  => p("queue") |-> [LQ, LQ'] ; p("fail") |-> [LQ'', Q] .
 
 endm
 
 *** instance of MFQ using strings as task labels
-mod MFQ-STR is
-   inc MFQ{String} . 
-   op burst : String -> [NzNat] [memo].
+mod MFQ-STR is 
+   inc MFQ{String} * (sort Marking to Mfq, sort Pmarking to Pmfq) . 
+   op burst : String -> [NzNat] [memo] .
    eq burst("a") = 1 .
    eq burst("b") = 4 .
+   eq burst("c") = 5 .
    op tsk : String -> [Task] .
    var s : String .
    eq tsk(s) = s @ burst(s) .
-   op m0 : -> Marking [memo] . 
-   eq m0 =  p("queue") |-> (q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf)  ; p("task") |-> tsk("a") tsk("a")tsk("b")  ; p("served") |-> empty{Task} . 
+   op m0 : -> Mfq [memo] . 
+   eq m0 =  p("queue") |-> [(q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf)]  ; p("task") |-> tsk("c") tsk("a") tsk("a") tsk("a") tsk("b") tsk("b") tsk("b")  ; 
+                           p("served") |-> empty{Task} ; p("fail") |-> [nilQnet] . 
    var T : Task .
    vars B B' : Mset{Task} .
    *** uncomment the following rule if you want the model becomes live (otherwise it enters an absorbing state)
@@ -99,5 +108,5 @@ mod MFQ-STR is
 endm
 
 view Mfq from TRIV to MFQ-STR is
-   sort Elt to Marking .
+   sort Elt to Mfq .
 endv 

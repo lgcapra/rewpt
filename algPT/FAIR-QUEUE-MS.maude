@@ -5,8 +5,8 @@ in ALG-PN
 
 *** version using MSET
 mod FAIR-QUEUE-MS{X :: TRIV} is
- pr MS-MARKING-STR{X} .
- pr MS-MARKING-STR{Elist{X}} * (op mark to markL ) . *** renaming mark is mandatory  
+ pr MARKING-STR{X} .
+ pr MARKING-STR{Elist{X}} * (op mark to markL ) . *** renaming mark is mandatory  
  
  *** op init : -> Marking . *** alias - intial marking
  *** eq init =  p("queue") |-> [niL{X}] [niL{X}] ; p("task") |-> X Y Y Z Z Z . 

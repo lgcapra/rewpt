@@ -4,7 +4,7 @@ in ../PLACE
 **** Algebraic PN specification ***
 
 *** abstract specification of an algebraic net's marking
-fmod ALGPN-MARKING{PL :: TRIV} is 
+fmod ALG-PN-MARKING{PL :: TRIV} is 
  protecting PLACE{PL}  .
  protecting EXT-BOOL .
  sorts Pmarking Marking .
@@ -27,57 +27,57 @@ endfm
 
 *** AL-PN submarking of specific type (1st parameter) parametric in the label of places
 fmod B-MARKING{X :: TRIV, PL :: TRIV} is
-  extending ALGPN-MARKING{PL} .
+  extending ALG-PN-MARKING{PL} .
   *** protecting MSET-BAG{X}  . *** if we want to use both representations
   protecting BAG{X} .
-  sort Pmarking{X} .
-  subsort Pmarking{X} < Pmarking . 
-  op _|->_ : Place{PL} Bag{X} -> Pmarking{X} [ctor] .
+  sort Bpmarking{X} .
+  subsort Bpmarking{X} < Pmarking . 
+  op _|->_ : Place{PL} Bag{X} -> Bpmarking{X} [ctor] .
   var B  : Bag{X} .
   var P  : Place{PL} .
   eq place(P |-> B) = P .
-  op mark : Pmarking{X} -> Bag{X} . *** careful! must be renamed when importing multiple times the module 
+  op mark : Bpmarking{X} -> Bag{X} . *** careful! must be renamed when importing multiple times the module 
   eq mark(P |-> B) = B .
   ***  we may also introduce the sort Marking{X} 
-  ***  sorts Pmarking{X}  Marking{X} .
-  **** subsort Pmarking{X} < Pmarking Marking{X} .
-  ***  subsort Marking{X}  < Marking .
-  ***  op _|->_ : Place{PL} Bag{X} -> Pmarking{X} [ctor] .
-  **** op _;_ : Marking{X} Marking{X} -> Marking{X} [ctor ditto] . *** overloading
+  ***  sort  Bmarking{X} .
+  **** subsort Bpmarking{X} < Bmarking{X} .
+  ***  subsort Bmarking{X}  < Marking .
+  ***  op _|->_ : Place{PL} Bag{X} -> Bpmarking{X} [ctor] .
+  **** op _;_ : Bmarking{X} Bmarking{X} -> Bmarking{X} [ctor ditto] . *** overloading
 endfm
 
 
 *** alternative (similar) representation of place marking based on MSET
-fmod MS-MARKING{X :: TRIV, PL :: TRIV} is
-  extending ALGPN-MARKING{PL} .
+fmod MARKING{X :: TRIV, PL :: TRIV} is
+  extending ALG-PN-MARKING{PL} .
   *** protecting MSET-BAG{X} .
   protecting MSET{X} .
-  sort PmsMarking{X} .
-  subsort PmsMarking{X} < Pmarking .
-  op _|->_ : Place{PL} Mset{X} -> PmsMarking{X} [ctor] .
+  sort Pmarking{X} .
+  subsort Pmarking{X} < Pmarking .
+  op _|->_ : Place{PL} Mset{X} -> Pmarking{X} [ctor] .
   var B  : Mset{X} .
   var P  : Place{PL} .
   eq place(P |-> B) = P .
-  op mark : PmsMarking{X} -> Mset{X} . *** careful! must be renamed when importing the module multiple times
+  op mark : Pmarking{X} -> Mset{X} . *** careful! must be renamed when importing the module multiple times
   eq mark(P |-> B) = B .
-  *** sorts PmsMarking{X}  MsetMarking{X} .
-  *** subsort PmsMarking{X} < Pmarking MsetMarking{X} .
-  *** subsort MsetMarking{X}  < Marking .
-  *** op _;_ : MsetMarking{X} MsetMarking{X} -> MsetMarking{X} [ctor ditto] . *** overloading
+  *** sort Marking{X} .
+  *** subsort Pmarking{X} < Marking{X} .
+  *** subsort Marking{X}  < Marking .
+  *** op _;_ : Marking{X} Marking{X} -> Marking{X} [ctor ditto] . *** overloading
 endfm
 
 *** partial instantiation of B-MARKING using strings as place labels
 fmod B-MARKING-STR{X :: TRIV} is
    pr B-MARKING{TRIV,String}{X} * (sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X},
-                  sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}, sort Pmarking{TRIV}{X} to Pmarking{X}
+                  sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}, sort Bpmarking{TRIV}{X} to Bpmarking{X}
                   *** , sort Mset{TRIV}{X} to Mset{X}, op empty{TRIV}{X} to empty{X}
                   ) .
 endfm
 
-*** partial instantiation of MS-MARKING using strings as place labels
-fmod MS-MARKING-STR{X :: TRIV} is
-   pr MS-MARKING{TRIV,String}{X} * (sort Mset{TRIV}{X} to Mset{X}, sort NeMset{TRIV}{X} to NeMset{X}, op empty{TRIV}{X} to empty{X},
-        sort PmsMarking{TRIV}{X} to PmsMarking{X}
+*** partial instantiation of MARKING using strings as place labels
+fmod MARKING-STR{X :: TRIV} is
+   pr MARKING{TRIV,String}{X} * (sort Mset{TRIV}{X} to Mset{X}, sort NeMset{TRIV}{X} to NeMset{X}, op empty{TRIV}{X} to empty{X},
+        sort Pmarking{TRIV}{X} to Pmarking{X}
         *** , sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X}, sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}
         ) .
 endfm
