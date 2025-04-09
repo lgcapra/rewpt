@@ -3,45 +3,48 @@ in ../ELIST
 
 *** Round Robin (FIFO) queue - builds on predefined module LIST and on module TASK
 fmod QUEUE{X :: TRIV} is
- protecting LIST{Task{X}} * (sort List{Task{X}} to List{Task}, sort NeList{Task{X}} to NeList{Task}, op __  to _`,_ ) .
- sorts Queue NeQueue .
- subsort NeQueue < Queue .
- op q:_ts:_ : List{Task} NzNat -> Queue .
+ protecting LIST{Task{X}} * (
+      *** sort List{Task{X}} to List{Task}, sort NeList{Task{X}} to NeList{Task}, 
+      op __  to _`,_ ) .
+ sorts Queue{X} NeQueue{X} .
+ subsort NeQueue{X} < Queue{X} .
+ op q:_ts:_ : List{Task{X}} NzNat -> Queue{X} .
  op inf : -> NzNat [memo] . *** alias for a big value representing the infinity
  eq inf = 10000 .
  var K : NzNat .
- var L : List{Task} .
- var T : Task .
- var Q : Queue .
- mb (q: NeL:NeList{Task} ts: K) : NeQueue . 
- op ts : Queue -> NzNat . *** time slice of the queue (infinite means fifo)
- op q :  Queue -> List{Task} . *** list of tasks
+ var L : List{Task{X}} .
+ var T : Task{X} .
+ var Q : Queue{X} .
+ mb (q: NeL:NeList{Task{X}} ts: K) : NeQueue{X} . 
+ op ts : Queue{X} -> NzNat . *** time slice of the queue (infinite means fifo)
+ op q :  Queue{X} -> List{Task{X}} . *** list of tasks
  eq ts(q: L ts: K) = K .
  eq q(q: L ts: K)  = L .
- op add : Queue Task -> NeQueue .
+ op add : Queue{X} Task{X} -> NeQueue{X} .
  eq add((q: L ts: K), T) = q: L, T ts: K .
- op empty : Queue -> Bool .
+ op empty : Queue{X} -> Bool .
  eq empty(Q) = q(Q) == nil .
 endfm
 
 *** parameterized trivial view
 view Queue{X :: TRIV} from TRIV to QUEUE{X} is 
- sort Elt to Queue . 
+ sort Elt to Queue{X} . 
 endv
 
 *** a network of queues
 *** op __  to _`,_  
 fmod QUEUE-NET{X :: TRIV} 
- is protecting ELIST{Queue{X}} * (sort Elist{Queue{X}} to Qnet, sort NeElist{Queue{X}} to NeQnet,
-                                 sort List{Queue{X}} to List{Queue}, sort NeElist{Queue{X}} to NeElist{Queue},
+ is protecting ELIST{Queue{X}} * (sort Elist{Queue{X}} to Qnet{X}, sort NeElist{Queue{X}} to NeQnet{X},
                                  op nil : -> List{Queue{X}} to nilQnet ).
- vars Q Q' : Queue .
- vars LQ LQ' : List{Queue} .
- op ordered : List{Queue} -> Bool [memo] . *** checks for ordering (notice that ordered implies with no repeated priority)
+ *** sort List{Queue{X}} to List{Queue}, sort NeList{Queue{X}} to NeList{Queue},
+                                 
+ vars Q Q' : Queue{X} .
+ vars LQ LQ' : List{Queue{X}} .
+ op ordered : List{Queue{X}} -> Bool [memo] . *** checks for ordering (notice that ordered implies with no repeated priority)
  ceq ordered(LQ, Q, Q', LQ') = false if ts(Q) >= ts(Q') .
  eq ordered(LQ) = true [owise] .
 
- op firstNe : List{Queue} -> [Queue] . *** the first non-empty queue, if any
+ op firstNe : List{Queue{X}} -> [Queue{X}] . *** the first non-empty queue, if any
  eq firstNe(Q, LQ) = if empty(Q) == false then Q else firstNe(LQ) fi .  
  
 endfm
@@ -49,25 +52,32 @@ endfm
 
 *** parameterized trivial view
 view Qnet{X :: TRIV} from TRIV to QUEUE-NET{X} is 
- sort Elt to Qnet . 
+ sort Elt to Qnet{X} . 
 endv
 
 in ../ALG-PN
 
 mod MFQ{X :: TRIV} is
- pr MARKING-STR{Task{X}} *  (sort Pmarking{Task{X}} to Pmarking{Task}, 
-                               sort  Mset{Task{X}} to  Mset{Task}, sort NeMset{Task{X}} to  NeMset{Task}, op empty{Task{X}} to empty{Task}) .
- pr MARKING-STR{Qnet{X}} * (sort Pmarking{Qnet{X}} to Pmarking{Qnet}, sort Mset{Qnet{X}} to Mset{Qnet}, sort NeMset{Qnet{X}} to NeMset{Qnet},
-                                op empty{Qnet{X}} to  empty{Qnet}, op mark to markQnet) . *** renaming mark is mandatory
+ pr MARKING-STR{Task{X}}  .
+           *** sort Pmarking{Task{X}} to Pmarking{Task}, 
+           ***                    sort  Mset{Task{X}} to  Mset{Task}, sort NeMset{Task{X}} to  NeMset{Task}, op empty{Task{X}} to empty{Task}
+           *** ) .
+ pr MARKING-STR{Qnet{X}} * (
+                     *** sort Pmarking{Qnet{X}} to Pmarking{Qnet}, sort Mset{Qnet{X}} to Mset{Qnet}, sort NeMset{Qnet{X}} to NeMset{Qnet},
+                     *** op empty{Qnet{X}} to  empty{Qnet}, 
+                       op mark to markQnet) . *** renaming mark is mandatory
  *** uncomment if you want to represent the place "fail" as a normal place
- *** pr MARKING-STR{Queue{X}}  * (sort Pmarking{Queue{X}} to Pmarking{Queue}, sort Mset{Queue{X}} to Mset{Queue}, sort NeMset{Queue{X}} to NeMset{Queue},
- ***                               op empty{Queue{X}} to empty{Queue}, op mark to markQ ) . *** renaming mark is mandatory
+ pr MARKING-STR{Queue{X}}  * (
+                             *** sort Pmarking{Queue{X}} to Pmarking{Queue}, sort Mset{Queue{X}} to Mset{Queue}, sort NeMset{Queue{X}} to NeMset{Queue},
+                             ***   op empty{Queue{X}} to empty{Queue}, 
+                             op mark to markQ ) . *** renaming mark is mandatory
 
- vars Q Q' : Queue .
- vars LQ LQ' LQ'' : List{Queue} .
- var T : Task .
- var B : Mset{Task} .
- var L : List{Task} .
+ vars Q Q' : Queue{X} .
+ vars LQ LQ' LQ'' : List{Queue{X}} .
+ var T : Task{X} .
+ var B : Mset{Task{X}} .
+ var L : List{Task{X}} .
+ var MQ : Mset{Queue{X}} .
  vars K K' : NzNat .
  var X : X$Elt .
 
@@ -84,29 +94,40 @@ crl [serve-notexh-shift] : p("queue") |-> [LQ, Q, Q', LQ']  => p("queue") |-> [L
 crl [serve-notexh-last] : p("queue") |-> [LQ, Q]  => p("queue") |-> [LQ, (q: L, X @ K' - K ts: K)]  
       if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
 *** simulates a failure on a queue in the network
-rl [fail] :  p("queue") |-> [LQ, Q, LQ'] ; p("fail") |-> [LQ'']  => p("queue") |-> [LQ, LQ'] ; p("fail") |-> [LQ'', Q] .
+rl [fail] :  p("queue") |-> [LQ, Q, LQ'] ; p("fail") |-> MQ  => p("queue") |-> [LQ, LQ'] ; p("fail") |-> Q MQ .
 
 endm
 
+*** the MFQ module with some renaming to use as base-level
+mod MFQ-BASE{X :: TRIV} is 
+    inc MFQ{X} * (op p to bl-p, sort Marking to BL-Marking, sort Pmarking to BL-Pmarking, sort Pmarking{Queue} to BL-Pmarking{Queue}, sort Pmarking{Qnet} to BL-Pmarking{Qnet},
+                  sort Pmarking{Task{X}} to BL-Pmarking{Task{X}}) . 
+endm
+
+view MfqBase{X :: TRIV} from TRIV to MFQ-BASE{X} is
+    sort Elt to BL-Marking . 
+endv
+
 *** instance of MFQ using strings as task labels
 mod MFQ-STR is 
-   inc MFQ{String} * (sort Marking to Mfq, sort Pmarking to Pmfq) . 
+   inc MFQ{String} . 
    op burst : String -> [NzNat] [memo] .
    eq burst("a") = 1 .
    eq burst("b") = 4 .
    eq burst("c") = 5 .
-   op tsk : String -> [Task] .
+   op tsk : String -> [Task{String}] .
    var s : String .
    eq tsk(s) = s @ burst(s) .
-   op m0 : -> Mfq [memo] . 
-   eq m0 =  p("queue") |-> [(q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf)]  ; p("task") |-> tsk("c") tsk("a") tsk("a") tsk("a") tsk("b") tsk("b") tsk("b")  ; 
-                           p("served") |-> empty{Task} ; p("fail") |-> [nilQnet] . 
-   var T : Task .
-   vars B B' : Mset{Task} .
+   op m0 : -> [Marking] [memo] .
+   var LQ : List{Queue{String}} .
+  ceq m0 =  p("queue") |-> [LQ]  ; p("task") |-> tsk("c") tsk("a") tsk("a") tsk("b") tsk("b")  ; 
+            p("served") |-> empty{Task{String}} ; p("fail") |-> empty{Queue{String}} if LQ := (q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf) /\ ordered(LQ) .                         
    *** uncomment the following rule if you want the model becomes live (otherwise it enters an absorbing state)
-   *** rl [reset] : p("served") |-> B s @ 0 ; p("task") |->  B' => p("served") |-> B ; p("task") |->  B' tsk(s) .
+   var T : Task{String} .
+   vars B B' : Mset{Task{String}} .
+   rl [reset] : p("served") |-> B s @ 0 ; p("task") |->  B' => p("served") |-> B ; p("task") |->  B' tsk(s) .
 endm
 
 view Mfq from TRIV to MFQ-STR is
-   sort Elt to Mfq .
+   sort Elt to Marking .
 endv 
