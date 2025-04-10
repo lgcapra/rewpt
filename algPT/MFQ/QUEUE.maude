@@ -27,7 +27,7 @@ fmod QUEUE{X :: TRIV-NZ} is
 endfm
 
 *** parameterized trivial view
-view Queue{X :: TRIV} from TRIV to QUEUE{X} is 
+view Queue{X :: TRIV-NZ} from TRIV to QUEUE{X} is 
  sort Elt to Queue{X} . 
 endv
 
@@ -51,7 +51,7 @@ endfm
 
 
 *** parameterized trivial view
-view Qnet{X :: TRIV-NZ} from TRIV-NZ to QUEUE-NET{X} is 
+view Qnet{X :: TRIV-NZ} from TRIV to QUEUE-NET{X} is 
  sort Elt to Qnet{X} . 
 endv
 
@@ -65,7 +65,7 @@ mod MFQ{X :: TRIV-NZ} is
  vars Q Q' : Queue{X} .
  vars LQ LQ' LQ'' : List{Queue{X}} .
  var T : Task{X} .
- var B : Mset{Task{X}} .
+ vars B B' : Mset{Task{X}} .
  var L : List{Task{X}} .
  var MQ : Mset{Queue{X}} .
  vars K K' : NzNat .
@@ -76,13 +76,16 @@ mod MFQ{X :: TRIV-NZ} is
 crl [serve-exhausted] : p("queue") |-> [LQ, Q, LQ'] ;  p("served") |-> B  => p("queue") |-> [LQ, (q: L ts: K), LQ'] ;  p("served") |-> B (X @ 0) 
       if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' <= K .  
 *** serve a task that doesn't exhaust its burst, by appending the task to the next-level queue
-crl [serve-notexh-shift] : p("queue") |-> [LQ, Q, Q', LQ']  => p("queue") |-> [LQ, (q: L ts: K), add(Q', X @ K' - K), LQ']  
+crl [serve-notexh-shift] : p("queue") |-> [LQ, Q, Q', LQ']  => p("queue") |-> [LQ, (q: L ts: K), add(Q', X @ sd(K', K)), LQ']  
       if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
 *** serve a task that doesn't exhaust its burst, in the event the queue is the last (possibly the only)
-crl [serve-notexh-last] : p("queue") |-> [LQ, Q]  => p("queue") |-> [LQ, (q: L, X @ K' - K ts: K)]  
+crl [serve-notexh-last] : p("queue") |-> [LQ, Q]  => p("queue") |-> [LQ, (q: L, X @ sd(K', K) ts: K)]  
       if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
+*** uncomment the following rule if you want the model becomes live (otherwise it enters an absorbing state)
+*** rl [reset] : p("served") |-> B X @ 0 ; p("task") |->  B' => p("served") |-> B ; p("task") |->  B' tsk(X) .
+
 *** simulates a failure on a queue in the network
-rl [fail] :  p("queue") |-> [LQ, Q, LQ'] ; p("fail") |-> MQ  => p("queue") |-> [LQ, LQ'] ; p("fail") |-> Q MQ .
+*** rl [fail] :  p("queue") |-> [LQ, Q, LQ'] ; p("fail") |-> MQ  => p("queue") |-> [LQ, LQ'] ; p("fail") |-> Q MQ .
 
 endm
 
@@ -95,26 +98,15 @@ endm
 
 
 *** parametric view to BL-MFQ
-view Mfq{X :: TRIV-NZ} from TRIV-NZ to BL-MFQ{X} is
+view Mfq{X :: TRIV-NZ} from TRIV to BL-MFQ{X} is
     sort Elt to BL-Marking . 
 endv
 
 *** instance of MFQ using strings as task labels
 mod MFQ-STR is 
-   inc MFQ{String} . 
-   op burst : String -> [NzNat] [memo] .
-   eq burst("a") = 1 .
-   eq burst("b") = 4 .
-   eq burst("c") = 5 .
-   op tsk : String -> [Task{String}] .
-   var s : String .
-   eq tsk(s) = s @ burst(s) .
+   inc MFQ{Burst} . 
    op m0 : -> [Marking] [memo] .
-   var LQ : List{Queue{String}} .
+   var LQ : List{Queue{Burst}} .
   ceq m0 =  p("queue") |-> [LQ]  ; p("task") |-> tsk("c") tsk("a") tsk("a") tsk("b") tsk("b")  ; 
-            p("served") |-> empty{Task{String}} ; p("fail") |-> empty{Queue{String}} if LQ := (q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf) /\ ordered(LQ) .                         
-   *** uncomment the following rule if you want the model becomes live (otherwise it enters an absorbing state)
-   var T : Task{String} .
-   vars B B' : Mset{Task{String}} .
-   rl [reset] : p("served") |-> B s @ 0 ; p("task") |->  B' => p("served") |-> B ; p("task") |->  B' tsk(s) .
+            p("served") |-> empty{Task{Burst}} ; p("fail") |-> empty{Queue{Burst}} if LQ := (q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf) /\ ordered(LQ) .                         
 endm

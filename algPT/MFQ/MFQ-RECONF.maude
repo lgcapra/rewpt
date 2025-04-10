@@ -1,11 +1,12 @@
 in QUEUE
 
 mod MFQ-RECONF is
-  inc MARKING-STR{Mfq{String}} . *** this way meta-level places are directly recognizable (no renaming needed)
-  inc MARKING-STR{Queue{String}} * ( *** sort Mset{Queue{String}} to Mset{Queue}, sort NeMset{Queue{String}} to NeMset{Queue}, 
+  inc MARKING-STR{Mfq{Burst}} . *** this way meta-level places are directly recognizable (no renaming needed)
+  inc MARKING-STR{Queue{Burst}} * ( *** sort Mset{Queue{String}} to Mset{Queue}, sort NeMset{Queue{String}} to NeMset{Queue}, 
                                       *** op empty{Queue{String}} to empty{Queue}, 
                                       *** sort Pmarking{Queue{String}} to Pmarking{Queue}, 
                                       op mark to markT) .
   op meta-m0 : -> [Marking] .
+  
   *** eq meta-m0 = p("reconf") |-> m0 .
 endm
