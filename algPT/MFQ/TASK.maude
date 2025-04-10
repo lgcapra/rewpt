@@ -1,21 +1,47 @@
-*** a task is described by a label (any type) and the residual burst time
-fmod TASK{X :: TRIV} is
-  pr INT .
+*** extension of TRIV with a map to non-zero nats
+fth TRIV-NZ is
+  inc TRIV .
+  pr NAT .
+  op m : Elt -> [NzNat] .
+endfth
+
+
+*** a task is described by a label of type TRIV-NZ and the residual burst time
+fmod TASK{X :: TRIV-NZ} is
   sort Task{X} . 
   op  _@_ : X$Elt Nat -> Task{X}  [ctor prec 40]  .
   op lab : Task{X} -> X$Elt [memo] . *** task's descriptor
   op time  : Task{X} -> Nat . *** task's left burst time
-  op dec : Task{X} NzNat -> Task{X} . *** decrease task's time
   op set : Task{X} Nat -> Task{X} . *** set task's time
+  op tsk : X$Elt -> [Task{X}] .  *** constructor
   vars N N' : Nat . var K : NzNat . 
   var L : X$Elt .
   eq lab(L @ N) = L .
   eq time(L @ N) = N .
-  eq dec(L @ N, K) = L @ max(0, N - K) .
   eq set(L @ N, N') = L @ N' .
+  eq tsk(L) = L @ m(L) .
 endfm 
 
 *** parametric trivial view of TASK
-view Task{X :: TRIV} from TRIV to TASK{X} is
+view Task{X :: TRIV-NZ} from TRIV to TASK{X} is
   sort Elt to Task{X} .
 endv
+
+fmod BURST is
+   pr STRING .
+   pr NAT .
+   op burst : String -> [NzNat] [memo] .
+   eq burst("a") = 1 .
+   eq burst("b") = 4 .
+   eq burst("c") = 5 .
+endfm
+
+*** view of TRIV_NZ to BURS
+view Burst from TRIV-NZ to BURST is
+    sort Elt to String . 
+    op m to burst .
+endv
+
+fmod TASK-S is 
+  pr TASK{Burst} * (sort Task{Burst} to Task) .
+endfm

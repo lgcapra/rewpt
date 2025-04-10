@@ -2,7 +2,7 @@ in TASK
 in ../ELIST
 
 *** Round Robin (FIFO) queue - builds on predefined module LIST and on module TASK
-fmod QUEUE{X :: TRIV} is
+fmod QUEUE{X :: TRIV-NZ} is
  protecting LIST{Task{X}} * (
       *** sort List{Task{X}} to List{Task}, sort NeList{Task{X}} to NeList{Task}, 
       op __  to _`,_ ) .
@@ -33,7 +33,7 @@ endv
 
 *** a network of queues
 *** op __  to _`,_  
-fmod QUEUE-NET{X :: TRIV} 
+fmod QUEUE-NET{X :: TRIV-NZ} 
  is protecting ELIST{Queue{X}} * (sort Elist{Queue{X}} to Qnet{X}, sort NeElist{Queue{X}} to NeQnet{X},
                                  op nil : -> List{Queue{X}} to nilQnet ).
  *** sort List{Queue{X}} to List{Queue}, sort NeList{Queue{X}} to NeList{Queue},
@@ -51,13 +51,13 @@ endfm
 
 
 *** parameterized trivial view
-view Qnet{X :: TRIV} from TRIV to QUEUE-NET{X} is 
+view Qnet{X :: TRIV-NZ} from TRIV-NZ to QUEUE-NET{X} is 
  sort Elt to Qnet{X} . 
 endv
 
 in ../ALG-PN
 
-mod MFQ{X :: TRIV} is
+mod MFQ{X :: TRIV-NZ} is
  pr MARKING-STR{Task{X}}  .
  pr MARKING-STR{Qnet{X}}   * (op mark to markQnet) . *** renaming mark is mandatory
  pr MARKING-STR{Queue{X}}  * ( op mark to markQ )  .  *** renaming mark is mandatory
@@ -87,29 +87,15 @@ rl [fail] :  p("queue") |-> [LQ, Q, LQ'] ; p("fail") |-> MQ  => p("queue") |-> [
 endm
 
 *** the MFQ module with some renaming to use as base-level
-mod BL-MFQ{X :: TRIV} is 
+mod BL-MFQ{X :: TRIV-NZ} is 
     inc MFQ{X} * (sort Place{String} to BL-Place{String}, op p to bl-p, sort Marking to BL-Marking, sort Pmarking to BL-Pmarking,
           sort Pmarking{Queue{X}} to BL-Pmarking{Queue{X}}, sort Pmarking{Qnet{X}} to BL-Pmarking{Qnet{X}},
           sort Pmarking{Task{X}} to BL-Pmarking{Task{X}}) . 
 endm
 
-th MAP-TO-NAT is
-  inc TRIV .
-  pr NAT .
-  op m : Elt -> [NzNat] .
-endth
-
-mod BURST is
-   pr STRING .
-   pr NAT .
-   op burst : String -> [NzNat] [memo] .
-   eq burst("a") = 1 .
-   eq burst("b") = 4 .
-   eq burst("c") = 5 .
-endm
 
 *** parametric view to BL-MFQ
-view Mfq{X :: TRIV} from TRIV to BL-MFQ{X} is
+view Mfq{X :: TRIV-NZ} from TRIV-NZ to BL-MFQ{X} is
     sort Elt to BL-Marking . 
 endv
 
