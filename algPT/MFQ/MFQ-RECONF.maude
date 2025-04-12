@@ -1,13 +1,26 @@
 in QUEUE
 
 mod MFQ-RECONF is
-  *** inc MARKING-STR{BL-Mfq{Burst}} . *** this way meta-level places are directly recognizable (no renaming needed)
-  inc MARKING-STR{Mfq} . *** this way meta-level places are directly recognizable (no renaming needed)
-  inc MARKING-STR{Queue{Burst}} * ( *** sort Mset{Queue{String}} to Mset{Queue}, sort NeMset{Queue{String}} to NeMset{Queue}, 
-                                      *** op empty{Queue{String}} to empty{Queue}, 
-                                      *** sort Pmarking{Queue{String}} to Pmarking{Queue}, 
-                                      op mark to markT) .
-  op meta-m0 : -> [Marking] .
-  
-  eq meta-m0 = p("reconf") |-> m0 .
+  inc MARKING-STR{Mfq} . 
+  inc MARKING-STR{Queue{Burst}} * ( op mark to markT) .
+  op meta-m0 : -> [Marking] . 
+  eq meta-m0 = p("mfq") |-> m0 ; p("recover") |-> empty{Queue{Burst}} .
+
+  vars Q Q' : Queue{Burst} .
+  vars LQ LQ' LQ'' : List{Queue{Burst}} .
+  var T : Task{Burst} .
+  vars B B' : Mset{Task{Burst}} .
+  var L : List{Task{Burst}} .
+  var MQ : Mset{Queue{Burst}} .
+  vars K K' : NzNat .
+  var M : BL-Marking . 
+  *** moves the tasks from a faulty queue to the highest-level queue and brings the faulty queue to repair
+  crl [move-tasks] : p("mfq") |-> (M ; bl-p("queue") |-> [LQ, Q] ; bl-p("fail") |-> Q' MQ) ; 
+      p("recover") |-> empty{Queue{Burst}} => 
+      p("mfq") |-> (M ; bl-p("queue") |-> [LQ, append(Q, L)] ; bl-p("fail") |-> MQ) ; 
+      p("recover") |-> (q: nil ts: K) if (q: L ts: K) := Q' . 
+  *** recover (re-introduce in the network) a repaired queue
+   rl [recover] : p("mfq") |-> (M ; bl-p("queue") |-> [LQ] ) ; p("recover") |-> Q => 
+      p("mfq") |-> (M ; bl-p("queue") |-> [insert(LQ, Q)] ) ;  p("recover") |-> empty{Queue{Burst}} .
+
 endm

@@ -12,7 +12,7 @@ fmod QUEUE{X :: TRIV-NZ} is
  op inf : -> NzNat [memo] . *** alias for a big value representing the infinity
  eq inf = 10000 .
  var K : NzNat .
- var L : List{Task{X}} .
+ vars L L' : List{Task{X}} .
  var T : Task{X} .
  var Q : Queue{X} .
  mb (q: NeL:NeList{Task{X}} ts: K) : NeQueue{X} . 
@@ -20,8 +20,8 @@ fmod QUEUE{X :: TRIV-NZ} is
  op q :  Queue{X} -> List{Task{X}} . *** list of tasks
  eq ts(q: L ts: K) = K .
  eq q(q: L ts: K)  = L .
- op add : Queue{X} Task{X} -> NeQueue{X} .
- eq add((q: L ts: K), T) = q: L, T ts: K .
+ op append : Queue{X} List{Task{X}} -> Queue{X} .
+ eq append((q: L ts: K), L') = q: L, L' ts: K .
  op empty : Queue{X} -> Bool .
  eq empty(Q) = q(Q) == nil .
 endfm
@@ -36,16 +36,22 @@ endv
 fmod QUEUE-NET{X :: TRIV-NZ} 
  is protecting ELIST{Queue{X}} * (sort Elist{Queue{X}} to Qnet{X}, sort NeElist{Queue{X}} to NeQnet{X},
                                  op nil : -> List{Queue{X}} to nilQnet ).
- *** sort List{Queue{X}} to List{Queue}, sort NeList{Queue{X}} to NeList{Queue},
                                  
- vars Q Q' : Queue{X} .
+ vars Q Q' Q'' : Queue{X} .
  vars LQ LQ' : List{Queue{X}} .
- op ordered : List{Queue{X}} -> Bool [memo] . *** checks for ordering (notice that ordered implies with no repeated priority)
+ *** checks for ordering (notice that ordered implies with no repeated time quantum)
+ op ordered : List{Queue{X}} -> Bool [memo] . 
  ceq ordered(LQ, Q, Q', LQ') = false if ts(Q) >= ts(Q') .
  eq ordered(LQ) = true [owise] .
-
+ *** insert a queue in a list of queue assumed ordered (see the definition above)
+ op insert : List{Queue{X}} Queue{X} -> List{Queue{X}} .
+ ceq insert((LQ, Q, Q', LQ'), Q'') = LQ, Q, Q'', Q', LQ' if ts(Q) < ts(Q'') /\ ts(Q'') < ts(Q') . 
+ ceq insert((Q, LQ), Q') = Q', Q, LQ if ts(Q') < ts(Q) .
+ eq insert(LQ, Q) = LQ, Q [owise] .
+ 
  op firstNe : List{Queue{X}} -> [Queue{X}] . *** the first non-empty queue, if any
- eq firstNe(Q, LQ) = if empty(Q) == false then Q else firstNe(LQ) fi .  
+ eq firstNe(Q, LQ) = if empty(Q) == false then Q else firstNe(LQ) fi .
+   
  
 endfm
 
@@ -71,36 +77,24 @@ mod MFQ{X :: TRIV-NZ} is
  vars K K' : NzNat .
  var X : X$Elt .
  *** append a task (selected non deterministically) to the header queue
-  rl [assign] : p("queue") |-> [Q, LQ] ;  p("task") |-> T B => p("queue") |-> [add(Q, T), LQ] ; p("task") |-> B  .
+  rl [assign] : p("queue") |-> [Q, LQ] ;  p("task") |-> T B => p("queue") |-> [append(Q, T), LQ] ; p("task") |-> B  .
 *** serve a task that finishes its residual time burst
 crl [serve-exhausted] : p("queue") |-> [LQ, Q, LQ'] ;  p("served") |-> B  => p("queue") |-> [LQ, (q: L ts: K), LQ'] ;  p("served") |-> B (X @ 0) 
       if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' <= K .  
 *** serve a task that doesn't exhaust its burst, by appending the task to the next-level queue
-crl [serve-notexh-shift] : p("queue") |-> [LQ, Q, Q', LQ']  => p("queue") |-> [LQ, (q: L ts: K), add(Q', X @ sd(K', K)), LQ']  
+crl [serve-notexh-shift] : p("queue") |-> [LQ, Q, Q', LQ']  => p("queue") |-> [LQ, (q: L ts: K), append(Q', X @ sd(K', K)), LQ']  
       if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
 *** serve a task that doesn't exhaust its burst, in the event the queue is the last (possibly the only)
 crl [serve-notexh-last] : p("queue") |-> [LQ, Q]  => p("queue") |-> [LQ, (q: L, X @ sd(K', K) ts: K)]  
       if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
 *** uncomment the following rule if you want the model becomes live (otherwise it enters an absorbing state)
-*** rl [reset] : p("served") |-> B X @ 0 ; p("task") |->  B' => p("served") |-> B ; p("task") |->  B' tsk(X) .
+rl [reset] : p("served") |-> B X @ 0 ; p("task") |->  B' => p("served") |-> B ; p("task") |->  B' tsk(X) .
 
 *** simulates a failure on a queue in the network
-*** rl [fail] :  p("queue") |-> [LQ, Q, LQ'] ; p("fail") |-> MQ  => p("queue") |-> [LQ, LQ'] ; p("fail") |-> Q MQ .
+rl [fail] :  p("queue") |-> [LQ, Q, LQ'] ; p("fail") |-> MQ  => p("queue") |-> [LQ, LQ'] ; p("fail") |-> Q MQ .
 
 endm
 
-*** the MFQ module with some renaming to use as base-level
-mod BL-MFQ{X :: TRIV-NZ} is 
-    inc MFQ{X} * (sort Place{String} to BL-Place{String}, op p to bl-p, sort Marking to BL-Marking, sort Pmarking to BL-Pmarking,
-          sort Pmarking{Queue{X}} to BL-Pmarking{Queue{X}}, sort Pmarking{Qnet{X}} to BL-Pmarking{Qnet{X}},
-          sort Pmarking{Task{X}} to BL-Pmarking{Task{X}}) . 
-endm
-
-
-*** parametric view to BL-MFQ
-view BL-Mfq{X :: TRIV-NZ} from TRIV to BL-MFQ{X} is
-    sort Elt to BL-Marking . 
-endv
 
 *** instance of MFQ using strings as task labels
 mod MFQ-STR is 
