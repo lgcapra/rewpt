@@ -3,17 +3,17 @@ in QUEUE
 mod MFQ-RECONF is
   inc MARKING-STR{Mfq} . 
   inc MARKING-STR{Queue{Burst}} * ( op mark to markT) .
+  
   op meta-m0 : -> [Marking] . 
   eq meta-m0 = p("mfq") |-> m0 ; p("recover") |-> empty{Queue{Burst}} .
 
   vars Q Q' : Queue{Burst} .
   vars LQ LQ' LQ'' : List{Queue{Burst}} .
-  var T : Task{Burst} .
-  vars B B' : Mset{Task{Burst}} .
   var L : List{Task{Burst}} .
   var MQ : Mset{Queue{Burst}} .
-  vars K K' : NzNat .
-  var M : BL-Marking . 
+  var M : BL-Marking .
+  vars K : NzNat .
+   
   *** moves the tasks from a faulty queue to the highest-level queue and brings the faulty queue to repair
   crl [move-tasks] : p("mfq") |-> (M ; bl-p("queue") |-> [LQ, Q] ; bl-p("fail") |-> Q' MQ) ; 
       p("recover") |-> empty{Queue{Burst}} => 

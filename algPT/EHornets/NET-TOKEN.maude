@@ -96,9 +96,9 @@ endfth
 
 *** definition of an eHornet marking parametric vs the net-tokens' and system net's place labels -- net-tokems may be of any type and parametric in turn in node labels
 fmod EHORNET-GEN{L :: TRIV, PL :: TRIV, PL' :: TRIV} is
-   generated-by MS-MARKING{NetToken{L, PL}, PL'} * (sort Mset{NetToken{L, PL}} to Mset{NetToken}, 
+   generated-by MARKING{NetToken{L, PL}, PL'} * (sort Mset{NetToken{L, PL}} to Mset{NetToken}, 
                             sort Bag{NetToken{L, PL}} to Bag{NetToken}, sort NeBag{NetToken{L, PL}} to NeBag{NetToken}, sort ElBag{NetToken{L, PL}} to ElBag{NetToken},
-                            sort  PmsMarking{NetToken{L, PL}} to  PmsMarking{NetToken},
+                            sort  Pmarking{NetToken{L, PL}} to  Pmarking{NetToken},
                             op nil{NetToken{L, PL}} to nil{NetToken}, op empty{NetToken{L, PL}} to empty{NetToken} ) .
    var N : Net .
    vars B B' : Mset{Pbag} . *** compact net-token markings' representation
@@ -128,21 +128,21 @@ endv
 *** alternative eHORNET (marking) definition parameterized in the (sub)type of net-tokens and system-net transitions' lab
 *** all net tokens have the same type - the sort of system net places is renamed for safety
 fmod EHORNET{NT :: NT-TYPE, PL :: TRIV} is
-   generated-by MS-MARKING{NT-TYPE, TRIV}{NT, PL} * (op empty{NT-TYPE}{NT} to empty{NT}, sort Mset{NT-TYPE}{NT} to Mset{NT},
+   generated-by MARKING{NT-TYPE, TRIV}{NT, PL} * (op empty{NT-TYPE}{NT} to empty{NT}, sort Mset{NT-TYPE}{NT} to Mset{NT},
              sort Place{TRIV}{PL} to SysPlace{PL}, 
              op nil{NT-TYPE}{NT} to nil{NT}, sort Bag{NT-TYPE}{NT} to Bag{NT}, sort ElBag{NT-TYPE}{NT} to ElBag{NT}, sort NeBag{NT-TYPE}{NT} to NeBag{NT},
-             sort PmsMarking{NT-TYPE}{NT} to PmsMarking{NT})  .
+             sort Pmarking{NT-TYPE}{NT} to Pmarking{NT})  .
    vars N N' : Net .
    var P : SysPlace{PL} .
    vars B B' : Mset{Pbag} . 
    eq (N B) (N B') = N (B B') . *** compact net-tokens' marking's representation
    eq (N empty{Pbag}) = empty{NT} .
    var MM : Marking .
-   var PM : PmsMarking{NT} .
+   var PM : Pmarking{NT} .
    var M : Pbag .
    var MNT : Mset{NT} .
    var NT : NT$Token .
-   op cum : PmsMarking{NT} Net -> Pbag .
+   op cum : Pmarking{NT} Net -> Pbag .
    eq cum(P |-> (N B) MNT, N) = cum(B) .
    eq cum(PM, N) = nilP [owise] .
    *** the following definition is useful if net tokens were represented by pairs Net Pbag instead of N Mset{Pbag} 

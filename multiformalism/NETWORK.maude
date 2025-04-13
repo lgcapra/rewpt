@@ -1,0 +1,48 @@
+in ../PBAG
+in ../SPN
+
+*** abstract specification of a multiformalism network based on shared places (L is the place label)
+fmod NETWORK{L :: TRIV} is 
+ protecting PBAG{L}  .
+ protecting EXT-BOOL .
+ sorts Node Network System .
+ subsort Node < Network .
+ op _,_ : Network Network -> Network [ctor assoc comm prec 123] .
+ op __ : Network Pbag -> System .
+endfm
+
+fmod QUEUE{L :: TRIV} is 
+  protecting PLACE{L} .
+  protecting FLOAT .
+  protecting NAT .
+  sorts ElQueue MultiQueue Queue QueueComp .
+  subsort ElQueue < MultiQueue < Queue .
+  op _@_ : Nat Float -> ElQueue [ctor] . 
+  op mu : ElQueue -> Float .
+  op len : ElQueue -> Nat .
+  var N : Nat .
+  var F : Float .
+  eq mu(N @ F)  = F .
+  eq len(N @ F) = N .
+
+  op __ : Queue Queue -> MultiQueue [ctor assoc comm prec 121] . *** "parallel" composition
+  op _;_ : Queue Queue -> Queue [ctor assoc prec 121 ] . *** sequential composition
+  op _>_>_ : Place{L} Queue Place{L} -> [QueueComp] [ctor] . *** queue componenent (with I/O places)
+  vars P P' : Place{L} .
+  var Q : Queue .
+ cmb P > Q > P' : QueueComp if P =/= P' .  
+endfm
+
+fmod SPN-Q-NETWORQ{L :: TRIV} is
+  protecting NETWORK{L} .
+  protecting SPN-SIG{String, L} .
+  protecting QUEUE{L} .
+  subsort Net QueueComp < Node .
+  vars N N' : Net .
+  var NW : Network .
+  eq N, N' = N ; N' .
+endfm
+
+fmod MULTI-SPN-Q is
+  pr SPN-Q-NETWORQ{Nat} .
+endfm
