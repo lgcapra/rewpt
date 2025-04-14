@@ -7,7 +7,8 @@ fmod NETWORK{L :: TRIV} is
  protecting EXT-BOOL .
  sorts Node Network NetSys .
  subsort Node < Network .
- op _,_ : Network Network -> Network [ctor assoc comm prec 123] .
+ op emptyNetW : -> Network .
+ op _,_ : Network Network -> Network [ctor assoc comm prec 123 id: emptyNetW] .
  op __ : Network Pbag -> NetSys [ctor prec 125] . *** network with associated state (lowest priority)
  op netw : NetSys -> Network .
  op state : NetSys -> Pbag .
@@ -49,36 +50,48 @@ fmod QUEUE{L :: TRIV} is
   op _>_ : NeElist{ElQueue} Place* -> Queue [ctor] .
   vars Q Q' : ElQueue .
   vars LQ LQ' LQ'' : List{ElQueue} . 
-  var B : Pbag .
-  op In : NeElist{ElQueue}  -> Place{L} . *** queue's input place
-  eq In([Q LQ]) = p(Q) .
-  op clients : Queue Pbag -> [Nat] .
- ceq clients([Q LQ]> P:Place*, B) = clients(Q LQ, B) if well-def(Q LQ) .
-  op clients : List{ElQueue} Pbag -> Nat .
-  eq clients(Q LQ, B) = B[p(Q)] + clients(LQ, B) .
-  eq clients(nil, B) = 0 .
+  var NeLQ : NeList{ElQueue} .
+  var B : Pbag . 
+  var P : Place* .
   op well-def : NeList{ElQueue} -> Bool .
  ceq well-def(LQ Q LQ' Q' LQ'') = false if p(Q) = p(Q') .
   eq well-def(Q LQ) = true [owise] . 
+  op clients : List{ElQueue} Pbag -> [Nat] .
+ ceq clients(Q LQ, B) = B[p(Q)] + clients(LQ, B) if well-def(Q LQ) .
+  eq clients(nil, B) = 0 .
 endfm
 
 
-*** this system module describes the rewriting due to a queue (including the corresponding rate) 
-mod QUEUE-SYS{L :: TRIV} is 
-   *** to do
-
-endm
-
-fmod QSPN-NETWORQ{L :: TRIV} is
+fmod QSPN{L :: TRIV} is
   protecting NETWORK{L} .
   protecting SPN-SIG{String, L} .
   protecting QUEUE{L} .
   subsort Net Queue < Node .
   vars N N' : Net .
   var NW : Network .
-  eq N, N' = N ; N' .
+  eq N, N' = N ; N' . *** equivalent terms are reduced to syntactically identical
 endfm
 
-fmod QSPN is
-  pr QSPN-NETWORQ{Nat} .
-endfm
+*** this system module describes the rewriting of a network (including the corresponding rate) 
+mod QSPN-REW{L :: TRIV} is 
+   inc QSPN{L} .
+   inc CONVERSION .
+   var N : Network .
+   vars Q Q' : ElQueue .
+   vars LQ LQ' LQ'' : List{ElQueue} . 
+   var NeLQ : NeList{ElQueue} . 
+   var P : Place* .
+   vars B B' : Pbag . 
+   var K : NzNat .
+   var rate : Float .
+   crl [inner-t] : (N, [NeLQ]> P) B => (N, [NeLQ]> P) (B - 1 . p(Q)) + 1 . p(Q') if LQ Q Q' LQ := NeLQ 
+         /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ rate := mu(Q) * float(K) / float(clients(NeLQ, B)) .
+   crl [final-t] : (N, [NeLQ]> P) B => (N, [NeLQ]> P) (B - 1 . p(Q)) + 1 . P if LQ Q := NeLQ 
+        /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ rate := mu(Q) * float(K) / float(clients(NeLQ, B)) .
+
+endm
+
+
+mod QSPN-EXE is
+  inc QSPN-REW{Nat} .
+endm
