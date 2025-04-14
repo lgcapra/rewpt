@@ -1,4 +1,4 @@
-in ELIST
+in ../shared/ELIST
 in ALG-PN
 
 *** EXAMPLE:  algebraic net using two (embedded) lists where some tasks are non-deterministically picked up fairly from a repository

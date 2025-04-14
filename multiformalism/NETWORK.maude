@@ -5,44 +5,80 @@ in ../SPN
 fmod NETWORK{L :: TRIV} is 
  protecting PBAG{L}  .
  protecting EXT-BOOL .
- sorts Node Network System .
+ sorts Node Network NetSys .
  subsort Node < Network .
  op _,_ : Network Network -> Network [ctor assoc comm prec 123] .
- op __ : Network Pbag -> System .
+ op __ : Network Pbag -> NetSys [ctor prec 125] . *** network with associated state (lowest priority)
+ op netw : NetSys -> Network .
+ op state : NetSys -> Pbag .
+ var N : Network .
+ var S : Pbag .
+ eq netw((N S))  = N .
+ eq state((N S)) = S .
 endfm
 
-fmod QUEUE{L :: TRIV} is 
+*** single-server elementary queue
+fmod EL-QUEUE{L :: TRIV} is
   protecting PLACE{L} .
   protecting FLOAT .
-  protecting NAT .
-  sorts ElQueue MultiQueue Queue QueueComp .
-  subsort ElQueue < MultiQueue < Queue .
-  op _@_ : Nat Float -> ElQueue [ctor] . 
+  sort ElQueue .
+  op _@_ : Place{L} Float -> ElQueue [prec 19 ctor] . *** an elementary queue is described by a place and a service rate
   op mu : ElQueue -> Float .
-  op len : ElQueue -> Nat .
-  var N : Nat .
+  op p : ElQueue -> Place{L} .
+  var P : Place{L} .
   var F : Float .
-  eq mu(N @ F)  = F .
-  eq len(N @ F) = N .
-
-  op __ : Queue Queue -> MultiQueue [ctor assoc comm prec 121] . *** "parallel" composition
-  op _;_ : Queue Queue -> Queue [ctor assoc prec 121 ] . *** sequential composition
-  op _>_>_ : Place{L} Queue Place{L} -> [QueueComp] [ctor] . *** queue componenent (with I/O places)
-  vars P P' : Place{L} .
-  var Q : Queue .
- cmb P > Q > P' : QueueComp if P =/= P' .  
+  eq mu(P @ F)  = F .
+  eq p(P @ F) = P .
 endfm
 
-fmod SPN-Q-NETWORQ{L :: TRIV} is
+*** default view to EL-QUEUE
+view ElQueue{L :: TRIV} from TRIV to EL-QUEUE{L} is
+   sort Elt to ElQueue .
+endv
+
+in ../shared/ELIST
+
+*** multi-class queues built over elementary queues 
+fmod QUEUE{L :: TRIV} is 
+  protecting ELIST{ElQueue{L}} * (op _,_ to __, sort Elist{ElQueue{L}} to Elist{ElQueue}, sort NeElist{ElQueue{L}} to NeElist{ElQueue}, 
+                                  sort List{ElQueue{L}} to List{ElQueue}, sort NeList{ElQueue{L}} to NeList{ElQueue}) .
+  protecting PBAG{L} . 
+  sorts Queue Place* .
+  subsort Place{L} < Place* .
+  op null : -> Place* . *** represents a null end-point for a queue
+  op _>_ : NeElist{ElQueue} Place* -> Queue [ctor] .
+  vars Q Q' : ElQueue .
+  vars LQ LQ' LQ'' : List{ElQueue} . 
+  var B : Pbag .
+  op In : NeElist{ElQueue}  -> Place{L} . *** queue's input place
+  eq In([Q LQ]) = p(Q) .
+  op clients : Queue Pbag -> [Nat] .
+ ceq clients([Q LQ]> P:Place*, B) = clients(Q LQ, B) if well-def(Q LQ) .
+  op clients : List{ElQueue} Pbag -> Nat .
+  eq clients(Q LQ, B) = B[p(Q)] + clients(LQ, B) .
+  eq clients(nil, B) = 0 .
+  op well-def : NeList{ElQueue} -> Bool .
+ ceq well-def(LQ Q LQ' Q' LQ'') = false if p(Q) = p(Q') .
+  eq well-def(Q LQ) = true [owise] . 
+endfm
+
+
+*** this system module describes the rewriting due to a queue (including the corresponding rate) 
+mod QUEUE-SYS{L :: TRIV} is 
+   *** to do
+
+endm
+
+fmod QSPN-NETWORQ{L :: TRIV} is
   protecting NETWORK{L} .
   protecting SPN-SIG{String, L} .
   protecting QUEUE{L} .
-  subsort Net QueueComp < Node .
+  subsort Net Queue < Node .
   vars N N' : Net .
   var NW : Network .
   eq N, N' = N ; N' .
 endfm
 
-fmod MULTI-SPN-Q is
-  pr SPN-Q-NETWORQ{Nat} .
+fmod QSPN is
+  pr QSPN-NETWORQ{Nat} .
 endfm

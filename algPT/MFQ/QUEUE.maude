@@ -1,5 +1,5 @@
 in TASK
-in ../ELIST
+in ../../shared/ELIST
 
 *** Round Robin (FIFO) queue - builds on predefined module LIST and on module TASK
 fmod QUEUE{X :: TRIV-NZ} is
