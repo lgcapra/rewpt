@@ -47,15 +47,20 @@ fmod QUEUE{L :: TRIV} is
   protecting ELIST{ElQueue{L}} * (op _,_ to __, sort Elist{ElQueue{L}} to Elist{ElQueue}, sort NeElist{ElQueue{L}} to NeElist{ElQueue}, 
                                   sort List{ElQueue{L}} to List{ElQueue}, sort NeList{ElQueue{L}} to NeList{ElQueue}) .
   protecting PBAG{L} . 
-  sorts Queue Place* .
+  sorts Queue CondQueue Place* .
   subsort Place{L} < Place* .
-  op null : -> Place* . *** represents a null end-point for a queue
-  op _>_ : NeElist{ElQueue} Place* -> Queue [ctor] .
+  subsort CondQueue < Queue .
   vars Q Q' : ElQueue .
   vars LQ LQ' LQ'' : List{ElQueue} . 
   var NeLQ : NeList{ElQueue} .
   var B : Pbag . 
   var P : Place* .
+
+  op null : -> Place* . *** represents a null end-point for a queue
+  op _>_ : NeElist{ElQueue} Place* -> Queue [ctor] .
+  op en:_,_ _  : Pbag Pbag Queue -> CondQueue . *** queue with enabling conditions
+  eq en: nilP, nilP Qu:Queue = Qu:Queue .  
+
   op ql : Queue -> NeList{ElQueue} .
   eq ql([LQ]> P) = LQ .
   op out : Queue -> Place* .
