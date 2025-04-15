@@ -134,6 +134,6 @@ mod QSPN-EXE is
 endm
 
 *** example of search
-*** search t("a", 1.0, 1 ) |-> [1 . p(3), 1 . p(0), nilP], [p(0) @ 1.0 p(1) @ 2.0]> p(4), t("b", 1.0, 1 ) |-> [1 . p(3), 1 . p(1), nilP], [p(4) @ 1.0]> p(3) 1 . p(3) + 1 . p(1) =>! N:NetSys .
+*** search in QSPN-EXE : netsys0 =>! N:NetSys .
 *** No solution.
-*** states: 10  rewrites: 533 in 2ms cpu
+*** states: 1890  rewrites: 1535028 in 1750ms cpu 
