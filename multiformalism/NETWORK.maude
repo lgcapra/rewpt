@@ -61,7 +61,7 @@ fmod QUEUE{L :: TRIV} is
   eq clients(nil, B) = 0 .
 endfm
 
-
+*** signature of a network of queues and SPN
 fmod QSPN{L :: TRIV} is
   protecting NETWORK{L} .
   protecting SPN-SIG{String, L} .
@@ -69,10 +69,10 @@ fmod QSPN{L :: TRIV} is
   subsort Net Queue < Node .
   vars N N' : Net .
   var NW : Network .
-  eq N, N' = N ; N' . *** equivalent terms are reduced to syntactically identical
+  eq N, N' = N ; N' . *** reduces equivalent terms to syntactically identical
 endfm
 
-*** this system module describes the rewriting of a network (including the corresponding rate) 
+*** system module describing the state-transitions of a network (including the corresponding rate) 
 mod QSPN-REW{L :: TRIV} is 
    inc QSPN{L} .
    inc CONVERSION .
@@ -84,10 +84,12 @@ mod QSPN-REW{L :: TRIV} is
    vars B B' : Pbag . 
    var K : NzNat .
    var rate : Float .
-   crl [inner-t] : (N, [NeLQ]> P) B => (N, [NeLQ]> P) (B - 1 . p(Q)) + 1 . p(Q') if LQ Q Q' LQ := NeLQ 
+   var T : Tran .
+   crl [q-inner] : (N, [NeLQ]> P) B => (N, [NeLQ]> P) (B - 1 . p(Q)) + 1 . p(Q') if LQ Q Q' LQ := NeLQ 
          /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ rate := mu(Q) * float(K) / float(clients(NeLQ, B)) .
-   crl [final-t] : (N, [NeLQ]> P) B => (N, [NeLQ]> P) (B - 1 . p(Q)) + 1 . P if LQ Q := NeLQ 
-        /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ rate := mu(Q) * float(K) / float(clients(NeLQ, B)) .
+   crl [q-final] : (N, [NeLQ]> P) B => (N, [NeLQ]> P) (B - 1 . p(Q)) + if P == null then nilP else 1 . P fi 
+       if LQ Q := NeLQ /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ rate := mu(Q) * float(K) / float(clients(NeLQ, B)) .
+   crl [spn-t] : (N, T) B => (N, T) firing(T, B) if enabled(T, B) /\ rate := firingrate(T, B) .
 
 endm
 
@@ -95,3 +97,6 @@ endm
 mod QSPN-EXE is
   inc QSPN-REW{Nat} .
 endm
+
+*** example of search
+***  search t("a", 1.0, 1 ) |-> [1 . p(3), 1 . p(0), nilP], [p(0) @ 1.0 p(1) @ 2.0]> null 1 . p(3) + 1 . p(1) =>! N:NetSys .

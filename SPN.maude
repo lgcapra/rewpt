@@ -37,9 +37,9 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   vars F F' : Float .
   vars K K' D : NzNat .
   *** firing rule rates
-  op firing-rate : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the transition firing pol)
-  *** eq firing-rate(T, M) = rate(T) . *** 1-server for all
-  eq firing-rate(TL |-> Q, M) = if pol(TL) == 1 then rate(TL) else rate(TL) * float(if pol(TL) == 0 
+  op firingrate : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the transition firing pol)
+  *** eq firingrate(T, M) = rate(T) . *** 1-server for all
+  eq firingrate(TL |-> Q, M) = if pol(TL) == 1 then rate(TL) else rate(TL) * float(if pol(TL) == 0 
                            then enabdegree(I(Q), M) else min(pol(TL), enabdegree(I(Q), M)) fi) fi .
   *** definition of enabdegree: assumes that T is enabled in M
   op enabdegree : Pbag Pbag -> [NzNat] .
