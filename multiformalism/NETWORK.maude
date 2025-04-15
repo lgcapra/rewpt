@@ -12,10 +12,13 @@ fmod NETWORK{L :: TRIV} is
  op __ : Network Pbag -> NetSys [ctor prec 125] . *** network with associated state (lowest priority)
  op netw : NetSys -> Network .
  op state : NetSys -> Pbag .
- var N : Network .
+ vars N N' : Network .
  var S : Pbag .
  eq netw((N S))  = N .
  eq state((N S)) = S .
+ op _in_ : Network Network -> Bool [prec 127] .
+ eq N in N, N' = true .
+ eq N in N' = false [owise] .
 endfm
 
 *** single-server elementary queue
@@ -53,6 +56,10 @@ fmod QUEUE{L :: TRIV} is
   var NeLQ : NeList{ElQueue} .
   var B : Pbag . 
   var P : Place* .
+  op ql : Queue -> NeList{ElQueue} .
+  eq ql([LQ]> P) = LQ .
+  op out : Queue -> Place* .
+  eq out([LQ]> P) = P .
   op well-def : NeList{ElQueue} -> Bool .
  ceq well-def(LQ Q LQ' Q' LQ'') = false if p(Q) = p(Q') .
   eq well-def(Q LQ) = true [owise] . 
@@ -61,15 +68,12 @@ fmod QUEUE{L :: TRIV} is
   eq clients(nil, B) = 0 .
 endfm
 
-*** signature of a network of queues and SPN
+*** signature of a network of queues and SPN transitions
 fmod QSPN{L :: TRIV} is
   protecting NETWORK{L} .
   protecting SPN-SIG{String, L} .
   protecting QUEUE{L} .
-  subsort Net Queue < Node .
-  vars N N' : Net .
-  var NW : Network .
-  eq N, N' = N ; N' . *** reduces equivalent terms to syntactically identical
+  subsort Tran Queue < Node .
 endfm
 
 *** system module describing the state-transitions of a network (including the corresponding rate) 
@@ -81,22 +85,55 @@ mod QSPN-REW{L :: TRIV} is
    vars LQ LQ' LQ'' : List{ElQueue} . 
    var NeLQ : NeList{ElQueue} . 
    var P : Place* .
-   vars B B' : Pbag . 
+   var B : Pbag . 
    var K : NzNat .
    var rate : Float .
    var T : Tran .
-   crl [q-inner] : (N, [NeLQ]> P) B => (N, [NeLQ]> P) (B - 1 . p(Q)) + 1 . p(Q') if LQ Q Q' LQ := NeLQ 
-         /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ rate := mu(Q) * float(K) / float(clients(NeLQ, B)) .
+   crl [q-inner] : (N, [NeLQ]> P) B => (N, [NeLQ]> P) (B - 1 . p(Q)) + 1 . p(Q') if LQ Q Q' LQ' := NeLQ 
+         /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ rate := mu(Q) * float(K) / float(K + clients(LQ Q' LQ', B)) .
    crl [q-final] : (N, [NeLQ]> P) B => (N, [NeLQ]> P) (B - 1 . p(Q)) + if P == null then nilP else 1 . P fi 
-       if LQ Q := NeLQ /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ rate := mu(Q) * float(K) / float(clients(NeLQ, B)) .
+       if LQ Q := NeLQ /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ rate := mu(Q) * float(K) / float(K + clients(LQ, B)) .
    crl [spn-t] : (N, T) B => (N, T) firing(T, B) if enabled(T, B) /\ rate := firingrate(T, B) .
 
 endm
 
 
+*** An example of network of queues and SPN 
 mod QSPN-EXE is
   inc QSPN-REW{Nat} .
+  op K : -> NzNat [memo] . *** model parameter
+  eq K = 5 .
+  ops t0 t1 t2 t3 t4 t5 t6 : -> Tran [memo] .
+  ops q0 q1 q2 q3 : -> Queue [memo].
+  op network0 : -> Network .
+  op netsys0 : -> NetSys .
+  eq  t0 = t("start", 1.0, 1 ) |-> [1 . p(0), 1 . p(1), nilP] .
+  eq  t1 = t("switch1", 0.5, 1 ) |-> [1 . p(3), 1 . p(2), nilP] .
+  eq  t2 = t("switch2", 0.05, 1 ) |-> [1 . p(2), 1 . p(3), nilP] .
+  eq  t3 = t("on", 2.0, 1 ) |-> [1 . p(4), 1 . p(5), nilP] .
+  eq  t4 = t("off", 1.0, 1 ) |-> [1 . p(5), 1 . p(4), nilP] .
+  eq  t5 = t("rem1", 1.0, 1 ) |-> [1 . p(1), 1 . p(5), nilP] .
+  eq  t6 = t("rem2", 1.5, 1 ) |-> [1 . p(6), 1 . p(5), nilP] .
+  eq  q1 = [p(5) @ 1.0]> p(0) .
+  eq  q2 = [p(1) @ 1.5]> p(6) .
+  eq  q3 = [p(6) @ 2.5]> p(0) .
+  op V : NzNat -> [Network] [memo] . *** variable component (depending on the marking of p2)
+  eq V(2) = q2, q3 . *** the out of q2 is the in of q3: sequential composition
+  eq V(1) = [ql(q2) ql(q3)]> out(q3) .
+  eq V(0) = [p(1) @ 0.0] > p(6) . *** a "dead" queue
+
+  eq network0 = t0, t1, t2, t3, t4, t5, t6, q1, V(2) .
+  eq netsys0 = network0 K . p(0) + 2 . p(2) + 1 . p(5) .
+  *** structural rewriting 
+  vars N N' N'' : Network .
+  var S : Pbag .
+  crl [r1] : N S => N', V(1) S if S[p(2)] = 1 /\ N'', N' := N /\ N'' = V(2) .
+  crl [r2] : N S => N', V(0) S if S[p(2)] = 0 /\ N'', N' := N /\ N'' = V(1) .
+  crl [r3] : N S => N', V(2) S if S[p(2)] = 2 /\ N'', N' := N /\ N'' = V(0) .
+ 
 endm
 
 *** example of search
-***  search t("a", 1.0, 1 ) |-> [1 . p(3), 1 . p(0), nilP], [p(0) @ 1.0 p(1) @ 2.0]> null 1 . p(3) + 1 . p(1) =>! N:NetSys .
+*** search t("a", 1.0, 1 ) |-> [1 . p(3), 1 . p(0), nilP], [p(0) @ 1.0 p(1) @ 2.0]> p(4), t("b", 1.0, 1 ) |-> [1 . p(3), 1 . p(1), nilP], [p(4) @ 1.0]> p(3) 1 . p(3) + 1 . p(1) =>! N:NetSys .
+*** No solution.
+*** states: 10  rewrites: 533 in 2ms cpu
