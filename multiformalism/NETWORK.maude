@@ -150,7 +150,8 @@ mod QSPN-EXE is
   
 endm
 
-*** example of search
+*** Maude> search in QSPN-EXE : netsys0 =>! N:NetSys .
 *** search in QSPN-EXE : netsys0 =>! N:NetSys .
+
 *** No solution.
-*** states: 1890  rewrites: 1535028 in 1750ms cpu 
+*** states: 72114  rewrites: 164404206 in 160219ms cpu
