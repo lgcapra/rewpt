@@ -7,7 +7,7 @@ fmod NETWORK{L :: TRIV} is
  protecting EXT-BOOL .
  sorts Node Network NetSys .
  subsort Node < Network .
- op emptyNetW : -> Network .
+ op emptyNetW : -> Network [ctor] .
  op _,_ : Network Network -> Network [ctor assoc comm prec 123 id: emptyNetW] .
  op __ : Network Pbag -> NetSys [ctor prec 125] . *** network with associated state (lowest priority)
  op netw : NetSys -> Network .
@@ -40,37 +40,40 @@ view ElQueue{L :: TRIV} from TRIV to EL-QUEUE{L} is
    sort Elt to ElQueue .
 endv
 
-in ../shared/ELIST
 
 *** multi-class queues built over elementary queues 
 fmod QUEUE{L :: TRIV} is 
-  protecting ELIST{ElQueue{L}} * (op _,_ to __, sort Elist{ElQueue{L}} to Elist{ElQueue}, sort NeElist{ElQueue{L}} to NeElist{ElQueue}, 
-                                  sort List{ElQueue{L}} to List{ElQueue}, sort NeList{ElQueue{L}} to NeList{ElQueue}) .
+  protecting LIST{ElQueue{L}} * (sort List{ElQueue{L}} to List{ElQueue}, sort NeList{ElQueue{L}} to NeList{ElQueue}) .
   protecting PBAG{L} . 
-  sorts Queue CondQueue Place* .
+  sorts Queue SimpleQ Place* .
   subsort Place{L} < Place* .
-  subsort CondQueue < Queue .
+  subsort SimpleQ < Queue .
   vars Q Q' : ElQueue .
+  var SQ : SimpleQ .
+  var Qu : Queue .
   vars LQ LQ' LQ'' : List{ElQueue} . 
   var NeLQ : NeList{ElQueue} .
-  var B : Pbag . 
+  vars B B' B'' : Pbag . 
   var P : Place* .
-
   op null : -> Place* . *** represents a null end-point for a queue
-  op _>_ : NeElist{ElQueue} Place* -> Queue [ctor] .
-  op en:_,_ _  : Pbag Pbag Queue -> CondQueue . *** queue with enabling conditions
-  eq en: nilP, nilP Qu:Queue = Qu:Queue .  
-
-  op ql : Queue -> NeList{ElQueue} .
-  eq ql([LQ]> P) = LQ .
+  op _>_ : NeList{ElQueue} Place* -> SimpleQ [ctor] .
+  op en:_,_ _  : Pbag Pbag SimpleQ -> Queue [ctor] . *** queue with enabling conditions
+  eq en: nilP, nilP SQ = SQ .  
+  op ql : Queue -> NeList{ElQueue} . *** the enclosed list of elementary queues
+  eq ql(LQ > P) = LQ .
+  eq ql(en: B, B' SQ) = ql(SQ) .
   op out : Queue -> Place* .
-  eq out([LQ]> P) = P .
+  eq out(LQ > P) = P .
+  eq out(en: B, B' SQ) = out(SQ) .
   op well-def : NeList{ElQueue} -> Bool .
  ceq well-def(LQ Q LQ' Q' LQ'') = false if p(Q) = p(Q') .
   eq well-def(Q LQ) = true [owise] . 
-  op clients : List{ElQueue} Pbag -> [Nat] .
+  op clients : List{ElQueue} Pbag -> [Nat] [memo] .
  ceq clients(Q LQ, B) = B[p(Q)] + clients(LQ, B) if well-def(Q LQ) .
   eq clients(nil, B) = 0 .
+  op cond : Queue Pbag -> Bool . *** the queue "enabling" condition
+  eq cond(SQ, B) = true .
+  eq cond(en: B, B' SQ, B'') = B <= B'' and-then B' > B'' . *** similar to the PN tran. enabling condition
 endfm
 
 *** signature of a network of queues and SPN transitions
@@ -87,6 +90,7 @@ mod QSPN-REW{L :: TRIV} is
    inc CONVERSION .
    var N : Network .
    vars Q Q' : ElQueue .
+   var Qu : Queue .
    vars LQ LQ' LQ'' : List{ElQueue} . 
    var NeLQ : NeList{ElQueue} . 
    var P : Place* .
@@ -94,22 +98,31 @@ mod QSPN-REW{L :: TRIV} is
    var K : NzNat .
    var rate : Float .
    var T : Tran .
-   crl [q-inner] : (N, [NeLQ]> P) B => (N, [NeLQ]> P) (B - 1 . p(Q)) + 1 . p(Q') if LQ Q Q' LQ' := NeLQ 
-         /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ rate := mu(Q) * float(K) / float(K + clients(LQ Q' LQ', B)) .
-   crl [q-final] : (N, [NeLQ]> P) B => (N, [NeLQ]> P) (B - 1 . p(Q)) + if P == null then nilP else 1 . P fi 
-       if LQ Q := NeLQ /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ rate := mu(Q) * float(K) / float(K + clients(LQ, B)) .
+   
+   crl [q-inner] : (N, Qu) B => (N, Qu) (B - 1 . p(Q)) + 1 . p(Q') if LQ Q Q' LQ' := ql(Qu) 
+         /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ cond(Qu, B) /\ rate := mu(Q) * float(K) / float(clients(ql(Qu), B)) .
+   
+   crl [q-final] : (N, Qu) B => (N, Qu) (B - 1 . p(Q)) + if out(Qu) == null then nilP else 1 . out(Qu) fi 
+       if LQ Q := ql(Qu) /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ cond(Qu, B) /\ rate := mu(Q) * float(K) / float(clients(LQ Q, B)) .
+   
    crl [spn-t] : (N, T) B => (N, T) firing(T, B) if enabled(T, B) /\ rate := firingrate(T, B) .
-
+ 
 endm
 
 
 *** An example of network of queues and SPN 
 mod QSPN-EXE is
   inc QSPN-REW{Nat} .
-  op K : -> NzNat [memo] . *** model parameter
-  eq K = 5 .
-  ops t0 t1 t2 t3 t4 t5 t6 : -> Tran [memo] .
-  ops q0 q1 q2 q3 : -> Queue [memo].
+  op K : -> NzNat . *** model parameter
+  eq K = 100 .
+  ops t0 t1 t2 t3 t4 t5 t6 : -> Tran .
+  ops eq1 eq2 eq3 : -> ElQueue .
+  eq eq1 = p(7) @ 1.0 . eq eq2 = p(1) @ 1.5 . eq eq3 = p(6) @ 2.5 .
+  ops q1 q2 q3 q23: -> Queue . [memo] .
+  eq  q1  = en: 1 . p(5), nilP eq1 > p(0) .
+  eq  q2  = en: 2 . p(2), nilP eq2 > p(6) .
+  eq  q3  = en: 2 . p(2), nilP eq3 > p(0) .
+  eq  q23 = en: 1 . p(2), nilP ql(q2) ql(q3) > out(q3) . *** multi-class queue
   op network0 : -> Network .
   op netsys0 : -> NetSys .
   eq  t0 = t("start", 1.0, 1 ) |-> [1 . p(0), 1 . p(1), nilP] .
@@ -117,25 +130,24 @@ mod QSPN-EXE is
   eq  t2 = t("switch2", 0.05, 1 ) |-> [1 . p(2), 1 . p(3), nilP] .
   eq  t3 = t("on", 2.0, 1 ) |-> [1 . p(4), 1 . p(5), nilP] .
   eq  t4 = t("off", 1.0, 1 ) |-> [1 . p(5), 1 . p(4), nilP] .
-  eq  t5 = t("rem1", 1.0, 1 ) |-> [1 . p(1), 1 . p(5), nilP] .
-  eq  t6 = t("rem2", 1.5, 1 ) |-> [1 . p(6), 1 . p(5), nilP] .
-  eq  q1 = [p(5) @ 1.0]> p(0) .
-  eq  q2 = [p(1) @ 1.5]> p(6) .
-  eq  q3 = [p(6) @ 2.5]> p(0) .
+  eq  t5 = t("rem1", 1.0, 1 ) |-> [1 . p(1), 1 . p(7), nilP] .
+  eq  t6 = t("rem6", 1.5, 1 ) |-> [1 . p(6), 1 . p(7), nilP] .
   op V : NzNat -> [Network] [memo] . *** variable component (depending on the marking of p2)
-  eq V(2) = q2, q3 . *** the out of q2 is the in of q3: sequential composition
-  eq V(1) = [ql(q2) ql(q3)]> out(q3) .
-  eq V(0) = [p(1) @ 0.0] > p(6) . *** a "dead" queue
-
+  eq V(2) = q2, q3, t5, t6 . *** "out" of q2 is "in" for q3: sequential composition
+  eq V(1) = q23, t6 . *** multi-class queue
+  eq V(0) = p(eq2) @ 0.0 p(eq3) @ 0.0 > out(q3) . *** "dead" queue
   eq network0 = t0, t1, t2, t3, t4, t5, t6, q1, V(2) .
   eq netsys0 = network0 K . p(0) + 2 . p(2) + 1 . p(5) .
+
   *** structural rewriting 
   vars N N' N'' : Network .
   var S : Pbag .
-  crl [r1] : N S => N', V(1) S if S[p(2)] = 1 /\ N'', N' := N /\ N'' = V(2) .
-  crl [r2] : N S => N', V(0) S if S[p(2)] = 0 /\ N'', N' := N /\ N'' = V(1) .
-  crl [r3] : N S => N', V(2) S if S[p(2)] = 2 /\ N'', N' := N /\ N'' = V(0) .
- 
+  crl [V2>V1] : N S => N', V(1) S if S[p(2)] = 1 /\ N'', N' := N /\ N'' = V(2) .
+  crl [V2>V0] : N S => N', V(0) S if S[p(2)] = 0 /\ N'', N' := N /\ N'' = V(2) .
+  crl [V1>V2] : N S => N', V(2) S if S[p(2)] = 2 /\ N'', N' := N /\ N'' = V(1) .
+  crl [V1>V0] : N S => N', V(0) S if S[p(2)] = 0 /\ N'', N' := N /\ N'' = V(1) .
+  crl [V0>V2] : N S => N', V(2) S if S[p(2)] = 2 /\ N'', N' := N /\ N'' = V(0) .
+  
 endm
 
 *** example of search
