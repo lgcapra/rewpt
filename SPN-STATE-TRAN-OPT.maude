@@ -1,0 +1,36 @@
+in SPN
+in STATE-TRAN
+
+*** this module defines the syntax of the redundant state representation used for extracting a CTMC from a rewritable SPN
+*** for convenience, three different state-transitions are defined: those changing the marking, the net structure, and both of them 
+fmod SPN-STATE-TRAN-OPT is 
+  pr STATE-TRAN-RATE{Net} * (op noStateTran to noStateTranN,  op noRate to noRateN) .
+  pr STATE-TRAN-RATE{Pbag{String}} * (sort Rate{Pbag{String}} to Rate{Pbag}, sort StateTran{Pbag{String}} to StateTran{Pbag},
+            sort Set{Rate{Pbag{String}}} to Set{Rate{Pbag}}, sort NeSet{Rate{Pbag{String}}} to NeSet{Rate{Pbag}},
+            sort Set{StateTran{Pbag{String}}} to Set{StateTran{Pbag}}, sort NeSet{StateTran{Pbag{String}}} to NeSet{StateTran{Pbag}}, 
+            op noStateTran to noStateTranM,  op noRate to noRateM) .
+
+  sort SpnStateTran .
+  var T  : Tran .
+  var N  : Net .
+  var RM : Set{Rate{Pbag}} .
+  var RN : Set{Rate{Net}} .
+  var R :  Float .
+  vars M M' : Pbag .
+  
+  *** System (SPN) description pointing out local state-transitions
+  op NET:_ M:_ REWM:_REWN:_ : Net Pbag Set{Rate{Pbag}} Set{Rate{Net}} -> SpnStateTran [ctor  format (n d n d n d n d d)] .
+  *** getters
+  op net : SpnStateTran -> Net .
+  eq net(NET: N M: M REWM: RM REWN: RN) = N .
+  op m : SpnStateTran -> Pbag .
+  eq m(NET: N M: M REWM: RM REWN: RN) = M .
+  op rewN : SpnStateTran -> Set{Rate{Net}} .
+  eq rewN(NET: N M: M REWM: RM REWN: RN) = RN .
+  op rewM : SpnStateTran -> Set{Rate{Pbag}} .
+  eq rewM(NET: N M: M REWM: RM REWN: RN) = RM .
+  
+  *** provides the usual description
+  op toSystem : SpnStateTran -> System .
+  eq toSystem(NET: N M: M REWM: RM REWN: RN) = N M .
+endfm

@@ -1,0 +1,25 @@
+in SPN-STATE-TRAN-OPT
+
+*** this module re-defines the SPN definition according to the redundant state description used to derive a CTMC
+fmod SPN-MC-OPT is
+  pr MATCH-CLASS{System} .
+  pr MATCH-CLASS{Net} .
+  pr MATCH-CLASS{Pbag{String}} * (sort MatchGroup{Pbag{String}} to MatchGroup{Pbag}, sort MatchClass{Pbag{String}} to MatchClass{Pbag}) .
+  pr SPN-STATE-TRAN-OPT .
+  var T : Tran .  
+  var R : Float . 
+  var XM : Match .
+  vars M  M' : Pbag  . vars N N' : Net . vars S : System .
+  var Y : Set{StateTran{Pbag}} .
+  *** encoding of firing rule: same structure for any rule
+  *** "optimized" version: only the SPN marking is affected by the rule
+  op firing-match : System -> Set{StateTran{Pbag}} [memo] .
+  eq firing-match(S) = $firing-match(S, noStateTranM) .
+  op $firing-match : System Set{StateTran{Pbag}} -> Set{StateTran{Pbag}} .
+  ceq $firing-match(S, Y) = $firing-match(S,  (XM  --> M' : R)  U Y)  if (T ; N) M := S /\ enabled(T, M) /\ 
+          M' := firing(T, M)  /\ R := firingRate(T, M) /\  XM := {N} & {T} & {M} /\ (XM  --> M' : R) in Y = false .
+  *** optimization XM := {T}
+  eq $firing-match(S, Y) = Y [owise] .
+  
+endfm
+

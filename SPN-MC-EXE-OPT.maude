@@ -1,0 +1,51 @@
+in SPN-EXE
+in SPN-MC-OPT
+
+*** this module re-defines the SPN example using the redundant state description used to derive a CTMC
+fmod SPN-MC-EXE-OPT is
+ pr SPN-EXE .
+ pr SPN-MC-OPT .
+ pr MATCH-CLASS{Tlab{String}} .
+ pr MATCH-CLASS{Tmatrix{String}} * (sort MatchGroup{Tmatrix{String}} to MatchGroup{Tmatrix}, sort MatchClass{Tmatrix{String}} to MatchClass{Tmatrix} ) .
+ pr SPN-STATE-TRAN-OPT .
+ var P : Place{String} . vars T T' : Tran . vars B  B' M  M' I O : Pbag  .
+ vars N N' N'' : Net . vars S S' : System . vars R r r' : Float .
+ vars L L' : Lab . var Q : Tmatrix . var W : String . var E : Nat .
+ var Z : Set{StateTran{Net}} .
+ var Y : Set{StateTran{Pbag}} .
+ var XM : Match .
+
+  *** encoding of rules defined in SPN-EXE-SYS
+  *** merge rule (optimized considering that the marking is not affected)
+  op merge-match : System -> Set{StateTran{Net}} [memo].
+  eq merge-match(S) = $merge-match(S, noStateTranN) .
+  op $merge-match : System Set{StateTran{Net}} -> Set{StateTran{Net}} .
+ ceq $merge-match(S, Z) = $merge-match(S, (XM  --> N' : R)  U Z)  if (N ; T ; T') M := S /\ W := tag(T) /\ W = tag(T') /\ E := pol(T) /\
+    E = pol(T') /\ enabled(T, M) = enabled(T', M) /\ N' := N ; merge(T, T', t(W, rate(T) + rate(T'), E))  /\ R := 0.02 /\ XM := {N} & {T , T'} & {M} /\ (XM --> N' : R) in Z = false .
+  eq $merge-match(S, Z) = Z [owise] .
+  
+  *** aggr rule (partially optimized)
+  op aggr-match : System -> Set{StateTran{Net}} [memo] .
+  eq aggr-match(S) = $aggr-match(S, noStateTranN) .
+  op $aggr-match : System Set{StateTran{Net}} -> Set{StateTran{Net}} .
+  ceq $aggr-match(S, Z) = $aggr-match(S, (XM  --> N' : R)  U Z) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ enabled(T', M) = false /\
+    I := I(q(T')) /\ O := O(q(T)) /\ O = I /\ intersection(support(I),  places(N) U support(I(q(T)) + H(q(T)) + M + O(q(T')) + H(q(T')))) == emptyPset /\
+    r := rate(T) /\ r' := rate(T')  /\ N' := N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E)) /\
+    R := 0.05 /\ XM := {N} & {T , T'} & {M} /\ (XM  --> N' : R) in Z = false . 
+  *** optimization: XM := {T , T'} 
+   eq $aggr-match(S, Z) = Z [owise] .
+  
+  *** fold rule (Net portion)
+  op fold-match : System -> Set{StateTran{Net}} [memo].
+  eq fold-match(S) = $fold-match(S, noStateTranN) .
+  op $fold-match : System Set{StateTran{Net}} -> Set{StateTran{Net}} .
+ ceq $fold-match(S, Z) = $fold-match(S, (XM  --> N' : R)  U Z)  if (N ; L |-> Q ; L' |-> Q) := n(S)  /\ E := pol(L) /\
+         E = pol(L') /\ N' := N ; t("fold" ,  rate(L) + rate(L'), E) |-> Q  /\ R := 0.02 /\ XM := {L , L'} & {Q} /\ (XM  --> N' : R) in Z = false  .
+  eq $fold-match(S, Z) = Z [owise] .
+
+  *** calculate the cumulative state-transition rates
+  *** Core operator:passes from the usual SPN representation to the redundant (point out state transitions) used to derive the CTMC
+  op stateTranMC : System -> SpnStateTran .
+  eq stateTranMC(S) = NET: n(S) M: m(S) REWM: cumrate(firing-match(S)) REWN: cumrate(fold-match(S) U merge-match(S) U aggr-match(S)) .
+endfm
+

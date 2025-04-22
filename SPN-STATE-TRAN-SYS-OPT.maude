@@ -1,0 +1,18 @@
+*** in SPN-STATE-TRAN
+in SPN-MC-EXE-OPT
+
+mod SPN-STATE-TRAN-SYS-OPT is
+  *** inc SPN-STATE-TRAN-OPT . 
+  inc SPN-MC-EXE-OPT * (sort Place{String} to Place) . *** should be a parameter
+  vars N N'  : Net . vars S S' : System .
+  var RM : Set{Rate{Pbag}} .
+  var RN : Set{Rate{Net}} .
+  var R :  Float . vars M M' : Pbag .
+  
+ *** rewrites that modify the marking
+ rl [M-rew] : NET: N M: M REWM: (RM U M' : R) REWN: RN => stateTranMC(N M') .
+
+ *** rewrites that modify the net
+ rl [N-rew] : NET: N M: M REWM: RM REWN: (RN U N' : R) => stateTranMC(N' M) . 
+endm
+
