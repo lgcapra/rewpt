@@ -3,21 +3,9 @@ in SPN-MC-EXE
 
 *** this system module defines the rewrite rules (implicitly including firing) for the SPN redundant state-transition description
 mod SPN-STATE-TRAN-SYS is
-  *** inc SPN-STATE-TRAN . 
   inc SPN-MC-EXE * (sort Place{String} to Place) . *** should be a parameter
   vars N N'  : Net . vars S S' : System .
-  *** var RM : Set{Rate{Pbag}} .
-  *** var RN : Set{Rate{Net}} .
   var RS : Set{Rate{System}} . var R :  Float . vars M M' : Pbag .
-  
- *** rewrites that modify the marking
- *** rl [M-rew] : NET: N M: M REWM: (RM U M' : R) REWN: RN REWS: RS => stateTranMC(N M') .
-
- *** rewrites that modify the net
- *** rl [N-rew] : NET: N M: M REWM: RM REWN: (RN U N' : R) REWS: RS => stateTranMC(N' M) . 
-
- *** rewrites that modify the whole system
-*** rl [S-rew] : NET: N M: M REW: (RS U S : R) => stateTranMC(S) .
-rl [rew-S] : SYS: S REW: (RS U S' : R) => stateTranMC(S') .
+  rl [rew-S] : SYS: S REW: (RS U S' : R) => stateTranMC(S') .
 endm
 

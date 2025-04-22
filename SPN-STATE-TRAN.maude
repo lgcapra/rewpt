@@ -2,44 +2,8 @@ in SPN
 in STATE-TRAN
 
 *** this module defines the syntax of the redundant state representation used for extracting a CTMC from a rewritable SPN
-*** for convenience, three different state-transitions are defined: those changing the marking, the net structure, and both of them 
-fmod SPN-STATE-TRAN-OPT is 
-  pr STATE-TRAN-RATE{System} * (op noStateTran to noStateTranS,  op noRate to noRateS) .
-  pr STATE-TRAN-RATE{Net} * (op noStateTran to noStateTranN,  op noRate to noRateN) .
-  pr STATE-TRAN-RATE{Pbag{String}} * (sort Rate{Pbag{String}} to Rate{Pbag}, sort StateTran{Pbag{String}} to StateTran{Pbag},
-            sort Set{Rate{Pbag{String}}} to Set{Rate{Pbag}}, sort NeSet{Rate{Pbag{String}}} to NeSet{Rate{Pbag}},
-            sort Set{StateTran{Pbag{String}}} to Set{StateTran{Pbag}}, sort NeSet{StateTran{Pbag{String}}} to NeSet{StateTran{Pbag}}, 
-            op noStateTran to noStateTranM,  op noRate to noRateM) .
-
-  sort SpnStateTran .
-  var T  : Tran .
-  var N  : Net .
-  var RM : Set{Rate{Pbag}} .
-  var RN : Set{Rate{Net}} .
-  var RS : Set{Rate{System}} .
-  var R :  Float .
-  vars M M' : Pbag .
-  
-  *** System (SPN) description pointing out state-transitions
-  op NET:_ M:_ REWM:_REWN:_REWS:_ : Net Pbag Set{Rate{Pbag}} Set{Rate{Net}} Set{Rate{System}} -> SpnStateTran [ctor  format (n d n d n d n d n d d)] .
-  *** getters
-  op net : SpnStateTran -> Net .
-  eq net(NET: N M: M REWM: RM REWN: RN REWS: RS) = N .
-  op m : SpnStateTran -> Pbag .
-  eq m(NET: N M: M REWM: RM REWN: RN REWS: RS) = M .
-  op rewN : SpnStateTran -> Set{Rate{Net}} .
-  eq rewN(NET: N M: M REWM: RM REWN: RN REWS: RS) = RN .
-  op rewM : SpnStateTran -> Set{Rate{Pbag}} .
-  eq rewM(NET: N M: M REWM: RM REWN: RN REWS: RS) = RM .
-  op rewS : SpnStateTran -> Set{Rate{System}} .
-  eq rewS(NET: N M: M REWM: RM REWN: RN REWS: RS) = RS .
-  
-  *** provides the usual description
-  op toSystem : SpnStateTran -> System .
-  eq toSystem(NET: N M: M REWM: RM REWN: RN REWS: RS) = N M .
-endfm
-
 *** version without any optimized representation
+
 fmod SPN-STATE-TRAN is 
   pr STATE-TRAN-RATE{System} * (op noStateTran to noStateTranS,  op noRate to noRateS) .
   sort SpnStateTran .
