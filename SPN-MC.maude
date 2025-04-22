@@ -13,24 +13,24 @@ fmod SPN-MC is
  var XM : Match .
   *** encoding of firing rule: same structure for any rule
   *** non optimized version 
-  *** op firing-matches : System -> Set{StateTran{System}}  .
-  *** eq firing-matches(S) = $firing-matches(S, noStateTranS) .
-  *** op $firing-matches : System Set{StateTran{System}} -> Set{StateTran{System}} .
-  *** ceq $firing-matches(S, X) = $firing-matches(S,  (XM  --> S' : R)  U X) if (T ; N) M := S /\ enabled(T, M) /\ 
-      ***    S' := (T ; N) firing(T, M)  /\ R := firing-rate(T, M) /\  XM := {N} & {T} & {M} /\ (XM  --> S' : R) in X = false .
-  *** eq $firing-matches(S, X) = X [owise] .
+  *** op firing-match : System -> Set{StateTran{System}}  .
+  *** eq firing-match(S) = $firing-match(S, noStateTranS) .
+  *** op $firing-match : System Set{StateTran{System}} -> Set{StateTran{System}} .
+  *** ceq $firing-match(S, X) = $firing-match(S,  (XM  --> S' : R)  U X) if (T ; N) M := S /\ enabled(T, M) /\ 
+      ***    S' := (T ; N) firing(T, M)  /\ R := firingRate(T, M) /\  XM := {N} & {T} & {M} /\ (XM  --> S' : R) in X = false .
+  *** eq $firing-match(S, X) = X [owise] .
 
   *** "optimized" version: only the SPN marking is affected by the rule
-  op firing-matches : System -> Set{StateTran{System}} [memo] .
-  eq firing-matches(S) = $firing-matches(S, noStateTranS) .
-  op $firing-matches : System Set{StateTran{System}} -> Set{StateTran{System}} .
-  ceq $firing-matches(S, X) = $firing-matches(S,  (XM  --> S' : R)  U X)  if (T ; N) M := S /\ enabled(T, M) /\ 
-         S' := (T ; N) firing(T, M)  /\ R := firing-rate(T, M) /\  XM := {N} & {T} & {M} /\ (XM  --> S' : R) in X = false .
+  op firing-match : System -> Set{StateTran{System}} [memo] .
+  eq firing-match(S) = $firing-match(S, noStateTranS) .
+  op $firing-match : System Set{StateTran{System}} -> Set{StateTran{System}} .
+  ceq $firing-match(S, X) = $firing-match(S,  (XM  --> S' : R)  U X)  if (T ; N) M := S /\ enabled(T, M) /\ 
+         S' := (T ; N) firing(T, M)  /\ R := firingRate(T, M) /\  XM := {N} & {T} & {M} /\ (XM  --> S' : R) in X = false .
   *** optimization: subset of variables used in match
-  *** ceq $firing-matches(S, Y) = $firing-matches(S,  (XM  --> M' : R)  U Y)  if (T ; N) M := S /\ enabled(T, M) /\ 
-  ***        M' := firing(T, M)  /\ R := firing-rate(T, M) /\  XM := {T} /\ (XM  --> M' : R) in Y = false .
+  *** ceq $firing-match(S, Y) = $firing-match(S,  (XM  --> M' : R)  U Y)  if (T ; N) M := S /\ enabled(T, M) /\ 
+  ***        M' := firing(T, M)  /\ R := firingRate(T, M) /\  XM := {T} /\ (XM  --> M' : R) in Y = false .
   
-  eq $firing-matches(S, X) = X [owise] .
+  eq $firing-match(S, X) = X [owise] .
   
 endfm
 

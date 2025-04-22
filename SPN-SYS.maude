@@ -5,7 +5,7 @@ in SPN
 mod SPN-SYS-GEN{L :: TRIV, PL :: TRIV} is
  inc SPN-GEN{L, PL} .
  var M : Pbag . var T : Tran . vars N N' : Net .
- crl [firing] : N M => N firing(T, M) if T ; N' := N  /\ enabled(T, M) /\ R:Float := firing-rate(T, M) .
+ crl [firing] : N M => N firing(T, M) if T ; N' := N  /\ enabled(T, M) /\ R:Float := firingRate(T, M) .
 endm
 
 *** concrete system module

@@ -37,17 +37,17 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   vars F F' : Float .
   vars K K' D : NzNat .
   *** firing rule rates
-  op firingrate : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the transition firing pol)
-  *** eq firingrate(T, M) = rate(T) . *** 1-server for all
-  eq firingrate(TL |-> Q, M) = if pol(TL) == 1 then rate(TL) else rate(TL) * float(if pol(TL) == 0 
-                           then enabdegree(I(Q), M) else min(pol(TL), enabdegree(I(Q), M)) fi) fi .
-  *** definition of enabdegree: assumes that T is enabled in M
-  op enabdegree : Pbag Pbag -> [NzNat] .
-  eq enabdegree(nilP, M) = 1 . *** the input arc is null
-  eq enabdegree(B:NePbag, M) = $enabdegree(B:NePbag, M, 1000000000000000) .
-  op $enabdegree : Pbag Pbag NzNat -> [NzNat] .  
-  eq $enabdegree(K . P + M , K' . P + M', D) = $enabdegree(M , M', min(D, K' quo K)) .
-  eq $enabdegree(nilP, M, D) = D . 
+  op firingRate : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the transition firing pol)
+  *** eq firingRate(T, M) = rate(T) . *** 1-server for all
+  eq firingRate(TL |-> Q, M) = if pol(TL) == 1 then rate(TL) else rate(TL) * float(if pol(TL) == 0 
+                           then enabDegree(I(Q), M) else min(pol(TL), enabDegree(I(Q), M)) fi) fi .
+  *** definition of enabDegree: assumes that T is enabled in M
+  op enabDegree : Pbag Pbag -> [NzNat] .
+  eq enabDegree(nilP, M) = 1 . *** the input arc is null
+  eq enabDegree(B:NePbag, M) = $enabDegree(B:NePbag, M, 1000000000000000) .
+  op $enabDegree : Pbag Pbag NzNat -> [NzNat] .  
+  eq $enabDegree(K . P + M , K' . P + M', D) = $enabDegree(M , M', min(D, K' quo K)) .
+  eq $enabDegree(nilP, M, D) = D . 
   *** getters
   op tag  : Tran -> L$Elt .
   op rate : Tran -> Float .

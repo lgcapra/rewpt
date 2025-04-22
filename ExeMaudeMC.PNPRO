@@ -2,18 +2,18 @@
 <!-- This project file has been saved by the New GreatSPN Editor, v.100 --><project name="ExeMaudeMC" version="121">
   <gspn name="example" show-color-cmd="false" show-fluid-cmd="false" zoom="125">
     <nodes>
-      <place alt-name-fn="LATEX_TEXT" label-x="2.0" label-y="0.0" marking="2" name="p1" shown-as="p_{1}" x="13.0" y="4.0"/>
-      <place alt-name-fn="LATEX_TEXT" label-x="2.0" label-y="0.0" name="p2" shown-as="p_{2}" x="13.0" y="18.0"/>
-      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" marking="1" name="p3" shown-as="p_{3}" x="20.0" y="4.0"/>
-      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" name="p4" shown-as="p_{4}" x="20.0" y="18.0"/>
-      <transition alt-name-fn="LATEX_TEXT" delay="0.6" label-x="-2.0" label-y="0.0" name="ta1" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_a" type="EXP" x="13.55" y="11.0"/>
-      <transition alt-name-fn="LATEX_TEXT" delay="2.0" delay-x="-0.5" delay-y="2.0" name="te" nservers-x="0.5" rotation="3.141592653589793" shown-as="t_e" type="EXP" x="25.55" y="18.0"/>
-      <transition alt-name-fn="LATEX_TEXT" delay="0.3" delay-x="-2.0" label-x="-2.0" label-y="0.0" name="ta2" nservers-x="-3.5" rotation="1.5707963267948966" shown-as="t_a" type="EXP" x="7.55" y="11.0"/>
-      <transition alt-name-fn="LATEX_TEXT" delay-x="1.0" label-x="2.0" label-y="-0.5" name="tb" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_b" type="EXP" x="20.55" y="11.0"/>
-      <transition alt-name-fn="LATEX_TEXT" delay="0.25" delay-x="-1.0" delay-y="1.5" label-x="1.0" name="tc" nservers-x="0.5" rotation="2.356194490192345" shown-as="t_c" type="EXP" x="1.55" y="18.0"/>
-      <transition alt-name-fn="LATEX_TEXT" delay="3.0" label-x="-1.5" label-y="-1.0" name="td" nservers-x="0.5" rotation="4.71238898038469" shown-as="t_d" type="EXP" x="20.55" y="23.0"/>
-      <place alt-name-fn="LATEX_TEXT" name="p5" shown-as="p_{5}" x="30.0" y="23.0"/>
-      <transition alt-name-fn="LATEX_TEXT" delay="0.5" label-x="-2.0" label-y="0.0" name="tf" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_f" type="EXP" x="30.55" y="11.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="2.0" label-y="0.0" marking="2" name="p1" shown-as="p_{1}" text-size="VERY_LARGE" x="13.0" y="4.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="2.0" label-y="0.0" name="p2" shown-as="p_{2}" text-size="VERY_LARGE" x="13.0" y="18.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" marking="1" name="p3" shown-as="p_{3}" text-size="VERY_LARGE" x="20.0" y="4.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" name="p4" shown-as="p_{4}" text-size="VERY_LARGE" x="20.0" y="18.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.6" label-x="-2.0" label-y="0.0" name="ta1" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_a" text-size="VERY_LARGE" type="EXP" x="13.55" y="11.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="2.0" delay-x="-0.5" delay-y="2.0" label-y="-2.0" name="te" nservers-x="0.5" rotation="3.141592653589793" shown-as="t_e" text-size="VERY_LARGE" type="EXP" x="25.55" y="18.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.3" delay-x="-2.0" label-x="-2.0" label-y="0.0" name="ta2" nservers-x="-3.5" rotation="1.5707963267948966" shown-as="t_a" text-size="VERY_LARGE" type="EXP" x="7.55" y="11.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay-x="1.0" label-x="2.0" label-y="-0.5" name="tb" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_b" text-size="VERY_LARGE" type="EXP" x="20.55" y="11.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.25" delay-x="-1.0" delay-y="1.5" label-x="1.0" name="tc" nservers-x="0.5" rotation="2.356194490192345" shown-as="t_c" text-size="VERY_LARGE" type="EXP" x="1.55" y="18.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="3.0" label-x="-2.0" label-y="0.0" name="td" nservers-x="0.5" rotation="4.71238898038469" shown-as="t_d" text-size="VERY_LARGE" type="EXP" x="20.55" y="23.0"/>
+      <place alt-name-fn="LATEX_TEXT" name="p5" shown-as="p_{5}" text-size="VERY_LARGE" x="30.0" y="23.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.5" label-x="-2.0" label-y="0.0" name="tf" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_f" text-size="VERY_LARGE" type="EXP" x="30.55" y="11.0"/>
     </nodes>
     <edges>
       <arc head="ta1" kind="INPUT" tail="p1"/>
@@ -39,6 +39,63 @@
       <arc head="p1" kind="OUTPUT" mult-k="1.21142578125" tail="tf">
         <point x="31.0" y="2.5"/>
         <point x="14.0" y="2.5"/>
+      </arc>
+    </edges>
+  </gspn>
+  <gspn name="rewrites" show-color-cmd="false" show-fluid-cmd="false" zoom="75">
+    <nodes>
+      <place alt-name-fn="LATEX_TEXT" label-x="2.0" label-y="0.0" marking="1" name="p1" shown-as="p_{1}" text-size="HEADER1" x="8.0" y="6.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="2.0" label-y="0.0" name="p2" shown-as="p_{2}" text-size="HEADER1" x="8.0" y="20.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" name="p3" shown-as="p_{3}" text-size="HEADER1" x="15.0" y="6.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.6" height="3.0" label-x="-2.5" label-y="0.0" name="ta1" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_a" text-size="HEADER1" type="EXP" x="8.55" y="13.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.3" delay-x="-2.0" height="3.0" label-x="-2.5" label-y="0.0" name="ta2" nservers-x="-3.5" rotation="1.5707963267948966" shown-as="t_a" text-size="HEADER1" type="EXP" x="2.55" y="13.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" name="copy_p4" shown-as="p_{4}" text-size="HEADER1" x="39.0" y="10.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="2.0" delay-x="-1.0" delay-y="2.5" height="3.0" label-y="-2.5" name="copy_te" nservers-x="0.5" rotation="3.141592653589793" shown-as="t_e" text-size="HEADER1" type="EXP" x="44.55" y="9.5"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="3.0" height="3.0" label-x="-2.5" label-y="0.0" name="copy_td" nservers-x="0.5" rotation="4.71238898038469" shown-as="t_d" text-size="HEADER1" type="EXP" x="39.55" y="15.5"/>
+      <place alt-name-fn="LATEX_TEXT" name="copy_p5" shown-as="p_{5}" text-size="HEADER1" x="49.0" y="16.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="2.0" label-y="0.0" marking="1" name="copy_copy_p1" shown-as="p_{1}" text-size="HEADER1" x="23.0" y="6.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="2.0" label-y="0.0" name="copy_copy_p2" shown-as="p_{2}" text-size="HEADER1" x="23.0" y="20.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" name="copy_copy_p3" shown-as="p_{3}" text-size="HEADER1" x="30.0" y="6.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.9" height="3.0" label-x="-2.5" label-y="0.0" name="copy_copy_ta1" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_a" text-size="HEADER1" type="EXP" x="23.55" y="13.0"/>
+      <text-box bold="true" border-color="none" fill-color="none" height="2.0" name="__textBox0" shadow="true" shape="ROUND_RECTANGLE" text-color="#000000" text-size="HEADER2" width="5.5" x="15.25" y="13.5">\overset{merge}{\Rightarrow}</text-box>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" name="copy_copy_copy_p3" shown-as="p_{3}" text-size="HEADER1" x="25.0" y="25.0"/>
+      <place alt-name-fn="LATEX_TEXT" name="copy_copy_p5" shown-as="p_{5}" text-size="HEADER1" x="35.0" y="36.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="0.5" height="3.0" label-x="-3.0" label-y="0.0" name="copy_copy_tf" nservers-x="0.5" rotation="1.5707963267948966" shown-as="t_f" text-size="HEADER1" type="EXP" x="35.55" y="30.0"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" name="copy_copy_copy_p4" shown-as="p_{4}" text-size="HEADER1" x="55.0" y="10.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="5.0" delay-x="-1.0" delay-y="2.5" height="3.0" label-y="-2.5" name="copy_copy_copy_te" nservers-x="0.5" rotation="3.141592653589793" shown-as="t_{de}" text-size="HEADER1" type="EXP" x="60.55" y="12.5"/>
+      <place alt-name-fn="LATEX_TEXT" name="copy_copy_copy_p5" shown-as="p_{5}" text-size="HEADER1" x="65.0" y="16.0"/>
+      <text-box bold="true" border-color="none" fill-color="none" height="2.0" name="copy___textBox0" shadow="true" shape="ROUND_RECTANGLE" text-color="#000000" text-size="HEADER2" width="5.5" x="50.25" y="13.5">\overset{fold}{\Rightarrow}</text-box>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" marking="1" name="copy_copy_copy_copy_p4" shown-as="p_{4}" text-size="HEADER1" x="46.0" y="32.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="5/11" delay-x="-1.0" delay-y="2.5" height="3.0" label-x="3.0" label-y="0.0" name="copy_copy_copy_copy_te" nservers-x="0.5" rotation="3.141592653589793" shown-as="t_{def}" text-size="HEADER1" type="EXP" x="51.55" y="31.5"/>
+      <text-box bold="true" border-color="none" fill-color="none" height="2.0" name="copy_copy___textBox0" shadow="true" shape="ROUND_RECTANGLE" text-color="#000000" text-size="HEADER2" width="5.5" x="38.25" y="31.25">\overset{aggr}{\Rightarrow}</text-box>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" marking="1" name="copy_copy_copy_copy_copy_p4" shown-as="p_{4}" text-size="HEADER1" x="24.0" y="36.0"/>
+      <transition alt-name-fn="LATEX_TEXT" delay="5.0" delay-x="-0.5" delay-y="2.5" height="3.0" label-y="-2.5" name="copy_copy_copy_copy_copy_te" nservers-x="0.5" rotation="3.141592653589793" shown-as="t_{de}" text-size="HEADER1" type="EXP" x="30.55" y="35.5"/>
+      <place alt-name-fn="LATEX_TEXT" label-x="-2.0" label-y="0.0" name="copy_copy_copy_copy_p3" shown-as="p_{3}" text-size="HEADER1" x="46.0" y="25.0"/>
+    </nodes>
+    <edges>
+      <arc head="ta1" kind="INPUT" tail="p1"/>
+      <arc head="p2" kind="OUTPUT" tail="ta1"/>
+      <arc head="ta2" kind="INPUT" mult-k="0.6428710937500001" mult-x="0.5" mult-y="0.0" tail="p1"/>
+      <arc head="p2" kind="OUTPUT" tail="ta2"/>
+      <arc head="ta1" kind="INHIBITOR" tail="p3"/>
+      <arc head="copy_td" kind="INPUT" tail="copy_p4"/>
+      <arc head="copy_te" kind="INPUT" tail="copy_p4"/>
+      <arc head="copy_p5" kind="OUTPUT" tail="copy_td"/>
+      <arc head="copy_p5" kind="OUTPUT" tail="copy_te"/>
+      <arc head="copy_copy_ta1" kind="INPUT" mult="2" tail="copy_copy_p1" text-size="VERY_LARGE"/>
+      <arc head="copy_copy_p2" kind="OUTPUT" mult="2" tail="copy_copy_ta1" text-size="VERY_LARGE"/>
+      <arc head="copy_copy_ta1" kind="INHIBITOR" tail="copy_copy_p3"/>
+      <arc head="copy_copy_tf" kind="INPUT" tail="copy_copy_p5"/>
+      <arc head="copy_copy_copy_p3" kind="OUTPUT" tail="copy_copy_tf">
+        <point x="36.0" y="26.0"/>
+      </arc>
+      <arc head="copy_copy_copy_te" kind="INPUT" tail="copy_copy_copy_p4"/>
+      <arc head="copy_copy_copy_p5" kind="OUTPUT" tail="copy_copy_copy_te"/>
+      <arc head="copy_copy_copy_copy_te" kind="INPUT" tail="copy_copy_copy_copy_p4"/>
+      <arc head="copy_copy_copy_copy_copy_te" kind="INPUT" tail="copy_copy_copy_copy_copy_p4"/>
+      <arc head="copy_copy_p5" kind="OUTPUT" tail="copy_copy_copy_copy_copy_te"/>
+      <arc head="copy_copy_copy_copy_p3" kind="OUTPUT" mult-k="0.7584960937499999" tail="copy_copy_copy_copy_te">
+        <point x="52.0" y="26.0"/>
       </arc>
     </edges>
   </gspn>
