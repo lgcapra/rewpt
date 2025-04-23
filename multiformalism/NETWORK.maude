@@ -78,7 +78,7 @@ endfm
 
 *** signature of a network of queues and SPN transitions
 fmod QSPN{L :: TRIV} is
-  protecting NETWORK{L} .
+  extending NETWORK{L} .
   protecting SPN-SIG{String, L} .
   protecting QUEUE{L} .
   subsort Tran Queue < Node .
@@ -113,8 +113,10 @@ endm
 *** An example of network of queues and SPN 
 mod QSPN-EXE is
   inc QSPN-REW{Nat} .
-  op K : -> NzNat . *** model parameter
-  eq K = 200 .
+  var K : NzNat . *** model parameter
+  vars N N' N'' : Network .
+  var S : Pbag .
+  
   ops t0 t1 t2 t3 t4 t5 t6 : -> Tran .
   ops eq1 eq2 eq3 : -> ElQueue .
   eq eq1 = p(7) @ 1.0 . eq eq2 = p(1) @ 1.5 . eq eq3 = p(6) @ 2.5 .
@@ -123,8 +125,8 @@ mod QSPN-EXE is
   eq  q2  = en: 2 . p(2), nilP eq2 > p(6) .
   eq  q3  = en: 2 . p(2), nilP eq3 > p(0) .
   eq  q23 = en: 1 . p(2), nilP ql(q2) ql(q3) > out(q3) . *** multi-class queue
-  op network0 : -> Network .
-  op netsys0 : -> NetSys .
+  op network : -> Network .
+  op netsys : NzNat -> NetSys .
   eq  t0 = t("start", 1.0, 1 ) |-> [1 . p(0), 1 . p(1), nilP] .
   eq  t1 = t("switch1", 0.5, 1 ) |-> [1 . p(3), 1 . p(2), nilP] .
   eq  t2 = t("switch2", 0.05, 1 ) |-> [1 . p(2), 1 . p(3), nilP] .
@@ -136,12 +138,10 @@ mod QSPN-EXE is
   eq V(2) = q2, q3, t5, t6 . *** "out" of q2 is "in" for q3: sequential composition
   eq V(1) = q23, t6 . *** multi-class queue
   eq V(0) = p(eq2) @ 0.0 p(eq3) @ 0.0 > out(q3) . *** "dead" queue
-  eq network0 = t0, t1, t2, t3, t4, t5, t6, q1, V(2) .
-  eq netsys0 = network0 K . p(0) + 2 . p(2) + 1 . p(5) .
+  eq network = t0, t1, t2, t3, t4, t5, t6, q1, V(2) .
+  eq netsys(K) = network K . p(0) + 2 . p(2) + 1 . p(5) .
 
   *** structural rewriting 
-  vars N N' N'' : Network .
-  var S : Pbag .
   crl [V2>V1] : N S => N', V(1) S if S[p(2)] = 1 /\ N'', N' := N /\ N'' = V(2) .
   crl [V2>V0] : N S => N', V(0) S if S[p(2)] = 0 /\ N'', N' := N /\ N'' = V(2) .
   crl [V1>V2] : N S => N', V(2) S if S[p(2)] = 2 /\ N'', N' := N /\ N'' = V(1) .
