@@ -44,10 +44,10 @@ endv
 *** multi-class queues built over elementary queues 
 fmod QUEUE{L :: TRIV} is 
   protecting LIST{ElQueue{L}} * (sort List{ElQueue{L}} to List{ElQueue}, sort NeList{ElQueue{L}} to NeList{ElQueue}) .
-  protecting PBAG{L} . 
+  extending NETWORK{L} .
   sorts Queue SimpleQ Place* .
   subsort Place{L} < Place* .
-  subsort SimpleQ < Queue .
+  subsort SimpleQ < Queue < Node .
   vars Q Q' : ElQueue .
   var SQ : SimpleQ .
   var Qu : Queue .
@@ -76,17 +76,8 @@ fmod QUEUE{L :: TRIV} is
   eq cond(en: B, B' SQ, B'') = B <= B'' and-then B' > B'' . *** similar to the PN tran. enabling condition
 endfm
 
-*** signature of a network of queues and SPN transitions
-fmod QSPN{L :: TRIV} is
-  extending NETWORK{L} .
-  protecting SPN-SIG{String, L} .
-  protecting QUEUE{L} .
-  subsort Tran Queue < Node .
-endfm
-
-*** system module describing the state-transitions of a network (including the corresponding rate) 
-mod QSPN-REW{L :: TRIV} is 
-   inc QSPN{L} .
+mod QUEUE-SYS{L :: TRIV} is
+   including QUEUE{L} .
    inc CONVERSION .
    var N : Network .
    vars Q Q' : ElQueue .
@@ -97,22 +88,41 @@ mod QSPN-REW{L :: TRIV} is
    var B : Pbag . 
    var K : NzNat .
    var rate : Float .
-   var T : Tran .
-   
+
    crl [q-inner] : (N, Qu) B => (N, Qu) (B - 1 . p(Q)) + 1 . p(Q') if LQ Q Q' LQ' := ql(Qu) 
          /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ cond(Qu, B) /\ rate := mu(Q) * float(K) / float(clients(ql(Qu), B)) .
    
    crl [q-final] : (N, Qu) B => (N, Qu) (B - 1 . p(Q)) + if out(Qu) == null then nilP else 1 . out(Qu) fi 
-       if LQ Q := ql(Qu) /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ cond(Qu, B) /\ rate := mu(Q) * float(K) / float(clients(LQ Q, B)) .
-   
-   crl [spn-t] : (N, T) B => (N, T) firing(T, B) if enabled(T, B) /\ rate := firingRate(T, B) .
- 
+       if LQ Q := ql(Qu) /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ cond(Qu, B) /\ rate := mu(Q) * float(K) / float(clients(LQ Q, B)) .   
+endm
+
+fmod SPN*{L :: TRIV} is
+  extending NETWORK{L} .
+  protecting SPN-SIG{String, L} .
+  subsort Tran < Node .
+endfm
+
+mod SPN*-SYS{L :: TRIV} is
+  including SPN*{L} .
+  var N : Network .
+  var B : Pbag . 
+  var K : NzNat .
+  var rate : Float .
+  var T : Tran .
+  crl [spn-t] : (N, T) B => (N, T) firing(T, B) if enabled(T, B) /\ rate := firingRate(T, B) .
+endm
+
+
+*** system module describing the state-transitions of a network (including the corresponding rate) 
+mod QSPN{L :: TRIV} is
+   inc SPN*-SYS{L} . 
+   inc QUEUE-SYS{L} .
 endm
 
 
 *** An example of network of queues and SPN 
 mod QSPN-EXE is
-  inc QSPN-REW{Nat} .
+  inc QSPN{Nat} .
   var K : NzNat . *** model parameter
   vars N N' N'' : Network .
   var S : Pbag .
@@ -149,9 +159,3 @@ mod QSPN-EXE is
   crl [V0>V2] : N S => N', V(2) S if S[p(2)] = 2 /\ N'', N' := N /\ N'' = V(0) .
   
 endm
-
-*** Maude> search in QSPN-EXE : netsys0 =>! N:NetSys .
-*** search in QSPN-EXE : netsys0 =>! N:NetSys .
-
-*** No solution.
-*** states: 72114  rewrites: 164404206 in 160219ms cpu
