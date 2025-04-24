@@ -113,16 +113,10 @@ mod SPN*-SYS{L :: TRIV} is
 endm
 
 
-*** system module describing the state-transitions of a network (including the corresponding rate) 
-mod QSPN{L :: TRIV} is
-   inc SPN*-SYS{L} . 
-   inc QUEUE-SYS{L} .
-endm
-
-
 *** An example of network of queues and SPN 
 mod QSPN-EXE is
-  inc QSPN{Nat} .
+  inc SPN*-SYS{Nat} . 
+  inc QUEUE-SYS{Nat}  .
   var K : NzNat . *** model parameter
   vars N N' N'' : Network .
   var S : Pbag .
