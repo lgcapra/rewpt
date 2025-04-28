@@ -5,22 +5,22 @@ mod MFQ-RECONF is
   inc MARKING-STR{Queue{Burst}} * ( op mark to markT) .
   
   op meta-m0 : -> [Marking] . 
-  eq meta-m0 = p("mfq") |-> m0 ; p("recover") |-> empty{Queue{Burst}} .
+  eq meta-m0 = p("mfq-meta") |-> m0 ; p("recover") |-> empty{Queue{Burst}} .
 
   vars Q Q' : Queue{Burst} .
-  vars LQ LQ' LQ'' : List{Queue{Burst}} .
+  vars LQ LQ' : List{Queue{Burst}} .
   var L : List{Task{Burst}} .
   var MQ : Mset{Queue{Burst}} .
   var M : BL-Marking .
   vars K : NzNat .
    
   *** moves the tasks from a faulty queue to the highest-level queue and brings the faulty queue to repair
-  crl [move-tasks] : p("mfq") |-> (M ; bl-p("queue") |-> [LQ, Q] ; bl-p("fail") |-> Q' MQ) ; 
+  crl [move] : p("mfq-meta") |-> (M ; bl-p("mfq") |-> [LQ, Q] ; bl-p("failed") |-> Q' MQ) ; 
       p("recover") |-> empty{Queue{Burst}} => 
-      p("mfq") |-> (M ; bl-p("queue") |-> [LQ, append(Q, L)] ; bl-p("fail") |-> MQ) ; 
+      p("mfq-meta") |-> (M ; bl-p("mfq") |-> [LQ, append(Q, L)] ; bl-p("failed") |-> MQ) ; 
       p("recover") |-> (q: nil ts: K) if (q: L ts: K) := Q' . 
   *** recover (re-introduce in the network) a repaired queue
-   rl [recover] : p("mfq") |-> (M ; bl-p("queue") |-> [LQ] ) ; p("recover") |-> Q => 
-      p("mfq") |-> (M ; bl-p("queue") |-> [insert(LQ, Q)] ) ;  p("recover") |-> empty{Queue{Burst}} .
+   rl [recover] : p("mfq-meta") |-> (M ; bl-p("mfq") |-> [LQ] ) ; p("recover") |-> Q => 
+      p("mfq-meta") |-> (M ; bl-p("mfq") |-> [insert(LQ, Q)] ) ;  p("recover") |-> empty{Queue{Burst}} .
 
 endm
