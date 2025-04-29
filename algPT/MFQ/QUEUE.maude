@@ -77,21 +77,21 @@ mod MFQ{X :: TRIV-NZ} is
  vars K K' : NzNat .
  var X : X$Elt .
  *** append a task (selected non deterministically) to the header queue
-  rl [assign] : p("queue") |-> [Q, LQ] ;  p("task") |-> T B => p("queue") |-> [append(Q, T), LQ] ; p("task") |-> B  .
+  rl [assign] : p("mfq") |-> [Q, LQ] ;  p("task") |-> T B => p("mfq") |-> [append(Q, T), LQ] ; p("task") |-> B  .
 *** serve a task that finishes its residual time burst
-crl [serve-exhausted] : p("queue") |-> [LQ, Q, LQ'] ;  p("served") |-> B  => p("queue") |-> [LQ, (q: L ts: K), LQ'] ;  p("served") |-> B (X @ 0) 
+crl [serve-exh] : p("mfq") |-> [LQ, Q, LQ'] ;  p("served") |-> B  => p("mfq") |-> [LQ, (q: L ts: K), LQ'] ;  p("served") |-> B (X @ 0) 
       if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' <= K .  
 *** serve a task that doesn't exhaust its burst, by appending the task to the next-level queue
-crl [serve-notexh-shift] : p("queue") |-> [LQ, Q, Q', LQ']  => p("queue") |-> [LQ, (q: L ts: K), append(Q', X @ sd(K', K)), LQ']  
+crl [serve-nonexh-shift] : p("mfq") |-> [LQ, Q, Q', LQ']  => p("mfq") |-> [LQ, (q: L ts: K), append(Q', X @ sd(K', K)), LQ']  
       if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
 *** serve a task that doesn't exhaust its burst, in the event the queue is the last (possibly the only)
-crl [serve-notexh-last] : p("queue") |-> [LQ, Q]  => p("queue") |-> [LQ, (q: L, X @ sd(K', K) ts: K)]  
+crl [serve-noexh-last] : p("mfq") |-> [LQ, Q]  => p("mfq") |-> [LQ, (q: L, X @ sd(K', K) ts: K)]  
       if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
 *** uncomment the following rule if you want the model becomes live (otherwise it enters an absorbing state)
 rl [reset] : p("served") |-> B X @ 0 ; p("task") |->  B' => p("served") |-> B ; p("task") |->  B' tsk(X) .
 
 *** simulates a failure on a queue in the network
-rl [fail] :  p("queue") |-> [LQ, Q, LQ'] ; p("fail") |-> MQ  => p("queue") |-> [LQ, LQ'] ; p("fail") |-> Q MQ .
+rl [fail] :  p("mfq") |-> [LQ, Q, LQ'] ; p("failed") |-> MQ  => p("mfq") |-> [LQ, LQ'] ; p("failed") |-> Q MQ .
 
 endm
 
@@ -101,8 +101,8 @@ mod MFQ-STR is
    inc MFQ{Burst} . 
    op m0 : -> [Marking] [memo] .
    var LQ : List{Queue{Burst}} .
-  ceq m0 =  p("queue") |-> [LQ]  ; p("task") |-> tsk("c") tsk("a") tsk("a") tsk("b") tsk("b")  ; 
-            p("served") |-> empty{Task{Burst}} ; p("fail") |-> empty{Queue{Burst}} if LQ := (q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf) /\ ordered(LQ) .                         
+  ceq m0 =  p("mfq") |-> [LQ]  ; p("task") |-> tsk("c") tsk("a") tsk("a") tsk("b") tsk("b")  ; 
+            p("served") |-> empty{Task{Burst}} ; p("failed") |-> empty{Queue{Burst}} if LQ := (q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf) /\ ordered(LQ) .                         
 endm
 
 mod MFQ-STR-BL is 
