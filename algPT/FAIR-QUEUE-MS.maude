@@ -22,10 +22,10 @@ mod FAIR-QUEUE-MS{X :: TRIV} is
  vars X Y Z : X$Elt .
  
  *** withdraws two occurrences of an element from p("task"), by appending each to one of the list in p("queue")
- rl [distribute] : p("queue") |-> [L] [L']  ;  p("task") |-> X X B => p("queue") |-> [L, X] [L', X] ; p("task") |-> B .
+ rl [double] : p("queue") |-> [L] [L']  ;  p("task") |-> X X B => p("queue") |-> [L, X] [L', X] ; p("task") |-> B .
  
  *** withdraws residual single elements from p("task"), by appending them to one of the thw lists (randomly chosen) 
-crl [pick-up] : p("queue") |-> [L] [L'] ;  p("task") |-> X B => p("queue") |-> [L, X] [L'] ; p("task") |-> B if not(X leq B) .
+crl [left] : p("queue") |-> [L] [L'] ;  p("task") |-> X B => p("queue") |-> [L, X] [L'] ; p("task") |-> B if not(X leq B) .
 
 *** serves (removes) the head element of (from) one of the queues (chosen nondeterministically)
 rl [serve] : p("queue") |-> [X, L]  [L'] ;  p("task") |-> B => p("queue") |->  [L] [L'] ; p("task") |-> B X .
@@ -36,6 +36,7 @@ endm
 mod FAIR-QUEUE-NAT is
   inc FAIR-QUEUE-MS{Nat} . 
   op m0 : -> Marking [memo] . 
-  eq m0 =  p("queue") |-> [nil] [nil] ; p("task") |-> 0 0 0 0 1 1 1 2 2 2 2 . 
-
+  op ms0 : -> Mset{Nat} .
+  eq m0 =  p("queue") |-> [nil] [nil] ; p("task") |-> ms0  .
+  eq ms0 =  0 0 0 1 1 2 . 
 endm
