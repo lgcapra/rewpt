@@ -4,7 +4,7 @@ in ALG-PN
 *** EXAMPLE:  algebraic net shema using two (embedded) lists where some tasks are non-deterministically picked up fairly from a repository
 
 *** version using MSET
-mod FAIR-QUEUE-MS{X :: TRIV} is
+mod TWIN-QUEUE-MS{X :: TRIV} is
  pr MARKING-STR{X} .
  pr MARKING-STR{Elist{X}} * (op mark to markL ) . *** renaming mark is mandatory  
  
@@ -33,8 +33,8 @@ endm
 
 *** example of instantiation with Nat
 
-mod FAIR-QUEUE-NAT is
-  inc FAIR-QUEUE-MS{Nat} . 
+mod TWIN-QUEUE-NAT is
+  inc TWIN-QUEUE-MS{Nat} . 
   op m0 : -> Marking [memo] . 
   op ms0 : -> Mset{Nat} .
   eq m0 =  p("queue") |-> [nil] [nil] ; p("task") |-> ms0  .

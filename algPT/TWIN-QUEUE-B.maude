@@ -4,7 +4,7 @@ in ALG-PN
 *** EXAMPLE:  algebraic net using two (embedded) lists where some tasks are non-deterministically picked up fairly from a repository
 
 *** version 1 using BAG
-mod FAIR-QUEUE-B{X :: TRIV} is
+mod TWIN-QUEUE-B{X :: TRIV} is
  *** types of places
  pr B-MARKING-STR{X} . 
  pr B-MARKING-STR{Elist{X}} * (op mark to markL) . *** renaming mark is mandatory !
@@ -22,16 +22,16 @@ mod FAIR-QUEUE-B{X :: TRIV} is
   *** the algebraic net's transitions are encoded as rewrite rules
 
   *** witdraws two occurrences of an element from p("task"), by appending each occurrence to one of the list in p("queue")
-crl [distribute-1] : p("queue") |-> 1 . [L]  + 1 . [L'] ;  p("task") |-> K . X + B => p("queue") |-> 1 . [L, X] + 1 . [L', X] ; p("task") |-> sd(K,2) . X + B  if K > 1 .
+crl [double-1] : p("queue") |-> 1 . [L]  + 1 . [L'] ;  p("task") |-> K . X + B => p("queue") |-> 1 . [L, X] + 1 . [L', X] ; p("task") |-> sd(K,2) . X + B  if K > 1 .
 
   *** the same as above, necessary to consider the case of identical queues 
-crl [distribute-2] : p("queue") |-> 2 . [L] ;  p("task") |-> K . X + B => p("queue") |-> 2 . [L, X] ; p("task") |-> sd(K,2) . X + B  if K > 1 . 
+crl [double-2] : p("queue") |-> 2 . [L] ;  p("task") |-> K . X + B => p("queue") |-> 2 . [L, X] ; p("task") |-> sd(K,2) . X + B  if K > 1 . 
 
 *** withdraws residual single elements from p("task"), by appending them to one of the thw lists (randomly chosen) 
-rl [pick-up-1] : p("queue") |-> 1 . [L]  + 1 . [L'] ;  p("task") |-> 1 . X + B => p("queue") |-> 1 . [L, X] + 1 . [L'] ; p("task") |-> B .
+rl [left-1] : p("queue") |-> 1 . [L]  + 1 . [L'] ;  p("task") |-> 1 . X + B => p("queue") |-> 1 . [L, X] + 1 . [L'] ; p("task") |-> B .
 
-*** the same as pick-up-1 ...
-rl [pick-up-2] : p("queue") |-> 2 . [L]  ;  p("task") |-> 1 . X + B => p("queue") |-> 1 . [L, X] + 1 . [L] ; p("task") |-> B .
+*** the same as left-1 ...
+rl [left-2] : p("queue") |-> 2 . [L]  ;  p("task") |-> 1 . X + B => p("queue") |-> 1 . [L, X] + 1 . [L] ; p("task") |-> B .
 
 *** serves (removes) the head element from one of the queues (chosen nondeterministically)
 rl [serve-1] : p("queue") |-> 1 . [X, L]  + 1 . [L'] ;  p("task") |-> B => p("queue") |-> 1 . [L] + 1 . [L'] ; p("task") |-> B + 1 . X .
@@ -41,10 +41,12 @@ rl [serve-2] : p("queue") |-> 2 . [X, L] ;  p("task") |-> B => p("queue") |-> 1 
   
 endm
 
-mod FAIR-QUEUE-NAT-B is
-  inc FAIR-QUEUE-B{Nat} . 
+mod TWIN-QUEUE-NAT-B is
+  inc TWIN-QUEUE-B{Nat} . 
   op m0 : -> Marking . *** alias - intial marking and implicilty net's places' structure
-  eq m0 =  p("queue") |-> 2 . [nil] ; p("task") |-> 4 . 0 + 3 . 1 + 4 . 2 . *** the lists in p1 are initially empty 
+  op ms0 : -> Bag{Nat} .
+  eq ms0 = 3 . 0 + 2 . 1 + 1 . 2 .
+  eq m0 =  p("queue") |-> 2 . [nil] ; p("task") |-> ms0 . *** the lists in p1 are initially empty 
 
 endm
 
