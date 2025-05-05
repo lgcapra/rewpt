@@ -6,7 +6,7 @@ fmod TMATRIX{L :: TRIV} is
  sort Tmatrix .
  op [_,_,_] : Pbag Pbag Pbag -> Tmatrix [ctor] .
  
- var P  : Place{L} .
+ var P  : Place .
  vars I O H M I' O' H' : Pbag .
  vars K K' : NzNat .
  var Q  : Tmatrix .
@@ -16,7 +16,7 @@ fmod TMATRIX{L :: TRIV} is
  eq O([I,O,H]) = O .
  eq H([I,O,H]) = H .
 
- op in :  Tmatrix Place{L} -> Bool . *** test the existence of a place
+ op in :  Tmatrix Place -> Bool . *** test the existence of a place
  eq in([I + K . P, O, H], P) = true .
  eq in([I, O + K . P, H], P) = true .
  eq in([I, O, H + K . P], P) = true .

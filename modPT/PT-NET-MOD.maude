@@ -1,16 +1,13 @@
 *** a new, more effective net representation
-in TMATRIX
 *** in ../shared/MAP+
-in ../shared/MAP-SET
+in ../PT-NET
 
-*** signature of a PT net : a PT net is a map Tmatrix -> Tag
-fmod PT-NET{X :: TRIV} is
- pr MAP-SET{Tmatrix,X} * (sort Map{Tmatrix,X} to Net, sort Entry{Tmatrix,X} to Transition, op emptyM to emptyN,
-                        op emptyS to emptyTset) .
- pr SET+{X} * (op emptyS to emptyStlab) .
+*** signature of a PT net with operator for modularity
+fmod PT-NET-MOD{L :: TRIV, PL :: TRIV} is
+ pr PT-NET{L, PL} .
 
  vars N N' N'' : Net .
- vars T T' : Transition .
+ vars T T' : Tran .
  vars P P' P'' : Place .
  vars Y J  : Nat .
  vars K K' : NzNat .
@@ -22,14 +19,14 @@ fmod PT-NET{X :: TRIV} is
  var NWL : NeList{String} .
  var Lab : Lab .
  var NeL : NeLab .
- var L : X$Elt . *** tran. lab
- var Z  : Set{X} .  
+ var L : L$Elt . *** tran. lab
+ var Z  : Set{L} .  
  
- op lab : Transition -> X$Elt .
+ op lab : Tran -> L$Elt .
  eq lab(Q |-> L) = L .
 
- *** dead transition
- op dead : Transition -> Bool .   
+ *** dead Tran
+ op dead : Tran -> Bool .   
  eq dead(Q |-> L) = dead(Q) .
  
  *** test the existence of a place
@@ -37,7 +34,7 @@ fmod PT-NET{X :: TRIV} is
 ceq in(Q |-> L ; N, P) = true if in (Q, P) .
  eq in(N, P) = false [owise] .
 
- *** test the existence of a transition
+ *** test the existence of a Tran
  op in :  Net Tmatrix -> Bool . 
  eq in(N, Q) = $hasMapping(N, Q) .
 
@@ -101,10 +98,10 @@ ceq in(Q |-> L ; N, P) = true if in (Q, P) .
  eq $remove(Q |-> L ; N', N, S) = $remove(N', remove(Q, S)  |-> L ; N, S).
 
  *** remove transitions with given labels
- op remove :  Net Set{X} -> Net .
+ op remove :  Net Set{L} -> Net .
  eq remove(N, emptyStlab) = N .
  eq remove(N, Z) = $remove(N, emptyN, Z) .
- op $remove : Net Net NeSet{X} -> Net .
+ op $remove : Net Net NeSet{L} -> Net .
  eq $remove(emptyN, N, Z) = N .
 ceq $remove(Q |-> L ; N', N, Z) = $remove(N', N, Z) if L in Z .
  eq $remove(Q |-> L ; N', N, Z) = $remove(N', Q |-> L ; N, Z) [owise] .
@@ -133,7 +130,7 @@ ceq $remove(Q |-> L ; N', N, Z) = $remove(N', N, Z) if L in Z .
 endfm
 
 *** trivial view to a PT-NET
-view PTnet{X :: TRIV} from TRIV to PT-NET{X} is 
+view PTnet{L :: TRIV, PL :: TRIV} from TRIV to PT-NET{L, PL} is 
  sort Elt to Net .
 endv
 

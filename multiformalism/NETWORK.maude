@@ -23,13 +23,13 @@ endfm
 
 *** single-server elementary queue
 fmod EL-QUEUE{L :: TRIV} is
-  protecting PLACE{L} .
+  protecting PLACE{L} * (sort Place{L} to Place).
   protecting FLOAT .
   sort ElQueue .
-  op _@_ : Place{L} Float -> ElQueue [prec 19 ctor] . *** an elementary queue is described by a place and a service rate
+  op _@_ : Place Float -> ElQueue [prec 19 ctor] . *** an elementary queue is described by a place and a service rate
   op mu : ElQueue -> Float .
-  op p : ElQueue -> Place{L} .
-  var P : Place{L} .
+  op p : ElQueue -> Place .
+  var P : Place .
   var F : Float .
   eq mu(P @ F)  = F .
   eq p(P @ F) = P .
@@ -46,7 +46,7 @@ fmod QUEUE{L :: TRIV} is
   protecting LIST{ElQueue{L}} * (sort List{ElQueue{L}} to List{ElQueue}, sort NeList{ElQueue{L}} to NeList{ElQueue}) .
   extending NETWORK{L} .
   sorts Queue SimpleQ Place* .
-  subsort Place{L} < Place* .
+  subsort Place < Place* .
   subsort SimpleQ < Queue < Node .
   vars Q Q' : ElQueue .
   var SQ : SimpleQ .

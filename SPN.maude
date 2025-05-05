@@ -30,7 +30,7 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   pr PT-NET{Tlab{L}, PL}  .
   pr CONVERSION .
   vars M M' : Pbag .
-  vars P P' : Place{PL} . 
+  vars P P' : Place . 
   var TL : Tlab .
   var Q : Tmatrix .
   var T : Tran .
@@ -65,6 +65,7 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
 
 endfm
 
+in PT-SYS
 *** generic spn def
 fmod SPN-GEN{L :: TRIV, PL :: TRIV} is
   pr (SPN-SIG{L, PL} + PT-SYS{Tlab{L}, PL}) * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}).

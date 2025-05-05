@@ -101,16 +101,6 @@ mod MFQ-STR is
    inc MFQ{Burst} . 
    op m0 : -> [Marking] [memo] .
    var LQ : List{Queue{Burst}} .
-  ceq m0 =  p("mfq") |-> [LQ]  ; p("task") |-> tsk("c") tsk("a") tsk("a") tsk("b") tsk("b")  ; 
+  ceq m0 =  p("mfq") |-> [LQ]  ; p("task") |-> tsk("c") tsk("a") tsk("a") tsk("b") tsk("b") tsk("c") tsk("a") tsk("a") tsk("b") tsk("b")  ; 
             p("served") |-> empty{Task{Burst}} ; p("failed") |-> empty{Queue{Burst}} if LQ := (q: nil ts: 1), (q: nil ts: 2), (q: nil ts: inf) /\ ordered(LQ) .                         
 endm
-
-mod MFQ-STR-BL is 
-  inc MFQ-STR * (sort Place{String} to BL-Place{String}, op p to bl-p, sort Marking to BL-Marking, sort Pmarking to BL-Pmarking,
-          sort Pmarking{Queue{Burst}} to BL-Pmarking{Queue{Burst}}, sort Pmarking{Qnet{Burst}} to BL-Pmarking{Qnet{Burst}},
-          sort Pmarking{Task{Burst}} to BL-Pmarking{Task{Burst}}) .
-endm
-
-view Mfq from TRIV to MFQ-STR-BL is
-    sort Elt to BL-Marking . 
-endv

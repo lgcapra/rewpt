@@ -5,10 +5,10 @@ in SPN-MC
 fmod SPN-MC-EXE is
  pr SPN-EXE .
  pr SPN-MC .
- pr MATCH-CLASS{Tlab{String}} .
+ pr MATCH-CLASS{Tlab{String}} * (sort MatchGroup{Tlab{String}} to MatchGroup{Tlab}, sort  MatchClass{Tlab{String}} to  MatchClass{Tlab}).
  pr MATCH-CLASS{Tmatrix{String}} * (sort MatchGroup{Tmatrix{String}} to MatchGroup{Tmatrix}, sort MatchClass{Tmatrix{String}} to MatchClass{Tmatrix} ) .
  pr SPN-STATE-TRAN .
- var P : Place{String} . vars T T' : Tran . vars B  B' M  M' I O : Pbag  .
+ var P : Place . vars T T' : Tran . vars B  B' M  M' I O : Pbag  .
  vars N N' N'' : Net . vars S S' : System . vars R r r' : Float .
  vars L L' : Tlab . var Q : Tmatrix . var W : String . var E : Nat .
  var X : Set{StateTran{System}} .
