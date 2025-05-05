@@ -8,21 +8,21 @@ in PT-NET
 fmod TLAB{L :: TRIV} is
  pr FLOAT .
  pr NAT .
- sort Lab .
+ sort Tlab .
  var W  : L$Elt .
  var R  : Float .
  var P  : Nat .  
- op t : L$Elt Float Nat -> Lab [ctor] . 
- op tag :  Lab  -> L$Elt .
- op pol :  Lab  -> Nat .
- op rate : Lab  -> Float .
+ op t : L$Elt Float Nat -> Tlab [ctor] . 
+ op tag :  Tlab  -> L$Elt .
+ op pol :  Tlab  -> Nat .
+ op rate : Tlab  -> Float .
  eq tag(t(W,R,P))  =  W .
  eq pol(t(W,R,P))  =  P .
  eq rate(t(W,R,P)) =  R .
 endfm
 
 view Tlab{L :: TRIV} from TRIV to TLAB{L} is 
- sort Elt to Lab .
+ sort Elt to Tlab .
 endv
 
 *** spn signature parameterized in tran labels: for some reasons, we cannot use the TRIV view to parameterize also place labels 
@@ -31,7 +31,7 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   pr CONVERSION .
   vars M M' : Pbag .
   vars P P' : Place{PL} . 
-  var TL : Lab .
+  var TL : Tlab .
   var Q : Tmatrix .
   var T : Tran .
   vars F F' : Float .
@@ -67,8 +67,7 @@ endfm
 
 *** generic spn def
 fmod SPN-GEN{L :: TRIV, PL :: TRIV} is
-  pr SPN-SIG{L, PL} .
-  pr PT-SYS{Tlab{L}, PL} .
+  pr (SPN-SIG{L, PL} + PT-SYS{Tlab{L}, PL}) * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}).
 endfm
 
 *** concrete spn definition based on TLAB (and String) as node labels

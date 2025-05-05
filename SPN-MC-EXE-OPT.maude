@@ -10,7 +10,7 @@ fmod SPN-MC-EXE-OPT is
  pr SPN-STATE-TRAN-OPT .
  var P : Place{String} . vars T T' : Tran . vars B  B' M  M' I O : Pbag  .
  vars N N' N'' : Net . vars S S' : System . vars R r r' : Float .
- vars L L' : Lab . var Q : Tmatrix . var W : String . var E : Nat .
+ vars L L' : Tlab . var Q : Tmatrix . var W : String . var E : Nat .
  var Z : Set{StateTran{Net}} .
  var Y : Set{StateTran{Pbag}} .
  var XM : Match .

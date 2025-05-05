@@ -4,7 +4,7 @@ in SPN-SYS
 *** system module (including rewrite rules) of the SPN example
 mod SPN-EXE-SYS is
  inc (SPN-EXE + SPN-SYS) * (sort Place{String} to Place) .
- vars L L' : Lab . vars T T' : Tran . var P : Place . vars B B' M I O : Pbag  .
+ vars L L' : Tlab . vars T T' : Tran . var P : Place . vars B B' M I O : Pbag  .
  vars r r' : Float . var N : Net . var W : String . var E : Nat . var Q : Tmatrix .
 
  *** example of rewrites (other than firing)
