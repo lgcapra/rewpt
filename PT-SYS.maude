@@ -7,14 +7,20 @@ fmod PT-SYS{L :: TRIV, PL :: TRIV} is
   vars L L' : L$Elt . vars T T' : Tran . vars N N' : Net .
   vars P P' : Place . vars M I O H : Pbag . vars K K'  : NzNat .
   vars Q Q' : Tmatrix . var  S : Pset .
+  var Sy : System .
+
   op __ : Net Pbag -> [System] [ctor] .
   cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty" and have duplicated transitions
   *** cmb N M : System if N =/= emptyNet and-then repeatedKeys?(N) == false . *** a PT system cannot be "empty" and have duplicated transitions
+  
   ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places
-  op n : System -> Net .
-  op m : System -> Pbag .
+  ops n net : System -> Net .
+  ops m marking : System -> Pbag .
+  eq net(Sy) = n(Sy) .
+  eq marking(Sy) = m(Sy) .
   eq n(N M) = N .
   eq m(N M) = M .
+  
    *** computes the system's enabled transitions (outcome seen as a sub-Net) 
   op haveConcession : System -> Net [memo] .
   eq haveConcession(S:System) = $haveConcession(S:System, emptyNet) .
@@ -22,4 +28,8 @@ fmod PT-SYS{L :: TRIV, PL :: TRIV} is
   eq $haveConcession(emptyNet M, N) = N .
  ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if enabled(T, M) .
   eq $haveConcession((T ; N) M, N') = $haveConcession(N M, N') [owise] . 
+
+ *** checks for a deadlock
+ op dead : System -> Bool . 
+ eq dead(Sy) = haveConcession(Sy) == emptyNet .
 endfm

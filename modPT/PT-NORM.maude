@@ -1,10 +1,10 @@
 *** this module defines the operators to bring a Net (System) to a minimal/canonical form
 *** should be used in combination with NET-OP: i.e., assumes that models are built according
 *** to the net-operators there defined
-in PT-SYS
+in PT-SYS-MOD
 
-fmod PT-NORM{X :: TRIV} is
- pr PT-SYS{X} .
+fmod PT-NORM{L :: TRIV} is
+ pr PT-SYS-MOD{L} .
  pr SET+{Nat} * (op emptyS to emptyNat) .
  vars P P' P'' : Place .
  vars S S' : Pset .
@@ -61,27 +61,27 @@ ceq abstract(B) = abstract(K . p(L' < W ; K' - 1 > L) + replaceWith(B', < W ; K'
  *** version 2 : (repeatedly) finds the smallest missing suffix header's index and the greatest one (if any) and replaces the former with the latter
  *** negli esempi è un po' meno efficiente ma in generale (in casi meno semplici) può essere meglio
  op abstract2 : Pbag -> Pbag .
-ceq abstract2(B) = abstract2(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ I := minNotIn(B', W, L) /\ I < K  /\ K := maxIn(B, W, L) .
+ceq abstract2(B) = abstract2(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ I := minNotIn(B', W, L) /\ I < K  /\ K = maxIn(B, W, L) .
  eq abstract2(B) = B [owise] .
 
 *** net/system versions
  op abstract : Net -> Net . *** needed?
  eq abstract(N) = net(abstract(N nilP)) .
  op abstract : System -> System .
-ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K' > L, K' - 1)) if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ exists(S', < W ; K' - 1 > L) == false .
+ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K' > L, K' - 1)) if S := places(n(Sys)) /\ p(L' < W ; K' > L) U S' := S /\ exists(S', < W ; K' - 1 > L) == false .
  eq abstract(Sys) = Sys [owise] .
 *** version 2
  op abstract2 : System -> System .
-ceq abstract2(Sys) = abstract2(replaceWith(Sys, NeL, I)) if S := places(Sys) /\ p(L' NeL) U S' := S /\ < W ; K > L := NeL /\ I := minNotIn(S', W, L) /\ I < K  /\ K := maxIn(S, W, L) .
+ceq abstract2(Sys) = abstract2(replaceWith(Sys, NeL, I)) if S := places(n(Sys)) /\ p(L' NeL) U S' := S /\ < W ; K > L := NeL /\ I := minNotIn(S', W, L) /\ I < K  /\ K = maxIn(S, W, L) .
  eq abstract2(Sys) = Sys [owise] .
 
 *** excludes from index abstraction those places (components) matching a given suffix
  op abstractBut : System String -> System .
-ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K' > L, K' - 1), W') if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ 1st(last(L' < W ; K' > L)) =/= W' /\ exists(S', < W ; K' - 1 > L) == false .
+ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K' > L, K' - 1), W') if S := places(n(Sys)) /\ p(L' < W ; K' > L) U S' := S /\ 1st(last(L' < W ; K' > L)) =/= W' /\ exists(S', < W ; K' - 1 > L) == false .
  eq abstractBut(Sys, W) = Sys [owise] .
 *** version 2
 op abstractBut2 : System String -> System .
-ceq abstractBut2(Sys, W') = abstractBut2(replaceWith(Sys, < W ; K' > L, K' - 1), W') if S := places(Sys) /\ p(L' < W ; K' > L) U S' := S /\ 1st(last(L' < W ; K' > L)) =/= W' /\ exists(S', < W ; K' - 1 > L) == false .
+ceq abstractBut2(Sys, W') = abstractBut2(replaceWith(Sys, < W ; K' > L, K' - 1), W') if S := places(n(Sys)) /\ p(L' < W ; K' > L) U S' := S /\ 1st(last(L' < W ; K' > L)) =/= W' /\ exists(S', < W ; K' - 1 > L) == false .
  eq abstractBut2(Sys, W) = Sys [owise] .
 ******
  
@@ -160,8 +160,7 @@ ceq maxIn(K . p(L' NeL) + B, W, L) = J if < W ; J > L := NeL /\ existsgr(B, NeL)
  eq extract(B, W, A, L) = $extract(B, nilP, W, A, L) .
  op $extract : Pbag Pbag String Set{Nat} Lab ->  Pbag .
  eq $extract(nilP, B, W, A, L) = B .
-ceq $extract(K . p(L' < W ; I > L) + B, B', W, A, L) = $extract(B,
- B' + K . p(L' < W ; I > L) , W, A, L) if I in A . 
+ceq $extract(K . p(L' < W ; I > L) + B, B', W, A, L) = $extract(B, B' + K . p(L' < W ; I > L) , W, A, L) if I in A . 
  eq $extract(K . P + B, B', W, A, L) = $extract(B, B' , W, A, L) [owise] .  
 endfm 
 

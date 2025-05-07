@@ -10,7 +10,8 @@ fmod PT-NET{L :: TRIV, PL :: TRIV} is
  vars P P' : Place . vars M I O H : Pbag . vars K K'  : NzNat .
  var Q : Tmatrix . var  S : Pset .
  
- op l : Tran -> L$Elt .
+ ops l lab : Tran -> L$Elt .
+ eq lab(T) = l(T) .
  op q : Tran -> Tmatrix .
  eq l(L |-> Q) = L .
  eq q(L |-> Q) = Q .

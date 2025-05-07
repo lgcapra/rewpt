@@ -1,11 +1,9 @@
-in PBAG
-in ATYPE
+in PBAG-MOD
+in ../TMATRIX
 
-fmod TMATRIX is
- pr PBAG .
- pr ATYPE .
- sort Tmatrix .
- op [_,_,_] : Pbag Pbag Pbag -> Tmatrix [ctor] .
+fmod TMATRIX-MOD is
+ pr PBAG-MOD .
+ pr TMATRIX{Plab} .
  
  vars X Y Z X' Y' Z' : Pbag .
  vars P P' P'' : Place .
@@ -17,42 +15,6 @@ fmod TMATRIX is
  var S  : Pset .
  var Ws :  List{String} .
  var NWs : NeList{String} .
- 
- ops I O H : Tmatrix -> Pbag .
- eq I([X,Y,Z]) = X .
- eq O([X,Y,Z]) = Y .
- eq H([X,Y,Z]) = Z .
-
- op enabled : Tmatrix Pbag -> Bool .
- eq enabled([X,Y,Z], X') = X <= X' and-then Z > X' .
-
- op _(_) : Tmatrix Atype -> Pbag [prec 23] . *** introduced for convenience
- var a : Atype .
- eq Q(i) = I(Q) .
- eq Q(o) = O(Q) . 
- eq Q(h) = H(Q) .
-
- op in :  Tmatrix Place -> Bool . *** test the existence of a place
- eq in([X + K . P, Y, Z], P) = true .
- eq in([X, Y + K . P, Z], P) = true .
- eq in([X, Y, Z + K . P], P) = true .
- eq in(Q, P) = false [owise] .
-
- op dead : Tmatrix -> Bool .  *** checks for structurally dead transitions 
-ceq dead([K . P + X, Y, K' . P + Z]) = true if K >= K'  .
- eq dead(Q) = false [owise] .
-
- op places : Tmatrix -> Pset .
- eq places([X,Y,Z]) = support(X) U support(Y) U support(Z) .
- 
- *** pair-wise sum
- op _+_  : Tmatrix Tmatrix -> Tmatrix [prec 41 assoc comm] .
- eq [X,Y,Z] + [X',Y',Z'] = [X' + X, Y' + Y, Z' + Z] .
- *** set a given place's arc type
- op set : Tmatrix Atype Place Nat -> Tmatrix .
- eq set([X,Y,Z], i, P, N) = [set(X,P,N), Y, Z] .
- eq set([X,Y,Z], o, P, N) = [X, set(Y,P,N), Z] .
- eq set([X,Y,Z], h, P, N) = [X, Y, set(Z,P,N)] .
  
  *** net-algebra ops: add a new label to a matrix' elements
  *** removes all places from a local matrix
@@ -86,7 +48,3 @@ ceq dead([K . P + X, Y, K' . P + Z]) = true if K >= K'  .
  eq replaceWith([X,Y,Z], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N), replaceWith(Z, NeL, N)] .
   
 endfm
-
-view Tmatrix from TRIV to TMATRIX is 
- sort Elt to Tmatrix . 
-endv

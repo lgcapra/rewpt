@@ -1,8 +1,10 @@
 in PBAG
 in TRAN
+in ATYPE
 
 fmod TMATRIX{L :: TRIV} is
  pr PBAG{L} .
+ pr ATYPE .
  sort Tmatrix .
  op [_,_,_] : Pbag Pbag Pbag -> Tmatrix [ctor] .
  
@@ -10,11 +12,18 @@ fmod TMATRIX{L :: TRIV} is
  vars I O H M I' O' H' : Pbag .
  vars K K' : NzNat .
  var Q  : Tmatrix .
+ var S  : Pset .
   
  ops I O H : Tmatrix -> Pbag .
  eq I([I,O,H]) = I .
  eq O([I,O,H]) = O .
  eq H([I,O,H]) = H .
+
+ op _(_) : Tmatrix Atype -> Pbag [prec 23] . *** introduced for convenience
+ var a : Atype .
+ eq Q(i) = I(Q) .
+ eq Q(o) = O(Q) . 
+ eq Q(h) = H(Q) .
 
  op in :  Tmatrix Place -> Bool . *** test the existence of a place
  eq in([I + K . P, O, H], P) = true .
@@ -35,6 +44,16 @@ fmod TMATRIX{L :: TRIV} is
  *** pair-wise sum
  op _+_  : Tmatrix Tmatrix -> Tmatrix [prec 41 assoc comm] .
  eq [I,O,H] + [I',O',H'] = [I' + I, O' + O, H' + H] .
+
+ *** set a given place's arc type
+ op set : Tmatrix Atype Place Nat -> Tmatrix .
+ eq set([I,O,H], i, P, K) = [set(I,P,K), O, H] .
+ eq set([I,O,H], o, P, K) = [I, set(O,P,K), H] .
+ eq set([I,O,H], h, P, K) = [I, O, set(H,P,K)] .
+
+ *** removes the specified places from a local matrix
+ op remove :  Tmatrix Pset -> Tmatrix .
+ eq remove([I,O,H], S) = [remove(I, S),remove(O, S),remove(H, S)] .
 
 endfm
 
