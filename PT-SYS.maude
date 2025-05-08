@@ -9,9 +9,10 @@ fmod PT-SYS{L :: TRIV, PL :: TRIV} is
   vars Q Q' : Tmatrix . var  S : Pset .
   var Sy : System .
 
-  op __ : Net Pbag -> [System] [ctor] .
-  cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty" and have duplicated transitions
-  *** cmb N M : System if N =/= emptyNet and-then repeatedKeys?(N) == false . *** a PT system cannot be "empty" and have duplicated transitions
+  op __ : Net Pbag -> System [ctor] .
+  *** op __ : Net Pbag -> [System] [ctor] .
+  *** cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty" 
+  *** cmb N M : System if N =/= emptyNet and-then repeatedKeys?(N) == false . *** a PT system cannot have duplicated transitions
   
   ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places
   ops n net : System -> Net .

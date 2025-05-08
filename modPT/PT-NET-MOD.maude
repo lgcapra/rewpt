@@ -119,7 +119,7 @@ ceq $remove(L |-> Q ; N', N, NeSL) = $remove(N', N, NeSL) if L in NeSL .
  eq addLab(N, Lab, S) = $addLab(N, emptyNet, Lab, S) .
  op $addLab : Net Net Lab Pset -> Net .
  eq $addLab(emptyNet, N, Lab, S) = N .
- eq $addLab(L |-> Q ; N', N, Lab, S) = $addLab(N', addLab(L |-> Q, Lab, S) ; N, Lab, S) .
+ eq $addLab(L |-> Q ; N', N, Lab, S) = $addLab(N', L |-> addLab(Q, Lab, S) ; N, Lab, S) .
  *** simple (default) version
  op addLab : Net Lab -> Net . 
  eq addLab(N, Lab) = addLab(N, Lab, emptyPset) .

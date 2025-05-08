@@ -38,7 +38,7 @@ ceq merge(N ; L |-> Q ; L |-> Q', Z) = L |-> Q +  Q' ; merge(N, Z) if L in Z .
  eq joinAbs(Sys, Sys') = net(join(Sys, Sys')) nilP . 
  *** join two systems and then merge transitions identically labelled whose labels belong to the given set
  op join : System System Set{L} -> System  .
- eq join(N B, N' B', Z) = merge(N ; N', Z) B + B' . 
+ eq join(N B, N' B', Z) = merge(N ; N', Z) B + B' . ***
  *** forced join (builds on transitions'  merge!)
  op join! : System System  -> System .
  eq join(N B, N' B') = merge!(N ; N') B + B' . 
@@ -62,8 +62,8 @@ ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
  eq $repl&share(Sys, K, W, Sys', S, Z) = $repl&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S), Z), S, Z) .
  
  *** new! : used in the paper 
- op repl&share  : System NzNat String String Set{L} -> System .
- eq repl&share(Sys, K, W, W1, Z) = $repl&share(Sys, K, W, emptySys, places(n(Sys), W1), Z) .
+ *** op repl&share  : System NzNat String String Set{L} -> System .
+ *** eq repl&share(Sys, K, W, W1, Z) = $repl&share(Sys, K, W, emptySys, places(n(Sys), W1), Z) .
 
  *** overloaded version in which shared places are specified through a suffix in their labels
  op repl&share : System NzNat String List{String} Set{L} -> System .
@@ -96,7 +96,7 @@ ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
  eq setMark(N, NeL, 0) = N nilP . 
  eq setMark(N, NeL, K) = setMark(N nilP, NeL, K) . 
  op setMark : System NeList{String} Nat -> System .
- eq setMark(N B, NeL, I) = N set(B, places(B, NeL), I) . 
+ eq setMark(N B, NeL, I) = N set(B, places(N, NeL), I) . 
  
 *** symmetric process algebra ops 
 *** op synch  : System NzNat Atype String String String  -> System . 
@@ -127,7 +127,7 @@ ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
  *** does nothing (i.e., returns the same Net) if Def.2 would be violated by the action
  op set : Net L$Elt Atype String NzNat NzNat -> Net .
  *** remove net's places matching a specified label suffix
- op remove : Net NeList{String} -> Net .
+ *** op remove : Net NeList{String} -> Net .
  *** remove net's transitions with a specific label
  op remove : Net  L$Elt -> Net .
  *** add a new component (sub-net, 2nd arg) to the specified net (1st arg) at the highest level of hierarchy (root),

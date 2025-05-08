@@ -77,24 +77,11 @@ ceq $match(K . P + B, Ws, NeL, B') = $match(B, Ws, NeL, B' + K . P) if match(P, 
 ceq $match(K . P + B, NeWs, B') = $match(B, NeWs, B' + K . P) if match(P, NeWs) .
  eq $match(B, NeWs, B') = B' [owise] .
 
- *** derived definition(s) of support
- op support : Pbag NeList{String} -> Pset .
- eq support(B, NeWs) = support(subag(B, NeWs)) .
- op support : Pbag List{String} NeLab  -> Pset . 
- eq support(B, Ws, NeL) = support(subag(B, Ws, NeL)) .
- *** based on match
- op suppmatch : Pbag List{String} NeLab  -> Pset .
- eq suppmatch(B, Ws, NeL) = support(match(B, Ws, NeL)) .
- op suppmatch : Pbag NeList{String} -> Pset .
- eq suppmatch(B, NeWs) = support(match(B, NeWs)) .
- 
- 
- *** asymmetric relation on bags: strict TO on bags obtained by permuting a bag's elements -- defined without passing through lists
- op le  : Pbag Pbag -> Bool . *** to avoid any confusion with < , <= bag operators etc.
+ *** le: strict TO on bags obtained by permuting a bag's elements -- defined without passing through lists
  op cmp : ElPbag ElPbag -> Nat .   *** compare method between el. bags  -- results in {0,1,2}
  eq cmp(K . p(NeL), K . p(NeL')) = cmp(NeL, NeL') .
  eq cmp(K . P, K' . P') = if K < K' then 1 else 2 fi [owise] .
-
+ op le  : Pbag Pbag -> Bool . *** to avoid any confusion with < , <= bag operators etc.
  eq le(B, B) = false .
  eq le(nilP, NeB) = true .
  eq le(NeB, nilP) = false .

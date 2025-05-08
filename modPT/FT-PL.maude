@@ -1,9 +1,9 @@
 in NET-OP
 
 fmod PT-FTPL is
- protecting NET-OP{String} * (op emptyStlab to emptyStr) .
+ protecting NET-OP{String} * (op emptySlab to emptyStr) .
  ops sline sload sass sfault faultysload faultysass :  -> Tmatrix .
- ops line load ass fault faultyload faultyass : -> Transition . 
+ ops line load ass fault faultyload faultyass : -> Tran . 
  ops cycle faultycycle faultyPL : -> Net .
  ops PL PLA nomPL faultyPL NfaultyPL : NzNat -> Net . 
  op faultySys : NzNat -> System . 
@@ -12,10 +12,10 @@ fmod PT-FTPL is
  
  var I  : Nat . 
  vars N K M : NzNat .
- eq line =  [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 0 >), 1 . p(< "f" ; 0 >) ] |-> "ln" .
- eq fault = [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ] |-> "ft" .
- eq load  = [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] |-> "ld" .
- eq ass   = [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ]  |-> "as" .
+ eq line =  "ln"  |-> [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 0 >), 1 . p(< "f" ; 0 >) ].
+ eq fault = "ft"  |-> [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ].
+ eq load  = "ld"  |-> [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] .
+ eq ass   = "as"  |-> [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ] .
  eq cycle = load ; line ; ass .
  eq PL(K) = repl&share(cycle ; fault, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), "as" U "ld") . *** a PL is built of K symmetric lines 
  eq NPL(N, K) = repl&share(PL(K), N, "PL", p(< "s" ; 0 >), emptyStr) . *** change here to vary the lines of a PL
@@ -26,8 +26,8 @@ fmod PT-FTPL is
  *** the i-th faulty PL working with one line
  eq faultysload =  [2 . p(< "s" ; 0 >) , 2 . p(< "w" ; 0 >) , nilP ] .
  eq faultysass  =  [2 . p(< "a" ; 0 >) , 2 . p(< "s" ; 0 >)  , nilP ] .
- eq faultyload = faultysload |-> "ld" . 
- eq faultyass  = faultysass  |-> "as" .
+ eq faultyload = "ld"  |-> faultysload . 
+ eq faultyass  = "as"  |-> faultysass.
  eq faultycycle = faultyload ; line ; faultyass ; fault .
  eq faultyPL(I) = addLab(faultycycle, < "fPL" ; I >, "s") . *** a faulty PL is built of 1 line
  eq faultySys(I) = setMark(faultyPL(I), "o" "fPL", 1) .
@@ -35,18 +35,17 @@ fmod PT-FTPL is
  ***
  eq NfaultyPL(N) = repl&share(faultycycle, N, "fPL", p(< "s" ; 0 >), emptyStr) .
  
- *** we use process algebra ops to build the same model
+ *** we use process algebra ops to build the same model -- to be defined
  eq  PLA(K) = merge(replAnd(line ; fault, K, "w", "a", "ld", "s", "as", "s", "L"), "o" "L") . *** note s used twice: it's at the same time in and out
  eq  PL(K)  = set(set(PLA(K), "ld", i, "s", K), "as", o, "s", K) .
  eq  NPL(N,K) = replOr(PLA(K), N, "s", "s", "PL") . 
-
  
 endfm
 
 in PT-EMU
 mod RWPT-FTPL is
  pr  PT-FTPL .
- inc PT-EMU{String} * (op emptyStlab to emptyStr) .
+ inc PT-EMU{String} * (op emptySlab to emptyStr) .
  vars N N' N'' : Net .
  vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : String .
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
@@ -77,19 +76,19 @@ crl [rew1.1] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | ma
 
 
 *** syr2 removes a faulty PL after a 2nd fault occurrence (analogous considerations to syr1)
-***crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyN /\
+***crl [syr2] : N  S + 1 . P6  => N' (set(set(S, P1, S[P1] + S[P2] + S[P4]), P2, 0)) - 1 . P4 if (N' ; [1 . P0, 1 . P6, nilP] |-> Tfail1 ; [2 . P1, 2 . P2, nilP] |-> Tload  ; [1 . P2, 1 . P4, 1 . P6] |-> Tline1 ; [2 . P4, 2 . P1, nilP ] |-> Tass ) := N  /\ N' =/= emptyNet /\
 ***  dead(([2 . P1, 2 . P2, nilP] |-> Tload ; [2 . P4, 2 . P1, nilP ] |-> Tass) S) .
 *** version coherent with normalization
 *** crl [rew2] : N  S + 1 . p(< "f" ; J > L < "fPL" ; I >) => normalize(N'' set(S - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL")  if 
-***   N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyN /\
+***   N' := faultyPL(I) /\ N'' := detache(N, N') /\ N'' =/= emptyNet /\
 ***   dead(N' S + 1 . p(< "f" ; J > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
 *** more readable
 crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL")  if 
-        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
+        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyNet  /\
         S' := subag(S'', < "fPL" ; I >) .
 *** paper's version
 ***crl [rew2p] : N S => normalize(setMark(N'' S'' - S', "s" , | match(S, "s") | + | S' | ), "PL")  if 
-***   S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\  dead(faultyPL(I) S)  /\ N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyN  /\
+***   S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\  dead(faultyPL(I) S)  /\ N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyNet  /\
 ***   S' := subag(S'', < "fPL" ; I >) . 
 
 *** without normalization
@@ -101,14 +100,14 @@ crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 
 
 
 *** crl [rew2.1] : N S => N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |)  if 
-***       S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyN  /\
+***       S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ N'' =/= emptyNet  /\
 ***       S' := subag(S'', < "fPL" ; I >) .
 
 *** marking abstractions (derived from readable versions)
 *** crl [ar1] : N  nilP => normalize(joinAbs(Sys, Sys'))   
 ***    if  p(L < "PL" ; I >) U Sp := places(N) /\ Sys := detache(N, nomPL(I)) nilP /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
-*** crl [ar2] : N nilP =>  normalize(N'' nilP) if p(L < "fPL" ; I >)  U Sp := places(N) /\ N' := faultyPL(I) /\  N'' := detache(N, N') /\ N'' =/= emptyN .
+*** crl [ar2] : N nilP =>  normalize(N'' nilP) if p(L < "fPL" ; I >)  U Sp := places(N) /\ N' := faultyPL(I) /\  N'' := detache(N, N') /\ N'' =/= emptyNet .
 *** (paper versions)
 *** crl [ar1p] : N nilP => normalize(attach(N', faultyPL, "fPL") nilP)  if  p(L < "PL" ; I >) U Sp := places(N) /\ N' := detache(N, < "PL" ; I >)  .
-*** crl [ar2p] : N nilP => normalize(N'' nilP)  if p(L < "fPL" ; I >)  U Sp := places(N) /\  N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyN  . 
+*** crl [ar2p] : N nilP => normalize(N'' nilP)  if p(L < "fPL" ; I >)  U Sp := places(N) /\  N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyNet  . 
 endm  
