@@ -87,11 +87,13 @@ ceq abstractBut2(Sys, W') = abstractBut2(replaceWith(Sys, < W ; K' > L, K' - 1),
  
 *** normalize a system assuming that its labelling is well-defined: for the net, only index abstraction applies 
  op normalize : System -> System .
+*** ceq normalize(Sys) = net(Sys') normalize(marking(Sys')) if Sys' := abstract(Sys) .
 ceq normalize(Sys) = net(Sys') normalize(marking(Sys')) if Sys' := abstract(Sys) .  
 
 ****** excludes from index abstraction those net places (components) matching a given suffix
 op normalize : System String -> System .
 ceq normalize(Sys, W) = net(Sys') normalize(marking(Sys')) if Sys' := abstractBut(Sys, W) .  
+
 *****
 
  *** version 2

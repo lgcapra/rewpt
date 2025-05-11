@@ -132,7 +132,7 @@ ceq $remove(L |-> Q ; N', N, NeSL) = $remove(N', N, NeSL) if L in NeSL .
  eq replaceWith(N, NeL, J) = $replaceWith(N, NeL, J, emptyNet) .  
  op $replaceWith : Net NeLab Nat Net -> Net . 
  eq $replaceWith(emptyNet, NeL, J, N) = N . 
- eq $replaceWith(L |-> Q ; N, NeL, J, N') = $replaceWith(N, NeL, J, N' ; replaceWith(L |-> Q, NeL, J)) .
+ eq $replaceWith(L |-> Q ; N, NeL, J, N') = $replaceWith(N, NeL, J, N' ; L |-> replaceWith(Q, NeL, J)) .
  
 endfm
 
