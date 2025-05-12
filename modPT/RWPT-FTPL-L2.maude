@@ -1,0 +1,28 @@
+in PT-EMU
+in FTPL
+
+*** two-level description of TS of RwPT
+mod RWPT-FTPL-L2 is
+ inc  FTPL .
+ inc PT-EMU-L2{String} * (op emptySlab to emptyStr) .
+ vars N N' N'' : Net .
+ vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : String .
+ vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
+ vars S S' S'' DS : Pbag .
+ var K : NzNat .
+ vars I Imin J : Nat .
+ var W : String .
+ vars L L' L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
+ var Sys Sys' : System .
+ var Sp : Pset .
+
+*** more readable
+crl [rew1.1] : N S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
+      if  N . S => N . DS /\ dead(N DS) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := DS /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
+
+
+*** crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL")  if 
+***        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ 
+***        N'' =/= emptyNet  /\ S' := subag(S'', < "fPL" ; I >) .
+ 
+endm  

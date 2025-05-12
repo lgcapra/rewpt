@@ -1,0 +1,18 @@
+*** defines the PT-system semantics for the two-level approach for RwPT
+*** 1st level: system (net) rewrites 
+*** 2nd level: firing rule
+in PT-NORM
+
+mod PT-EMU-L2{X :: TRIV} is
+ pr PT-NORM{X} .
+ sort SystemL2 .
+ op _._ : Net Pbag -> SystemL2 [ctor] .
+ vars I O H M M' : Pbag . 
+ vars N N' : Net .
+ var L : X$Elt . *** tran. lab
+ var T : Tmatrix .
+ crl [firing] : (N ; L |-> T) . M => (N ; L |-> T) . normalize(M + O - I) if [I,O,H] := T /\ I =/= O /\ enabled(T, M)  [print "T = " L] .
+ *** includes a further optimization: if the marked places are retained then index abstraction is skipped
+ *** crl [cfiring] : N . M => N . normalize(M', support(M) == support(M')) if L |-> [I,O,H] ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
+endm
+
