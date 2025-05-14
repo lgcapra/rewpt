@@ -21,12 +21,12 @@ mod RWPT-FTPL-L2 is
 *** crl [rew1.2] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))   
 ***      if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
 *** 2L
-crl [rew1.2] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))   
-     if  N . S => N . DS /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := DS /\ N' := nomPL(I) /\ dead (N' DS) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
+*** crl [rew1.2] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))   
+***     if  N . S => N . DS /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := DS /\ N' := nomPL(I) /\ dead (N' DS) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
 
-*** triggered by a local deadlock (wrong)
-*** crl [rew1.1] : N S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
-****      if  N . S => N . DS /\ dead(N DS) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := DS /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  [print "DS = " DS] .
+*** triggered by a global deadlock (wrong)
+crl [rew1.1] : N S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
+     if  N . S => N . DS /\ dead(N DS) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := DS /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, nomPL(I)) S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  [print "DS = " DS] .
 
 *** originale
 *** crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL")  if 
