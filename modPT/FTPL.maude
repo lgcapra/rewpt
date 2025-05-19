@@ -13,7 +13,8 @@ fmod FTPL is
  var I  : Nat . 
  vars N K M : NzNat .
  eq line =  "ln"  |-> [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 0 >), 1 . p(< "f" ; 0 >) ].
- eq fault = "ft"  |-> [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ].
+ *** eq fault = "ft"  |-> [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ].
+ eq fault = "ft"  |-> [1 . p(< "o" ; 0 >) + 1 . p(< "w" ; 0 >), 1 . p(< "f" ; 0 >) + 1 . p(< "w" ; 0 >), nilP ] .
  eq load  = "ld"  |-> [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] .
  eq ass   = "as"  |-> [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ] .
  eq cycle = load ; line ; ass .
