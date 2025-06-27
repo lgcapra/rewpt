@@ -142,6 +142,60 @@
       <arc head="f1" kind="OUTPUT" tail="ft1"/>
     </edges>
   </gspn>
+  <gspn name="PLnew" show-color-cmd="false" show-fluid-cmd="false" show-timed-cmd="false" view-rates="false">
+    <nodes>
+      <place label-x="-1.0" label-y="-2.0" marking="1" name="o" x="6.0" y="10.0"/>
+      <transition label-y="-2.0" name="ft0" nservers-x="0.5" type="EXP" x="16.55" y="3.0"/>
+      <transition label-y="-2.0" name="ft1" nservers-x="0.5" type="EXP" x="16.55" y="17.0"/>
+      <place label-y="-2.0" marking="2 *M" name="s" x="11.0" y="10.0"/>
+      <transition label-y="-2.0" name="ld" nservers-x="0.5" type="EXP" x="16.55" y="10.0"/>
+      <transition label-y="2.0" name="ln0" nservers-x="0.5" type="EXP" x="26.55" y="7.0"/>
+      <transition label-y="-2.0" name="ln1" nservers-x="0.5" type="EXP" x="26.55" y="13.0"/>
+      <transition label-y="-2.0" name="as" nservers-x="0.5" type="EXP" x="36.55" y="10.0"/>
+      <place name="w0" x="21.0" y="7.0"/>
+      <place name="w1" x="21.0" y="13.0"/>
+      <place name="a0" x="31.0" y="7.0"/>
+      <place name="a1" x="31.0" y="13.0"/>
+      <place label-y="-2.0" name="f0" x="21.0" y="3.0"/>
+      <place name="f1" x="21.0" y="17.0"/>
+      <constant consttype="INTEGER" name="M" value="3" x="3.0" y="21.0"/>
+    </nodes>
+    <edges>
+      <arc head="ft0" kind="INPUT" tail="o">
+        <point x="7.0" y="4.0"/>
+      </arc>
+      <arc head="ft1" kind="INPUT" tail="o">
+        <point x="7.0" y="18.0"/>
+      </arc>
+      <arc head="ld" kind="INPUT" mult="2" mult-k="0.81142578125" mult-x="-5.0681611512004565E-5" mult-y="0.4999999999999982" tail="s">
+        <point x="14.87548828125" y="11.0"/>
+      </arc>
+      <arc head="w0" kind="OUTPUT" tail="ld"/>
+      <arc head="ln0" kind="INPUT" tail="w0"/>
+      <arc head="a0" kind="OUTPUT" tail="ln0"/>
+      <arc head="w1" kind="OUTPUT" tail="ld"/>
+      <arc head="ln1" kind="INPUT" tail="w1"/>
+      <arc head="a1" kind="OUTPUT" tail="ln1"/>
+      <arc head="as" kind="INPUT" tail="a1"/>
+      <arc head="as" kind="INPUT" tail="a0"/>
+      <arc head="s" kind="OUTPUT" mult="2" mult-x="0.5" mult-y="-0.04080641240004823" tail="as">
+        <point x="37.0" y="21.0"/>
+        <point x="12.0" y="21.0"/>
+      </arc>
+      <arc head="ln0" kind="INHIBITOR" tail="f0">
+        <point x="27.0" y="4.0"/>
+      </arc>
+      <arc head="ln1" kind="INHIBITOR" tail="f1">
+        <point x="27.0" y="18.0"/>
+      </arc>
+      <arc head="f0" kind="OUTPUT" tail="ft0"/>
+      <arc head="f1" kind="OUTPUT" tail="ft1"/>
+      <arc head="ft0" kind="INPUT" tail="w0"/>
+      <arc head="w0" kind="OUTPUT" tail="ft0"/>
+      <arc head="w1" kind="OUTPUT" tail="ft1"/>
+      <arc head="ft1" kind="INPUT" tail="w1"/>
+    </edges>
+  </gspn>
   <gspn name="2PL" show-color-cmd="false" show-fluid-cmd="false" show-timed-cmd="false" view-rates="false">
     <nodes>
       <place marking="1" name="pnf1" x="8.0" y="12.0"/>
