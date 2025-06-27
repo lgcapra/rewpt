@@ -1,0 +1,31 @@
+fmod PHIL-N is
+ pr NAT .
+ sorts Phil NeMultiSetPh MultiSetPh .
+ subsort Phil < NeMultiSetPh < MultiSetPh . 
+ op N : -> Nat  [ctor memo] .
+ op ph : Nat -> Phil [ctor] .
+ op empty : -> MultiSetPh [ctor] . 
+ op __ : MultiSetPh MultiSetPh -> MultiSetPh [ctor assoc comm id: empty] .
+ op __ : NeMultiSetPh MultiSetPh -> NeMultiSetPh [ctor ditto] .
+ var X : Nat . vars M M' : MultiSetPh .
+ eq N = 5 .
+ ceq ph(X) = ph(X rem N) if X >= N . 
+ op _<=_ : MultiSetPh MultiSetPh -> Bool . *** checks that the 1st mset is contained in the 2nd
+ eq M <= (M M') = true .
+ eq M <= M' = false [owise] .
+ op _-_ : MultiSetPh MultiSetPh -> MultiSetPh .
+ eq (M M') - M' = M .
+ eq M - M' = M [owise] .
+endfm
+
+mod S-PHIL-N is
+  inc PHIL-N . 
+  var M : MultiSetPh .
+  vars X J : Nat .
+  var P : Phil .
+  rl  [ncr1] : ph(X) ph(X + 1) => empty .
+  crl [rc2] : M ph(X) => M ph(X) ph(X + 1) if not(ph(X + 1) <= M) .
+  *** crl  [cr1?] : ph(X) ph(J) => empty if J = X + 1 .
+  *** rl  [cr1??] : ph(X) ph(s(X)) => empty .
+  *** crl  [cr1] : ph(X) P => empty if P = ph(X + 1) .
+endm
