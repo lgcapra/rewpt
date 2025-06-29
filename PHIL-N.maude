@@ -23,9 +23,8 @@ mod S-PHIL-N is
   var M : MultiSetPh .
   vars X J : Nat .
   var P : Phil .
-  rl  [ncr1] : ph(X) ph(X + 1) => empty .
-  crl [rc2] : M ph(X) => M ph(X) ph(X + 1) if not(ph(X + 1) <= M) .
-  *** crl  [cr1?] : ph(X) ph(J) => empty if J = X + 1 .
-  *** rl  [cr1??] : ph(X) ph(s(X)) => empty .
-  *** crl  [cr1] : ph(X) P => empty if P = ph(X + 1) .
+  rl  [nch-r1] : ph(X) ph(X + 1) => empty . *** non coherent
+  *** crl  [ch-r1-1] : ph(X) ph(J) => empty if J = X + 1 .
+  *** rl   [ch-r1-2] : ph(X) ph(s(X)) => empty .
+  *** crl  [ch-r1-3] : ph(X) P => empty if P = ph(X + 1) .
 endm

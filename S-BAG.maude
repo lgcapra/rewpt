@@ -1,0 +1,11 @@
+*** test module
+in ./shared/BAG
+
+
+mod S-BAG is
+ inc BAG{String} .
+ var X : String .
+ var N : Nat .
+ *** rl 2 . X => 1 . X .  *** applies only to terms such es 2 . "a"
+ rl s(s(N)) . X => s(N) . X .
+endm
