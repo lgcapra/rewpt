@@ -18,26 +18,29 @@ mod TWIN-QUEUE-B{X :: TRIV} is
  var LB : Bag{Elist{X}} .
  var X : X$Elt .
  var K : NzNat .
+ var N : Nat .
  
   *** the algebraic net's transitions are encoded as rewrite rules
 
   *** witdraws two occurrences of an element from p("task"), by appending each occurrence to one of the list in p("queue")
-crl [double-1] : p("queue") |-> 1 . [L]  + 1 . [L'] ;  p("task") |-> K . X + B => p("queue") |-> 1 . [L, X] + 1 . [L', X] ; p("task") |-> sd(K,2) . X + B  if K > 1 .
+*** crl [d1] : p("queue") |-> 1 . [L]  + 1 . [L'] ;  p("task") |-> K . X + B => p("queue") |-> 1 . [L, X] + 1 . [L', X] ; p("task") |-> sd(K,2) . X + B  if K > 1 .
+rl [d1] : p("queue") |-> 1 . [L]  + 1 . [L'] ;  p("task") |-> s(s(N)) . X + B => p("queue") |-> 1 . [L, X] + 1 . [L', X] ; p("task") |-> N . X + B  .
 
   *** the same as above, necessary to consider the case of identical queues 
-crl [double-2] : p("queue") |-> 2 . [L] ;  p("task") |-> K . X + B => p("queue") |-> 2 . [L, X] ; p("task") |-> sd(K,2) . X + B  if K > 1 . 
+*** crl [d2] : p("queue") |-> 2 . [L] ;  p("task") |-> K . X + B => p("queue") |-> 2 . [L, X] ; p("task") |-> sd(K,2) . X + B  if K > 1 . 
+rl [d2] : p("queue") |-> 2 . [L] ;  p("task") |-> s(s(N)) . X + B => p("queue") |-> 2 . [L, X] ; p("task") |-> N . X + B . 
 
-*** withdraws residual single elements from p("task"), by appending them to one of the thw lists (randomly chosen) 
-rl [left-1] : p("queue") |-> 1 . [L]  + 1 . [L'] ;  p("task") |-> 1 . X + B => p("queue") |-> 1 . [L, X] + 1 . [L'] ; p("task") |-> B .
+*** withdraws residual single elements from p("task"), by appending them to one of the two lists (randomly chosen) 
+rl [l1] : p("queue") |-> 1 . [L]  + 1 . [L'] ;  p("task") |-> 1 . X + B => p("queue") |-> 1 . [L, X] + 1 . [L'] ; p("task") |-> B .
 
-*** the same as left-1 ...
-rl [left-2] : p("queue") |-> 2 . [L]  ;  p("task") |-> 1 . X + B => p("queue") |-> 1 . [L, X] + 1 . [L] ; p("task") |-> B .
+*** the same as l1 ...
+rl [l2] : p("queue") |-> 2 . [L]  ;  p("task") |-> 1 . X + B => p("queue") |-> 1 . [L, X] + 1 . [L] ; p("task") |-> B .
 
-*** serves (removes) the head element from one of the queues (chosen nondeterministically)
-rl [serve-1] : p("queue") |-> 1 . [X, L]  + 1 . [L'] ;  p("task") |-> B => p("queue") |-> 1 . [L] + 1 . [L'] ; p("task") |-> B + 1 . X .
+*** removes the head element from one of the queues (chosen nondeterministically)
+rl [s1] : p("queue") |-> 1 . [X, L]  + 1 . [L'] ;  p("task") |-> B => p("queue") |-> 1 . [L] + 1 . [L'] ; p("task") |-> B + 1 . X .
 
-*** the same as serve-1 ...
-rl [serve-2] : p("queue") |-> 2 . [X, L] ;  p("task") |-> B => p("queue") |-> 1 . [X, L] + 1 . [L] ; p("task") |-> B + 1 . X .
+*** the same as s1 ...
+rl [s2] : p("queue") |-> 2 . [X, L] ;  p("task") |-> B => p("queue") |-> 1 . [X, L] + 1 . [L] ; p("task") |-> B + 1 . X .
   
 endm
 

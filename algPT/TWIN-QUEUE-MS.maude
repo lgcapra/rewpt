@@ -22,13 +22,13 @@ mod TWIN-QUEUE-MS{X :: TRIV} is
  vars X Y Z : X$Elt .
  
  *** withdraws two occurrences of an element from p("task"), by appending each to one of the list in p("queue")
- rl [double] : p("queue") |-> [L] [L']  ;  p("task") |-> X X B => p("queue") |-> [L, X] [L', X] ; p("task") |-> B .
+ rl [d] : p("queue") |-> [L] [L']  ;  p("task") |-> X X B => p("queue") |-> [L, X] [L', X] ; p("task") |-> B .
  
  *** withdraws residual single elements from p("task"), by appending them to one of the thw lists (randomly chosen) 
-crl [left] : p("queue") |-> [L] [L'] ;  p("task") |-> X B => p("queue") |-> [L, X] [L'] ; p("task") |-> B if not(X leq B) .
+crl [l] : p("queue") |-> [L] [L'] ;  p("task") |-> X B => p("queue") |-> [L, X] [L'] ; p("task") |-> B if not(X leq B) .
 
 *** serves (removes) the head element of (from) one of the queues (chosen nondeterministically)
-rl [serve] : p("queue") |-> [X, L]  [L'] ;  p("task") |-> B => p("queue") |->  [L] [L'] ; p("task") |-> B X .
+rl [s] : p("queue") |-> [X, L]  [L'] ;  p("task") |-> B => p("queue") |->  [L] [L'] ; p("task") |-> B X .
 endm
 
 *** example of instantiation with Nat
