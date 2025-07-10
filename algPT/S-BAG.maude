@@ -1,5 +1,5 @@
 *** test module
-in ./shared/BAG
+in ../shared/BAG
 
 
 mod S-BAG is
