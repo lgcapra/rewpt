@@ -17,9 +17,9 @@ fmod MSET{X :: TRIV} is
  op _leq_ : Mset{X} Mset{X} -> Bool . *** checks that the 1st mset is contained in the 2nd
  eq M leq M M' = true .
  eq M leq M' = false [owise] .
- op _-_ : Mset{X} Mset{X} -> Mset{X} .
- eq (M M') - M' = M .
- eq M - M' = M [owise] . 
+ op _diff_ : Mset{X} Mset{X} -> Mset{X} .
+ eq (M M') diff M' = M .
+ eq M diff M' = M [owise] . 
  op supp : Mset{X} -> Mset{X} . *** support
  eq supp(empty{X}) = empty{X} .
  eq supp(M X X) = supp(M X) . 

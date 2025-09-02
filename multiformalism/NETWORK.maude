@@ -1,32 +1,45 @@
 in ../PBAG
+in ../shared/MSET
 in ../SPN
+in ../SPN-SYS
 
-*** abstract specification of a multiformalism network based on shared places (L is the place label)
-fmod NETWORK{L :: TRIV} is 
- protecting PBAG{L}  .
+fth STATE is
+   sorts State LocState .
+   subsort LocState < State .
+   op _+_ : State State -> State [assoc comm] . 
+endfth
+
+fmod NETWORK{S :: STATE} is 
  protecting EXT-BOOL .
- sorts Node Network NetSys .
- subsort Node < Network .
+ sorts Network NetSys .
  op emptyNetW : -> Network [ctor] .
  op _,_ : Network Network -> Network [ctor assoc comm prec 123 id: emptyNetW] .
- op __ : Network Pbag -> NetSys [ctor prec 125] . *** network with associated state (lowest priority)
+ op _:_ : Network S$State -> NetSys [ctor prec 125] . *** network with associated state (lowest priority)
  op netw : NetSys -> Network .
- op state : NetSys -> Pbag .
+ op state : NetSys -> S$State .
  vars N N' : Network .
- var S : Pbag .
- eq netw((N S))  = N .
- eq state((N S)) = S .
- op _in_ : Network Network -> Bool [prec 127] .
- eq N in N, N' = true .
- eq N in N' = false [owise] .
+ var M : S$State .
+ eq netw((N : M))  = N .
+ eq state((N : M)) = M .
 endfm
 
-*** single-server elementary queue
-fmod EL-QUEUE{L :: TRIV} is
-  protecting PLACE{L} * (sort Place{L} to Place).
+view S-Pbag{PL :: TRIV} from STATE to PBAG{PL} is 
+ sort State to Pbag .
+ sort LocState to ElPbag .
+endv
+
+*** network using a multiset of places (a marking) as distributed state
+fmod NETWORK-MARKING{PL :: TRIV} is
+  protecting NETWORK{S-Pbag{PL}} .
+endfm
+
+
+*** single-server queue
+fmod EL-QUEUE{PL :: TRIV} is
+  protecting PLACE{PL} * (sort Place{PL} to Place).
   protecting FLOAT .
   sort ElQueue .
-  op _@_ : Place Float -> ElQueue [prec 19 ctor] . *** an elementary queue is described by a place and a service rate
+  op _@_ : Place Float -> ElQueue [prec 19 ctor] . *** a single-server is described by a place and a service rate
   op mu : ElQueue -> Float .
   op p : ElQueue -> Place .
   var P : Place .
@@ -36,99 +49,102 @@ fmod EL-QUEUE{L :: TRIV} is
 endfm
 
 *** default view to EL-QUEUE
-view ElQueue{L :: TRIV} from TRIV to EL-QUEUE{L} is
+view ElQueue{PL :: TRIV} from TRIV to EL-QUEUE{PL} is
    sort Elt to ElQueue .
 endv
 
 
-*** multi-class queues built over elementary queues 
-fmod QUEUE{L :: TRIV} is 
-  protecting LIST{ElQueue{L}} * (sort List{ElQueue{L}} to List{ElQueue}, sort NeList{ElQueue{L}} to NeList{ElQueue}) .
-  extending NETWORK{L} .
-  sorts Queue SimpleQ Place* .
-  subsort Place < Place* .
-  subsort SimpleQ < Queue < Node .
+*** multi-class queues built over elementary servers 
+fmod QUEUE{PL :: TRIV} is 
+  protecting LIST{ElQueue{PL}} * (sort List{ElQueue{PL}} to List{ElQueue}, sort NeList{ElQueue{PL}} to NeList{ElQueue}) .
+  protecting PBAG{PL} .
+  sorts Queue SimpleQ .
+  subsort SimpleQ < Queue .
   vars Q Q' : ElQueue .
   var SQ : SimpleQ .
   var Qu : Queue .
   vars LQ LQ' LQ'' : List{ElQueue} . 
   var NeLQ : NeList{ElQueue} .
   vars B B' B'' : Pbag . 
-  var P : Place* .
-  op null : -> Place* . *** represents a null end-point for a queue
-  op _>_ : NeList{ElQueue} Place* -> SimpleQ [ctor] .
-  op en:_,_ _  : Pbag Pbag SimpleQ -> Queue [ctor] . *** queue with enabling conditions
-  eq en: nilP, nilP SQ = SQ .  
+  var P : Place .
+  op _>_ : NeList{ElQueue} Place -> SimpleQ [ctor] .
+  op [_,_] _  : Pbag Pbag SimpleQ -> Queue [ctor] . *** queue with prefixed enabling conditions
+  eq [nilP, nilP] SQ = SQ .  
   op ql : Queue -> NeList{ElQueue} . *** the enclosed list of elementary queues
   eq ql(LQ > P) = LQ .
-  eq ql(en: B, B' SQ) = ql(SQ) .
-  op out : Queue -> Place* .
+  eq ql([B, B'] SQ) = ql(SQ) .
+  op out : Queue -> Place .
   eq out(LQ > P) = P .
-  eq out(en: B, B' SQ) = out(SQ) .
+  eq out([B, B'] SQ) = out(SQ) .
   op well-def : NeList{ElQueue} -> Bool .
  ceq well-def(LQ Q LQ' Q' LQ'') = false if p(Q) = p(Q') .
   eq well-def(Q LQ) = true [owise] . 
   op clients : List{ElQueue} Pbag -> [Nat] [memo] .
  ceq clients(Q LQ, B) = B[p(Q)] + clients(LQ, B) if well-def(Q LQ) .
   eq clients(nil, B) = 0 .
-  op cond : Queue Pbag -> Bool . *** the queue "enabling" condition
-  eq cond(SQ, B) = true .
-  eq cond(en: B, B' SQ, B'') = B <= B'' and-then B' > B'' . *** similar to the PN tran. enabling condition
+  op enabled : Queue Pbag -> Bool . *** the queue "enabling" condition
+  eq enabled(SQ, B) = true .
+  eq enabled([B, B'] SQ, B'') = enabCond(B, B', B'')  . *** similar to the PN tran. enabling condition
 endfm
 
-mod QUEUE-SYS{L :: TRIV} is
-   including QUEUE{L} .
+fmod QUEUE-NODE{PL :: TRIV} is
+  extending NETWORK-MARKING{PL} .
+  protecting QUEUE{PL} .
+  subsort Queue < Network .
+endfm
+
+mod QUEUE-NODE-SYS{PL :: TRIV} is
+   including QUEUE-NODE{PL} .
    inc CONVERSION .
    var N : Network .
    vars Q Q' : ElQueue .
    var Qu : Queue .
    vars LQ LQ' LQ'' : List{ElQueue} . 
    var NeLQ : NeList{ElQueue} . 
-   var P : Place* .
+   var P : Place .
    var B : Pbag . 
    var K : NzNat .
    var rate : Float .
-
-   crl [q-inner] : (N, Qu) B => (N, Qu) (B - 1 . p(Q)) + 1 . p(Q') if LQ Q Q' LQ' := ql(Qu) 
-         /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ cond(Qu, B) /\ rate := mu(Q) * float(K) / float(clients(ql(Qu), B)) .
-   
-   crl [q-final] : (N, Qu) B => (N, Qu) (B - 1 . p(Q)) + if out(Qu) == null then nilP else 1 . out(Qu) fi 
-       if LQ Q := ql(Qu) /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ cond(Qu, B) /\ rate := mu(Q) * float(K) / float(clients(LQ Q, B)) .   
+   crl [q-firing] : (N , Qu) : B => (N , Qu) : (B - 1 . p(Q)) + 1 . (if LQ' == nil then out(Qu) else p(head(LQ')) fi) 
+      if LQ Q LQ' := ql(Qu) /\ mu(Q) > 0.0 /\ K := B[p(Q)] /\ K > 0 /\ enabled(Qu, B) /\ rate := mu(Q) * float(K) / float(clients(ql(Qu), B)) .    
 endm
 
-fmod SPN*{L :: TRIV} is
-  extending NETWORK{L} .
-  protecting SPN-SIG{String, L} .
-  subsort Tran < Node .
+fmod SPN-NODE{PL :: TRIV} is
+  extending NETWORK-MARKING{PL} .
+  protecting SPN-SIG{String, PL} .
+  subsort Tran < Network .
+  *** subsort Net < Network . *** alternative
 endfm
 
-mod SPN*-SYS{L :: TRIV} is
-  including SPN*{L} .
+mod SPN-NODE-SYS{PL :: TRIV} is
+  including SPN-NODE{PL} .
   var N : Network .
-  var B : Pbag . 
+  vars B B' : Pbag . 
   var K : NzNat .
   var rate : Float .
   var T : Tran .
-  crl [spn-t] : (N, T) B => (N, T) firing(T, B) if enabled(T, B) /\ rate := firingRate(T, B) .
+  crl [spn-t] : (N , T) : B => (N , T) : B' if  enabled(T, B) /\ B' :=  firing(T, B) /\ rate := firingRate(T, B) .
 endm
 
 
 *** An example of network of queues and SPN 
-mod QSPN-EXE is
-  inc SPN*-SYS{Nat} . 
-  inc QUEUE-SYS{Nat}  .
+mod MQN-SPN is
+  inc SPN-NODE-SYS{Nat} . 
+  inc QUEUE-NODE-SYS{Nat}  .
   var K : NzNat . *** model parameter
   vars N N' N'' : Network .
   var S : Pbag .
   
   ops t0 t1 t2 t3 t4 t5 t6 : -> Tran .
   ops eq1 eq2 eq3 : -> ElQueue .
-  eq eq1 = p(7) @ 1.0 . eq eq2 = p(1) @ 1.5 . eq eq3 = p(6) @ 2.5 .
-  ops q1 q2 q3 q23: -> Queue . [memo] .
-  eq  q1  = en: 1 . p(5), nilP eq1 > p(0) .
-  eq  q2  = en: 2 . p(2), nilP eq2 > p(6) .
-  eq  q3  = en: 2 . p(2), nilP eq3 > p(0) .
-  eq  q23 = en: 1 . p(2), nilP ql(q2) ql(q3) > out(q3) . *** multi-class queue
+  eq eq1 = p(7) @ 1.0 . 
+  eq eq2 = p(1) @ 1.5 . 
+  eq eq3 = p(6) @ 2.5 . 
+  ops q1 q2 q3 q23 : -> Queue  [memo] .
+  eq  q1  = [1 . p(5), nilP] eq1 > p(0) .
+  eq  q2  = [2 . p(2), nilP] eq2 > p(6) .
+  eq  q3  = [2 . p(2), nilP] eq3 > p(0) .
+  eq  q23 = [1 . p(2), nilP] ql(q2) ql(q3) > out(q3) . *** multi-class queue
   op network : -> Network .
   op netsys : NzNat -> NetSys .
   eq  t0 = t("start", 1.0, 1 ) |-> [1 . p(0), 1 . p(1), nilP] .
@@ -139,17 +155,17 @@ mod QSPN-EXE is
   eq  t5 = t("rem1", 1.0, 1 ) |-> [1 . p(1), 1 . p(7), nilP] .
   eq  t6 = t("rem6", 1.5, 1 ) |-> [1 . p(6), 1 . p(7), nilP] .
   op V : NzNat -> [Network] [memo] . *** variable component (depending on the marking of p2)
-  eq V(2) = q2, q3, t5, t6 . *** "out" of q2 is "in" for q3: sequential composition
-  eq V(1) = q23, t6 . *** multi-class queue
+  eq V(2) = q2 , q3 , t5 , t6 . *** "out" of q2 is "in" for q3: sequential composition
+  eq V(1) = q23 , t6 . *** multi-class queue
   eq V(0) = p(eq2) @ 0.0 p(eq3) @ 0.0 > out(q3) . *** "dead" queue
-  eq network = t0, t1, t2, t3, t4, t5, t6, q1, V(2) .
-  eq netsys(K) = network K . p(0) + 2 . p(2) + 1 . p(5) .
+  eq network = t0 , t1 , t2 , t3 , t4 , t5 , t6 , q1 , V(2) .
+  eq netsys(K) = network : K . p(0) + 2 . p(2) + 1 . p(5) .
 
   *** structural rewriting 
-  crl [V2>V1] : N S => N', V(1) S if S[p(2)] = 1 /\ N'', N' := N /\ N'' = V(2) .
-  crl [V2>V0] : N S => N', V(0) S if S[p(2)] = 0 /\ N'', N' := N /\ N'' = V(2) .
-  crl [V1>V2] : N S => N', V(2) S if S[p(2)] = 2 /\ N'', N' := N /\ N'' = V(1) .
-  crl [V1>V0] : N S => N', V(0) S if S[p(2)] = 0 /\ N'', N' := N /\ N'' = V(1) .
-  crl [V0>V2] : N S => N', V(2) S if S[p(2)] = 2 /\ N'', N' := N /\ N'' = V(0) .
+  crl [V2>V1] : N : S => N' , V(1) : S if S[p(2)] = 1 /\ N'' , N' := N /\ N'' = V(2) .
+  crl [V2>V0] : N : S => N' , V(0) : S if S[p(2)] = 0 /\ N'' , N' := N /\ N'' = V(2) .
+  crl [V1>V2] : N : S => N' , V(2) : S if S[p(2)] = 2 /\ N'' , N' := N /\ N'' = V(1) .
+  crl [V1>V0] : N : S => N' , V(0) : S if S[p(2)] = 0 /\ N'' , N' := N /\ N'' = V(1) .
+  crl [V0>V2] : N : S => N' , V(2) : S if S[p(2)] = 2 /\ N'' , N' := N /\ N'' = V(0) .
   
 endm

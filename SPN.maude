@@ -1,8 +1,6 @@
 in PT-NET
 
-*** Stochastic Petri Net
-*** rappresentazione simile ma più intuitiva di modSPT
-
+*** Stochastic Petri Net definition
 
 *** spn transition label definition (parametric in the tag description)
 fmod TLAB{L :: TRIV} is
@@ -62,7 +60,6 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   op in : Net L$Elt -> Bool . *** cheks that a Net contains an action with the specified tag
  ceq in(T ; N, L) = true if tag(T) = L .
   eq in(N, L) = false [owise] .
-
 endfm
 
 in PT-SYS

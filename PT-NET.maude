@@ -5,7 +5,7 @@ in shared/MAP-SET
 fmod PT-NET{L :: TRIV, PL :: TRIV} is
  generated-by MAP-SET{L,Tmatrix{PL}} * (sort Map{L,Tmatrix{PL}} to Net, sort Entry{L,Tmatrix{PL}} to Tran, op emptyM to emptyNet,
                                         op emptyS to emptySlab) .
- 
+
  vars L L' : L$Elt . vars T T' : Tran . vars N N' : Net .
  vars P P' : Place . vars M I O H : Pbag . vars K K'  : NzNat .
  var Q : Tmatrix . var  S : Pset .
@@ -25,7 +25,7 @@ fmod PT-NET{L :: TRIV, PL :: TRIV} is
 ceq L |-> [K . P + I, O, K' . P + H] = emptyNet if K >= K' [metadata "dead t"] . *** removes structurally dead transitions
 
  op enabled : Tran Pbag -> Bool .
- eq enabled(L |-> [I,O,H], M) = I =/= O and-then I <= M and-then H > M . 
+ eq enabled(L |-> [I,O,H], M) = I =/= O and-then enabCond(I, H, M) .
 
  op firing : Tran Pbag -> Pbag .
  eq firing(L |-> [I,O,H], M) = (M - I) + O .
@@ -57,5 +57,5 @@ ceq in(L |-> Q ; N, P) = true if in (Q, P) .
 
  op transitions : Net -> Set{L} .
  eq transitions(N) = keySet(N) .
-
+ 
 endfm

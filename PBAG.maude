@@ -10,6 +10,11 @@ fmod PBAG{X :: TRIV} is
                            sort  Set{Place{X}}  to Pset, sort NeSet{Place{X}} to NePset, op emptyS to emptyPset,
                            sort  Mset{Place{X}} to Pmset, sort  NeMset{Place{X}} to NePmset, op empty to emptyPmset,
                            sort  Place{X} to Place ) .
+
+    op enabCond : Pbag Pbag Pbag -> Bool . *** defined here for convenience
+    vars I H M : Pbag .
+    eq enabCond(I, H, M) = I <= M and-then H > M .
+
 endfm
 
 
