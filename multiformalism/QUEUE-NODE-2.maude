@@ -1,0 +1,37 @@
+in ../PBAG
+in NETWORK-2
+
+*** MQN nodes of a network -- solution 2
+fmod QUEUE+{PL :: TRIV} is
+   pr QUEUE{PL} .
+   pr MSET-MARKING-RATE{PL} .
+   pr CONVERSION .
+   vars Q Q' : ElQueue .
+   var Qu : Queue .
+   var LQ  : List{ElQueue} . 
+   var NeLQ : NeList{ElQueue} . 
+   var K : Nat .
+   var rate : Float .
+   var M : Pbag .
+   var MR : MarkingRate .
+   var MS : Mset{MarkingRate} .
+   var P : Place .
+   op qnext  : Queue Pbag -> Mset{MarkingRate} . *** non deterministic (see the corresponding rule)
+  ceq qnext(Qu, M) = $qnext(ql(Qu), empty{MarkingRate}, out(Qu), K, M) if K := clients(ql(Qu), M) /\ K > 0 /\ qenabled(Qu, M) .
+   eq qnext(Qu, M) = empty{MarkingRate} [owise]. 
+   op $qnext : List{ElQueue} Mset{MarkingRate} Place NzNat Pbag -> Mset{MarkingRate} .
+   eq $qnext(nilElQ, MS, P, K, M) = MS .
+  ceq $qnext(Q LQ, MS, P, K, M) = $qnext(LQ, MS, P, K, M) if mu(Q) == 0.0 or-else M[p(Q)] == 0 .
+  ceq $qnext(Q LQ, MS, P, K, M) = $qnext(LQ, MS < (M - 1 . p(Q)) + 1 . (if LQ == nilElQ then P else p(head(LQ)) fi) ; rate >, P,K,M) 
+         if rate := mu(Q) * float(M[p(Q)]) / float(K) [owise] .  
+endfm
+
+view Queue+{PL :: TRIV} from NODE to QUEUE+{PL} is
+   sort Node to Queue . 
+   sort State to Pbag .
+   sort LocState to ElPbag .
+   sort StateRate to MarkingRate .
+   sort StatesRates to Mset{MarkingRate} .
+   op empty to empty{MarkingRate} .
+   op next to qnext .
+endv 

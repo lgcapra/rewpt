@@ -4,10 +4,8 @@ in PT-NET
 fmod PT-SYS{L :: TRIV, PL :: TRIV} is
   pr PT-NET{L, PL} .
   sort System .
-  vars L L' : L$Elt . vars T T' : Tran . vars N N' : Net .
-  vars P P' : Place . vars M I O H : Pbag . vars K K'  : NzNat .
-  vars Q Q' : Tmatrix . var  S : Pset .
-  var Sy : System .
+  var T  : Tran . vars N N' : Net . var P : Place . var M : Pbag . var K  : NzNat .
+  var S : System .
 
   op __ : Net Pbag -> System [ctor format (d n d)] .
   *** op __ : Net Pbag -> [System] [ctor] .
@@ -17,14 +15,14 @@ fmod PT-SYS{L :: TRIV, PL :: TRIV} is
   ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places
   ops n net : System -> Net .
   ops m marking : System -> Pbag .
-  eq net(Sy) = n(Sy) .
-  eq marking(Sy) = m(Sy) .
+  eq net(S) = n(S) .
+  eq marking(S) = m(S) .
   eq n(N M) = N .
   eq m(N M) = M .
   
    *** computes the system's enabled transitions (outcome seen as a sub-Net) 
   op haveConcession : System -> Net [memo] .
-  eq haveConcession(S:System) = $haveConcession(S:System, emptyNet) .
+  eq haveConcession(S) = $haveConcession(S:System, emptyNet) .
   op $haveConcession : System Net -> Net .
   eq $haveConcession(emptyNet M, N) = N .
  ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if enabled(T, M) .
@@ -32,5 +30,5 @@ fmod PT-SYS{L :: TRIV, PL :: TRIV} is
 
  *** checks for a deadlock
  op dead : System -> Bool . 
- eq dead(Sy) = haveConcession(Sy) == emptyNet .
+ eq dead(S) = haveConcession(S) == emptyNet .
 endfm

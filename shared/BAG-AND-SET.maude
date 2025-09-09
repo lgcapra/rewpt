@@ -7,19 +7,23 @@ fmod BAG-AND-SET{X :: TRIV} is
  protecting SET+{X} .
  protecting BAG{X} .
  
- var N : NzNat .
- var K : Nat .
+ var K : NzNat .
  var X : X$Elt .
  var B : Bag{X} .
  vars S S' : Set{X} .
- 
+ *** support of a bag
  op support : Bag{X} -> Set{X}  .
  op support : NeBag{X} -> NeSet{X} .
  eq support(B) = $support(B, emptyS) .  
  op $support : Bag{X} Set{X} -> Set{X} . 
  eq $support(nil{X}, S) = S . 
- eq $support(N . X + B, S) = $support(B, S U X) .
- 
+ eq $support(K . X + B, S) = $support(B, S U X) .
+ *** create a bag out of a set
+ op bagFromSet : NzNat Set{X} -> Bag{X} . *** tail recursive
+ eq bagFromSet(K, S) = $bagFromSet(K, S, nil{X}) .
+ op $bagFromSet : NzNat Set{X} Bag{X} -> Bag{X} .
+ eq $bagFromSet(K, emptyS, B) = B .
+ eq $bagFromSet(K, X U S, B) = $bagFromSet(K, S, K . X + B) .
 endfm
 
 *** parameterized trivial view to BAG{X}

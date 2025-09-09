@@ -1,5 +1,4 @@
 in PBAG
-in TRAN
 in ATYPE
 
 fmod TMATRIX{L :: TRIV} is
@@ -26,16 +25,23 @@ fmod TMATRIX{L :: TRIV} is
  eq Q(h) = H(Q) .
 
  op in :  Tmatrix Place -> Bool . *** test the existence of a place
- eq in([I + K . P, O, H], P) = true .
- eq in([I, O + K . P, H], P) = true .
- eq in([I, O, H + K . P], P) = true .
- eq in(Q, P) = false [owise] .
+ eq in(Q, P) = isIn(Q, P) or-else isOut(Q, P) or-else isH(Q, P) .
+ ops isIn isOut isH : Tmatrix Place -> Bool .
+ eq isIn([I + K . P, O, H], P) = true .
+ eq isIn(Q, P) = false [owise] .
+ eq isOut([I, O + K . P, H], P) = true .
+ eq isOut(Q, P) = false [owise] .
+ eq isH([I, O, H + K . P], P) = true .
+ eq isH(Q, P) = false [owise] .
 
  op places : Tmatrix -> Pset .
  eq places([I,O,H]) = support(I) U support(O) U support(H) .
 
  op enabled : Tmatrix Pbag -> Bool .
  eq enabled([I,O,H], M) = I <= M and-then H > M .
+
+ op firing : Tmatrix Pbag -> Pbag .
+ eq firing([I,O,H], M) = M + O - I .
 
  op dead : Tmatrix -> Bool .  *** checks for structurally dead transitions 
  eq dead([K . P + I, O, K' . P + H]) = K >= K' [metadata "dead tq"] .
@@ -57,6 +63,11 @@ fmod TMATRIX{L :: TRIV} is
 
 endfm
 
+*** default view
 view Tmatrix{L :: TRIV} from TRIV to TMATRIX{L} is 
  sort Elt to Tmatrix . 
+endv
+
+view PsetTM{L :: TRIV} from TRIV to TMATRIX{L} is 
+ sort Elt to Pset . 
 endv

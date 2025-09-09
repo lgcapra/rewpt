@@ -1,0 +1,21 @@
+*** spn transition label definition (parametric in the tag description)
+fmod TLAB{L :: TRIV} is
+ pr FLOAT .
+ pr NAT .
+ sort Tlab .
+ var W  : L$Elt .
+ var R  : Float .
+ var P  : Nat .  
+ op t : L$Elt Float Nat -> Tlab [ctor] . 
+ op tag :  Tlab  -> L$Elt .
+ op pol :  Tlab  -> Nat .
+ op rate : Tlab  -> Float .
+ eq tag(t(W,R,P))  =  W .
+ eq pol(t(W,R,P))  =  P .
+ eq rate(t(W,R,P)) =  R .
+endfm
+
+view Tlab{L :: TRIV} from TRIV to TLAB{L} is 
+ sort Elt to Tlab .
+endv
+

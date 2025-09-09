@@ -59,6 +59,10 @@ ceq B < B' = true if B =/= B' [owise] .
  op _>_ : Bag{X} Bag{X} -> Bool [prec 43] .
  ceq N . X + B > B' = false if N <= B'[X] .
  eq B > B' = true [owise] .
+ **** greater than or equal to restricted to the elements of 1st bag
+ op _>=_ : Bag{X} Bag{X} -> Bool [prec 43] .
+ ceq N . X + B >= B' = false if N < B'[X] .
+ eq B >= B' = true [owise] .
  
  *** bag's cardinality
  op |_| : Bag{X} -> Nat . 

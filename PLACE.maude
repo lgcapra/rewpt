@@ -1,11 +1,11 @@
-in PT-NODE
+in VERTEX
 
 fmod PLACE{L :: TRIV} is
- protecting PT-NODE{L} * (sort Node to Place{L}, op n to p) .
+ protecting VERTEX{L} * (sort Vertex to Place, op v to p) .
 endfm
 
 
 *** default view 
 view Place{X :: TRIV} from TRIV to PLACE{X} is 
- sort Elt to Place{X} . 
+ sort Elt to Place . 
 endv

@@ -1,0 +1,34 @@
+in PHIL-N-V2
+
+*** dining philospers with a nested (or meta-) model removing and reinserting philosophers from/to the table 
+
+*** simple renaming stuff to avoid conflicts between BL and ML
+mod PHIL-BL is 
+  inc DINING-PHIL * (sort Place to BL-Place, op p to bl-p, 
+      sort Marking to BL-Marking, sort Pmarking to BL-Pmarking,
+      sort Pmarking{Phil} to BL-Pmarking{Phil} ).
+endm
+
+view Phil-BL from TRIV to PHIL-BL is
+    sort Elt to BL-Marking . 
+endv
+
+mod DYN-PHIL is
+  inc MARKING{Phil-BL, String} . 
+  inc MARKING{Phil, String} * ( op mark to markPh) .
+
+  op meta-m0 : -> [Marking] . 
+  eq meta-m0 = p("BL") |-> m0 ; p("Removed") |-> empty{Phil} .
+
+  var M : BL-Marking . vars B B' B'' : Mset{Phil} . var X : Nat .
+   
+  *** moves away a phil, who brings with him/her the fork
+   rl [remove] : p("BL") |-> (M ; bl-p("Think") |-> ph(X) B ; bl-p("Fork") |-> ph(X) B') ; 
+      p("Removed") |-> B'' => 
+      p("BL") |-> (M ; bl-p("Think") |-> B ; bl-p("Fork") |-> B') ; p("Removed") |-> B'' ph(X) . 
+  *** restores (re-introduces) a phil who previously moved away
+   rl [restore] : p("BL") |-> (M ; bl-p("Think") |-> B ; bl-p("Fork") |-> B') ; 
+      p("Removed") |-> B'' ph(X) => 
+      p("BL") |-> (M ; bl-p("Think") |-> B ph(X) ; bl-p("Fork") |-> B' ph(X)) ; p("Removed") |-> B'' .
+
+endm

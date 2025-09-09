@@ -1,0 +1,21 @@
+in TLAB
+
+fmod FIRING-RATE{L :: TRIV, PL :: TRIV} is
+  pr TLAB{L} .
+  pr PBAG{PL} .
+  pr CONVERSION .
+  var TL : Tlab .
+  vars P P' : Place . 
+  vars I M M' : Pbag .
+  vars K K' D : NzNat .
+  op firingRate : Tlab Pbag Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the transition firing pol)
+  *** eq firingRate(TL, I, M) = rate(T) . *** 1-server for all
+  eq firingRate(TL, I, M) = if pol(TL) == 1 then rate(TL) else rate(TL) * float(if pol(TL) == 0 
+                           then enabDegree(I, M) else min(pol(TL), enabDegree(I, M)) fi) fi .
+  op enabDegree : Pbag Pbag -> [NzNat] .
+  eq enabDegree(nilP, M) = 1 . *** the input arc is null
+  eq enabDegree(B:NePbag, M) = $enabDegree(B:NePbag, M, 1000000000000000) .
+  op $enabDegree : Pbag Pbag NzNat -> [NzNat] .  
+  eq $enabDegree(K . P + M , K' . P + M', D) = $enabDegree(M , M', min(D, K' quo K)) .
+  eq $enabDegree(nilP, M, D) = D . 
+endfm

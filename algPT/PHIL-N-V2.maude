@@ -1,0 +1,31 @@
+in ALG-PN
+
+fmod PHIL-N is
+ pr NAT .
+ sort Phil .
+ op N : -> Nat . *** alias for model parameter
+ op ph : Nat -> Phil [ctor] .
+ var X : Nat .
+ eq N = 5 .
+ ceq ph(X) = ph(X rem N) if X >= N . 
+endfm
+
+view Phil from TRIV to PHIL-N is 
+ sort Elt to Phil . 
+endv
+
+
+mod DINING-PHIL is
+  inc MARKING{Phil, String} .
+  op m0 : -> Marking [memo] . *** alias for initial configuration
+  op nphils : -> Mset{Phil} [memo] .
+  eq nphils = ph(0) ph(1) ph(2) ph(3) ph(4) .
+  eq m0 =  p("Think") |-> nphils ; p("Fork") |-> nphils ; 
+           p("Eat") |-> empty{Phil} ; p("Pickup") |-> empty{Phil} .
+  var Ph : Phil . vars B B' B'' : Mset{Phil} . var X : Nat .
+  rl [th] : p("Think") |-> B Ph  ;  p("Pickup") |-> B' => p("Think") |-> B  ;  p("Pickup") |-> B' Ph .
+  rl [pk] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Eat") |-> B''  =>  
+            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) .
+  rl [e] : p("Eat") |-> B ph(X) ; p("Fork") |-> B'  ; p("Think") |-> B''  =>  
+           p("Eat") |-> B ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Think") |-> B'' ph(X) .
+endm

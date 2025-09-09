@@ -1,0 +1,77 @@
+in ../PBAG
+in NETWORK
+*** MQN nodes of a network
+
+*** single-server
+fmod EL-QUEUE{PL :: TRIV} is
+  protecting PLACE{PL} .
+  protecting FLOAT .
+  sort ElQueue .
+  op _@_ : Place Float -> ElQueue [prec 19 ctor] . *** a single-server is described by a place and a service rate
+  op mu : ElQueue -> Float .
+  op p : ElQueue -> Place .
+  var P : Place .
+  var F : Float .
+  eq mu(P @ F)  = F .
+  eq p(P @ F) = P .
+endfm
+
+*** default view to EL-QUEUE
+view ElQueue{PL :: TRIV} from TRIV to EL-QUEUE{PL} is
+   sort Elt to ElQueue .
+endv
+
+*** multi-class queues built over elementary servers 
+fmod QUEUE{PL :: TRIV} is 
+  protecting LIST{ElQueue{PL}} * (sort List{ElQueue{PL}} to List{ElQueue}, sort NeList{ElQueue{PL}} to NeList{ElQueue},
+                                  op nil to nilElQ) .
+  protecting PBAG{PL} .
+  sorts Queue SimpleQ .
+  subsort SimpleQ < Queue .
+  vars Q Q' : ElQueue .
+  var SQ : SimpleQ .
+  var Qu : Queue .
+  vars LQ LQ' LQ'' : List{ElQueue} . 
+  var NeLQ : NeList{ElQueue} .
+  vars M M' M'' : Pbag . 
+  var P : Place .
+  op _>_ : NeList{ElQueue} Place -> SimpleQ [ctor] .
+  op [_,_] _  : Pbag Pbag SimpleQ -> Queue [ctor] . *** queue with prefixed enabling conditions
+  eq [nilP, nilP] SQ = SQ .  
+  op ql : Queue -> NeList{ElQueue} . *** the enclosed list of elementary queues
+  eq ql(LQ > P) = LQ .
+  eq ql([M, M'] SQ) = ql(SQ) .
+  op out : Queue -> Place .
+  eq out(LQ > P) = P .
+  eq out([M, M'] SQ) = out(SQ) .
+  op well-def : NeList{ElQueue} -> Bool .
+ ceq well-def(LQ Q LQ' Q' LQ'') = false if p(Q) = p(Q') .
+  eq well-def(Q LQ) = true [owise] . 
+  op clients : List{ElQueue} Pbag -> [Nat] [memo] .
+ ceq clients(Q LQ, M) = M[p(Q)] + clients(LQ, M) if well-def(Q LQ) .
+  eq clients(nilElQ, M) = 0 .
+  op qenabled : Queue Pbag -> Bool . *** the queue "enabling" condition
+  eq qenabled(SQ, M) = true .
+  eq qenabled([M, M'] SQ, M'') = enabCond(M, M', M'')  . *** similar to the PN tran. enabling condition (M input, M' inhibitor)
+endfm
+
+fmod QUEUE-NODE{PL :: TRIV} is
+  extending NETWORK-MARKING{PL} .
+  protecting QUEUE{PL} .
+  subsort Queue < Network .
+endfm
+
+mod QUEUE-NODE-SYS{PL :: TRIV} is
+   including QUEUE-NODE{PL} .
+   inc CONVERSION .
+   var N : Network .
+   vars Q Q' : ElQueue .
+   var Qu : Queue .
+   vars LQ LQ' LQ'' : List{ElQueue} . 
+   var NeLQ : NeList{ElQueue} . 
+   var M : Pbag . 
+   var K : NzNat .
+   var rate : Float .
+   crl [q-firing] : (N , Qu) : M => (N , Qu) : (M - 1 . p(Q)) + 1 . (if LQ' == nilElQ then out(Qu) else p(head(LQ')) fi) 
+      if LQ Q LQ' := ql(Qu) /\ mu(Q) > 0.0 /\ K := M[p(Q)] /\ K > 0 /\ qenabled(Qu, M) /\ rate := mu(Q) * float(K) / float(clients(ql(Qu), M)) .    
+endm

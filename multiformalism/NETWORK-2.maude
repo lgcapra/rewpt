@@ -1,0 +1,78 @@
+in NETWORK
+in ../shared/MSET
+in ../shared/PAIR
+
+*** theory of nodes of a stochastic network
+fth NODE is
+  inc STATE . *** includes another theory 
+  pr FLOAT .
+  sort Node . *** network node
+  sort StateRate . *** a pair (state,rate)
+  sort StatesRates . *** multiset of (state,rate)
+  subsort StateRate < StatesRates .
+  op state : StateRate -> State .
+  op rate  : StateRate -> Float .
+  op empty : -> StatesRates .
+  op __ : StatesRates StatesRates -> StatesRates [assoc comm id: empty] .
+  op next : Node State -> StatesRates . *** encoding the (non-deterministic) firing rule as operator
+endfth
+
+*** signature of a generic network
+fmod NETWORK-SIG is
+   sorts Network State NetSys .
+   op emptyNetW : -> Network [ctor] .
+   op _,_ : Network Network -> Network [ctor assoc comm prec 123 id: emptyNetW] .
+   op _:_ : Network State -> NetSys [ctor prec 125] . *** network with associated state (lowest priority)
+   op netw  : NetSys -> Network .
+   op state : NetSys -> State .
+   var N : Network .
+   var M : State .
+   eq netw((N : M))  = N .
+   eq state((N : M)) = M .
+endfm
+
+fmod NETWORK-NODE{N :: NODE} is
+  pr NETWORK-SIG .
+  sorts Network{N} NetSys{N} .
+  subsort N$Node < Network{N} < Network .
+  subsort N$State < State .
+  subsort NetSys{N}  < NetSys .
+  op _,_ : Network{N} Network{N} -> Network{N} [ctor ditto] . *** convenience overloading
+  op _:_ : Network{N} N$State -> NetSys{N} [ctor ditto] . 
+endfm 
+
+mod NETWORK-SYS{N :: NODE} is
+  inc NETWORK-NODE{N} .
+  var N : N$Node .
+  vars M M' : N$State .
+  var SR  : N$StateRate .
+  var SRs : N$StatesRates .
+  var NW : Network .
+  var R : Float .
+  crl [firing-rule] : (N, NW) : M => (N, NW) : M' if SR SRs := next(N, M) /\ M' := state(SR) /\ R := rate(SR) . 
+endm
+
+view STATE from TRIV to STATE is
+  sort Elt to State .
+endv
+
+fmod STATE-RATE{S :: STATE} is
+  protecting PAIR{STATE,Float}{S} * (sort Pair{STATE,Float}{S} to StateRate{S}, op 1st to state, op 2nd to rate) . 
+endfm
+
+view StateRate{S :: STATE} from TRIV to STATE-RATE{S} is
+  sort Elt to StateRate{S} .
+endv
+
+*** multiset of pairs (S:State, Float)
+fmod MSET-STATE-RATE{S :: STATE} is
+   pr MSET{StateRate{S}} .
+endfm
+
+*** multiset of pairs (Pbag, Float)
+fmod MSET-MARKING-RATE{PL :: TRIV} is
+   pr MSET-STATE-RATE{S-Pbag{PL}} * (sort StateRate{S-Pbag{PL}} to MarkingRate,
+                                    sort Mset{StateRate{S-Pbag{PL}}} to Mset{MarkingRate}, 
+                                    sort NeMset{StateRate{S-Pbag{PL}}} to NeMset{MarkingRate}, 
+                                    op empty{StateRate{S-Pbag{PL}}} to empty{MarkingRate}) .
+endfm

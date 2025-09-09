@@ -3,7 +3,7 @@ in PT-NORM
 
 mod PT-EMU{X :: TRIV} is
  pr PT-NORM{X} .
- pr SET{Pbag{X}} .
+ *** pr SET{Pbag{X}} .  
  vars I O H M M' : Pbag . 
  vars N N' : Net .
  var L : X$Elt . *** tran. lab
@@ -13,20 +13,20 @@ mod PT-EMU{X :: TRIV} is
  *** including PT-NORM
  *** crl [firing] : N M => N normalize(M + O - I) if L |-> [I,O,H] ; N' := N  /\ I =/= O /\ enabled([I,O,H], M) .
  crl [firing] : (N ; L |-> T) M => (N ; L |-> T) normalize(M + O - I) if [I,O,H] := T /\ I =/= O /\ enabled(T, M)  [print "T = " L] .
+ *** includes a further optimization: if the marked places are retained then index abstraction is skipped
+ *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if L |-> [I,O,H] ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
   
   *** rule's translation as operator
-  var S : System . 
-  op firing-op : System -> Set{Pbag{X}} [memo] .
-  eq firing-op(S) = $firing-op(S, emptyPbag) .
-  op $firing-op : System Set{Pbag{X}} -> Set{Pbag{X}} .
+  *** var S : System . 
+  *** op firing-op : System -> Set{Pbag{X}} [memo] .
+  *** eq firing-op(S) = $firing-op(S, emptyPbag) .
+  *** op $firing-op : System Set{Pbag{X}} -> Set{Pbag{X}} .
   *** ceq $firing-op(S, X) = $firing-op(S,  (XM  --> S' : R)  U X)  if (T ; N) M := S /\ enabled(T, M) /\ 
   ***        S' := (T ; N) firing(T, M)  /\ R := firingRate(T, M) /\  XM := {N} & {T} & {M} /\ (XM  --> S' : R) in X = false .
   *** optimization: subset of variables used in match
   *** XM := {T}  
   *** eq $firing-op(S, X) = X [owise] .
   
-*** includes a further optimization: if the marked places are retained then index abstraction is skipped
- *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if L |-> [I,O,H] ; N' := N /\ enabled([I,O,H], M) /\ M' := M + O - I  .
 
 endm
 

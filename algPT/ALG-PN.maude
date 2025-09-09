@@ -11,16 +11,16 @@ fmod ALG-PN-MARKING{PL :: TRIV} is
  subsort Pmarking < Marking .
  op emptyM : -> Marking [ctor] .
  op _;_ : Marking Marking -> Marking [ctor assoc comm id: emptyM prec 121 format (d r os d)] .
- op place : Pmarking -> Place{PL} .
- var P  : Place{PL} .
+ op place : Pmarking -> Place .
+ var P  : Place .
  vars Mp Mp' : Pmarking .
  var M : Marking .
  op undefined : -> [Pmarking] .
  *** look-up
- op _[_] : Marking Place{PL} -> [Pmarking] [prec 23] .
+ op _[_] : Marking Place -> [Pmarking] [prec 23] .
 ceq (M ; Mp)[P] = Mp if place(Mp) = P /\ not($marked(M, P)) .
  eq M[P] = undefined [owise] .
- op $marked : Marking Place{PL} -> Bool .
+ op $marked : Marking Place -> Bool .
 ceq $marked((M ; Mp), P) = true if place(Mp) = P .
   eq $marked(M, P) = false [owise] .
 endfm
@@ -32,9 +32,9 @@ fmod B-MARKING{X :: TRIV, PL :: TRIV} is
   protecting BAG{X} .
   sort Bpmarking{X} .
   subsort Bpmarking{X} < Pmarking . 
-  op _|->_ : Place{PL} Bag{X} -> Bpmarking{X} [ctor] .
+  op _|->_ : Place Bag{X} -> Bpmarking{X} [ctor] .
   var B  : Bag{X} .
-  var P  : Place{PL} .
+  var P  : Place .
   eq place(P |-> B) = P .
   op mark : Bpmarking{X} -> Bag{X} . *** careful! must be renamed when importing multiple times the module 
   eq mark(P |-> B) = B .
@@ -42,7 +42,7 @@ fmod B-MARKING{X :: TRIV, PL :: TRIV} is
   ***  sort  Bmarking{X} .
   **** subsort Bpmarking{X} < Bmarking{X} .
   ***  subsort Bmarking{X}  < Marking .
-  ***  op _|->_ : Place{PL} Bag{X} -> Bpmarking{X} [ctor] .
+  ***  op _|->_ : Place Bag{X} -> Bpmarking{X} [ctor] .
   **** op _;_ : Bmarking{X} Bmarking{X} -> Bmarking{X} [ctor ditto] . *** overloading
 endfm
 
@@ -54,9 +54,9 @@ fmod MARKING{X :: TRIV, PL :: TRIV} is
   protecting MSET{X} .
   sort Pmarking{X} .
   subsort Pmarking{X} < Pmarking .
-  op _|->_ : Place{PL} Mset{X} -> Pmarking{X} [ctor] .
+  op _|->_ : Place Mset{X} -> Pmarking{X} [ctor] .
   var B  : Mset{X} .
-  var P  : Place{PL} .
+  var P  : Place .
   eq place(P |-> B) = P .
   op mark : Pmarking{X} -> Mset{X} . *** careful! must be renamed when importing the module multiple times
   eq mark(P |-> B) = B .

@@ -1,4 +1,5 @@
-fmod PHIL-N is
+*** signature of dining philosophers including a multiset
+fmod PHIL-N-MSET is
  pr NAT .
  sorts Phil NeMultiSetPh MultiSetPh .
  subsort Phil < NeMultiSetPh < MultiSetPh . 
@@ -7,7 +8,7 @@ fmod PHIL-N is
  op empty : -> MultiSetPh [ctor] . 
  op __ : MultiSetPh MultiSetPh -> MultiSetPh [ctor assoc comm id: empty] .
  op __ : NeMultiSetPh MultiSetPh -> NeMultiSetPh [ctor ditto] .
- var X : Nat . vars M M' : MultiSetPh .
+ var X : Nat . var Ph : Phil . vars M M' : MultiSetPh .
  eq N = 5 .
  ceq ph(X) = ph(X rem N) if X >= N . 
  op _<=_ : MultiSetPh MultiSetPh -> Bool . *** checks that the 1st mset is contained in the 2nd
@@ -18,8 +19,9 @@ fmod PHIL-N is
  eq M - M' = M [owise] .
 endfm
 
+*** just to show the coherence property of rules
 mod S-PHIL-N is
-  inc PHIL-N . 
+  inc PHIL-N-MSET . 
   var M : MultiSetPh .
   vars X J : Nat .
   var P : Phil .

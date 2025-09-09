@@ -1,0 +1,21 @@
+*** SPN nodes of a network -- solution 2
+in NETWORK-2
+in ../SPN
+
+fmod SPN-SIG+{L :: TRIV, PL :: TRIV} is
+  pr SPN-SIG{L, PL} .
+  pr MSET-MARKING-RATE{PL} .
+  op next : Tran Pbag -> Mset{MarkingRate} . *** encoding of the firing rule as an operator 
+  var T : Tran .
+  var M : Pbag .
+  eq next(T, M) = if enabled(T, M) then < firing(T, M) ; firingRate(T, M) > else empty{MarkingRate} fi . *** the firing rule is deterministic
+endfm
+
+view Tran{PL :: TRIV} from NODE to SPN-SIG+{String, PL} is
+   sort Node to Tran .
+   sort State to Pbag .
+   sort LocState to ElPbag .
+   sort StateRate to MarkingRate .
+   sort StatesRates to Mset{MarkingRate} .
+   op empty to empty{MarkingRate} .
+endv

@@ -1,0 +1,19 @@
+in NETWORK
+in ../SPN
+
+fmod SPN-NODE{PL :: TRIV} is
+  extending NETWORK-MARKING{PL} .
+  protecting SPN-SIG{String, PL} .
+  subsort Tran < Network .
+  *** subsort Net < Network . *** alternative
+endfm
+
+mod SPN-NODE-SYS{PL :: TRIV} is
+  including SPN-NODE{PL} .
+  var N : Network .
+  vars M M' : Pbag . 
+  var K : NzNat .
+  var rate : Float .
+  var T : Tran .
+  crl [spn-t] : (N , T) : M => (N , T) : M' if  enabled(T, M) /\ M' :=  firing(T, M) /\ rate := firingRate(T, M) .
+endm

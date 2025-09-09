@@ -1,0 +1,98 @@
+in TMATRIX
+in shared/MAP+
+
+*** flushing arc connections are represented as a map from places to set of places
+fmod FLUSH-ARC{L :: TRIV} is
+   pr MAP+{Place{L}, PsetTM{L}} * (sort Entry{Place{L},PsetTM{L}} to  FlushArc, sort Map{Place{L},PsetTM{L}} to FlushArcs,
+                                  op _|->_ : Place Pset -> Entry{Place{L},PsetTM{L}} to _>>_ ,
+                                  op emptyM to noFlushArc, op undefined to undefPset) . *** using the view Pset we import TMATRIX
+
+endfm
+
+*** extended place-adjacency representation, including marking parametric arcs 
+fmod E-TMATRIX{L :: TRIV} is
+ pr FLUSH-ARC{L} .
+ pr PAIR{Pbag{L},Pbag{L}} * (sort Pair{Pbag{L},Pbag{L}} to Pair{Pbag,Pbag} ).
+ 
+ sort Ematrix .
+ subsort Tmatrix < Ematrix .
+ var M : Tmatrix .
+ var E : Ematrix .
+ var F : FlushArcs .
+ vars S S' : Pset .
+ vars I O H B B' B'' : Pbag .
+ vars P P' : Place .
+ var K : NzNat .
+ var BB : Pair{Pbag,Pbag} .
+ 
+ op _f:_ : Tmatrix FlushArcs -> Ematrix .
+ eq M f: noFlushArc = M .
+ op m : Ematrix -> Tmatrix .
+ op f : Ematrix -> FlushArcs .
+ eq m(M f: F) = M .
+ eq m(M) = M .
+ eq f(M f: F) = F .
+ eq f(M) = noFlushArc .
+
+ *** verifies that places are not both input and flush-in
+ op well-def : Ematrix -> Bool . 
+ceq well-def(M f: F) = false if K . P + I := I(M)  /\ $hasMapping(F, P) .
+ eq well-def(M f: F) = true [owise] .
+ 
+ *** we double some of the operators that are in TMATRIX and map to them (for convenience)
+ op enabled : Ematrix Pbag -> [Bool] . *** partial function
+ ceq enabled(M f: F, B) = enabled(M, B) and-then enabled(F, B) if well-def(M f: F) .
+ op enabled : FlushArcs Pbag -> Bool .
+ eq enabled(noFlushArc, B) = true .
+ eq enabled(P >> S ; F, K . P + B) = enabled(F, B) .
+ eq enabled(F, B) = false [owise] .
+ *** test the existence of a place
+ op in : Ematrix Place -> Bool . 
+ eq in(M f: F, P) = in(F, P) or-else in(M, P) .
+ op in : FlushArcs Place -> Bool .
+ eq in(F, P) = isIn(F, P) or-else isOut(F, P) .
+ op isIn  : FlushArcs Place -> Bool .
+ eq isIn(P >> S ; F, P) = true .
+ eq isIn(F, P) = false [owise] .
+ op isOut : FlushArcs Place -> Bool .
+ eq isOut(P' >> P U S ; F, P) = true .
+ eq isOut(F, P) = false [owise] .
+ *** elements of the adjacency matrix
+ ops I O H : Ematrix -> Pbag .
+ eq I(E) = I(m(E)) .
+ eq O(E) = O(m(E)) .
+ eq H(E) = H(m(E)) .
+ *** set of places
+ op places : Ematrix -> Pset .
+ eq places(M f: F) = places(M) U places(F) .
+ op places : FlushArcs -> Pset .
+ eq places(F) = $places(F, emptyPset) .
+ op $places : FlushArcs Pset -> Pset .
+ eq $places(noFlushArc, S) = S .
+ eq $places(P >> S ; F, S') = $places(F, P U S U S') . 
+ *** removes the specified places from a local matrix
+ op remove :  Ematrix Pset -> Ematrix .
+ eq remove(M f: F, S) = remove(M, S) f: remove(F, S) . 
+ op remove : FlushArcs Pset -> FlushArcs . *** to be defined
+ 
+
+ *** simulates the effect of flush arcs (assume that the transition is enabled)
+ op flushInOut :  FlushArcs Pbag -> Pair{Pbag,Pbag} . *** calcola l'output totale di archi flush
+ eq flushInOut(F, B) = $flushInOut(F, < nilP ; nilP >, B) .
+ op $flushInOut : FlushArcs Pair{Pbag,Pbag} Pbag -> [Pair{Pbag,Pbag}] . *** calcola l'output totale relativo a un posto "flush"
+ eq $flushInOut(noFlushArc, BB, B') = BB .
+ eq $flushInOut(P >> S ; F , < B ; B'' >, B') = $flushInOut(F, < B + bagFromSet(B'[P], S) ; B'' +  B'[P] . P >, B') . *** def parziale perchè P deve essere in B'
+ *** cumulative firing (adjacency matrix plus flush edges, assuming that the transition is enabled)
+ op firing : Ematrix Pbag -> Pbag .
+ceq firing(M f: F, B) = firing(M, B) + 1st(BB) - 2nd(BB) if BB := flushInOut(F, B) .
+endfm
+
+view Ematrix{L :: TRIV} from TRIV to E-TMATRIX{L} is 
+  sort Elt to Ematrix . 
+endv
+
+
+*** solo per fare prove
+fmod MATRIX-NAT is
+  pr E-TMATRIX{Nat} .
+endfm
