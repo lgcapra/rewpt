@@ -3,7 +3,7 @@ in SPN-NODE-2
 in QUEUE-NODE-2
 
 mod MQN-SPN-2 is
-  inc NETWORK-SYS{Tran{Nat}}  * (sort Network{Tran{Nat}} to  Network{Tran}, sort NetSys{Tran{Nat}} to  NetSys{Tran}) .
+  inc NETWORK-SYS{Enet{Nat}}  * (sort Network{Enet{Nat}} to  Network{Enet}, sort NetSys{Enet{Nat}} to  NetSys{Enet}) .
   inc NETWORK-SYS{Queue+{Nat}} * (sort Network{Queue+{Nat}} to  Network{Queue}, sort NetSys{Queue+{Nat}} to  NetSys{Queue}) .
 
   var K : NzNat . *** model parameter

@@ -5,16 +5,25 @@ in ../E-SPN
 fmod SPN-SIG+{L :: TRIV, PL :: TRIV} is
   pr E-SPN-SIG{L, PL} .
   pr MSET-MARKING-RATE{PL} .
-  op next : Tran Pbag -> StatesRates . *** encoding of the firing rule as an operator 
+  op next : Enet Pbag -> StatesRates .   *** encoding of the firing rule as an operator
   var T : Tran .
-  var M : Pbag .
-  eq next(T, M) = if enabled(T, M) then < firing(T, M) ; firingRate(T, M) > else noStateRate fi . *** the firing rule is deterministic
+  var N : Enet .
+  vars M M' C : Pbag .
+  var MS : StatesRates .
+  var rate : Float . var P : Pair{Pbag,Bool} .
+  *** the following definition is ok if we use single transitions as nodes and unbounded places 
+  eq next(T, M) = if enabled(T, M) then < firing(T, M) ; firingRate(T, M) > else noStateRate fi . *** the tran. firing is deterministic
+  eq next(N, M) = $next(net(N), cap(N), noStateRate, M) [owise] . *** in a net several transitions can be enabled 
+  op $next : Net Pbag StatesRates Pbag -> StatesRates .
+  eq $next(emptyNet, C, MS, M) = MS .
+ceq $next(N ; T, C, MS, M) = $next(N, C, MS < 1st(P) ; rate > , M) if enabled(T, M) /\ 
+          P := firing(T, C, M) /\ 2nd(P) /\ rate := firingRate(T, M) .
+  eq $next(N ; T, C, MS, M) = $next(N, C, MS , M) [owise] .
 endfm
 
-view Tran{PL :: TRIV} from NODE to SPN-SIG+{String, PL} is
-   sort Node to Tran .
+view Enet{PL :: TRIV} from NODE to SPN-SIG+{String, PL} is
+   *** sort Node to Tran .
+   sort Node to Enet . *** if we want to use the extension with flush arcs and (above all) capacity
    sort State to Pbag .
    sort LocState to ElPbag .
 endv
-
-*** NOTA se vogliamo usare la versione estesa (con posti con capacità) allora Node dovrebbe essere mappato su Net

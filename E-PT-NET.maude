@@ -51,7 +51,8 @@ ceq L |-> EQ = emptyNet if dead(m(EQ)) . *** removes dead transitions
  eq firing(L |-> EQ, M) = firing(EQ, M) .
   *** considers also the capacity (2nd par), not the enabling
  op firing : Tran Pbag Pbag -> Pair{Pbag, Bool} .
-ceq firing(T, C, M) = < B ; C >= B > if B := firing(T, M) . 
+ eq firing(T, nilP, M) = < firing(T, M) ; true > . *** optimization
+ceq firing(T, C':NePbag, M) = < B ; C':NePbag >= B > if B := firing(T, M) . 
   *** test the existence of a place (of course, the capacity bag is not considered) 
  op in : Net Place -> Bool . 
 ceq in(L |-> EQ ; N, P) = true if in (EQ, P) .

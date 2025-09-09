@@ -1,6 +1,6 @@
 in SPN-EXE
 
-*** system module (adding rewrite rules) of the SPN-to-CTMC example
+*** system module (including rewrite rules) of the SPN example
 mod SPN-EXE-SYS+ is
  inc SPN-EXE-SYS  . *** includes only the firing rule
  vars L L' : Tlab . vars T T' : Tran . var P : Place . vars B B' M I O : Pbag  .

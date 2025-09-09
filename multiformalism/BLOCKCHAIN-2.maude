@@ -1,0 +1,21 @@
+*** An example of network of queues and SPN -- solution 2 
+in SPN-NODE-2
+in QUEUE-NODE-2
+
+mod BLOCKCHAIN-2 is
+  inc NETWORK-SYS{Enet{Nat}}  * (sort Network{Enet{Nat}} to  Network{Enet}, sort NetSys{Enet{Nat}} to  NetSys{Enet}) .
+  inc NETWORK-SYS{Queue+{Nat}} * (sort Network{Queue+{Nat}} to  Network{Queue}, sort NetSys{Queue+{Nat}} to  NetSys{Queue}) .
+  
+  ops net : -> Enet  [memo] .
+  ops m0  : -> Pbag  [memo] .  
+  op N : -> NzNat [memo] . *** timeout parameter
+  eq N = 10 .
+  *** the buffer component
+  eq net =  t("new", 2.0, 1) |-> [nilP, 1 . p(1)] ; 
+            t("collect", 1.0, 1)  |-> [N . p(1), N . p(2)] ;
+            t("timeout", 0.2, 1)  |-> [1 . p(3), 1 . p(3)] f: p(1) >> p(2) ;
+            t("continue", 1.0, 1) |-> [nilP, nilP] f: p(2) >> p(4) 
+            c: N . p(1) + N . p(2) + N . p(4) .           
+  eq m0  =  1 . p(3) .
+
+endm
