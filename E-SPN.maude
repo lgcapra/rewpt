@@ -29,7 +29,7 @@ fmod E-SPN-SIG{L :: TRIV, PL :: TRIV} is
 endfm
 
 in E-PT-SYS
-*** generic (extended) spn def
+*** (extended) spn generic def.
 fmod E-SPN-GEN{L :: TRIV, PL :: TRIV} is
   pr (E-SPN-SIG{L, PL} + E-PT-SYS{Tlab{L}, PL}) * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}).
 endfm

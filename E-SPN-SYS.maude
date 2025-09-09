@@ -1,8 +1,7 @@
 in E-SPN
 
-*** Extended Stochastic Petri Net plus firing rule
-*** module parametrized in P- and T-labels
-*** the firing rule also considers place capacity (if any)
+*** Extended Stochastic Petri Net plus firing rule -- considers place capacity (if any)
+*** parametrized in P- and T-labels
 mod E-SPN-SYS-GEN{L :: TRIV, PL :: TRIV} is
  inc E-SPN-GEN{L, PL} .
  var M : Pbag . var T : Tran . vars N N' : Enet . var P : Pair{Pbag,Bool} .

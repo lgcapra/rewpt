@@ -1,22 +1,28 @@
 in PBAG
 in ATYPE
 
+*** new definition: simplified representation of matrices whitout inhibitor arcs
 fmod TMATRIX{L :: TRIV} is
  pr PBAG{L} .
  pr ATYPE .
- sort Tmatrix .
+ sorts Smatrix Tmatrix . *** an input/output matrix and a complete (with inhibitor arcs) matrix
+ subsort Smatrix < Tmatrix .
  op [_,_,_] : Pbag Pbag Pbag -> Tmatrix [ctor] .
+ op [_,_] : Pbag Pbag  -> Smatrix [ctor] .
  
- var P  : Place .
- vars I O H M I' O' H' : Pbag .
- vars K K' : NzNat .
- var Q  : Tmatrix .
- var S  : Pset .
-  
- ops I O H : Tmatrix -> Pbag .
+ var P : Place . vars I O H M  : Pbag .  vars K K' : NzNat .
+ var J : Nat . vars Q Q'  : Tmatrix . var S  : Pset .
+
+ eq [I, O, nilP] = [I, O] . *** needed
+
+ *** getters: play an essential role
+ ops I O H : Tmatrix -> Pbag . 
  eq I([I,O,H]) = I .
  eq O([I,O,H]) = O .
  eq H([I,O,H]) = H .
+ eq I([I,O]) = I .
+ eq O([I,O]) = O .
+ eq H([I,O]) = nilP . *** needed
 
  op _(_) : Tmatrix Atype -> Pbag [prec 23] . *** introduced for convenience
  var a : Atype .
@@ -27,21 +33,20 @@ fmod TMATRIX{L :: TRIV} is
  op in :  Tmatrix Place -> Bool . *** test the existence of a place
  eq in(Q, P) = isIn(Q, P) or-else isOut(Q, P) or-else isH(Q, P) .
  ops isIn isOut isH : Tmatrix Place -> Bool .
- eq isIn([I + K . P, O, H], P) = true .
- eq isIn(Q, P) = false [owise] .
- eq isOut([I, O + K . P, H], P) = true .
- eq isOut(Q, P) = false [owise] .
- eq isH([I, O, H + K . P], P) = true .
- eq isH(Q, P) = false [owise] .
+ eq isIn(Q, P)  = I(Q)[P] > 0 .
+ eq isOut(Q, P) = O(Q)[P] > 0 .
+ eq isH(Q, P)   = H(Q)[P] > 0 .
 
  op places : Tmatrix -> Pset .
- eq places([I,O,H]) = support(I) U support(O) U support(H) .
+ eq places(Q) = support(I(Q)) U support(O(Q)) U support(H(Q)) .
 
  op enabled : Tmatrix Pbag -> Bool .
- eq enabled([I,O,H], M) = I <= M and-then H > M .
-
+ *** eq enabled(Q, M) = I(Q) <= M and-then H(Q) > M .
+ eq enabled([I,O,H], M) = enabCond(I, H, M) . *** we split for efficiency
+ eq enabled([I,O], M) = I <= M .
+ 
  op firing : Tmatrix Pbag -> Pbag .
- eq firing([I,O,H], M) = M + O - I .
+ eq firing(Q, M) = M + O(Q) - I(Q) .
 
  op dead : Tmatrix -> Bool .  *** checks for structurally dead transitions 
  eq dead([K . P + I, O, K' . P + H]) = K >= K' [metadata "dead tq"] .
@@ -49,17 +54,17 @@ fmod TMATRIX{L :: TRIV} is
 
  *** pair-wise sum
  op _+_  : Tmatrix Tmatrix -> Tmatrix [prec 41 assoc comm] .
- eq [I,O,H] + [I',O',H'] = [I' + I, O' + O, H' + H] .
+ eq Q + Q' = [I(Q') + I(Q), O(Q') + O(Q), H(Q') + H(Q)] .
 
  *** set a given place's arc type
  op set : Tmatrix Atype Place Nat -> Tmatrix .
- eq set([I,O,H], i, P, K) = [set(I,P,K), O, H] .
- eq set([I,O,H], o, P, K) = [I, set(O,P,K), H] .
- eq set([I,O,H], h, P, K) = [I, O, set(H,P,K)] .
+ eq set(Q, i, P, J) = [set(I(Q), P, J), O(Q), H(Q)] .
+ eq set(Q, o, P, J) = [I(Q), set(O(Q), P, J), H(Q)] .
+ eq set(Q, h, P, J) = [I(Q), O(Q), set(H(Q), P, J)] .
 
  *** removes the specified places from a local matrix
  op remove :  Tmatrix Pset -> Tmatrix .
- eq remove([I,O,H], S) = [remove(I, S),remove(O, S),remove(H, S)] .
+ eq remove(Q, S) = [remove(I(Q), S),remove(O(Q), S),remove(H(Q), S)] .
 
 endfm
 
@@ -71,3 +76,8 @@ endv
 view PsetTM{L :: TRIV} from TRIV to TMATRIX{L} is 
  sort Elt to Pset . 
 endv
+
+*** test
+fmod TMAT-NAT is
+ pr TMATRIX{Nat} .
+endfm

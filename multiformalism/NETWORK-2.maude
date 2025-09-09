@@ -12,8 +12,8 @@ fth NODE is
   subsort StateRate < StatesRates .
   op state : StateRate -> State .
   op rate  : StateRate -> Float .
-  op empty : -> StatesRates .
-  op __ : StatesRates StatesRates -> StatesRates [assoc comm id: empty] .
+  op noStateRate : -> StatesRates .
+  op __ : StatesRates StatesRates -> StatesRates [assoc comm id: noStateRate] .
   op next : Node State -> StatesRates . *** encoding the (non-deterministic) firing rule as operator
 endfth
 
@@ -71,8 +71,8 @@ endfm
 
 *** multiset of pairs (Pbag, Float)
 fmod MSET-MARKING-RATE{PL :: TRIV} is
-   pr MSET-STATE-RATE{S-Pbag{PL}} * (sort StateRate{S-Pbag{PL}} to MarkingRate,
-                                    sort Mset{StateRate{S-Pbag{PL}}} to Mset{MarkingRate}, 
-                                    sort NeMset{StateRate{S-Pbag{PL}}} to NeMset{MarkingRate}, 
-                                    op empty{StateRate{S-Pbag{PL}}} to empty{MarkingRate}) .
+   pr MSET-STATE-RATE{S-Pbag{PL}} * (sort StateRate{S-Pbag{PL}} to StateRate,
+                                    sort Mset{StateRate{S-Pbag{PL}}} to StatesRates, 
+                                    sort NeMset{StateRate{S-Pbag{PL}}} to NeStatesRates, 
+                                    op empty{StateRate{S-Pbag{PL}}} to noStateRate) .
 endfm

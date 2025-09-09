@@ -20,7 +20,7 @@ fmod PT-NET{L :: TRIV, PL :: TRIV} is
  eq O(T) = O(q(T)) .
  eq H(T) = H(q(T)) .
  
- eq L |-> [nilP, nilP, nilP] = emptyNet . *** removes isolated transitions
+ eq L |-> [nilP, nilP] = emptyNet . *** removes isolated transitions
 *** eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** removes transitions not changing the marking
 op dead : Tran -> Bool .  *** checks for structurally dead transitions 
 eq dead(L |-> Q) = dead(Q) .

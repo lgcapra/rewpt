@@ -37,7 +37,7 @@ fmod E-PT-NET{L :: TRIV, PL :: TRIV} is
  eq net(N c: C) = N .
  eq net(N) = N .
  
- eq L |-> [nilP, nilP, nilP] = emptyNet . *** removes isolated transitions
+ eq L |-> [nilP, nilP] = emptyNet . *** removes isolated transitions
 *** eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** removes transitions not changing the marking
 
 op dead : Tran -> Bool .  *** checks for structurally dead transitions 
@@ -49,7 +49,7 @@ ceq L |-> EQ = emptyNet if dead(m(EQ)) . *** removes dead transitions
  *** doesn't consider enabling and capacity, but considers flush arcs
  op firing : Tran Pbag -> Pbag .
  eq firing(L |-> EQ, M) = firing(EQ, M) .
-  *** considers the capacity (2nd par)
+  *** considers also the capacity (2nd par), not the enabling
  op firing : Tran Pbag Pbag -> Pair{Pbag, Bool} .
 ceq firing(T, C, M) = < B ; C >= B > if B := firing(T, M) . 
   *** test the existence of a place (of course, the capacity bag is not considered) 
