@@ -1,0 +1,10 @@
+in E-PT-SYS
+
+*** Extended Petri Net plus firing rule
+mod E-PT-EMU{L :: TRIV, PL :: TRIV} is
+ inc E-PT-SYS{L, PL} .
+ var M : Pbag . var T : Tran . vars N N' : Net . var P : Pair{Pbag,Bool} . var C : NePbag .
+ *** rule split for convenince
+ crl [firing-1] : (N c: C) M => (N c: C) 1st(P) if T ; N' := N  /\ enabled(T, M) /\ P := firing(T, C, M) /\ 2nd(P) .
+ crl [firing-2] : N M => N firing(T, M)  if T ; N' := N  /\ enabled(T, M)  . *** there is no capacity
+endm

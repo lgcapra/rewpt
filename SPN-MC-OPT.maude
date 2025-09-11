@@ -1,4 +1,5 @@
 in SPN-STATE-TRAN-OPT
+in SPN-STATE-TRAN
 
 *** this module re-defines the SPN definition according to the redundant state description used to derive a CTMC
 fmod SPN-MC-OPT is

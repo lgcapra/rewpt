@@ -2,7 +2,8 @@
 in NETWORK-2
 in ../E-SPN
 
-fmod SPN-SIG+{L :: TRIV, PL :: TRIV} is
+*** network nodes consisting of extended SPN
+fmod ESPN-NODE{L :: TRIV, PL :: TRIV} is
   pr E-SPN-SIG{L, PL} .
   pr MSET-MARKING-RATE{PL} .
   op next : Enet Pbag -> StatesRates .   *** encoding of the firing rule as an operator
@@ -21,8 +22,7 @@ ceq $next(N ; T, C, MS, M) = $next(N, C, MS < 1st(P) ; rate > , M) if enabled(T,
   eq $next(N ; T, C, MS, M) = $next(N, C, MS , M) [owise] .
 endfm
 
-view Enet{PL :: TRIV} from NODE to SPN-SIG+{String, PL} is
-   *** sort Node to Tran .
+view EspnNode{PL :: TRIV} from NODE to ESPN-NODE{String, PL} is
    sort Node to Enet . *** if we want to use the extension with flush arcs and (above all) capacity
    sort State to Pbag .
    sort LocState to ElPbag .

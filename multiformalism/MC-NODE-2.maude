@@ -1,0 +1,18 @@
+*** Markov Chain nodes (defined as marked graphs) of a network -- solution 2
+in NETWORK-2
+in MC
+
+*** describes a Markov Chain as a marked graph -- included the firing rule
+mod MC-NODE{PL :: TRIV} is
+  inc MC{PL} .
+  pr MSET-MARKING-RATE{PL} .
+  op next : MC Pbag -> StatesRates .   
+  eq next(M:MC, M:Pbag) = noStateRate . *** dummy encoding of the firing rule
+endm
+
+
+view MCnode{PL :: TRIV} from NODE to MC-NODE{PL} is
+   sort Node to MC . *** this node has an inner behaviour expressed by a local rewrite
+   sort State to Pbag .
+   sort LocState to ElPbag .
+endv

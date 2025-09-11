@@ -1,0 +1,8 @@
+in PT-SYS
+
+*** Stochastic Petri Net plus firing rule
+mod PT-EMU{L :: TRIV, PL :: TRIV} is
+ inc PT-SYS{L, PL} .
+ var M : Pbag . var T : Tran . vars N N' : Net .
+ crl [firing] : N M => N firing(T, M) if T ; N' := N  /\ enabled(T, M)  .
+endm

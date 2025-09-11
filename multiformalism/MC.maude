@@ -1,0 +1,28 @@
+*** Markov Chain nodes (defined as marked graphs) of a network -- solution 2
+in ../PT-NET
+
+fmod MG-NET{L :: TRIV, PL :: TRIV} is
+  inc PT-NET{L, PL} .
+  var vars p p' : Place . vars L : L$Elt . var N : MGnet .
+  sorts MGtran MGnet . 
+  subsort MGtran < Tran MGnet .
+  subsort MGnet < Net .
+  op _;_ : MGnet MGnet -> MGnet [ctor ditto] .
+  mb (L |-> [1 . p, 1 . p']) : MGtran .
+endfm
+
+*** describes a Markov Chain as a marked graph -- includes the firing rule
+mod MC{PL :: TRIV} is 
+  inc MG-NET{Float, PL}* (sort Net to MCnet, sort Tran to MCtran, sort MGnet to Qmat, sort MGtran to Qentry) .
+  sort MC .
+  vars Q Q' : Qmat .
+  vars p p' : Place .
+  var X : Float .
+  op _s:_ : Qmat Place -> MC [ctor] . *** the state is represented by a place
+crl Q s: p => Q s: p' if X |-> [1 . p, 1 . p'] ; Q' := Q .
+endm
+
+
+mod MC-EXE is 
+ inc MC{Nat} .
+endm

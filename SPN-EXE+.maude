@@ -1,8 +1,8 @@
 in SPN-EXE
 
-*** system module (including rewrite rules) of the SPN example
-mod SPN-EXE-SYS+ is
- inc SPN-EXE-SYS  . *** includes only the firing rule
+*** system module (adding rewrite rules) of the SPN-to-CTMC example
+mod SPN-EXE+ is
+ inc SPN-EXE-EMU  . *** includes only the firing rule
  vars L L' : Tlab . vars T T' : Tran . var P : Place . vars B B' M I O : Pbag  .
  vars r r' : Float . var N : Net . var W : String . var E : Nat . var Q : Tmatrix .
 

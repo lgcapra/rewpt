@@ -1,10 +1,10 @@
 *** An example of network of queues and SPN -- solution 2 
-in SPN-NODE-2
+in ESPN-NODE-2
 in QUEUE-NODE-2
 
 mod MQN-SPN-2 is
-  inc NETWORK-SYS{Enet{Nat}}  * (sort Network{Enet{Nat}} to  Network{Enet}, sort NetSys{Enet{Nat}} to  NetSys{Enet}) .
-  inc NETWORK-SYS{Queue+{Nat}} * (sort Network{Queue+{Nat}} to  Network{Queue}, sort NetSys{Queue+{Nat}} to  NetSys{Queue}) .
+  inc NETWORK-SYS{EspnNode{Nat}}  * (sort Network{EspnNode{Nat}} to  Network{Enet}, sort NetSys{EspnNode{Nat}} to  NetSys{Enet}) .
+  inc NETWORK-SYS{QueueNode{Nat}} * (sort Network{QueueNode{Nat}} to  Network{Queue}, sort NetSys{QueueNode{Nat}} to  NetSys{Queue}) .
 
   var K : NzNat . *** model parameter
   vars N N' N'' : Network .

@@ -20,22 +20,28 @@ fmod TMATRIX-MOD is
  *** removes all places from a local matrix
  op remove :  Tmatrix Pset -> Tmatrix .
  eq remove([X,Y,Z], S) = [remove(X, S),remove(Y, S),remove(Z, S)] .
+ eq remove([X,Y], S) = [remove(X, S),remove(Y, S)] .
  *** add a new label to a matrix' elements
  op addLab : Tmatrix Lab -> Tmatrix . *** overloaded
  eq addLab([X,Y,Z], L) = [addLab(X, L), addLab(Y, L), addLab(Z, L)] .
+ eq addLab([X,Y], L) = [addLab(X, L), addLab(Y, L)] .
  *** version specifying elements to share
  op addLab : Tmatrix Lab Pset -> Tmatrix . 
  eq addLab([X,Y,Z], L, S) = [addLab(X, L, S), addLab(Y, L, S), addLab(Z, L, S)] .
- 
+ eq addLab([X,Y], L, S) = [addLab(X, L, S), addLab(Y, L, S)] .
  *** sub-matrices based on the suffix
  op sumatrix : Tmatrix NeList{String} -> Tmatrix .
  eq sumatrix([X,Y,Z], NWs) = [subag(X, NWs), subag(Y, NWs), subag(Z, NWs)] .
+ eq sumatrix([X,Y], NWs) = [subag(X, NWs), subag(Y, NWs)] .
  op sumatrix : Tmatrix List{String} NeLab -> Tmatrix .
  eq sumatrix([X,Y,Z], NWs, NeL) = [subag(X, NWs, NeL), subag(Y, NWs, NeL), subag(Z, NWs, NeL)] . *** optimization
+ eq sumatrix([X,Y], NWs, NeL) = [subag(X, NWs, NeL), subag(Y, NWs, NeL)] . 
  eq sumatrix([X,Y,Z], emptyLs, NeL) = [subag(X, NeL), subag(Y, NeL), subag(Z, NeL)] .
+ eq sumatrix([X,Y], emptyLs, NeL) = [subag(X, NeL), subag(Y, NeL)] .
+ ***
  op match : Tmatrix List{String} NeLab -> Tmatrix .
  eq match([X,Y,Z], Ws, NeL) = [match(X, Ws, NeL), match(Y, Ws, NeL), match(Z, Ws, NeL)] .
-
+ eq match([X,Y], Ws, NeL) = [match(X, Ws, NeL), match(Y, Ws, NeL)] .
  *** derived definitions of places
  op places : Tmatrix NeList{String}  -> Pset .
  eq places(Q, NWs) = places(sumatrix(Q, NWs)) .
@@ -43,8 +49,9 @@ fmod TMATRIX-MOD is
  eq places(Q, Ws, NeL) = places(sumatrix(Q, Ws, NeL)) .
  op matchplaces : Tmatrix List{String} NeLab  -> Pset .
  eq matchplaces(Q, Ws, NeL) = places(match(Q, Ws, NeL)) .
- 
+ ***
  op replaceWith : Tmatrix NeLab Nat -> Tmatrix .
  eq replaceWith([X,Y,Z], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N), replaceWith(Z, NeL, N)] .
+ eq replaceWith([X,Y], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N)] .
   
 endfm

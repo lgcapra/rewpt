@@ -79,3 +79,18 @@ ceq isH(L |-> EQ ; N, P) = true if isH(m(EQ), P) .
  eq transitions(EN) = keySet(EN) .
 
 endfm
+
+*** marked graphs are PNs with a simple structure that represents a TS
+fmod E-MG-NET{L :: TRIV, PL :: TRIV} is
+  pr E-PT-NET{L, PL} . 
+  sorts MGtran MGnet MGsys . 
+  subsort MGtran < Tran MGnet .
+  subsort MGnet < Net .
+  *** subsort MGsys < System .
+  var T : Tran . vars p p' : Place . vars L : L$Elt . vars M M' C : Pbag .
+  var N : MGnet .
+
+  op _;_ : MGnet MGnet -> MGnet [ctor ditto] .
+  mb (L |-> [1 . p, 1 . p']) : MGtran .
+  *** mb N 1 . p : MGsys .
+endfm

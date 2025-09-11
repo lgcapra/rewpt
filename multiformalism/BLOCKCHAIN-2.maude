@@ -1,21 +1,25 @@
-*** An example of network of queues and SPN -- solution 2 
-in SPN-NODE-2
-in QUEUE-NODE-2
+*** the blockchain example (valuetools) -- based on solution 2 
+in ESPN-NODE-2
+in MC-NODE-2
 
-mod BLOCKCHAIN-2 is
-  inc NETWORK-SYS{Enet{Nat}}  * (sort Network{Enet{Nat}} to  Network{Enet}, sort NetSys{Enet{Nat}} to  NetSys{Enet}) .
-  inc NETWORK-SYS{Queue+{Nat}} * (sort Network{Queue+{Nat}} to  Network{Queue}, sort NetSys{Queue+{Nat}} to  NetSys{Queue}) .
-  
+mod BLOCKCHAIN is
+  inc NETWORK-SYS{EspnNode{Nat}}  * (sort Network{EspnNode{Nat}} to  Network{Enet}, sort NetSys{EspnNode{Nat}} to  NetSys{Enet}) .
+  inc NETWORK-SYS{MCnode{Nat}}  * (sort Network{MCnode{Nat}} to  Network{MC}, sort NetSys{MCnode{Nat}} to  NetSys{MC}) .
   ops net : -> Enet  [memo] .
   ops m0  : -> Pbag  [memo] .  
+  op network : -> NetSys .
   op N : -> NzNat [memo] . *** timeout parameter
-  eq N = 10 .
+  eq N = 2 .
   *** the buffer component
   eq net =  t("new", 2.0, 1) |-> [nilP, 1 . p(1)] ; 
             t("collect", 1.0, 1)  |-> [N . p(1), N . p(2)] ;
             t("timeout", 0.2, 1)  |-> [1 . p(3), 1 . p(3)] f: p(1) >> p(2) ;
-            t("continue", 1.0, 1) |-> [nilP, nilP] f: p(2) >> p(4) 
-            c: N . p(1) + N . p(2) + N . p(4) .           
+            t("continue", 1.0, 1) |-> [nilP, nilP] f: p(2) >> emptyPset 
+            c: N . p(1) + N . p(2)  .           
   eq m0  =  1 . p(3) .
+
+  op mmc : -> MC .
+  eq mmc = (1.0 |-> [1 . p(10), 1 . p(11)] ; 2.0 |-> [1 . p(11), 1 . p(10)]) s: p(10) .
+  eq network = (net, mmc) : m0 .
 
 endm

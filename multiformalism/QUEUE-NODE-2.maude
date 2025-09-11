@@ -1,9 +1,8 @@
-in ../PBAG
-in QUEUE-NODE
+in QUEUE
 in NETWORK-2
 
 *** MQN nodes of a network -- solution 2
-fmod QUEUE+{PL :: TRIV} is
+fmod QUEUE-NODE{PL :: TRIV} is
    pr QUEUE{PL} .
    pr MSET-MARKING-RATE{PL} .
    pr CONVERSION .
@@ -20,7 +19,7 @@ fmod QUEUE+{PL :: TRIV} is
          if rate := mu(Q) * float(M[p(Q)]) / float(K) [owise] .  
 endfm
 
-view Queue+{PL :: TRIV} from NODE to QUEUE+{PL} is
+view QueueNode{PL :: TRIV} from NODE to QUEUE-NODE{PL} is
    sort Node to Queue . 
    sort State to Pbag .
    sort LocState to ElPbag .

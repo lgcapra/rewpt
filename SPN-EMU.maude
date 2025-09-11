@@ -1,0 +1,13 @@
+in SPN
+
+*** Stochastic Petri Net plus firing rule
+mod SPN-EMU{L :: TRIV, PL :: TRIV} is
+ inc SPN-SYS{L, PL} .
+ var M : Pbag . var T : Tran . vars N N' : Net .
+ crl [firing] : N M => N firing(T, M) if T ; N' := N  /\ enabled(T, M) /\ R:Float := firingRate(T, M) .
+endm
+
+*** trivial views to SPN-EMU
+view System{L :: TRIV, PL :: TRIV} from TRIV to SPN-EMU{L, PL} is 
+ sort Elt to System .
+endv

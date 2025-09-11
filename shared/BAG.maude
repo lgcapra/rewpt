@@ -87,6 +87,13 @@ ceq B < B' = true if B =/= B' [owise] .
  op isaset : Bag{X} -> Bool .
 ceq isaset(N . X + B) = false if N > 1 .
  eq isaset(B) = true [owise] .
+ *** determines an element with minimum multiplicity
+ op emin : NeBag{X} -> X$Elt .
+ eq emin(N . X + B) = $emin(B, N . X) .
+ op $emin :  Bag{X} ElBag{X} -> X$Elt .
+ eq $emin(nil{X}, N . X) = X .
+ eq $emin(M . Y + B, N . X) = $emin(B, if (M < N) then M . Y else N . X fi) .
+
 endfm
 
 *** parameterized view to BAG{X}

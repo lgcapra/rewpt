@@ -1,7 +1,8 @@
-in E-SPN
+in E-SPN-EMU
 
-fmod E-SPN-EXE is
- pr E-SPN .
+mod E-SPN-EXE is
+ inc E-SPN-SYS{String, String} .
+ inc E-SPN-EMU{String, String} .
  ops net : -> Enet  [memo] .
  ops m0  : -> Pbag  [memo] .  
  *** same example as in SPN-EXE
@@ -15,14 +16,6 @@ fmod E-SPN-EXE is
 
  eq m0  = 2 . p("1") +  1 . p("3") .
  
-endfm
-
-in E-SPN-SYS
-
-*** system module (specifyng the example) with only the firing rule
-mod E-SPN-EXE-SYS is
- inc E-SPN-EXE .
- inc E-SPN-SYS .
-endm 
+endm
 
 

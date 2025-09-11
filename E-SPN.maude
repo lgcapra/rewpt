@@ -3,7 +3,7 @@ in FIRING-RATE
 
 *** Stochastic Petri Net signature parameterized in tran labels
 fmod E-SPN-SIG{L :: TRIV, PL :: TRIV} is
-  pr E-PT-NET{Tlab{L}, PL}  .
+  pr E-PT-NET{Tlab{L}, PL}  * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}) .
   pr FIRING-RATE{L, PL} .
   var M  : Pbag .
   var Q : Ematrix .
@@ -29,21 +29,8 @@ fmod E-SPN-SIG{L :: TRIV, PL :: TRIV} is
 endfm
 
 in E-PT-SYS
-*** extended spn generic def.
-fmod E-SPN-GEN{L :: TRIV, PL :: TRIV} is
-  pr (E-SPN-SIG{L, PL} + E-PT-SYS{Tlab{L}, PL}) * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}).
+*** extended spn system (net + marking).
+fmod E-SPN-SYS{L :: TRIV, PL :: TRIV} is
+  pr E-SPN-SIG{L, PL} .
+  pr E-PT-SYS{Tlab{L}, PL} * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}) .
 endfm
-
-*** concrete spn definition based on TLAB (and String) as node labels
-fmod E-SPN is
-  pr E-SPN-GEN{String, String} . *** makes sense because it's a "final" module
-endfm
-
-*** views to E-SPN
-view System from TRIV to E-SPN is 
- sort Elt to System . 
-endv
-
-view Net from TRIV to E-SPN is 
- sort Elt to Net . 
-endv
