@@ -1,25 +1,39 @@
 *** the blockchain example (valuetools) -- based on solution 2 
-in ESPN-NODE-2
+in SPN-NODE-2
 in MC-NODE-2
 
 mod BLOCKCHAIN is
-  inc NETWORK-SYS{EspnNode{Nat}}  * (sort Network{EspnNode{Nat}} to  Network{Enet}, sort NetSys{EspnNode{Nat}} to  NetSys{Enet}) .
-  inc NETWORK-SYS{MCnode{Nat}}  * (sort Network{MCnode{Nat}} to  Network{MC}, sort NetSys{MCnode{Nat}} to  NetSys{MC}) .
-  ops net : -> Enet  [memo] .
-  ops m0  : -> Pbag  [memo] .  
-  op network : -> NetSys .
+  inc NETWORK-SYS{SpnNode{Nat}}  * (sort Network{SpnNode{Nat}} to  Network{Net}, sort NetSys{SpnNode{Nat}} to  NetSys{Net}) .
+  inc NETWORK-SYS{McNode{Nat}}  * (sort Network{McNode{Nat}} to  Network{Mc}, sort NetSys{McNode{Nat}} to  NetSys{Mc}) .
+  inc NETWORK-SYS{JsqNode{Nat}} * (sort Network{JsqNode{Nat}} to  Network{Jsq}, sort NetSys{JsqNode{Nat}} to  NetSys{Jsq}) .
+  inc NETWORK-SYS{QueueNode{Nat}} * (sort Network{QueueNode{Nat}} to  Network{Queue}, sort NetSys{QueueNode{Nat}} to  NetSys{Queue}) .
+  *** the modulating MC
+  op mmc : -> Mc .
+  eq mmc = (1.0 |-> [1 . p(10), 1 . p(11)] ; 2.0 |-> [1 . p(11), 1 . p(10)]) s: p(10) .
+  
+  *** the buffer component
+  ops net : -> Net  [memo] .
   op N : -> NzNat [memo] . *** timeout parameter
   eq N = 2 .
-  *** the buffer component
-  eq net =  t("new", 2.0, 1) |-> [nilP, 1 . p(1)] ; 
-            t("collect", 1.0, 1)  |-> [N . p(1), N . p(2)] ;
-            t("timeout", 0.2, 1)  |-> [1 . p(3), 1 . p(3)] f: p(1) >> p(2) ;
-            t("continue", 1.0, 1) |-> [nilP, nilP] f: p(2) >> emptyPset 
-            c: N . p(1) + N . p(2)  .           
+  eq net =  t("new", 2.0, 1) |-> [nilP, 1 . p(1,N)] ; 
+            t("collect", 1.0, 1)  |-> [N . p(1,N), N . p(2,N)] ;
+            t("timeout", 0.2, 1)  |-> [1 . p(3), 1 . p(3)] f: p(1,N) >> p(2,N) ;
+            t("continue", 1.0, 1) |-> [nilP, nilP] f: p(2,N) >> p(4,1) .           
+  
+  *** JSQ
+  op jsq1 : -> Jsq [memo] .
+  eq jsq1 = p(4,1) |> p(6,N) U p(7,N) . 
+  
+  *** Queues
+  ops q1 q2 : -> Queue  [memo] .
+  eq  q1  = p(7, N) @ 1.0 > p(0, N) .
+  eq  q2  = p(6, N) @ 1.0 > p(0, N) . 
+ 
+  
+  *** the network (blockchain)
+  ops m0  : -> Pbag  [memo] .  
+  op netsys : -> NetSys .
+  eq netsys = (net, mmc, jsq1, q1, q2) : m0 .
   eq m0  =  1 . p(3) .
-
-  op mmc : -> MC .
-  eq mmc = (1.0 |-> [1 . p(10), 1 . p(11)] ; 2.0 |-> [1 . p(11), 1 . p(10)]) s: p(10) .
-  eq network = (net, mmc) : m0 .
-
+  
 endm

@@ -14,15 +14,10 @@ endfm
 *** describes a Markov Chain as a marked graph -- includes the firing rule
 mod MC{PL :: TRIV} is 
   inc MG-NET{Float, PL}* (sort Net to MCnet, sort Tran to MCtran, sort MGnet to Qmat, sort MGtran to Qentry) .
-  sort MC .
+  sort Mc .
   vars Q Q' : Qmat .
   vars p p' : Place .
   var X : Float .
-  op _s:_ : Qmat Place -> MC [ctor] . *** the state is represented by a place
+  op _s:_ : Qmat Place -> Mc [ctor] . *** the state is represented by a place
 crl Q s: p => Q s: p' if X |-> [1 . p, 1 . p'] ; Q' := Q .
-endm
-
-
-mod MC-EXE is 
- inc MC{Nat} .
 endm

@@ -1,55 +1,21 @@
-in SPN
-
-fmod SPN-EXE is
- pr SPN-SYS{String, String} .
- op net : -> Net  [memo] .
- op m0  : -> Pbag  [memo] .  
-
- eq net =  t("a", 0.6, 0) |-> [1 . p("1"), 1 . p("2"), 1 . p("3")] ;
-           t("a", 0.3, 0) |-> [1 . p("1"), 1 . p("2"), nilP] ; 
-           t("b", 1.0, 0) |-> [1 . p("1") + 1 . p("3"), 1 . p("4"), nilP] ;
-           t("c", 0.25, 0) |-> [2 . p("2") , 2 . p("1"), nilP] ;
-           t("d", 3.0, 0) |-> [1 . p("4") , 1 . p("5"), nilP] ;
-           t("e", 2.0, 0) |-> [1 . p("4") , 1 . p("5"), nilP] ;
-           t("f", 0.5, 0) |-> [1 . p("5") , 1 . p("1") + 1 . p("3"), nilP] .
-
- eq m0  = 2 . p("1") +  1 . p("3") .
-
- ***  used in net rewrite examplemerges two transitions by assigning the resulting one the specified label
- vars L L' : Tlab .  vars T T' : Tran . vars Q Q' : Tmatrix .
- op merge : Tran  Tran Tlab -> Tran .
- eq merge(T, T', L) = L |-> q(T) + q(T') .
- *** aggregates two transitions by assigning the resulting one the specified label
- op aggr : Tran  Tran Tlab  -> Tran .
-ceq aggr(T, T', L) = L |-> [I(Q), O(Q'), H(Q) + H(Q')] if Q := q(T) /\ Q' := q(T') .
-
-endfm
-
 in SPN-EMU
 
-mod SPN-EXE-EMU is
- inc SPN-EXE .
+mod SPN-EXE is
+ inc SPN-SYS{String, String} .
  inc SPN-EMU{String, String} .
  op net : -> Net  [memo] .
  op m0  : -> Pbag  [memo] .  
-
+ *** same example as in SPN-EXE
  eq net =  t("a", 0.6, 0) |-> [1 . p("1"), 1 . p("2"), 1 . p("3")] ;
-           t("a", 0.3, 0) |-> [1 . p("1"), 1 . p("2"), nilP] ; 
-           t("b", 1.0, 0) |-> [1 . p("1") + 1 . p("3"), 1 . p("4"), nilP] ;
-           t("c", 0.25, 0) |-> [2 . p("2") , 2 . p("1"), nilP] ;
-           t("d", 3.0, 0) |-> [1 . p("4") , 1 . p("5"), nilP] ;
-           t("e", 2.0, 0) |-> [1 . p("4") , 1 . p("5"), nilP] ;
-           t("f", 0.5, 0) |-> [1 . p("5") , 1 . p("1") + 1 . p("3"), nilP] .
+           t("a", 0.3, 0) |-> [1 . p("1"), 1 . p("2")] ; 
+           t("b", 1.0, 0) |-> [1 . p("1") + 1 . p("3"), 1 . p("4")] ;
+           t("c", 0.25, 0) |-> [2 . p("2") , 2 . p("1")] ;
+           t("d", 3.0, 0) |-> [1 . p("4") , 1 . p("5")] ;
+           t("e", 2.0, 0) |-> [1 . p("4") , 1 . p("5")] ;
+           t("f", 0.5, 0) |-> [1 . p("5") , 1 . p("1") + 1 . p("3")] .
 
  eq m0  = 2 . p("1") +  1 . p("3") .
-
- ***  used in net rewrite examplemerges two transitions by assigning the resulting one the specified label
- vars L L' : Tlab .  vars T T' : Tran . vars Q Q' : Tmatrix .
- op merge : Tran  Tran Tlab -> Tran .
- eq merge(T, T', L) = L |-> q(T) + q(T') .
- *** aggregates two transitions by assigning the resulting one the specified label
- op aggr : Tran  Tran Tlab  -> Tran .
-ceq aggr(T, T', L) = L |-> [I(Q), O(Q'), H(Q) + H(Q')] if Q := q(T) /\ Q' := q(T') .
-
+ 
 endm
+
 

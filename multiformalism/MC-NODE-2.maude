@@ -6,13 +6,13 @@ in MC
 mod MC-NODE{PL :: TRIV} is
   inc MC{PL} .
   pr MSET-MARKING-RATE{PL} .
-  op next : MC Pbag -> StatesRates .   
-  eq next(M:MC, M:Pbag) = noStateRate . *** dummy encoding of the firing rule
+  op snext : Mc Pbag -> StatesRates .   
+  eq snext(M:Mc, M:Pbag) = noStateRate . *** dummy encoding of the firing rule
 endm
 
 
-view MCnode{PL :: TRIV} from NODE to MC-NODE{PL} is
-   sort Node to MC . *** this node has an inner behaviour expressed by a local rewrite
+view McNode{PL :: TRIV} from NODE to MC-NODE{PL} is
+   sort Node to Mc . *** this node has an inner behaviour expressed by a local rewrite
    sort State to Pbag .
-   sort LocState to ElPbag .
+   op next to snext .
 endv

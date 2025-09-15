@@ -8,20 +8,22 @@ fmod QUEUE-NODE{PL :: TRIV} is
    pr CONVERSION .
    var Q  : ElQueue . var Qu : Queue . var LQ  : List{ElQueue} . 
    var K : Nat . var rate : Float . var M : Pbag .
-   var MS : StatesRates . var P : Place .
-   op qnext  : Queue Pbag -> StatesRates . *** non deterministic (see the corresponding rule)
+   var MS : StatesRates . vars P P' : Place .
+   *** return the place of the next element if any, otherwise the specified default place (convenience op)
+   op nextPorDef : List{ElQueue} Place -> Place [memo] .  
+   eq nextPorDef(LQ, P) = if LQ == nilElQ then P else p(head(LQ)) fi .
+   op qnext  : Queue Pbag -> StatesRates . *** non deterministic firing (see the corresponding rule)
   ceq qnext(Qu, M) = $qnext(ql(Qu), noStateRate, out(Qu), K, M) if K := clients(ql(Qu), M) /\ K > 0 /\ qenabled(Qu, M) .
    eq qnext(Qu, M) = noStateRate [owise]. 
    op $qnext : List{ElQueue} StatesRates Place NzNat Pbag -> StatesRates .
    eq $qnext(nilElQ, MS, P, K, M) = MS .
-  ceq $qnext(Q LQ, MS, P, K, M) = $qnext(LQ, MS, P, K, M) if mu(Q) == 0.0 or-else M[p(Q)] == 0 .
-  ceq $qnext(Q LQ, MS, P, K, M) = $qnext(LQ, MS < (M - 1 . p(Q)) + 1 . (if LQ == nilElQ then P else p(head(LQ)) fi) ; rate >, P,K,M) 
+  ceq $qnext(Q LQ, MS, P, K, M) = $qnext(LQ, MS, P, K, M) if mu(Q) == 0.0 or-else M[p(Q)] == 0 or-else M[nextPorDef(LQ, P)] >= cap(nextPorDef(LQ, P)) . *** takes cap into accout
+  ceq $qnext(Q LQ, MS, P, K, M) = $qnext(LQ, MS < M  + 1 . nextPorDef(LQ, P) - 1 . p(Q) ; rate >, P, K, M) 
          if rate := mu(Q) * float(M[p(Q)]) / float(K) [owise] .  
 endfm
 
 view QueueNode{PL :: TRIV} from NODE to QUEUE-NODE{PL} is
    sort Node to Queue . 
    sort State to Pbag .
-   sort LocState to ElPbag .
    op next to qnext .
 endv 

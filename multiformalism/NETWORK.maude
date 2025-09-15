@@ -1,9 +1,9 @@
 in ../PBAG
 in ../shared/MSET
 
+*** povides a distributed state notion
 fth STATE is
-   sorts State LocState .
-   subsort LocState < State .
+   sort State . 
    op _+_ : State State -> State [assoc comm] . 
 endfth
 
@@ -23,7 +23,6 @@ endfm
 
 view S-Pbag{PL :: TRIV} from STATE to PBAG{PL} is 
  sort State to Pbag .
- sort LocState to ElPbag .
 endv
 
 *** network using a multiset of places (a marking) as distributed state

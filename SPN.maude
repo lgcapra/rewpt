@@ -6,7 +6,7 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   pr PT-NET{Tlab{L}, PL}  * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}) .
   pr FIRING-RATE{L, PL} .
   var M  : Pbag .
-  var Q : Tmatrix .
+  var Q : Ematrix .
   var T : Tran .
   vars F F' : Float .
   var L : L$Elt . var J : Nat . var N : Net .
@@ -29,13 +29,8 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
 endfm
 
 in PT-SYS
-*** generic spn def plus marking
+*** extended spn system (net + marking).
 fmod SPN-SYS{L :: TRIV, PL :: TRIV} is
   pr SPN-SIG{L, PL} .
   pr PT-SYS{Tlab{L}, PL} * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}) .
 endfm
-
-
-view System{L :: TRIV, PL :: TRIV} from TRIV to SPN-SYS{L, PL} is
-   sort Elt to System .
-endv

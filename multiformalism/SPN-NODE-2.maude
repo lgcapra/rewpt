@@ -1,0 +1,27 @@
+*** SPN nodes of a network -- solution 2
+in NETWORK-2
+in ../SPN
+
+*** network nodes consisting of extended SPN
+fmod SPN-NODE{L :: TRIV, PL :: TRIV} is
+  pr SPN-SIG{L, PL} .
+  pr MSET-MARKING-RATE{PL} .
+  op next : Net Pbag -> StatesRates .   *** encoding of the firing rule as an operator
+  var T : Tran .
+  var N : Net .
+  vars M M' : Pbag .
+  var MS : StatesRates .
+  var rate : Float .
+  *** the following definition is ok if we use single transitions as nodes and unbounded places 
+  eq next(T, M) = if enabled(T, M) then < firing(T, M) ; firingRate(T, M) > else noStateRate fi . *** the tran. firing is deterministic
+  eq next(N, M) = $next(N, noStateRate, M) [owise] . *** in a net several transitions can be enabled 
+  op $next : Net StatesRates Pbag -> StatesRates .
+  eq $next(emptyNet, MS, M) = MS .
+ceq $next(N ; T, MS, M) = $next(N, MS < M' ; rate > , M) if enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ rate := firingRate(T, M) .
+  eq $next(N ; T, MS, M) = $next(N, MS , M) [owise] .
+endfm
+
+view SpnNode{PL :: TRIV} from NODE to SPN-NODE{String, PL} is
+   sort Node to Net . *** if we want to use the extension with flush arcs and (above all) capacity
+   sort State to Pbag .
+endv

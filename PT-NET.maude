@@ -1,59 +1,64 @@
-in TMATRIX
+in E-TMATRIX
 in shared/MAP-SET
+in shared/PAIR
 
-*** def. separata rete - sistema
+*** PT net signature using the extended matrix representation including flush arcs and a description pf place capacity 
 fmod PT-NET{L :: TRIV, PL :: TRIV} is
- generated-by MAP-SET{L,Tmatrix{PL}} * (sort Map{L,Tmatrix{PL}} to Net, sort Entry{L,Tmatrix{PL}} to Tran, op emptyM to emptyNet,
+ generated-by MAP-SET{L,Ematrix{PL}} * (sort Map{L,Ematrix{PL}} to Net, sort Entry{L,Ematrix{PL}} to Tran, op emptyM to emptyNet,
                                         op emptyS to emptySlab) .
-
- vars L L' : L$Elt . vars T T' : Tran . vars N N' : Net .
- vars P P' : Place . vars M I O H : Pbag . vars K K'  : NzNat .
- var Q : Tmatrix . var  S : Pset .
- 
+ vars L L' : L$Elt . vars T T' : Tran . vars N N' : Net . 
+ vars P P' : Place . vars M I O H C B B' : Pbag . vars K K'  : NzNat .
+ var EQ : Ematrix . var Q : Tmatrix . var  S : Pset . var F : FlushArcs .
+ *** accessor methods
  ops l lab : Tran -> L$Elt .
  eq lab(T) = l(T) .
- op q : Tran -> Tmatrix .
- eq l(L |-> Q) = L .
- eq q(L |-> Q) = Q .
+ op q : Tran -> Ematrix .
+ eq l(L |-> EQ) = L .
+ eq q(L |-> EQ) = EQ .
+ op m : Tran -> Tmatrix .
+ eq m(T) = m(q(T)) . *** the associated Tmatrix
+ op f : Tran -> FlushArcs .
+ eq f(T) = f(q(T)) . *** the associated flushing arcs (is any)
  ops I O H : Tran -> Pbag .
- eq I(T) = I(q(T)) .
- eq O(T) = O(q(T)) .
- eq H(T) = H(q(T)) .
+ eq I(T) = I(m(T)) .
+ eq O(T) = O(m(T)) .
+ eq H(T) = H(m(T)) .
  
  eq L |-> [nilP, nilP] = emptyNet . *** removes isolated transitions
 *** eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** removes transitions not changing the marking
+
 op dead : Tran -> Bool .  *** checks for structurally dead transitions 
-eq dead(L |-> Q) = dead(Q) .
-ceq L |-> Q = emptyNet if dead(Q) . *** removes structurally dead transitions
-
+eq dead(L |-> EQ) = dead(m(EQ)) .
+ceq L |-> EQ = emptyNet if dead(m(EQ)) . *** removes dead transitions
+ *** doesn't consider the capacity
  op enabled : Tran Pbag -> Bool .
- eq enabled(L |-> Q, M) =  enabled(Q, M) .
-
+ eq enabled(L |-> EQ, M) =  enabled(EQ, M) .
+ *** doesn't consider enabling and capacity, but considers flush arcs
  op firing : Tran Pbag -> Pbag .
- eq firing(L |-> Q, M) = firing(Q, M) .
-
- op in :  Net Place -> Bool . *** test the existence of a place
-ceq in(L |-> Q ; N, P) = true if in (Q, P) .
+ eq firing(L |-> EQ, M) = firing(EQ, M) . 
+  *** test the existence of a place (of course, the capacity bag is not considered) 
+ op in : Net Place -> Bool . 
+ceq in(L |-> EQ ; N, P) = true if in (EQ, P) .
  eq in(N, P) = false [owise] .
-
- op in :  Net L$Elt -> Bool . *** test the existence of a transition
+ *** test the existence of a transition
+ op in :  Net L$Elt -> Bool . 
  eq in(N, L) = $hasMapping(N, L) .
-
- ops isIn isOut isH : Net Place -> Bool . *** check the existence of a place of given type
-ceq isIn(L |-> Q ; N, P) = true if isIn(Q, P) .
+*** check the existence of a place of given type
+ ops isIn isOut isH : Net Place -> Bool . 
+ceq isIn(L |-> EQ ; N, P) = true if isIn(EQ, P) .
  eq isIn(N, P) = false [owise] .
-ceq isOut(L |-> Q ; N, P) = true if isOut(Q, P) .
+ceq isOut(L |-> EQ ; N, P) = true if isOut(EQ, P) .
  eq isOut(N, P) = false [owise] .
-ceq isH(L |-> Q ; N, P) = true if isH(Q, P) .
+ceq isH(L |-> EQ ; N, P) = true if isH(m(EQ), P) .
  eq isH(N, P) = false [owise] .
- 
- op places : Net -> Pset [memo] .
+ *** returns the places (of course, the capacity bag is not considered)
+ op places : Net -> Pset [memo] . 
  eq places(N) = $places(N, emptyPset) .  
  op $places : Net Pset -> Pset . 
  eq $places(emptyNet, S) = S . 
- eq $places(L |-> Q ; N, S) = $places(N, S U places(Q)) .
+ eq $places(L |-> EQ ; N, S) = $places(N, S U places(EQ)) .
 
  op transitions : Net -> Set{L} .
  eq transitions(N) = keySet(N) .
- 
+
 endfm

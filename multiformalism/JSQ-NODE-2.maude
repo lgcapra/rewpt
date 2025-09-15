@@ -1,0 +1,23 @@
+in JSQ
+in NETWORK-2
+
+fmod JSQ-NODE{PL :: TRIV} is
+  pr JSQ{PL} .
+  pr MSET-MARKING-RATE{PL} .
+  var p : Place  . vars S : Pset . var B : Pbag .
+  var NeS : NePset . var SR : StatesRates . 
+  op jnext  : Jsq Pbag -> StatesRates . *** non deterministic (see the corresponding rule)
+  eq jnext(p |> NeS, B) = if B[p] > 0 then $jnext(emin(B, NeS), noStateRate, B) else noStateRate fi .
+  op $jnext : Pset StatesRates Pbag -> StatesRates .
+  eq $jnext(emptyPset, SR, B) = SR .
+  eq $jnext(p U S, SR, B) = $jnext(S, < B + 1 . p ; firingRate(p, B)  > SR, B) .
+  op firingRate : Place Pbag -> Float .
+  eq firingRate(p, B) = 100.0 .
+endfm
+
+
+view JsqNode {PL :: TRIV} from NODE to JSQ-NODE{PL} is
+   sort Node to Jsq . 
+   sort State to Pbag .
+   op next to jnext .
+endv 

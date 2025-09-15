@@ -1,6 +1,6 @@
 in PT-NET
 
-*** signature of a PT system parameterized in node labels
+*** signature of an extended PT system (with flush arcs and place capacity) parameterized in node labels
 fmod PT-SYS{L :: TRIV, PL :: TRIV} is
   pr PT-NET{L, PL} .
   sort System .
@@ -8,11 +8,10 @@ fmod PT-SYS{L :: TRIV, PL :: TRIV} is
   var S : System .
 
   op __ : Net Pbag -> System [ctor format (d n d)] .
-  *** op __ : Net Pbag -> [System] [ctor] .
   *** cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty" 
   *** cmb N M : System if N =/= emptyNet and-then repeatedKeys?(N) == false . *** a PT system cannot have duplicated transitions
   
-  ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places
+  ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places from the marking
   ops n net : System -> Net .
   ops m marking : System -> Pbag .
   eq net(S) = n(S) .
@@ -20,15 +19,15 @@ fmod PT-SYS{L :: TRIV, PL :: TRIV} is
   eq n(N M) = N .
   eq m(N M) = M .
   
-   *** computes the system's enabled transitions (outcome seen as a sub-Net) 
+   *** computes the system's enabled transitions (outcome seen as a sub-Net) WITHOUT considering the place capacity (if any)
   op haveConcession : System -> Net [memo] .
-  eq haveConcession(S) = $haveConcession(S:System, emptyNet) .
+  eq haveConcession(S) = $haveConcession(S, emptyNet) .
   op $haveConcession : System Net -> Net .
   eq $haveConcession(emptyNet M, N) = N .
  ceq $haveConcession((T ; N) M, N') = $haveConcession(N M, T ; N') if enabled(T, M) .
   eq $haveConcession((T ; N) M, N') = $haveConcession(N M, N') [owise] . 
 
- *** checks for a deadlock
+ *** checks for a deadlock (is a SUFFICIENT condition)
  op dead : System -> Bool . 
  eq dead(S) = haveConcession(S) == emptyNet .
 endfm

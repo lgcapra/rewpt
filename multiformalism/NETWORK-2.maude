@@ -2,18 +2,25 @@ in NETWORK
 in ../shared/MSET
 in ../shared/PAIR
 
-*** theory of nodes of a stochastic network
-fth NODE is
-  inc STATE . *** includes another theory 
+*** we adopt the convention that a theory name cannot contain '-'
+*** PER ORA USATA SOLO PER 
+fth STATERATE is
   pr FLOAT .
-  sort Node . *** network node
-  sort StateRate . *** a pair (state,rate)
+  inc STATE .
+  sort StateRate . *** pair (state,rate)
   sort StatesRates . *** multiset of (state,rate)
   subsort StateRate < StatesRates .
+  *** getters expressing that StateRate is a pair
   op state : StateRate -> State .
   op rate  : StateRate -> Float .
   op noStateRate : -> StatesRates .
   op __ : StatesRates StatesRates -> StatesRates [assoc comm id: noStateRate] .
+endfth
+
+*** theory of nodes of a stochastic network
+fth NODE is
+  inc STATERATE . *** includes another theory 
+  sort Node . *** network node
   op next : Node State -> StatesRates . *** encoding the (non-deterministic) firing rule as operator
 endfth
 
@@ -52,6 +59,7 @@ mod NETWORK-SYS{N :: NODE} is
   crl [firing-rule] : (N, NW) : M => (N, NW) : M' if SR SRs := next(N, M) /\ M' := state(SR) /\ R := rate(SR) . 
 endm
 
+*** maps TRIV into theory STATE
 view STATE from TRIV to STATE is
   sort Elt to State .
 endv

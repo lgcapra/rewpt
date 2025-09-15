@@ -1,9 +1,17 @@
-in VERTEX
-
 fmod PLACE{L :: TRIV} is
- protecting VERTEX{L} * (sort Vertex to Place, op v to p) .
+ pr NAT .
+ sorts Bplace Place . 
+ subsort Bplace < Place .
+ op p : L$Elt -> Place [ctor] .
+ op p : L$Elt NzNat -> Bplace [ctor] .
+ op lab : Place -> L$Elt .
+ op cap : Place -> NzNat .
+ var L : L$Elt . var K : NzNat .
+ eq lab(p(L)) = L .
+ eq lab(p(L,K)) = L .
+ eq cap(p(L,K)) = K .
+ eq cap(p(L)) = 100000000000000 . *** infinite cap
 endfm
-
 
 *** default view 
 view Place{X :: TRIV} from TRIV to PLACE{X} is 

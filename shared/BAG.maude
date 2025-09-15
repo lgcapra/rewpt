@@ -11,32 +11,32 @@ fmod BAG{X :: TRIV} is
  vars B B' B'' : Bag{X} .
  vars NeB NeB' NeB'' : NeBag{X} .
  *** constructors
- op nil{X} : -> Bag{X} [ctor] .
+ op nil : -> Bag{X} [ctor] .
  op _._  : Nat X$Elt ->  ElBag{X} [prec 35 ctor] .
- eq 0 . X = nil{X} .
+ eq 0 . X = nil .
  *** bag operations
  op _`[_`] : Bag{X} X$Elt -> Nat [prec 23] .
- op _+_  : Bag{X} Bag{X} -> Bag{X} [prec 39 ctor assoc comm id: nil{X}] .
+ op _+_  : Bag{X} Bag{X} -> Bag{X} [prec 39 ctor assoc comm id: nil] .
  op _+_  : NeBag{X} Bag{X} -> NeBag{X} [ctor ditto] .
  eq (N . X + B)[X] = N .
  eq B[X] = 0 [owise] .
  eq N . X + M . X = (N + M) . X .
  *** difference
- op _-_  : Bag{X} Bag{X} -> Bag{X} [prec 41 gather (E e) right id: nil{X}] .
+ op _-_  : Bag{X} Bag{X} -> Bag{X} [prec 41 gather (E e) right id: nil] .
  eq N . X + B - M . X + B' = max(0, N - M) . X + (B - B') . *** more compact
 ceq B - NeB = B  if B =/= NeB  [owise] .
 *** intersection
  op _∩_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection
  eq B ∩ B = B .
- eq B ∩ nil{X} = nil{X} .
+ eq B ∩ nil = nil .
  eq N . X + B ∩ M . X + B' = min(N,M) . X + (B ∩ B') .
  eq N . X + B ∩ B' = B ∩ B' [owise] .
  op _I_ : Bag{X} Bag{X} -> Bag{X} [prec 43 assoc comm] .  *** intersection (aliasing)
  eq B I B' = B ∩ B' .
 *** scalar product
  op _*_ : Nat Bag{X} -> Bag{X}  [prec 37] . *** higher priority than the sum (in any case parenthese needed to disambiguate)
- eq 0 * B = nil{X} .
- eq M * nil{X} = nil{X} .
+ eq 0 * B = nil .
+ eq M * nil = nil .
  eq M * (N . X + B) = (M * N) . X + M * B .
  *** sets an element's multiplicity (if zero removes it from the bag)
  op set  : Bag{X} X$Elt Nat -> Bag{X} . 
@@ -69,14 +69,14 @@ ceq B < B' = true if B =/= B' [owise] .
  op |_| : NeBag{X} -> NzNat . 
  eq | B | = $bcard(B, 0) . 
  op $bcard : Bag{X} Nat -> Nat . 
- eq $bcard(nil{X}, K) = K . 
+ eq $bcard(nil, K) = K . 
  eq $bcard(N . X + B, K) = $bcard(B, K + N) .
  *** bag's size (n. of elements)
  op size : Bag{X} -> Nat . 
  op size : NeBag{X} -> NzNat . 
  eq size(B) = $size(B, 0) .  
  op $size : Bag{X} Nat -> Nat . 
- eq $size(nil{X}, K) = K . 
+ eq $size(nil, K) = K . 
  eq $size(N . X + B, K) = $size(B, K + 1) .
 
  *** checks whether two bags are pairwise disjoint
@@ -91,7 +91,7 @@ ceq isaset(N . X + B) = false if N > 1 .
  op emin : NeBag{X} -> X$Elt .
  eq emin(N . X + B) = $emin(B, N . X) .
  op $emin :  Bag{X} ElBag{X} -> X$Elt .
- eq $emin(nil{X}, N . X) = X .
+ eq $emin(nil, N . X) = X .
  eq $emin(M . Y + B, N . X) = $emin(B, if (M < N) then M . Y else N . X fi) .
 
 endfm

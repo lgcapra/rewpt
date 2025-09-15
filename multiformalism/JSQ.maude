@@ -1,0 +1,16 @@
+*** JSQ switcher (uses only places)
+in ../PBAG
+
+fmod JSQ{PL :: TRIV} is
+  pr PBAG{PL} . *** PBAG is used in the extension
+  var vars p p' : Place  .
+  var S : NePset .
+  var B : Pbag .
+  sort Jsq .
+  op _|>_ : Place NePset -> [Jsq] [ctor] .
+  cmb p |> S : Jsq if p in S = false .
+  op In  : Jsq -> Place .
+  eq In(p |> S) = p .
+  op Out : Jsq -> NePset .
+  eq Out(p |> S) = S .    
+endfm
