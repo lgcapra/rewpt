@@ -3,19 +3,20 @@ in PT-NORM
 
 mod PT-EMU-MOD{X :: TRIV} is
  inc PT-NORM{X} .
- *** pr SET{Pbag{X}} .  
  vars I O H M M' : Pbag . 
  vars N N' : Net .
  var T : Tran .
  *** ordinary firing rule
- ***crl [firing] : N M => N firing(T, M) if T ; N' := N  /\ enabled(T, M)  .
+ crl [firing] : N M => N M' if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false .
  *** including normalization
- crl [firing] : N M => N normalize(firing(T, M)) if T ; N' := N  /\ enabled(T, M)  .
+ *** crl [firing] : N M => N normalize(M') if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false .
  
  *** includes a further optimization: if the marked places are retained then index abstraction is skipped
+ *** COMPLETARE -- CORREGGERE
  *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if T ; N' := N /\ enabled(T, M) /\ M' := firing(T, M)  .
   
   *** rule's translation as operator
+  *** pr SET{Pbag{X}} .  
   *** var S : System . 
   *** op firing-op : System -> Set{Pbag{X}} [memo] .
   *** eq firing-op(S) = $firing-op(S, emptyPbag) .

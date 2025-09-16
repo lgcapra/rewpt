@@ -81,6 +81,6 @@ endfm
 fmod MSET-MARKING-RATE{PL :: TRIV} is
    pr MSET-STATE-RATE{S-Pbag{PL}} * (sort StateRate{S-Pbag{PL}} to StateRate,
                                     sort Mset{StateRate{S-Pbag{PL}}} to StatesRates, 
-                                    sort NeMset{StateRate{S-Pbag{PL}}} to NeStatesRates, 
+                                    sort NeMset{StateRate{S-Pbag{PL}}} to NeStatesRates,                  
                                     op empty{StateRate{S-Pbag{PL}}} to noStateRate) .
 endfm

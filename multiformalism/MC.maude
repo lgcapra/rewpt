@@ -12,6 +12,8 @@ fmod MG-NET{L :: TRIV, PL :: TRIV} is
 endfm
 
 *** describes a Markov Chain as a marked graph -- includes the firing rule
+
+
 mod MC{PL :: TRIV} is 
   inc MG-NET{Float, PL}* (sort Net to MCnet, sort Tran to MCtran, sort MGnet to Qmat, sort MGtran to Qentry) .
   sort Mc .
@@ -20,4 +22,12 @@ mod MC{PL :: TRIV} is
   var X : Float .
   op _s:_ : Qmat Place -> Mc [ctor] . *** the state is represented by a place
 crl Q s: p => Q s: p' if X |-> [1 . p, 1 . p'] ; Q' := Q .
+endm
+
+*** ridefinition with suitable renaming
+mod MC-NEW is 
+  inc MC{Nat}* (sort Net to MCnet, sort Tran to MCtran, sort MGnet to Qmat, sort MGtran to Qentry, sort Place to State, sort Bplace to Bstate,
+                           sort Pset to StateSet, sort NePset to NeStateSet, sort Pbag to StateBag, sort NePbag to NeStateBag, 
+                           sort ElPbag to ElStateBag, sort Ematrix to Eqmatrix, sort Tmatrix to Tqmatrix, 
+                           sort Smatrix to Sqmatrix, op p to S) .
 endm

@@ -6,20 +6,20 @@ fmod QUEUE-NODE{PL :: TRIV} is
    pr QUEUE{PL} .
    pr MSET-MARKING-RATE{PL} .
    pr CONVERSION .
-   var Q  : ElQueue . var Qu : Queue . var LQ  : List{ElQueue} . 
+   var S  : Server . var Q : Queue . var LS  : List{Server} . 
    var K : Nat . var rate : Float . var M : Pbag .
    var MS : StatesRates . vars P P' : Place .
    *** return the place of the next element if any, otherwise the specified default place (convenience op)
-   op nextPorDef : List{ElQueue} Place -> Place [memo] .  
-   eq nextPorDef(LQ, P) = if LQ == nilElQ then P else p(head(LQ)) fi .
+   op nextPorDef : List{Server} Place -> Place [memo] .  
+   eq nextPorDef(LS, P) = if LS == nilElQ then P else p(head(LS)) fi .
    op qnext  : Queue Pbag -> StatesRates . *** non deterministic firing (see the corresponding rule)
-  ceq qnext(Qu, M) = $qnext(ql(Qu), noStateRate, out(Qu), K, M) if K := clients(ql(Qu), M) /\ K > 0 /\ qenabled(Qu, M) .
-   eq qnext(Qu, M) = noStateRate [owise]. 
-   op $qnext : List{ElQueue} StatesRates Place NzNat Pbag -> StatesRates .
+  ceq qnext(Q, M) = $qnext(ql(Q), noStateRate, out(Q), K, M) if K := clients(ql(Q), M) /\ K > 0 /\ qenabled(Q, M) .
+   eq qnext(Q, M) = noStateRate [owise]. 
+   op $qnext : List{Server} StatesRates Place NzNat Pbag -> StatesRates .
    eq $qnext(nilElQ, MS, P, K, M) = MS .
-  ceq $qnext(Q LQ, MS, P, K, M) = $qnext(LQ, MS, P, K, M) if mu(Q) == 0.0 or-else M[p(Q)] == 0 or-else M[nextPorDef(LQ, P)] >= cap(nextPorDef(LQ, P)) . *** takes cap into accout
-  ceq $qnext(Q LQ, MS, P, K, M) = $qnext(LQ, MS < M  + 1 . nextPorDef(LQ, P) - 1 . p(Q) ; rate >, P, K, M) 
-         if rate := mu(Q) * float(M[p(Q)]) / float(K) [owise] .  
+  ceq $qnext(S LS, MS, P, K, M) = $qnext(LS, MS, P, K, M) if mu(S) == 0.0 or-else M[p(S)] == 0 or-else M[nextPorDef(LS, P)] >= cap(nextPorDef(LS, P)) . *** takes cap into accout
+  ceq $qnext(S LS, MS, P, K, M) = $qnext(LS, MS < M  + 1 . nextPorDef(LS, P) - 1 . p(S) ; rate >, P, K, M) 
+         if rate := mu(S) * float(M[p(S)]) / float(K) [owise] .  
 endfm
 
 view QueueNode{PL :: TRIV} from NODE to QUEUE-NODE{PL} is

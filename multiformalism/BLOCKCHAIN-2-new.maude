@@ -4,9 +4,11 @@ in MC-NODE-2
 
 mod BLOCKCHAIN{PL :: TRIV} is
   inc NETWORK-SYS{SpnNode{PL}}   * (sort Network{SpnNode{PL}} to  Network{Net}, sort NetSys{SpnNode{PL}} to  NetSys{Net}) .
-  inc NETWORK-SYS{McNode{PL}}    * (sort Network{McNode{PL}} to  Network{Mc}, sort NetSys{McNode{PL}} to  NetSys{Mc}) .
   inc NETWORK-SYS{JsqNode{PL}}   * (sort Network{JsqNode{PL}} to  Network{Jsq}, sort NetSys{JsqNode{PL}} to  NetSys{Jsq}) .
   inc NETWORK-SYS{QueueNode{PL}} * (sort Network{QueueNode{PL}} to  Network{Queue}, sort NetSys{QueueNode{PL}} to  NetSys{Queue}) .
+  inc MC{PL} . *** or MC-NEW
+  sort MMnetwork . *** markov modulated network
+  op MM:_N:_ : Mc NetSys -> MMnetwork .
 endm
 
 *** model using Nat as place labels
@@ -56,7 +58,10 @@ mod BLOCKCHAIN-NAT is
   *** the network (blockchain)
   ops m0  : -> Pbag  [memo] .  
   op netsys : -> NetSys .
-  eq netsys = (net, mmc, jsq1, q1, q2) : m0 .
+  eq netsys = (net, jsq1, q1, q2) : m0 .
   eq m0  =  1 . p(3) .
-  
+
+  *** MM network
+  op MMnet : -> MMnetwork .
+  eq MMnet = MM: mmc N: netsys .  
 endm

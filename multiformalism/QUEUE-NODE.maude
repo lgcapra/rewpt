@@ -12,10 +12,10 @@ mod QUEUE-NODE-SYS{PL :: TRIV} is
    including QUEUE-NODE{PL} .
    inc CONVERSION .
    var N : Network .
-   vars Q Q' : ElQueue .
+   vars Q Q' : Server .
    var Qu : Queue .
-   vars LQ LQ' LQ'' : List{ElQueue} . 
-   var NeLQ : NeList{ElQueue} . 
+   vars LQ LQ' LQ'' : List{Server} . 
+   var NeLQ : NeList{Server} . 
    var M : Pbag . 
    var K : NzNat .
    var rate : Float .
