@@ -3,14 +3,20 @@ in ../PBAG
 
 fmod JSQ{PL :: TRIV} is
   pr PBAG{PL} . *** PBAG is used in the extension
-  var vars p p' : Place  .
-  var S : NePset .
+  var vars P P' : Place  .
+  var S : Pset .
   var B : Pbag .
+  var L : PL$Elt .
   sort Jsq .
-  op _|>_ : Place NePset -> [Jsq] [ctor] .
-  cmb p |> S : Jsq if p in S = false .
+  op _|>_ : Place Pset -> [Jsq] [ctor] .
+ cmb P |> S : Jsq if cap(P) = 1 /\ P in S = false . *** JSQ must have capacity 1
   op In  : Jsq -> Place .
-  eq In(p |> S) = p .
-  op Out : Jsq -> NePset .
-  eq Out(p |> S) = S .    
+  eq In(P |> S) = P .
+  op Out : Jsq -> Pset .
+  eq Out(P |> S) = S .
+  ***create an "empty JSQ" from a place (label)
+  op newJsq : Place -> [Jsq] . 
+  eq newJsq(P) = P |> emptyPset . 
+  op newJsq : PL$Elt -> Jsq .
+  eq newJsq(L) = p(L, 1) |> emptyPset .
 endfm

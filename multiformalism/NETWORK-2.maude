@@ -32,10 +32,16 @@ fmod NETWORK-SIG is
    op _:_ : Network State -> NetSys [ctor prec 125] . *** network with associated state (lowest priority)
    op netw  : NetSys -> Network .
    op state : NetSys -> State .
-   var N : Network .
+   vars N N'  : Network . 
    var M : State .
    eq netw((N : M))  = N .
    eq state((N : M)) = M .
+   op remove : Network Network -> Network .
+   eq remove((N, N'), N) = N' .
+   eq remove(N, N') = N [owise] .
+   op in : Network Network -> Bool .
+   eq in((N, N'), N) = true .
+   eq in(N, N') = false [owise] .
 endfm
 
 fmod NETWORK-NODE{N :: NODE} is

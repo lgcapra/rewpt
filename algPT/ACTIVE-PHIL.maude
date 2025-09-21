@@ -1,0 +1,41 @@
+in ALG-PN
+in PHIL-N-V2
+in ../shared/PAIR
+
+*** philosphers are pairs containing an object of arbitrary type
+fmod PHIL-TOKEN{Y :: TRIV} is
+  pr PAIR{Y, Phil} * (sort Pair{Y, Phil} to PhilTk, op 1st to tk, op 2nd to i) .
+endfm
+
+
+view PhilTk{Y :: TRIV} from TRIV to PHIL-TOKEN{Y} is 
+ sort Elt to PhilTk . 
+endv
+
+mod DINING-PHIL-TK{Y :: TRIV} is
+  inc MARKING{Phil, String} .
+  inc MARKING{PhilTk{Y}, String} * (sort Mset{PhilTk{Y}} to Mset{PhilTk}, sort NeMset{PhilTk{Y}} to NeMset{PhilTk},
+                                   op empty{PhilTk{Y}} to emptyPhilTk, op mark to markPhilTk) .
+  
+  var Y : Y$Elt .
+  var Pht : PhilTk . var Ph : Phil . vars M M' : Mset{PhilTk} . var F : Mset{Phil} . var X : Nat .
+  rl [th] : p("Think") |-> M Pht  ;  p("Pickup") |-> M' => p("Think") |-> M  ;  p("Pickup") |-> M' Pht .
+  rl [pk] : p("Pickup") |-> M < Y ; ph(X) > ; p("Fork") |-> F ph(X) ph(s(X)) ; p("Eat") |-> M'  =>  
+            p("Pickup") |-> M ; p("Fork") |-> F ; p("Eat") |-> M' < Y ; ph(X) > .
+  rl [e] : p("Eat") |-> M < Y ; ph(X) > ; p("Fork") |-> F  ; p("Think") |-> M'  =>  
+           p("Eat") |-> M ; p("Fork") |-> F ph(X) ph(s(X)) ; p("Think") |-> M' < Y ; ph(X) > .
+endm
+
+mod DINING-PHIL-STK is
+  inc DINING-PHIL-TK{String} .
+  op m0 : -> Marking [memo] . *** alias for initial configuration
+  op nphiltks : -> Mset{PhilTk} [memo] .
+  op nphils : -> Mset{Phil} [memo] .
+  
+  eq nphiltks = < "a" ; ph(0) > < "b" ; ph(1) > < "c" ; ph(2) > < "d" ; ph(3) > < "e" ; ph(4) > .
+  eq nphils = ph(0) ph(1) ph(2) ph(3) ph(4) .
+
+  eq m0 =  p("Think") |-> nphiltks ; p("Fork") |-> nphils ; 
+           p("Eat") |-> emptyPhilTk ; p("Pickup") |-> emptyPhilTk .
+  
+endm

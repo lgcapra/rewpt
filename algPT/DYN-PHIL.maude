@@ -4,7 +4,7 @@ in PHIL-N-V2
 
 *** simple renaming stuff to avoid conflicts between BL and ML
 mod PHIL-BL is 
-  inc DINING-PHIL * (sort Place to BL-Place, op p to bl-p, 
+  inc DINING-PHIL * (sort Place to BL-Place, sort Bplace to BL-Bplace, op p to bl-p, 
       sort Marking to BL-Marking, sort Pmarking to BL-Pmarking,
       sort Pmarking{Phil} to BL-Pmarking{Phil} ).
 endm

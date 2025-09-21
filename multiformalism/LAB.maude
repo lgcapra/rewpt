@@ -1,0 +1,17 @@
+*** labels built of a string and a nat
+fmod LAB is
+  pr NAT .
+  pr STRING .
+  sort Lab .
+  op __ : String Nat -> Lab [ctor] .
+  var S : String . 
+  var I : Nat .
+  op s : Lab -> String .
+  op i : Lab -> Nat .
+  eq s(S I) = S .
+  eq i(S I) = I .
+endfm
+
+view Lab from TRIV to LAB is
+  sort Elt to Lab . 
+endv

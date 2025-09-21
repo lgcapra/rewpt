@@ -12,8 +12,6 @@ fmod SPN-NODE{L :: TRIV, PL :: TRIV} is
   vars M M' : Pbag .
   var MS : StatesRates .
   var rate : Float .
-  *** the following definition is ok if we use single transitions as nodes and unbounded places 
-  eq next(T, M) = if enabled(T, M) then < firing(T, M) ; firingRate(T, M) > else noStateRate fi . *** the tran. firing is deterministic
   eq next(N, M) = $next(N, noStateRate, M) [owise] . *** in a net several transitions can be enabled 
   op $next : Net StatesRates Pbag -> StatesRates .
   eq $next(emptyNet, MS, M) = MS .
