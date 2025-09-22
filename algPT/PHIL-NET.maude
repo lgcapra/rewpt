@@ -12,8 +12,15 @@ mod PHIL-NET is
                  "eat" |-> [1 . p("starving"), 1 . p("re-freshed")] ;
                  "th" |-> [1 . p("pre-print") + 1 . p("re-freshed"), 1 . p("well-fed") + 1 . p("no-idea")] .
   eq phil-m0 = 1 . p("well-fed") + 1 . p("no-idea") .
+
+  op ch : System -> String .
+  op ok : -> String [memo] .
+  eq ok = "ready" .
+  var S : System .
+  eq ch(S) = if marking(S)[p("eat")] > 0 then ok else "" fi . 
 endm
 
-view PhilNet from TRIV to PHIL-NET is
+view PhilNet from TR-CH to PHIL-NET is
   sort Elt to System .
+  sort Ch to String .
 endv

@@ -4,17 +4,28 @@ in PHIL-NET
 
 in ../shared/PAIR
 
-*** philosphers are pairs containing an object of arbitrary type
-fmod PHIL-TOKEN{Y :: TRIV} is
-  pr PAIR{Y, Phil} * (sort Pair{Y, Phil} to PhilTk, op 1st to tk, op 2nd to i) .
+*** TRIV plus a channel
+fth TR-CH is
+ inc TRIV .
+ sort Ch . *** represent a channel
+ op ch : Elt -> Ch .
+ op ok : -> Ch .
+endfth
+
+view TrCh from TRIV to TR-CH is
+endv
+
+*** philosphers are pairs containing an object of arbitrary type (with a channel) and a phil ide
+fmod PHIL-TOKEN{Y :: TR-CH} is
+  pr PAIR{TrCh, Phil}{Y} * (sort Pair{TrCh, Phil}{Y} to PhilTk, op 1st to tk, op 2nd to i) .
 endfm
 
 
-view PhilTk{Y :: TRIV} from TRIV to PHIL-TOKEN{Y} is 
+view PhilTk{Y :: TR-CH} from TRIV to PHIL-TOKEN{Y} is 
  sort Elt to PhilTk . 
 endv
 
-mod DINING-PHIL-TK{Y :: TRIV} is
+mod DINING-PHIL-TK{Y :: TR-CH} is
   inc MARKING{Phil, String} .
   inc MARKING{PhilTk{Y}, String} * (sort Mset{PhilTk{Y}} to Mset{PhilTk}, sort NeMset{PhilTk{Y}} to NeMset{PhilTk},
                                    op empty{PhilTk{Y}} to emptyPhilTk, op mark to markPhilTk) .
@@ -24,24 +35,10 @@ mod DINING-PHIL-TK{Y :: TRIV} is
   rl [th] : p("Think") |-> M Pht  ;  p("Pickup") |-> M' => p("Think") |-> M  ;  p("Pickup") |-> M' Pht .
   rl [pk] : p("Pickup") |-> M < Y ; ph(X) > ; p("Fork") |-> F ph(X) ph(s(X)) ; p("Eat") |-> M'  =>  
             p("Pickup") |-> M ; p("Fork") |-> F ; p("Eat") |-> M' < Y ; ph(X) > .
-  rl [e] : p("Eat") |-> M < Y ; ph(X) > ; p("Fork") |-> F  ; p("Think") |-> M'  =>  
-           p("Eat") |-> M ; p("Fork") |-> F ph(X) ph(s(X)) ; p("Think") |-> M' < Y ; ph(X) > .
+  crl [e]  : p("Eat") |-> M < Y ; ph(X) > ; p("Fork") |-> F  ; p("Think") |-> M'  =>  
+            p("Eat") |-> M ; p("Fork") |-> F ph(X) ph(s(X)) ; p("Think") |-> M' < Y ; ph(X) > if ch(Y) = ok .
 endm
 
-*** concrete example
-mod DINING-PHIL-STK is
-  inc DINING-PHIL-TK{String} .
-  op m0 : -> Marking [memo] . *** alias for initial configuration
-  op nphiltks : -> Mset{PhilTk} [memo] .
-  op nphorks : -> Mset{Phil} [memo] .
-  
-  eq nphiltks = < "a" ; ph(0) > < "b" ; ph(1) > < "c" ; ph(2) > < "d" ; ph(3) > < "e" ; ph(4) > .
-  eq nphorks = ph(0) ph(1) ph(2) ph(3) ph(4) .
-
-  eq m0 =  p("Think") |-> nphiltks ; p("Fork") |-> nphorks ; 
-           p("Eat") |-> emptyPhilTk ; p("Pickup") |-> emptyPhilTk .
-  
-endm
 
 mod ACTIVE-PHIL is
   inc DINING-PHIL-TK{PhilNet} . 
