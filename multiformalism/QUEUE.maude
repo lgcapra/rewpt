@@ -44,9 +44,9 @@ fmod QUEUE{PL :: TRIV} is
   eq out(LQ > P) = P .
   eq out([M, M'] SQ) = out(SQ) .
   op well-def : NeList{Server} -> Bool .
-  op in : Queue -> Place .
-  eq in(Q LQ > P) = p(Q) .
-  eq in([M, M'] SQ ) = in(SQ) .
+  op pin : Queue -> Place .
+  eq pin(Q LQ > P) = p(Q) .
+  eq pin([M, M'] SQ ) = pin(SQ) .
  ceq well-def(LQ Q LQ' Q' LQ'') = false if p(Q) = p(Q') .
   eq well-def(Q LQ) = true [owise] . 
   op clients : List{Server} Pbag -> [Nat] [memo] .
@@ -58,5 +58,5 @@ fmod QUEUE{PL :: TRIV} is
   eq qenabled(SQ, M) = true .
   eq qenabled([M, M'] SQ, M'') = enabCond(M, M', M'')  . *** similar to the PN tran. enabling condition (M input, M' inhibitor)
   op cap : ElQueue -> NzNat .
-  eq cap(X:ElQueue) = cap(in(X:ElQueue)) .
+  eq cap(X:ElQueue) = cap(pin(X:ElQueue)) .
 endfm

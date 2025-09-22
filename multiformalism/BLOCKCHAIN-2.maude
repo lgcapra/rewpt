@@ -59,16 +59,16 @@ mod BLOCKCHAIN-OP is
  eq connect(J, NQ) = $connect(NQ, J) . 
  op $connect : Network Jsq -> Jsq .
  eq $connect(emptyNetW, J) = J .
- eq $connect((Q, N), P |> S) = $connect(N, P |> S U in(Q)) .
+ eq $connect((Q, N), P |> S) = $connect(N, P |> S U pin(Q)) .
  *** connect and link 
- op connect&link : Jsq Network{Queue} -> Network{Queue} .
+ op connect&link : Jsq Network{Queue} -> Network .
  eq connect&link(J, NQ) = connect(J, NQ), NQ .
  *** disconnect a JSQ from network of queues (nice!)
  op disconnect : Jsq Network{Queue} -> Jsq .
  eq disconnect(J, NQ) = $disconnect(NQ, J) . 
  op $disconnect : Network Jsq -> Jsq .
  eq $disconnect(emptyNetW, J) = J .
- eq $disconnect((Q, N), P |> S) = $disconnect(N, P |> delete(in(Q), S)) . 
+ eq $disconnect((Q, N), P |> S) = $disconnect(N, P |> delete(pin(Q), S)) . 
 
 endm
 
@@ -88,7 +88,7 @@ mod BLOCKCHAIN-EXE is
 
   *** model's parameter(s)
   op N : -> NzNat [memo] . *** timeout parameter (place capacity)
-  eq N = 2 .
+  eq N = 4 .
   
   *** simulates new arrivals in the system
   op pin : NzNat -> Place [memo] .
@@ -141,15 +141,14 @@ mod BLOCKCHAIN-EXE is
   eq out = newTout(out(A0), 1.0) .
   eq netWork0 = in, buffer, cpu1, A0, out .
   eq netWork1 = newTin(pin(1),2.0), connect&link(newJsq(pin(1)), cpu3), B0, newTout(out(B0), 1.0) .
-  eq netWorkSys0 = netWork0 : nilP . *** place of the buffer (can be eliminated because always marked?).
+  eq netWorkSys0 = netWork0 : nilP . 
   
   
-  var MC : Mc . var MMN : MMnetwork . var Sys : NetSys . vars Nw Nw' : Network . var B : Pbag . 
-  var Pn : Net . var T : Tran . 
+  var MC : Mc . var Nw : Network . var B : Pbag .  
   *** rewrites governed by mmc -- NOTE: istantaneous w.r.t. mc change state
   crl  [S0>S1] : MM: MC N: (Nw : B) => MM: tranOff(MC) N: (netWork1 : B) 
          if st(MC) == 1 . L(1) + 1 . s-tran /\ in(Nw, buffer) . 
-  crl  [S1>S0] : MM: MC N: (Nw : B) => MM: tranOff(MC) N: (netWork0 : set(B, in(cpu1), k)) 
+  crl  [S1>S0] : MM: MC N: (Nw : B) => MM: tranOff(MC) N: (netWork0 : set(B, pin(cpu1), k)) 
          if st(MC) == 1 . L(0) + 1 . s-tran  /\ in(Nw, cpu3) /\ k := allClients(cpu3, B) /\ k <= cap(cpu1) .
 
   *** MM network initial configuration (for searches)

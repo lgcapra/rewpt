@@ -1,5 +1,7 @@
 in ALG-PN
 in PHIL-N-V2
+in PHIL-NET
+
 in ../shared/PAIR
 
 *** philosphers are pairs containing an object of arbitrary type
@@ -26,16 +28,30 @@ mod DINING-PHIL-TK{Y :: TRIV} is
            p("Eat") |-> M ; p("Fork") |-> F ph(X) ph(s(X)) ; p("Think") |-> M' < Y ; ph(X) > .
 endm
 
+*** concrete example
 mod DINING-PHIL-STK is
   inc DINING-PHIL-TK{String} .
   op m0 : -> Marking [memo] . *** alias for initial configuration
   op nphiltks : -> Mset{PhilTk} [memo] .
-  op nphils : -> Mset{Phil} [memo] .
+  op nphorks : -> Mset{Phil} [memo] .
   
   eq nphiltks = < "a" ; ph(0) > < "b" ; ph(1) > < "c" ; ph(2) > < "d" ; ph(3) > < "e" ; ph(4) > .
-  eq nphils = ph(0) ph(1) ph(2) ph(3) ph(4) .
+  eq nphorks = ph(0) ph(1) ph(2) ph(3) ph(4) .
 
-  eq m0 =  p("Think") |-> nphiltks ; p("Fork") |-> nphils ; 
+  eq m0 =  p("Think") |-> nphiltks ; p("Fork") |-> nphorks ; 
            p("Eat") |-> emptyPhilTk ; p("Pickup") |-> emptyPhilTk .
   
+endm
+
+mod ACTIVE-PHIL is
+  inc DINING-PHIL-TK{PhilNet} . 
+   op m0 : -> Marking [memo] . *** alias for initial configuration
+  op nphiltks : -> Mset{PhilTk} [memo] .
+  op nphorks : -> Mset{Phil} [memo] .
+  
+  eq nphiltks = < phil-sys0 ; ph(0) > < phil-sys0 ; ph(1) > < phil-sys0 ; ph(2) > < phil-sys0 ; ph(3) > < phil-sys0 ; ph(4) > .
+  eq nphorks = ph(0) ph(1) ph(2) ph(3) ph(4) .
+
+  eq m0 =  p("Think") |-> nphiltks ; p("Fork") |-> nphorks ; 
+           p("Eat") |-> emptyPhilTk ; p("Pickup") |-> emptyPhilTk .
 endm
