@@ -1,4 +1,5 @@
 in ../PT-EMU
+in ACTIVE-PHIL.maude
 
 mod PHIL-NET is
   inc PT-EMU{String, String} .
@@ -24,23 +25,3 @@ view PhilNet from TR-CH to PHIL-NET is
   sort Elt to System .
   sort Ch to String .
 endv
-
-mod PHIL-NET-M0 is
-  inc PT-EMU{String, String} .
-  op phil-net : -> Net [memo] . *** alias
-  op phil-m0 : -> Pbag .
-  op phil-sys0 : -> System .
-  eq phil-sys0 = phil-net phil-m0 .
-  eq phil-net =  "th" |-> [1 . p("well-fed") + 1 . p("no-idea"), 1 . p("appetite") + 1 . p("early-idea")] ;
-                 "th" |-> [1 . p("appetite") + 1 . p("early-idea"), 1 . p("hungry") + 1 . p("sketch")] ;
-                 "th" |-> [1 . p("hungry") + 1 . p("sketch"), 1 . p("starving") + 1 . p("pre-print")] ;
-                 "eat" |-> [1 . p("starving"), 1 . p("re-freshed")] ;
-                 "th" |-> [1 . p("pre-print") + 1 . p("re-freshed"), 1 . p("well-fed") + 1 . p("no-idea")] .
-  eq phil-m0 = 1 . p("well-fed") + 1 . p("no-idea") .
-
-  op ch : System -> String .
-  op ok : -> String [memo] .
-  eq ok = "ready" .
-  var S : System .
-  eq ch(S) = if marking(S)[p("eat")] > 0 then ok else "" fi . 
-endm

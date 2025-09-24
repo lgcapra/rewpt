@@ -33,8 +33,7 @@ endm
 
 mod DINING-PHIL-M0 is 
   inc DINING-PHIL .
-  op m0 : -> Marking [memo] . 
-  op nphils : -> Mset{Phil} [memo] .
+  op m0 : -> Marking [memo] . op nphils : -> Mset{Phil} [memo] .
   eq nphils = ph(0) ph(1) ph(2) ph(3) ph(4) .
   eq m0 =  p("Think") |-> nphils ; p("Fork") |-> nphils ; p("Eat") |-> empty{Phil} ; p("Pickup") |-> empty{Phil} .
 endm
