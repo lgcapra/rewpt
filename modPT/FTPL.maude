@@ -5,7 +5,7 @@ fmod FTPL is
  ops sline sload sass sfault faultysload faultysass :  -> Tmatrix .
  ops line load ass fault faultyload faultyass : -> Tran . 
  ops cycle faultycycle faultyPL : -> Net .
- ops PL PLA nomPL faultyPL NfaultyPL : NzNat -> Net . 
+ ops PL PLA nomPL faultyPL : NzNat -> Net . 
  op faultySys : NzNat -> System . 
  op NPL  : NzNat NzNat -> Net . *** N (faulty) prod lines 0 .. N- 1 each of K lines
  op NPLsys : NzNat NzNat NzNat -> System . *** N prod lines  each of K lines with K * M tokens (raw pieces)
@@ -33,8 +33,6 @@ fmod FTPL is
  eq faultyPL(I) = addLab(faultycycle, < "fPL" ; I >, "s") . *** a faulty PL is built of 1 line
  eq faultySys(I) = setMark(faultyPL(I), "o" "fPL", 1) .
  eq faultyPL = faultyPL(0) .
- ***
- eq NfaultyPL(N) = repl&share(faultycycle, N, "fPL", p(< "s" ; 0 >), emptyStr) .
  
  *** we use process algebra ops to build the same model -- to be defined
  eq  PLA(K) = merge(replAnd(line ; fault, K, "w", "a", "ld", "s", "as", "s", "L"), "o" "L") . *** note s used twice: it's at the same time in and out

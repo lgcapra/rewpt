@@ -1,6 +1,0 @@
-*** this module defines three constants matching the type of PT edges
-
-fmod ATYPE is
- sort Atype .
- ops i o h : -> Atype [ctor] .
-endfm

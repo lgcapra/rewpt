@@ -1,8 +1,11 @@
-in FTPL-SYS
+in SPN-EMU-MOD
+in FTPL
 
 *** stochastic rewritable PL system model
 mod RWPT-FTPL is
- pr FTPL-SYS .
+ inc FTPL .
+ inc SPN-EMU-MOD{String} * (op emptySlab to emptyStr) .
+
  vars N N' N'' : Net .
  vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : String .
  vars P0 P1 P2 P3 P4 P5 P6 P7 : Place .
@@ -16,20 +19,32 @@ mod RWPT-FTPL is
  var R : Float .
 
 *** triggered by a local deadlock
-crl [R1-inj] : N S => join(detache(N, N') S'' - S', setMark(setMark(Sys', "w" "fPL", K'), "a" "fPL", K''))  if 
-       S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) 
-       /\ S' := subag(S'', < "PL" ; I >) /\ K' := | match(S', "w") | /\ K'' := | match(S', "a") |
-       /\ Sys' := faultySys(minNotIn(N, "fPL")) /\ R := 0.1 / float(K' + K'') .
+***crl [R1-inj] : N S => join(detache(N, N') S'' - S', setMark(setMark(Sys', "w" "fPL", K'), "a" "fPL", K''))  if 
+***       S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) 
+***       /\ S' := subag(S'', < "PL" ; I >) /\ K' := | match(S', "w") | /\ K'' := | match(S', "a") |
+***       /\ Sys' := faultySys(minNotIn(N, "fPL")) /\ R := 0.1 / float(K' + K'') .
 
 *** syr2 removes a faulty PL after a 2nd fault occurrence (analogous considerations to syr1)
-crl [R2-inj] : N S => N'' set(S'' - S', p(< "s" ; 0 >), K')  if 
-        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  
-        /\ N'' := detache(N, N') /\ N'' =/= emptyN /\ S' := subag(S'', < "fPL" ; I >)
-        /\ K' := S[p(< "s" ; 0 >)] + | S' | /\ R := 0.2 / float(K') .
+***crl [R2-inj] : N S => N'' set(S'' - S', p(< "s" ; 0 >), K')  if 
+***        S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  
+***        /\ N'' := detache(N, N') /\ N'' =/= emptyNet /\ S' := subag(S'', < "fPL" ; I >)
+***        /\ K' := S[p(< "s" ; 0 >)] + | S' | /\ R := 0.2 / float(K') .
+
+*** include normalizatiom 
+ crl [R1-inj-sym] : N S => normalize(join(detache(N, N') S'' - S', setMark(setMark(Sys', "w" "fPL", K'), "a" "fPL", K'')))  if 
+        S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) 
+        /\ S' := subag(S'', < "PL" ; I >) /\ K' := | match(S', "w") | /\ K'' := | match(S', "a") |
+        /\ Sys' := faultySys(minNotIn(N, "fPL")) /\ R := 0.1 / float(K' + K'') .
+
+ crl [R2-inj-sym] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), K'))  if 
+         S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  
+         /\ N'' := detache(N, N') /\ N'' =/= emptyNet /\ S' := subag(S'', < "fPL" ; I >)
+         /\ K' := S[p(< "s" ; 0 >)] + | S' | /\ R := 0.2 / float(K') .
+
 
 *** marking abstractions (derived from readable versions)
 *** crl [ar1] : N  nilP => normalize(joinAbs(Sys, Sys'))   
 ***    if  p(L < "PL" ; I >) U Sp := places(N) /\ Sys := detache(N, nomPL(I)) nilP /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
-*** crl [ar2] : N nilP =>  normalize(N'' nilP) if p(L < "fPL" ; I >)  U Sp := places(N) /\ N' := faultyPL(I) /\  N'' := detache(N, N') /\ N'' =/= emptyN .
+*** crl [ar2] : N nilP =>  normalize(N'' nilP) if p(L < "fPL" ; I >)  U Sp := places(N) /\ N' := faultyPL(I) /\  N'' := detache(N, N') /\ N'' =/= emptyNet .
 
 endm  

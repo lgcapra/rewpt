@@ -1,8 +1,0 @@
-in FTPL
-in SPN-SYS
-
-*** the (stochastic) PT system of the PL model
-mod FTPL-SYS is
-  inc  FTPL .
-  inc SPN-SYS .
-endm

@@ -1,50 +1,49 @@
-in SPN
+in SPN-SYS-MOD
 
 *** signature of the (stochastic) PL model (without priorities)
 fmod FTPL is
- pr SPN .
- ops faultyMload faultyMass :  -> Tmatrix .
+ pr SPN-SYS-MOD{String} * (op emptySlab to emptyStr) .
+ ops faultysload faultysass :  -> Tmatrix .
  ops line load ass fault faultyload faultyass : -> Tran . 
  ops cycle faultycycle faultyPL : -> Net [memo] .
- ops PL PLA nomPL faultyPL NfaultyPL : NzNat -> Net . 
+ ops PL PLA nomPL faultyPL : NzNat -> Net . 
  op faultySys : NzNat -> System . 
  op NPL  : NzNat NzNat -> Net [memo]. *** N (faulty) prod lines 0 .. N- 1 each of K lines
  op NPLsys : NzNat NzNat NzNat -> System . *** N prod lines  each of K lines with K * M tokens (raw pieces)
 
  ops loadLab assLab failLab workLab : -> Tlab [memo] .
- eq loadLab = < "ld", 0.5,   1 > .
- eq assLab =  < "as", 2.0,   0 > .
- eq workLab = < "ln", 0.1,   1 > .
- eq failLab = < "ft", 0.001, 1 > .
+ eq loadLab = t("ld", 0.5,   1 ) .
+ eq assLab =  t("as", 2.0,   0 ) .
+ eq workLab = t("ln", 0.1,   1 ) .
+ eq failLab = t("ft", 0.001, 1 ) .
 
  var I  : Nat . 
  vars N K M : NzNat .
- eq line =  [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 0 >), 1 . p(< "f" ; 0 >) ] |-> workLab .
- eq fault = [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ] |-> failLab .
- eq load  = [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] |-> loadLab .
- eq ass   = [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ]  |-> assLab .
- eq cycle = load ; line ; ass ; fault .
- eq PL(K) = repl&share(cycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), assLab U loadLab) . *** a PL is built of K symmetric lines 
- eq NPL(N, K) = repl&share(PL(K), N, "PL", p(< "s" ; 0 >), emptyStlab) . *** change here to vary the lines of a PL
+ eq line =  workLab  |-> [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 0 >), 1 . p(< "f" ; 0 >) ].
+ eq fault = failLab  |-> [1 . p(< "o" ; 0 >) , 1 . p(< "f" ; 0 >), nilP ].
+ *** eq fault = "ft"  |-> [1 . p(< "o" ; 0 >) + 1 . p(< "w" ; 0 >), 1 . p(< "f" ; 0 >) + 1 . p(< "w" ; 0 >), nilP ]. *** variant
+ eq load  = loadLab  |-> [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] .
+ eq ass   = assLab  |-> [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ] .
+ eq cycle = load ; line ; ass .
+ eq PL(K) = repl&share(cycle ; fault, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), assLab U loadLab) . *** a PL is built of K symmetric lines 
+ eq NPL(N, K) = repl&share(PL(K), N, "PL", p(< "s" ; 0 >), emptyStr) . *** change here to vary the lines of a PL
  eq NPLsys(N, K, M) = setMark(setMark(NPL(N, K), "o" "PL", 1), "s", K * M) .
  *** helpful in system rewrite
 *** the i-th nominal PL
  eq nomPL(I) = addLab(PL(2), < "PL" ; I >, p(< "s" ; 0 >)) .
  *** the i-th faulty PL working with one line
- eq faultyMload =  [2 . p(< "s" ; 0 >) , 2 . p(< "w" ; 0 >) , nilP ] .
- eq faultyMass  =  [2 . p(< "a" ; 0 >) , 2 . p(< "s" ; 0 >)  , nilP ] .
- eq faultyload = faultyMload |-> loadLab . 
- eq faultyass  = faultyMass  |-> assLab .
+ eq faultysload =  [2 . p(< "s" ; 0 >) , 2 . p(< "w" ; 0 >) , nilP ] .
+ eq faultysass  =  [2 . p(< "a" ; 0 >) , 2 . p(< "s" ; 0 >)  , nilP ] .
+ eq faultyload = loadLab  |-> faultysload . 
+ eq faultyass  = assLab  |-> faultysass .
  eq faultycycle = faultyload ; line ; faultyass ; fault .
  eq faultyPL(I) = addLab(faultycycle, < "fPL" ; I >, "s") . *** a faulty PL is built of 1 line
  eq faultySys(I) = setMark(faultyPL(I), "o" "fPL", 1) .
  eq faultyPL = faultyPL(0) .
- ***
- eq NfaultyPL(N) = repl&share(faultycycle, N, "fPL", p(< "s" ; 0 >), emptyStlab) .
  
- *** we use process algebra ops to build the same model
+ *** we use process algebra ops to build the same model -- to be defined
  eq  PLA(K) = merge(replAnd(line ; fault, K, "w", "a", loadLab, "s", assLab, "s", "L"), "o" "L") . *** note s used twice: it's at the same time in and out
  eq  PL(K)  = set(set(PLA(K), loadLab, i, "s", K), assLab, o, "s", K) .
- eq  NPL(N,K) = replOr(PLA(K), N, "s", "s", "PL") . 
+ eq  NPL(N,K) = replOr(PLA(K), N, "s", "s", "PL") .
 
 endfm

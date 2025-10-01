@@ -3,14 +3,12 @@
 *** to the net-operators there defined
 in ../PBAG
 
-fmod MARK-NORM{L :: TRIV} is
- pr PBAG{L} .
+fmod MARK-NORM is
+ pr PBAG-MOD .
  pr SET+{Nat} * (op emptyS to emptyNat) .
  vars P P' P'' : Place .
  vars S S' : Pset .
- vars N N' : Net .
  vars B B' B'' B0 B1 B2 : Pbag .
- var Sys Sys' : System .
  vars I J : Nat .
  vars K K' : NzNat .
  var Z : Int .
@@ -89,10 +87,6 @@ ceq maxIn(K . p(L' NeL) + B, W, L) = J if < W ; J > L := NeL /\ existsgr(B, NeL)
  op $minNotIn : Pset String Lab Nat -> Nat . 
  eq $minNotIn(S, W, L, I) = if exists(S, < W ; I > L) then $minNotIn(S, W, L, I + 1) else I fi .  
 
- *** net version (defined for convenience)
- op minNotIn : Net String Lab -> Nat .
- eq minNotIn(N, W, L) = minNotIn(places(N), W, L) .
- 
  *** bag version (defined for efficiency)
  op minNotIn : Pbag String Lab -> Nat .
  eq minNotIn(B, W, L) = $minNotIn(B, W, L, 0) .
@@ -107,42 +101,6 @@ ceq maxIn(K . p(L' NeL) + B, W, L) = J if < W ; J > L := NeL /\ existsgr(B, NeL)
  eq $extract(nilP, B, W, A, L) = B .
 ceq $extract(K . p(L' < W ; I > L) + B, B', W, A, L) = $extract(B, B' + K . p(L' < W ; I > L) , W, A, L) if I in A . 
  eq $extract(K . P + B, B', W, A, L) = $extract(B, B' , W, A, L) [owise] . 
-
- ******* PART 2
-
- *** net/system versions of normalization
- op abstract : Net -> Net . *** needed?
- eq abstract(N) = net(abstract(N nilP)) .
- op abstract : System -> System .
-ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K' > L, K' - 1)) if S := places(n(Sys)) /\ p(L' < W ; K' > L) U S' := S /\ exists(S', < W ; K' - 1 > L) == false .
-  eq abstract(Sys) = Sys [owise] .
-*** version 2
-***ceq abstract(Sys) = abstract(replaceWith(Sys, NeL, I)) if S := places(n(Sys)) /\ p(L' NeL) U S' := S /\ < W ; K > L := NeL /\ I := minNotIn(S', W, L) /\ I < K  /\ K = maxIn(S, W, L) .
-*** eq abstract(Sys) = Sys [owise] .
-
-*** excludes from index abstraction those places (components) matching a given suffix
- op abstractBut : System String -> System .
-ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K' > L, K' - 1), W') if S := places(n(Sys)) /\ p(L' < W ; K' > L) U S' := S /\ 1st(last(L' < W ; K' > L)) =/= W' /\ exists(S', < W ; K' - 1 > L) == false .
- eq abstractBut(Sys, W) = Sys [owise] .
-
-*** normalize a system assuming that its labelling is well-defined: for the net, only index abstraction applies 
- op normalize : System -> System .
-ceq normalize(Sys) = net(Sys') normalize(marking(Sys')) if Sys' := abstract(Sys) .  
-
-*** excludes from index abstraction those places (components) matching a given suffix
-op normalize : System String -> System .
-ceq normalize(Sys, W) = net(Sys') normalize(marking(Sys')) if Sys' := abstractBut(Sys, W) .  
-
-*** extend the versions defined on Pbag
-*** efficient if places is set as [memo] -- otherwise better to define from scratch
- op exists : Net NeLab  -> Bool .
- eq exists(N, NeL) = exists(places(N), NeL) .
- 
-*** default versions (with a null suffix last part)
- op minNotIn : Net String -> Nat .
- eq minNotIn(N, W) = minNotIn(N, W, emptyLab) .
- op minNotIn : Pbag String -> Nat .
- eq minNotIn(B, W) = minNotIn(B, W, emptyLab) .
   
 endfm 
 

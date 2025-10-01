@@ -10,9 +10,6 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   var T : Tran .
   vars F F' : Float .
   var L : L$Elt . var J : Nat . var N : Net .
-  *** firing rule rates
-  op firingRate : Tran Pbag -> [Float] . *** alternative (marking dependent, e.g., based on the transition firing pol)
-  eq firingRate(T, M) = firingRate(l(T), I(q(T)), M) .
   *** getters
   op tag  : Tran -> L$Elt .
   op rate : Tran -> Float .

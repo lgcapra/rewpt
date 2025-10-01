@@ -1,0 +1,19 @@
+in SPN-SYS-MOD
+
+*** Extended Stochastic Petri Net plus firing rule -- considers place capacity (if any)
+*** parametrized in P- and T-labels
+mod SPN-EMU-MOD{L :: TRIV} is
+ inc SPN-SYS-MOD{L} .
+ vars M M' : Pbag . var T : Tran . vars N N' : Net .
+ *** crl [firing] : N M => N M' if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ R:Float := firingRate(l(T), I(q(T)), M) .
+ *** including normalization
+ crl [firing] : N M => N normalize(M') if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false  /\ R:Float := firingRate(l(T), I(q(T)), M) .
+ *** includes a further potential  optimization: if the marked places are retained then index abstraction is skipped
+ *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if T ; N' := N /\ enabled(T, M) /\ M' := firing(T, M)  .
+endm
+
+
+*** trivial view to SPN-EMU-MOD
+view System{L :: TRIV} from TRIV to SPN-EMU-MOD{L} is 
+ sort Elt to System .
+endv
