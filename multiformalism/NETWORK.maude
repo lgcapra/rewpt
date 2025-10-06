@@ -19,6 +19,12 @@ fmod NETWORK{S :: STATE} is
  var M : S$State .
  eq netw((N : M))  = N .
  eq state((N : M)) = M .
+ op remove : Network Network -> Network .
+ eq remove((N, N'), N) = N' .
+ eq remove(N, N') = N [owise] .
+ op in : Network Network -> Bool .
+ eq in((N, N'), N) = true .
+ eq in(N, N') = false [owise] .
 endfm
 
 view S-Pbag{PL :: TRIV} from STATE to PBAG{PL} is 

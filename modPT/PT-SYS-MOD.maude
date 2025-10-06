@@ -5,30 +5,23 @@ in ../PT-SYS
 fmod PT-SYS-MOD{L :: TRIV} is
  pr PT-NET-MOD{L} .
  pr PT-SYS{L, Plab} .
- 
- *** op emptySys  : -> System . *** alias
- *** eq emptySys = emptyN nilP .
- 
- vars N N' : Net .
- vars T T' : Tran .
- vars P P' P'' : Place .
- vars I O H S S' : Pbag .
- vars Q Q' : Tmatrix .
- vars K K' : NzNat .
- var W :  String .
- var Y : List{String} .
+ var N  : Net .
+ var P  : Place .
+ var S  : Pbag .
+ var K  : NzNat .
+ var Y  : List{String} .
  var Sys : System .
- var L : L$Elt . *** tran. lab
- var Z : Set{L} .
- 
+ var L : L$Elt . *** tlab
+ var Lab : Lab .
+ var NeL : NeLab . 
+ var J : Nat .
+ var PS : Pset .
  
  *** add a new label to a system's places
- var Lab : Lab .
  op addLab : System Lab -> System .
  eq addLab(N S, Lab) = addLab(N, Lab) addLab(S, Lab) .
  *** version specifying shared elements (helpful!)
  op addLab : System Lab Pset -> System .
- var PS : Pset .
  eq addLab(N S, Lab, PS) = addLab(N, Lab, PS) addLab(S, Lab, PS) .
  *** defined for convenience
  op addLab : System Lab List{String} -> System .
@@ -44,12 +37,10 @@ ceq clearupM(N K . P + S) = clearupM(N S) if in(N, P) == false .
  eq remove(N S, PS) = remove(N, PS) remove(S, PS) .
 
   *** derived version 
- var NeL : NeLab . 
- var J : Nat .
  op replaceWith : System NeLab Nat -> System .
  eq replaceWith(N S, NeL, J) = replaceWith(N, NeL, J) replaceWith(S, NeL, J) .
 
- *** 
+ ***
  op subsys : System NeLab -> System .
  eq subsys(N S, NeL) = subnet(N, NeL) subag(S, NeL) .
  *** si dovrebbero definire anche le versioni overloaded di subsys a matchsys

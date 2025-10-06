@@ -59,4 +59,8 @@ fmod QUEUE{PL :: TRIV} is
   eq qenabled([M, M'] SQ, M'') = enabCond(M, M', M'')  . *** similar to the PN tran. enabling condition (M input, M' inhibitor)
   op cap : ElQueue -> NzNat .
   eq cap(X:ElQueue) = cap(pin(X:ElQueue)) .
+  *** return the place of the next element if any, otherwise the specified default place (convenience op)
+   op nextPosDef : List{Server} Place -> Place [memo] .  
+   eq nextPosDef(LQ , P) = if LQ  == nilElQ then P else p(head(LQ )) fi .
+   
 endfm

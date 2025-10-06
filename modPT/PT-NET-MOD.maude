@@ -8,15 +8,11 @@ in PLAB
 fmod PT-NET-MOD{L :: TRIV} is
  pr TMATRIX-MOD .
  pr PT-NET{L, Plab} .
- vars N N' : Net .
- vars T T' : Tran .
- vars P P' P'' : Place .
  var J  : Nat .
- vars K K' : NzNat .
+ vars N N' : Net .
  vars I O H B : Pbag .
  vars Q Q' : Tmatrix . 
  vars S S' PS : Pset .
- var W :  String .
  var WL : List{String} .
  var NeWL : NeList{String} .
  var Lab : Lab .
@@ -25,33 +21,6 @@ fmod PT-NET-MOD{L :: TRIV} is
  var NeSL : NeSet{L} .
  
  *** net-algebra ops
- 
- *** add a new label to a matrix' elements
- op addLab : Tmatrix Lab -> Tmatrix . *** overloaded
- eq addLab([I,O,H], Lab) = [addLab(I, Lab), addLab(O, Lab), addLab(H, Lab)] .
- *** version specifying elements to share
- op addLab : Tmatrix Lab Pset -> Tmatrix . 
- eq addLab([I,O,H], Lab, S) = [addLab(I, Lab, S), addLab(O, Lab, S), addLab(H, Lab, S)] .
- 
- *** sub-matrices based on the suffix
- op sumatrix : Tmatrix NeList{String} -> Tmatrix .
- eq sumatrix([I,O,H], NeWL) = [subag(I, NeWL), subag(O, NeWL), subag(H, NeWL)] .
- op sumatrix : Tmatrix List{String} NeLab -> Tmatrix .
- eq sumatrix([I,O,H], NeWL, NeL) = [subag(I, NeWL, NeL), subag(O, NeWL, NeL), subag(H, NeWL, NeL)] . *** optimization
- eq sumatrix([I,O,H], emptyLs, NeL) = [subag(I, NeL), subag(O, NeL), subag(H, NeL)] .
- op match : Tmatrix List{String} NeLab -> Tmatrix .
- eq match([I,O,H], WL, NeL) = [match(I, WL, NeL), match(O, WL, NeL), match(H, WL, NeL)] .
-
- *** derived definitions of places
- op places : Tmatrix NeList{String}  -> Pset .
- eq places(Q, NeWL) = places(sumatrix(Q, NeWL)) .
- op places : Tmatrix List{String} NeLab  -> Pset .
- eq places(Q, WL, NeL) = places(sumatrix(Q, WL, NeL)) .
- op matchplaces : Tmatrix List{String} NeLab  -> Pset .
- eq matchplaces(Q, WL, NeL) = places(match(Q, WL, NeL)) .
- 
- op replaceWith : Tmatrix NeLab Nat -> Tmatrix .
- eq replaceWith([I,O,H], NeL, J) = [replaceWith(I, NeL, J), replaceWith(O, NeL, J), replaceWith(H, NeL, J)] .
   
  *** extract the subnet matching a given suffix ()
  op subnet : Net NeList{String} -> Net .

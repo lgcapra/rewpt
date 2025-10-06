@@ -3,6 +3,7 @@ in ../PBAG
 
 fmod JSQ{PL :: TRIV} is
   pr PBAG{PL} . *** PBAG is used in the extension
+  pr FLOAT .
   var vars P P' : Place  .
   var S : Pset .
   var B : Pbag .
@@ -19,4 +20,6 @@ fmod JSQ{PL :: TRIV} is
   eq newJsq(P) = P |> emptyPset . 
   op newJsq : PL$Elt -> Jsq .
   eq newJsq(L) = p(L, 1) |> emptyPset .
+  op firingRate : Place Pbag -> Float .
+  eq firingRate(P, B) = 100.0 . *** should be high
 endfm

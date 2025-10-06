@@ -29,6 +29,7 @@ fmod TMATRIX-MOD is
  op addLab : Tmatrix Lab Pset -> Tmatrix . 
  eq addLab([X,Y,Z], L, S) = [addLab(X, L, S), addLab(Y, L, S), addLab(Z, L, S)] .
  eq addLab([X,Y], L, S) = [addLab(X, L, S), addLab(Y, L, S)] .
+
  *** sub-matrices based on the suffix
  op sumatrix : Tmatrix NeList{String} -> Tmatrix .
  eq sumatrix([X,Y,Z], NWs) = [subag(X, NWs), subag(Y, NWs), subag(Z, NWs)] .
@@ -42,6 +43,7 @@ fmod TMATRIX-MOD is
  op match : Tmatrix List{String} NeLab -> Tmatrix .
  eq match([X,Y,Z], Ws, NeL) = [match(X, Ws, NeL), match(Y, Ws, NeL), match(Z, Ws, NeL)] .
  eq match([X,Y], Ws, NeL) = [match(X, Ws, NeL), match(Y, Ws, NeL)] .
+ 
  *** derived definitions of places
  op places : Tmatrix NeList{String}  -> Pset .
  eq places(Q, NWs) = places(sumatrix(Q, NWs)) .
@@ -53,5 +55,6 @@ fmod TMATRIX-MOD is
  op replaceWith : Tmatrix NeLab Nat -> Tmatrix .
  eq replaceWith([X,Y,Z], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N), replaceWith(Z, NeL, N)] .
  eq replaceWith([X,Y], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N)] .
+  
   
 endfm

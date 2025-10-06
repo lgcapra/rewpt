@@ -1,0 +1,16 @@
+in JSQ
+in NETWORK
+
+*** MQN as nodes of a network
+fmod JSQ-NODE{PL :: TRIV} is
+  extending NETWORK-MARKING{PL} .
+  protecting JSQ{PL} .
+  subsort Jsq < Network .
+endfm
+
+mod JSQ-NODE-SYS{PL :: TRIV} is
+   including JSQ-NODE{PL} .
+   var N : Network . var B : Pbag . vars p p' : Place  .
+   vars S : Pset . var NeS : NePset . 
+   crl (N , p |> NeS) : 1 . p + B => (N , p |> NeS) : B + 1 . p' if p' U S := emin(B, NeS) /\ rate:Float := firingRate(p, B).  
+endm

@@ -15,7 +15,7 @@ fmod SPN-NODE{L :: TRIV, PL :: TRIV} is
   eq next(N, M) = $next(N, noStateRate, M) [owise] . *** in a net several transitions can be enabled 
   op $next : Net StatesRates Pbag -> StatesRates .
   eq $next(emptyNet, MS, M) = MS .
-ceq $next(N ; T, MS, M) = $next(N, MS < M' ; rate > , M) if enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ rate := firingRate(T, M) .
+ceq $next(N ; T, MS, M) = $next(N, MS (M' -- rate) , M) if enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ rate := firingRate(l(T),I(q(T)), M) .
   eq $next(N ; T, MS, M) = $next(N, MS , M) [owise] .
 endfm
 

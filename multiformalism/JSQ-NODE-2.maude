@@ -11,16 +11,11 @@ fmod JSQ-NODE{PL :: TRIV} is
   eq jnext(p |> NeS, B) = $jnext(emin(B, NeS), noStateRate, B - 1 . p) [owise] .
   op $jnext : Pset StatesRates Pbag -> StatesRates .
   eq $jnext(emptyPset, SR, B) = SR .
-  eq $jnext(p U S, SR, B) = $jnext(S, < B + 1 . p ; firingRate(p, B)  > SR, B) .
-  op newJsq : PL$Elt -> Jsq .
-  eq newJsq(L) = p(L, 1) |> emptyPset .
-  op firingRate : Place Pbag -> Float .
-  eq firingRate(p, B) = 100.0 . *** should be high
-   
+  eq $jnext(p U S, SR, B) = $jnext(S, (B + 1 . p -- firingRate(p, B)) SR, B) . 
 endfm
 
 
-view JsqNode {PL :: TRIV} from NODE to JSQ-NODE{PL} is
+view JsqNode{PL :: TRIV} from NODE to JSQ-NODE{PL} is
    sort Node to Jsq . 
    sort State to Pbag .
    op next to jnext .

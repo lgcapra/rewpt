@@ -3,7 +3,7 @@ in ../shared/MSET
 in ../shared/PAIR
 
 *** we adopt the convention that a theory name cannot contain '-'
-*** PER ORA USATA SOLO PER 
+*** PER ORA USATA SOLO PER MODULARITA
 fth STATERATE is
   pr FLOAT .
   inc STATE .
@@ -65,28 +65,30 @@ mod NETWORK-SYS{N :: NODE} is
   crl [firing-rule] : (N, NW) : M => (N, NW) : M' if SR SRs := next(N, M) /\ M' := state(SR) /\ R := rate(SR) . 
 endm
 
-*** maps TRIV into theory STATE
-view STATE from TRIV to STATE is
-  sort Elt to State .
-endv
 
+*** concrete definition of a pair state-rate
 fmod STATE-RATE{S :: STATE} is
-  protecting PAIR{STATE,Float}{S} * (sort Pair{STATE,Float}{S} to StateRate{S}, op 1st to state, op 2nd to rate) . 
+  pr FLOAT .
+  sort StateRate .
+  op _--_ : S$State Float -> StateRate .
+  op state : StateRate -> S$State .
+  op rate  : StateRate -> Float .
+  var S : S$State . var R : Float .
+  eq state(S -- R) = S .
+  eq rate(S -- R) = R .
 endfm
 
 view StateRate{S :: STATE} from TRIV to STATE-RATE{S} is
-  sort Elt to StateRate{S} .
+  sort Elt to StateRate .
 endv
 
 *** multiset of pairs (S:State, Float)
 fmod MSET-STATE-RATE{S :: STATE} is
-   pr MSET{StateRate{S}} .
+   pr MSET{StateRate{S}} * (sort Mset{StateRate{S}} to StatesRates, sort NeMset{StateRate{S}} to NeStatesRates,                  
+                            op empty{StateRate{S}} to noStateRate) .
 endfm
 
 *** multiset of pairs (Pbag, Float)
 fmod MSET-MARKING-RATE{PL :: TRIV} is
-   pr MSET-STATE-RATE{S-Pbag{PL}} * (sort StateRate{S-Pbag{PL}} to StateRate,
-                                    sort Mset{StateRate{S-Pbag{PL}}} to StatesRates, 
-                                    sort NeMset{StateRate{S-Pbag{PL}}} to NeStatesRates,                  
-                                    op empty{StateRate{S-Pbag{PL}}} to noStateRate) .
+   pr MSET-STATE-RATE{S-Pbag{PL}} .
 endfm

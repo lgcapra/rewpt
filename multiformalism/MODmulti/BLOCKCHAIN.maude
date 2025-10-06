@@ -1,16 +1,17 @@
-*** the blockchain example (valuetools) -- based on solution 2 
-in  ../SPN-EMU
-in SPN-NODE-2
-in JSQ-NODE-2
-in QUEUE-NODE-2
-in LAB 
+*** the blockchain example (valuetools) 
+in ../../modPT/PLAB
+in  ../../SPN-EMU
+in ../SPN-NODE
+in ../JSQ-NODE
+in ../QUEUE-NODE
 
 *** blockchain representation (parametrized in palce labels) with separated Markov-modulation 
 mod MM-BLOCKCHAIN is
-  inc NETWORK-SYS{SpnNode{Lab}}   * (sort Network{SpnNode{Lab}} to  Network{Spn}, sort NetSys{SpnNode{Lab}} to  NetSys{Spn}) .
-  inc NETWORK-SYS{JsqNode{Lab}}   * (sort Network{JsqNode{Lab}} to  Network{Jsq}, sort NetSys{JsqNode{Lab}} to  NetSys{Jsq}) .
-  inc NETWORK-SYS{QueueNode{Lab}} * (sort Network{QueueNode{Lab}} to  Network{Queue}, sort NetSys{QueueNode{Lab}} to  NetSys{Queue}) .
-  inc SPN-EMU{String,Lab} .
+  inc SPN-NODE-SYS{Plab} . 
+  inc QUEUE-NODE-SYS{Plab}  .
+  inc JSQ-NODE-SYS{Plab} .
+  inc SPN-EMU{String,Plab} .
+
   
   sort MMnetwork . *** markov modulated network
   op MM:_N:_ : System NetSys -> MMnetwork  [ctor] .
@@ -27,9 +28,9 @@ mod BLOCKCHAIN-OP is
   inc MM-BLOCKCHAIN .
   var q : ElQueue . var Q : Queue . vars Nq : Network . var K : NzNat . vars P P' : Place . 
   var R : Float . vars i j : Nat . var s : String . var L : Lab .
-  var J : Jsq . var NQ : Network{Queue} . vars N N' : Network . var S : Pset . var M : Pbag .
+  var J : Jsq . var NQ : QueueNet . vars N N' : Network . var S : Pset . var M : Pbag .
 
-  op allClients : Network{Queue} Pbag -> [Nat] .
+  op allClients : QueueNet Pbag -> [Nat] .
   op $allClients : Network Pbag Nat -> Nat .
   eq allClients(NQ, M) = $allClients(NQ, M , 0) .
   eq $allClients(emptyNetW, M, j) = j . 
@@ -44,30 +45,29 @@ mod BLOCKCHAIN-OP is
   eq newTout(P, R) = t("out", R, 1) |-> [1 . P, nilP] . 
   *** creates a "copy" of the given place using the offset for the index
   op repl : Place Nat -> Place .
-  eq repl(p(s i, K), j) = p(s i + j, K) .
-  eq repl(p(s i), j) = p(s i + j) .
+  eq repl(p(< s ; i >, K), j) = p(< s ; i + j >, K) .
+  eq repl(p(< s ; i >), j) = p(< s ; i + j >) .
   *** creates a pool of similar elementary nets working in parallel 
-  op pool : ElQueue NzNat -> Network{Queue} .  
+  op pool : ElQueue NzNat -> QueueNet .  
   eq pool(q, K) = $pool(q, K, emptyNetW) .
-  op $pool  : ElQueue Nat Network -> Network{Queue} .
+  op $pool  : ElQueue Nat Network -> QueueNet .
   eq $pool(q, 0, Nq) = Nq .
  ceq $pool(q, K, Nq) = $pool(q, K - 1, (Nq, newElQueue(repl(P', K - 1), P, R))) if P' @ R > P := q .
  *** connect a JSQ to a network of queues (nice!)
- op connect : Jsq Network{Queue} -> Jsq .
+ op connect : Jsq QueueNet -> Jsq .
  eq connect(J, NQ) = $connect(NQ, J) . 
  op $connect : Network Jsq -> Jsq .
  eq $connect(emptyNetW, J) = J .
  eq $connect((Q, N), P |> S) = $connect(N, P |> S U pin(Q)) .
  *** connect and link 
- op connect&link : Jsq Network{Queue} -> Network .
+ op connect&link : Jsq QueueNet -> Network .
  eq connect&link(J, NQ) = connect(J, NQ), NQ .
  *** disconnect a JSQ from network of queues (nice!)
- op disconnect : Jsq Network{Queue} -> Jsq .
+ op disconnect : Jsq QueueNet -> Jsq .
  eq disconnect(J, NQ) = $disconnect(NQ, J) . 
  op $disconnect : Network Jsq -> Jsq .
  eq $disconnect(emptyNetW, J) = J .
  eq $disconnect((Q, N), P |> S) = $disconnect(N, P |> delete(pin(Q), S)) . 
-
 endm
 
 *** model using LAB as place labels
@@ -79,8 +79,8 @@ mod BLOCKCHAIN-EXE is
   op mmc : -> Net .
   op L : Nat -> Place . *** alias for the MC states
   op s-tran : -> Place .
-  eq L(i) = p("mc" i) . *** states of the MC 
-  eq s-tran = p("s-tran" 0) .
+  eq L(i) = p(< "mc" ; i >) . *** states of the MC 
+  eq s-tran = p(< "s-tran" ; 0 >) .
   eq mmc = t("",1.0,1) |-> [1 . L(0), 1 . L(1) + 1 . s-tran, 1 . s-tran] ; t("",2.0,1) |-> [1 . L(1), 1 . L(0) + 1 . s-tran, 1 . s-tran] ; 
             t("",2.0,1) |-> [1 . L(2), 1 . L(1) + 1 . s-tran, 1 . s-tran] ; t("",1.0,1) |-> [1 . L(1), 1 . L(2) + 1 . s-tran, 1 . s-tran] ;
             t("",2.0,1) |-> [1 . L(2), 1 . L(3) + 1 . s-tran, 1 . s-tran] ; t("",1.0,1) |-> [1 . L(3), 1 . L(2) + 1 . s-tran, 1 . s-tran]  . *** RIVEDERE
@@ -92,48 +92,48 @@ mod BLOCKCHAIN-EXE is
   
   *** simulates new arrivals in the system
   op pin : NzNat -> Place [memo] .
-  eq pin(k) = p("in" 0, k) .
+  eq pin(k) = p(< "in" ; 0 >, k) .
   ops in out : -> Tran [memo] .
   eq in = newTin(pin(N), 2.0) . 
   
   *** "in" is the input place of the system (and of the buffer)
   ops cpuI cpuO A B : -> Place .
-  eq cpuI = p("cpu" 0, N) .
-  eq cpuO = p("cpu-Out" 0, N) .
+  eq cpuI = p(< "cpu" ; 0 >, N) .
+  eq cpuO = p(< "cpu-Out" ; 0 >, N) .
   
   *** the buffer component
   op buffer : -> Net  [memo] .
-  eq buffer = t("collect", 1.0, 1)  |-> [N . pin(N), N . p("b" 0, N)] ;
-            t("timeout", 0.2, 1)  |-> [nilP, nilP] f: pin(N) >> p("b" 0, N) ;
-            t("continue", 1.0, 1) |-> [nilP, nilP] f: p("b" 0, N) >> cpuI .      *** all'inizio non in JSQ (cambiare)     
+  eq buffer = t("collect", 1.0, 1)  |-> [N . pin(N), N . p(< "b" ; 0 >, N)] ;
+            t("timeout", 0.2, 1)  |-> [nilP, nilP] f: pin(N) >> p(< "b" ; 0 >, N) ;
+            t("continue", 1.0, 1) |-> [nilP, nilP] f: p(< "b" ; 0 >, N) >> cpuI .      *** all'inizio non in JSQ (cambiare)     
   
   ***cpu (pool)
   op cpu1 : -> ElQueue [memo] .
   eq cpu1 = newElQueue(cpuI, cpuO, 5.0) . 
-  ops cpu3 cpu6 cpu8 : -> Network{Queue} [memo] .
+  ops cpu3 cpu6 cpu8 : -> QueueNet [memo] .
   eq cpu3 = pool(cpu1, 3) .
   eq cpu6 = pool(cpu1, 6) .
   eq cpu8 = pool(cpu1, 8) .
 
  *** GPU
  op gpu : -> ElQueue [memo] .
- eq gpu = pool(newElQueue(p("GPU" 0, N), p("GPU-O" 1, N), 20.0), 2) .
+ eq gpu = pool(newElQueue(p(< "GPU" ; 0 >, N), p(< "GPU-O" ; 1 >, N), 20.0), 2) .
 
  *** NETWORK
  ops A0 B0 : -> ElQueue  [memo] .
  ops A B : Place -> ElQueue . *** parametric in the input place
- eq A(P) = newElQueue(P, p("A" 0, N), 2.0) . 
- eq B(P) = newElQueue(P, p("B" 0, N), 4.0) .
+ eq A(P) = newElQueue(P, p(< "A" ; 0 >, N), 2.0) . 
+ eq B(P) = newElQueue(P, p(< "B" ; 0 >, N), 4.0) .
  eq A0 = A(out(cpu1))  . 
  eq B0 = B(out(cpu1))  .
  
   *** JSQ
   op jsq1 : -> Jsq [memo] .
-  eq jsq1 = p("cpu" 1, N) |> p("q" 1, N) U p("q" 2, N) . 
+  eq jsq1 = p(< "cpu" ; 1 >, N) |> p(< "q" ; 1 >, N) U p(< "q" ; 2 >, N) . 
   
   *** Storage
   op storage : -> ElQueue [memo] .
-  eq storage = newElQueue(p("St" 0, N), p("St-O" 0, N), 0.2) .
+  eq storage = newElQueue(p(< "St" ; 0 >, N), p(< "St-O" ; 0 >, N), 0.2) .
 
   *** the network (blockchain) in the state L0
   op netWorkSys0 : -> NetSys .
@@ -143,13 +143,12 @@ mod BLOCKCHAIN-EXE is
   eq netWork1 = newTin(pin(1),2.0), connect&link(newJsq(pin(1)), cpu3), B0, newTout(out(B0), 1.0) .
   eq netWorkSys0 = netWork0 : nilP . 
   
-  
   var MC : System . var Q : Net . var S : Pbag . var Nw : Network . var B : Pbag .   
   *** rewrites governed by mmc -- NOTE: istantaneous w.r.t. mc change state
   crl  [S0>S1] : MM: Q S N: (Nw : B) => MM: Q 1 . L(1) N: (netWork1 : B) 
          if S == 1 . L(1) + 1 . s-tran /\ in(Nw, buffer) . 
   
-  crl  [S1>S0] : MM: Q S N: (Nw : B) => MM: Q 1 . L(0) N: (netWork0 : set(B, pin(cpu1), k)) 
+   crl  [S1>S0] : MM: Q S N: (Nw : B) => MM: Q 1 . L(0) N: (netWork0 : set(B, pin(cpu1), k)) 
          if S == 1 . L(0) + 1 . s-tran  /\ in(Nw, cpu3) /\ k := allClients(cpu3, B) /\ k <= cap(cpu1) .
 
   *** MM network initial configuration (for searches)
