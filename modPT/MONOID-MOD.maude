@@ -1,0 +1,154 @@
+*** a new, more effective net representation
+*** in ../shared/MAP+
+in PBAG-MOD
+
+fth MONOID+ is
+ including TRIV .
+ sort El .
+ subsort El < Elt .
+ op nil : -> Elt .
+ op _;_ : Elt Elt -> Elt [assoc id: nil] .
+endfth
+
+*** a node seen as monoid
+fth MO-NODE is
+  including MONOID+ .
+  including PBAG-MOD .
+  op replaceWithEl : El NeLab Nat -> El . *** defined for a single element
+  op addLabEl : El Lab Pset -> El . 
+  op placesEl : El -> Pset .
+  op placesEl : El NeList{String} -> Pset .
+  op inEl : El Place -> Bool .
+endfth
+
+in MARK-NORM
+fmod MO-NODE-OP{N :: MO-NODE} is
+  pr MARK-NORM .
+  var J   : Nat .  var K : NzNat . vars N N' : N$Elt . var E : N$El .
+  vars L L' : Lab . var NeL : NeLab .
+  vars W W' : String . var P : Place .
+  vars S S' : Pset . var WL : List{String} .  var NeWL : NeList{String} .
+  *** replace the index of the header of a structured lab
+  op replaceWith : N$Elt NeLab Nat -> N$Elt .
+  eq replaceWith(N, NeL, J) = $replaceWith(N, NeL, J, nil) .  
+  op $replaceWith : N$Elt NeLab Nat N$Elt -> N$El . 
+  eq $replaceWith(nil, NeL, J, N) = N . 
+  eq $replaceWith(E ; N, NeL, J, N') = $replaceWith(N, NeL, J, N' ; replaceWithEl(E, NeL, J)) . 
+  *** append a new tag to the net's places, but those to share (i.e., to which not to add the tag)
+  op addLab : N$Elt Lab Pset -> N$Elt . 
+  eq addLab(N, L, S) = $addLab(N, nil, L, S) .
+  op $addLab : N$Elt N$Elt Lab Pset -> N$Elt .
+  eq $addLab(nil, N, L, S) = N .
+  eq $addLab(E ; N', N, L, S) = $addLab(N', addLabEl(E, L, S) ; N, L, S) .
+  *** simple (default) version
+  op addLab : N$Elt Lab -> N$Elt . 
+  eq addLab(N, L) = addLab(N, L, emptyPset) .
+  *** defined for convenience (maps to the previous version)
+  op addLab : N$Elt Lab List{String} -> N$Elt .
+  eq addLab(N, L, WL) = addLab(N, L, places(N, WL)) . 
+  *** set of places
+  op places : N$Elt -> Pset [memo] .
+  eq places(N) = $places (N, emptyPset) .
+  op $places : N$Elt Pset -> Pset .
+  eq $places(nil, S) = S .
+  eq $places(E ; N, S) = $places (N, S U placesEl(E)) .
+  *** places matching a suffix (derived definitions) 
+  op places : N$Elt List{String} -> Pset .
+  eq places(N, emptyLs) = places(N) .
+  eq places(N, NeWL) = $places(N, NeWL, emptyPset) .
+  op $places : N$Elt NeList{String} Pset -> Pset .
+  eq $places(nil, NeWL, S) = S .
+  eq $places(E ; N, NeWL, S) = $places (N, NeWL, S U placesEl(E, NeWL)) .
+  *** efficient implementation
+  op in : N$Elt Place -> Bool . 
+ceq in(E ; N, P) = true if inEl(E, P) .
+  eq in(N, P) = false [owise] .
+ 
+  *** extend the versions defined on Pbag: efficient if places is set as [memo] -- otherwise better to define from scratch
+  op exists : N$Elt NeLab  -> Bool .
+  eq exists(N, NeL) = exists(places(N), NeL) .
+  *** overloading (defined for convenience)
+  op minNotIn : N$Elt String Lab -> Nat .
+  eq minNotIn(N, W, L) = minNotIn(places(N), W, L) .
+  *** default versions (with a null suffix last part)
+  op minNotIn : N$Elt String -> Nat .
+  eq minNotIn(N, W) = minNotIn(N, W, emptyLab) .
+  **** normalization (name abstraction)
+  op abstract : N$Elt -> N$Elt .
+ ceq abstract(N) = abstract(replaceWith(N, < W ; K > L, K - 1)) if p(L' < W ; K > L) U S := places(N) /\ exists(S, < W ; K - 1 > L) == false .
+  eq abstract(N) = N [owise] .
+  *** version 2
+ ***ceq abstract(N) = abstract(replaceWith(N, NeL, J)) if S := places(N) /\ p(L' NeL) U S' := places(N) /\ < W ; K > L := NeL /\ J := minNotIn(S', W, L) /\ J < K  /\ K = maxIn(S, W, L) .
+ *** eq abstract(N) = N [owise] .
+ *** excludes from index abstraction those places (components) matching a given suffix
+  op abstractBut : N$Elt String -> N$Elt .
+ ceq abstractBut(N, W') = abstractBut(replaceWith(N, < W ; K > L, K - 1), W') if p(L' < W ; K > L) U S := places(N) /\ 1st(last(L' < W ; K > L)) =/= W' /\ exists(S, < W ; K - 1 > L) == false .
+  eq abstractBut(N, W) = N [owise] .
+endfm 
+
+
+*** a node (seen as monoid) with associated state
+fth MO-NODE-SYS is
+  including MO-NODE .
+  sort SysNode .
+  op __ : Elt Pbag -> SysNode .
+endfth
+
+*** necessary to import MO-NODE-OP from inside MO-NODE-SYS-OP
+view MO-NODE-SYS from MO-NODE to MO-NODE-SYS is
+endv
+
+fmod MO-NODE-SYS-OP{N :: MO-NODE-SYS} is
+  pr MO-NODE-OP{MO-NODE-SYS}{N} .
+  var J   : Nat .  var K : NzNat .
+  vars Sys Sys' : N$SysNode . vars N N' : N$Elt . var M : Pbag . var P : Place . 
+  vars W W' : String . var WL : List{String} .
+  vars L L' : Lab . var NeL : NeLab . vars S S' : Pset .
+  *** getters
+  op nd : N$SysNode -> N$Elt . *** inner structure of the node
+  op st : N$SysNode -> Pbag .  *** shared state of the node
+  eq nd(N M) = N .
+  eq st(N M) = M .
+  *** add a new label to a system's places
+ op addLab : N$SysNode Lab -> N$SysNode .
+ eq addLab(N M, L) = addLab(N, L) addLab(M, L) .
+ *** version specifying shared elements (helpful!)
+ op addLab : N$SysNode Lab Pset -> N$SysNode .
+ eq addLab(N M, L, S) = addLab(N, L, S) addLab(M, L, S) .
+ *** defined for convenience
+ op addLab : N$SysNode Lab List{String} -> N$SysNode .
+ eq addLab(Sys, L, WL) = addLab(Sys, L, places(nd(Sys), WL)) . 
+ 
+ *** clears the system's marking by removing non encoded places
+ op clearupM : N$SysNode -> N$SysNode .
+ceq clearupM(N K . P + M) = clearupM(N M) if in(N, P) == false .
+ eq clearupM(Sys) = Sys [owise] .
+
+  *** derived version 
+ op replaceWith : N$SysNode NeLab Nat -> N$SysNode .
+ eq replaceWith(N M, NeL, J) = replaceWith(N, NeL, J) replaceWith(M, NeL, J) .
+
+*** removes isolated places
+*** ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places from the marking
+ 
+ *** normalization (name abstraction) 
+ op abstract : N$SysNode -> N$SysNode .
+ ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K > L, K - 1)) if p(L' < W ; K > L) U S := places(nd(Sys)) /\ exists(S, < W ; K - 1 > L) == false .
+  eq abstract(Sys) = Sys [owise] .
+*** version 2
+ *** ceq abstract(Sys) = abstract(replaceWith(Sys, NeL, J)) if S := places(nd(Sys)) /\ p(L' NeL) U S' := places(nd(Sys)) /\ < W ; K > L := NeL /\ J := minNotIn(S', W, L) /\ J < K  /\ K = maxIn(S, W, L) .
+ *** eq abstract(Sys) = Sys [owise] .
+ *** excludes from index abstraction those places (components) matching a given suffix
+ op abstractBut : N$SysNode String -> N$SysNode .
+ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K > L, K - 1), W') if p(L' < W ; K > L) U S := places(nd(Sys)) /\ 1st(last(L' < W ; K > L)) =/= W' /\ exists(S, < W ; K - 1 > L) == false .
+ eq abstractBut(Sys, W) = Sys [owise] .
+ *** normalize a system assuming that its labelling is well-defined: for the "net", only index abstraction applies 
+ op normalize : N$SysNode -> N$SysNode .
+ceq normalize(Sys) = nd(Sys') normalize(st(Sys')) if Sys' := abstract(Sys) .  
+*** excludes from index abstraction those places (components) matching a given suffix
+ op normalize : N$SysNode String -> N$SysNode .
+ceq normalize(Sys, W) = nd(Sys') normalize(st(Sys')) if Sys' := abstractBut(Sys, W) .  
+
+endfm 
+
+

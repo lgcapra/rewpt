@@ -11,7 +11,7 @@ fmod PT-SYS{L :: TRIV, PL :: TRIV} is
   *** cmb N M : System if N =/= emptyNet . *** a PT system cannot be "empty" 
   *** cmb N M : System if N =/= emptyNet and-then repeatedKeys?(N) == false . *** a PT system cannot have duplicated transitions
   
-  ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places from the marking
+  *** ceq N K . P + M = N M if in(N, P) = false . *** removes isolated places from the marking
   ops n net : System -> Net .
   ops m marking : System -> Pbag .
   eq net(S) = n(S) .

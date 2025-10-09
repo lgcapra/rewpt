@@ -1,10 +1,10 @@
 in NETWORK
 in ../SPN
+in ../modSPT/SPN-SYS-MOD
 
 fmod SPN-NODE{PL :: TRIV} is
   extending NETWORK-MARKING{PL} .
-  protecting SPN-SIG{String, PL} .
-  *** subsort Tran < Network . *** alternative
+  pr SPN-SIG{String, PL} .
   subsort Net < Network . 
 endfm
 

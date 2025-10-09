@@ -1,4 +1,4 @@
-*** this module defines the operators to bring a marking (a bag of places) to to a minimal/canonical form
+*** this module defines the operators to bring a marking (a bag of places) to a minimal/canonical form
 *** should be used in combination with PT-NORM and NET-OP: i.e., assumes that models are built according
 *** to the net-operators there defined and structured labeling
 in ../PBAG
@@ -52,7 +52,6 @@ ceq abstract(B) = abstract(K . p(L' < W ; K' - 1 > L) + replaceWith(B', < W ; K'
  *** negli esempi è un po' meno efficiente ma in generale (in casi meno semplici) può essere meglio
 *** ceq abstract(B) = abstract(replaceWith(B, NeL, I)) if K' . p(L' NeL) + B' := B /\ < W ; K > L := NeL /\ I := minNotIn(B', W, L) /\ I < K  /\ K = maxIn(B, W, L) .
 *** eq abstract(B) = B [owise] .
-
 
  *** checks for the existence in a set of a place whose label matches the given suffix 
  op exists : Pset NeLab  -> Bool .

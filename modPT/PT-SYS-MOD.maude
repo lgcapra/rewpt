@@ -2,52 +2,34 @@
 in PT-NET-MOD
 in ../PT-SYS
 
-fmod PT-SYS-MOD{L :: TRIV} is
- pr PT-NET-MOD{L} .
- pr PT-SYS{L, Plab} .
- var N  : Net .
- var P  : Place .
- var S  : Pbag .
- var K  : NzNat .
- var Y  : List{String} .
- var Sys : System .
- var L : L$Elt . *** tlab
- var Lab : Lab .
- var NeL : NeLab . 
- var J : Nat .
- var PS : Pset .
- 
- *** add a new label to a system's places
- op addLab : System Lab -> System .
- eq addLab(N S, Lab) = addLab(N, Lab) addLab(S, Lab) .
- *** version specifying shared elements (helpful!)
- op addLab : System Lab Pset -> System .
- eq addLab(N S, Lab, PS) = addLab(N, Lab, PS) addLab(S, Lab, PS) .
- *** defined for convenience
- op addLab : System Lab List{String} -> System .
- eq addLab(Sys, Lab, Y) = addLab(Sys, Lab, places(n(Sys), Y)) . 
- 
- *** clears the system's marking by removing non encoded places
- op clearupM : System -> System .
-ceq clearupM(N K . P + S) = clearupM(N S) if in(N, P) == false .
- eq clearupM(X:System) = X:System [owise] .
-
- *** remove some places
- op remove :  System Pset -> System .
- eq remove(N S, PS) = remove(N, PS) remove(S, PS) .
-
-  *** derived version 
- op replaceWith : System NeLab Nat -> System .
- eq replaceWith(N S, NeL, J) = replaceWith(N, NeL, J) replaceWith(S, NeL, J) .
-
- ***
- op subsys : System NeLab -> System .
- eq subsys(N S, NeL) = subnet(N, NeL) subag(S, NeL) .
- *** si dovrebbero definire anche le versioni overloaded di subsys a matchsys
-
+*** PT systems with structured labels used by compositional ops
+fmod PT-SYS-LAB{L :: TRIV} is
+  pr PT-NET-LAB{L} .
+  pr PT-SYS{L, Plab} .
 endfm
 
-*** trivial view to a PT-SYS.MOD
-view System{X :: TRIV} from TRIV to PT-SYS-MOD{X} is 
- sort Elt to System .
+view PT-SYS-LAB{L :: TRIV} from MO-NODE-SYS to PT-SYS-LAB{L} is
+  sort Elt to Net .
+  sort El to Tran .
+  sort SysNode to System .
+  op nil to emptyNet  .
+  op replaceWithEl to replaceWithTran . 
+  op addLabEl to addLabTran .
+  op placesEl to placesTran .
+  op inEl to inTran .
 endv
+
+
+fmod PT-SYS-MOD{L :: TRIV} is
+ pr MO-NODE-SYS-OP{PT-SYS-LAB{L}} .
+ var N  : Net . var M  : Pbag .
+ var NeL : NeLab . 
+ var S : Pset .
+ *** characteristic of the formalism
+ *** remove some places
+ op remove :  System Pset -> System .
+ eq remove(N M, S) = remove(N, S) remove(M, S) .
+ *** subsystem
+ op subsys : System NeLab -> System .
+ eq subsys(N M, NeL) = subnet(N, NeL) subag(M, NeL) .
+endfm

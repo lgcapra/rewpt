@@ -2,8 +2,8 @@
 *** and normalization
 in SPN
 
-fmod GSPN is 
-  pr SPN * (op policy to prio) . *** the policy is meant as priority
+fmod GSPN{L :: TRIV, PL :: TRIV} is 
+  pr SPN-SYS{L, PL} * (op pol to prio) . *** the policy is meant as priority
   var Q Q' : Tmatrix .
   vars T T' : Tran .
   var L : Tlab .
@@ -16,24 +16,14 @@ fmod GSPN is
   *** computes the system's enabled transitions (seen as a Net) by considering priorities
   op enabled : System -> Net .
   *** first calculates (recursively) the highest-priority subnet -- more efficient if priority trans. are present
-  eq enabled(emptyN M) = emptyN .
- ceq enabled(N M) = if N'' == emptyN then enabled(detache(N, N') M) else N'' fi  if N =/= emptyN /\ N' := highPrio(N) /\ N'' := haveConcession(N' M) .
+  eq enabled(emptyNet M) = emptyNet .
+ ceq enabled(N M) = if N'' == emptyNet then enabled(detache(N, N') M) else N'' fi  if N =/= emptyNet /\ N' := highPrio(N) /\ N'' := haveConcession(N' M) .
   *** calculates the higher priority transitions of a Net (seen as a Net in turn)
   op highPrio : Net -> Net .
-  eq highPrio(emptyN) = emptyN .
+  eq highPrio(emptyNet) = emptyNet .
   eq highPrio(T ; N) = $highPrio(N, T) .
   op $highPrio : Net Net -> Net .
-  eq $highPrio(emptyN, N) = N .
+  eq $highPrio(emptyNet, N) = N .
   eq $highPrio(T ; N, T' ; N') = if prio(T) > prio(T') then $highPrio(N, T) else if prio(T) < prio(T') then $highPrio(N, T' ; N') else $highPrio(N, T ; T' ; N') fi fi .
 
 endfm
-
-*** trivial views
-
-view GspnNet from TRIV to GSPN is 
- sort Elt to Net .
-endv
-
-view GspnSys from TRIV to GSPN is 
- sort Elt to System .
-endv

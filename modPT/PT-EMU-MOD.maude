@@ -1,8 +1,8 @@
 *** defines the PT-system semantics
-in PT-NORM
+in PT-SYS-MOD
 
 mod PT-EMU-MOD{X :: TRIV} is
- inc PT-NORM{X} .
+ inc PT-SYS-MOD{X} .
  vars I O H M M' : Pbag . 
  vars N N' : Net .
  var T : Tran .

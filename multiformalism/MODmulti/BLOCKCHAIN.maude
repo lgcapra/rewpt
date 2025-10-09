@@ -7,7 +7,7 @@ in ../QUEUE-NODE
 
 *** blockchain representation (parametrized in palce labels) with separated Markov-modulation 
 mod MM-BLOCKCHAIN is
-  inc SPN-NODE-SYS{Plab} . 
+  inc SPN-NODE-SYS{Plab} .  
   inc QUEUE-NODE-SYS{Plab}  .
   inc JSQ-NODE-SYS{Plab} .
   inc SPN-EMU{String,Plab} .

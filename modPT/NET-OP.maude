@@ -17,9 +17,8 @@ fmod NET-OP{L :: TRIV} is
  vars L L' : L$Elt . *** tran. lab
  var Z : Set{L} .
  vars Lb Lb' : Lab . *** place lab 
- op emptySys  : -> System . *** alias
- eq emptySys = emptyNet nilP .
-*** verifies that two nets may be joined by preserving the symmetry hierarchy
+ 
+ *** verifies that two nets may be joined by preserving the symmetry hierarchy
  op sdisjoint : Net Net -> Bool [comm] .  
 ceq sdisjoint(N, N') = false if p(Lb < W ; I > ) U S := places(N) /\ p(Lb' < W ; J > ) U S' := places(N')  /\ Lb < W ; I > =/= Lb' < W ; J > .
  eq sdisjoint(N, N') = true [owise] .
@@ -27,15 +26,18 @@ ceq sdisjoint(N, N') = false if p(Lb < W ; I > ) U S := places(N) /\ p(Lb' < W ;
  op merge : Net Set{L} -> Net .
 ceq merge(N ; L |-> Q ; L |-> Q', Z) = L |-> Q +  Q' ; merge(N, Z) if L in Z .
  eq merge(N, Z) = N [owise] . 
+ *** NEW
+ op merge : System Set{L} -> System .
+ eq merge(N B, Z) = merge(N, Z) B .
  *** "forced" merge of identically labelled net transitions
  op merge! : Net  -> Net .
  eq merge!(N ; L |-> Q ; L |-> Q') = L |->  Q + Q' ; merge!(N) .
  eq merge!(N) = N [owise] .
+ op merge! : System -> System .
+ eq merge!(N B) = merge!(N) B . 
  *** join two systems by summing their markings (identical places are implicitly merged)
  op join : System System -> System [assoc comm] .
  eq join(N B, N' B') = (N ; N') B + B' .
- op joinAbs : System System -> System  . *** marking abstraction
- eq joinAbs(Sys, Sys') = net(join(Sys, Sys')) nilP . 
  *** join two systems and then merge transitions identically labelled whose labels belong to the given set
  op join : System System Set{L} -> System  .
  eq join(N B, N' B', Z) = merge(N ; N', Z) B + B' . ***
@@ -52,33 +54,40 @@ ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
  op sjoin : System System  -> [System]  .
  eq sjoin(N B, N' B') = sjoin(N, N') B + B' .
 
-
  *** "symmetric" juxtaposition: creates K (disjoint) replica of a system each one with a suitably added label suffix (with index 0..K-1) denoting the "nesting" level
- ***  general version specifying elements to share among replicas
- op repl&share  : System NzNat String Pset Set{L} -> System .
- eq repl&share(Sys, K, W, S, Z) = $repl&share(Sys, K, W, emptySys, S, Z) .
- op $repl&share  : System Nat String System Pset Set{L} -> System .
- eq $repl&share(Sys, 0, W, Sys', S, Z) = Sys' .
- eq $repl&share(Sys, K, W, Sys', S, Z) = $repl&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S), Z), S, Z) .
- 
- *** new! : used in the paper 
- *** op repl&share  : System NzNat String String Set{L} -> System .
- *** eq repl&share(Sys, K, W, W1, Z) = $repl&share(Sys, K, W, emptySys, places(n(Sys), W1), Z) .
+ ***  NEW general base version specifying places to share among replicas
+ op repl&share  : System NzNat String Pset -> System .
+ eq repl&share(Sys, K, W, S) = $repl&share(Sys, K, W, emptyNet nilP, S) .
+ op $repl&share  : System Nat String System Pset -> System .
+ eq $repl&share(Sys, 0, W, Sys', S) = Sys' .
+ eq $repl&share(Sys, K, W, Sys', S) = $repl&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S)), S) .
+ *** net versions (NEW definition)
+ op repl&share : Net NzNat String Pset -> Net .
+ eq repl&share(N, K, W, S) = $repl&share(N, K, W, emptyNet, S) .
+ op $repl&share : Net Nat String Net Pset -> Net .
+ eq $repl&share(N, 0, W, N', S) = N' .
+ eq $repl&share(N, K, W, N', S) = $repl&share(N, K - 1, W, (N' ; addLab(N, < W ; K - 1 >, S)), S) .
+ *** default versions
+ op replica  : System NzNat String -> System . 
+ eq replica(Sys, K, W) =  repl&share(Sys, K, W, emptyPset) .
+ op replica : Net NzNat String -> Net .
+ eq replica(N, K, W) = repl&share(N, K, W, emptyPset) .
 
- *** overloaded version in which shared places are specified through a suffix in their labels
+ ***  derived versions (characteristic of the formalism) specifying transitions to share  as well 
+ op repl&share  : System NzNat String Pset Set{L} -> System .
+ eq repl&share(Sys, K, W, S, Z) = merge(repl&share(Sys, K, W, S), Z) . 
  op repl&share : System NzNat String List{String} Set{L} -> System .
  eq repl&share(Sys, K, W, Lw, Z) = repl&share(Sys, K, W, places(n(Sys), Lw), Z) .
- *** default version
- op replica  : System NzNat String -> System . 
- eq replica(Sys, K, W) =  repl&share(Sys, K, W, emptyPset, emptySlab) .
- *** net versions (build on system replica)
+ *** net versions
  op repl&share : Net NzNat String Pset Set{L} -> Net .
- eq repl&share(N, K, W, S, Z) = net(repl&share(N nilP, K, W, S, Z)) .
+ eq repl&share(N, K, W, S, Z) = merge(repl&share(N, K, W, S), Z) . 
  op repl&share : Net NzNat String List{String} Set{L} -> Net .
- eq repl&share(N, K, W, Lw, Z) = net(repl&share(N nilP, K, W, Lw, Z)) .
- op replica : Net NzNat String -> Net .
- eq replica(N, K, W) = net(replica(N nilP, K, W)) .
- 
+ eq repl&share(N, K, W, Lw, Z) = repl&share(N, K, W, places(N, Lw), Z) .
+  
+ *** new! : used in the paper 
+ *** op repl&share  : System NzNat String String Set{L} -> System .
+ *** eq repl&share(Sys, K, W, W1, Z) = $repl&share(Sys, K, W, emptyNet nilP, places(n(Sys), W1), Z) .
+
  *** elementary operators/operators acting on elementary nets (transitions)
  var TQ : Tran .
  var A : Atype .
@@ -88,7 +97,6 @@ ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
  eq $newEdge(W, I) = if I == 0 then nilP else I . p(< W ; 0 >) fi .
  *** general version creating n copies of I/O/H places with specific tags -- to define
  op newT : String Nat Nat String Nat Nat String Nat Nat L$Elt -> Tran .
-
  
  *** set a marking for net places with label with a given suffix
  var NeL : NeList{String} .
@@ -98,10 +106,7 @@ ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
  op setMark : System NeList{String} Nat -> System .
  eq setMark(N B, NeL, I) = N set(B, places(N, NeL), I) . 
  
-*** symmetric process algebra ops 
-*** op synch  : System NzNat Atype String String String  -> System . 
-*** ceq synch(Sys, K, A, W, W1, W2) = connect(Sys', W, W1, A, 1) if Sys' := replica(Sys, K, W2) .
- *** symmetric process-algebra ops -- to define
+*** symmetric process algebra ops -- to define
  op replAnd  : System NzNat List{String} List{String} L$Elt String L$Elt  String String -> System . *** 2nd and 3rd args: in/out places, 5th, 6th: tag of fork tran and its in place, 7th, 8th join tran and its out, 9th: new suffix
  op replOr  :  System NzNat List{String} List{String} String   -> System . *** the same as replAnd, but the fork-join parameters disappeared
  *** bisogna aggiungere 2 par String a And per in nomi dei nuovi posti di in/out ?
@@ -116,9 +121,7 @@ ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
  op or  : System System List{String} List{String} -> System .
  op seq : System System List{String} List{String} -> System .
  *** net versions
-
  *** introspectio ops -- to define
- op get : Net NeList{String} -> Pset . *** places whose label suffix matches a pattern
  op subNet : Net Set{L} -> Net . *** sub-net built of transitions with labels in the specified set
  *** intercession ops  -- to define
  *** set net's connections of specific type and weight (0 means removing an edge) -- if the transition doesn't exist, it is created

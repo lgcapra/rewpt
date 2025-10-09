@@ -26,6 +26,7 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
 endfm
 
 in PT-SYS
+
 *** extended spn system (net + marking).
 fmod SPN-SYS{L :: TRIV, PL :: TRIV} is
   pr SPN-SIG{L, PL} .

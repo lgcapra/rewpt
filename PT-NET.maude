@@ -32,14 +32,18 @@ eq dead(L |-> EQ) = dead(m(EQ)) .
 ceq L |-> EQ = emptyNet if dead(m(EQ)) . *** removes dead transitions
  *** doesn't consider the capacity
  op enabled : Tran Pbag -> Bool .
- eq enabled(L |-> EQ, M) =  enabled(EQ, M) .
+ eq enabled(T, M) =  hasConcession(T, M) .
+ op hasConcession : Tran Pbag -> Bool .
+ eq hasConcession(L |-> EQ, M) = enabled(EQ, M) .
  *** doesn't consider enabling and capacity, but considers flush arcs
  op firing : Tran Pbag -> Pbag .
  eq firing(L |-> EQ, M) = firing(EQ, M) . 
   *** test the existence of a place (of course, the capacity bag is not considered) 
- op in : Net Place -> Bool . 
-ceq in(L |-> EQ ; N, P) = true if in (EQ, P) .
- eq in(N, P) = false [owise] .
+ ***op in : Net Place -> Bool . 
+***ceq in(T ; N, P) = true if inTran(T, P) .
+*** eq in(N, P) = false [owise] .
+ op inTran : Tran Place -> Bool .
+ eq inTran(L |-> EQ, P) = in(EQ, P) .
  *** test the existence of a transition
  op in :  Net L$Elt -> Bool . 
  eq in(N, L) = $hasMapping(N, L) .
@@ -52,13 +56,19 @@ ceq isOut(L |-> EQ ; N, P) = true if isOut(EQ, P) .
 ceq isH(L |-> EQ ; N, P) = true if isH(m(EQ), P) .
  eq isH(N, P) = false [owise] .
  *** returns the places (of course, the capacity bag is not considered)
- op places : Net -> Pset [memo] . 
- eq places(N) = $places(N, emptyPset) .  
- op $places : Net Pset -> Pset . 
- eq $places(emptyNet, S) = S . 
- eq $places(L |-> EQ ; N, S) = $places(N, S U places(EQ)) .
+ *** op places : Net -> Pset [memo] . 
+ *** eq places(N) = $places(N, emptyPset) .  
+ *** op $places : Net Pset -> Pset . 
+ *** eq $places(emptyNet, S) = S . 
+ *** eq $places(T ; N, S) = $places(N, S U places(T)) .
+ op placesTran : Tran -> Pset .
+ eq placesTran(L |-> EQ) = places(EQ) . 
 
  op transitions : Net -> Set{L} .
  eq transitions(N) = keySet(N) .
+
+ op detache : Net Net -> Net .
+ eq detache(N ; N', N') = N .
+ eq detache(N, N') = N [owise] .  
 
 endfm

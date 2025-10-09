@@ -97,8 +97,7 @@ ceq $match(K . P + B, NeWs, B') = $match(B, NeWs, B' + K . P) if match(P, NeWs) 
  eq min(EB, EB) = EB .
  eq min(EB, EB') = if cmp(EB, EB') == 1 then EB else EB' fi [owise] .
  
- 
- *** non strict TO (based on lex)
+ *** non-strict TO (based on lex)
  op leq : Pbag Pbag -> Bool .
  eq leq(B, B) = true .
  eq leq(B, B') = le(B, B') [owise] .
@@ -121,9 +120,6 @@ ceq set(B, S, I) = $set(B, S, I) if S :: Place == false . *** S is not a singlet
  op $set : Pbag Pset Nat -> Pbag . 
  eq $set(B, emptyPset, I) = B .  
  eq $set(B, S U P , I) = $set(set(B, P, I), S , I) .
- op set : Pbag Pset Nat -> Pbag .
- *** op set : Pbag NeList{String} Nat -> Pbag .
- *** eq set(B, NeWs, I) = set(B, subag(B, NeWs), I) . *** it could be defined directly
  
  *** replaces in all places whose label match the given suffix with a corresponding suffix having as header's index the specified value
  op replaceWith : Pbag NeLab Nat -> Pbag . 
