@@ -6,7 +6,7 @@ fmod QUEUE-NODE{PL :: TRIV} is
   extending NETWORK-MARKING{PL} .
   protecting QUEUE{PL} .
   sort QueueNet .
-  subsort Queue < QueueNet < Network .
+  subsort Queue < Node QueueNet < Network .
   op _,_ : QueueNet QueueNet ->  QueueNet [ctor ditto] .
 endfm
 

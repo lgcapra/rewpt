@@ -37,8 +37,8 @@ fmod TMATRIX{L :: TRIV} is
  eq isOut(Q, P) = O(Q)[P] > 0 .
  eq isH(Q, P)   = H(Q)[P] > 0 .
 
- op places : Tmatrix -> Pset .
- eq places(Q) = support(I(Q)) U support(O(Q)) U support(H(Q)) .
+ op placesM : Tmatrix -> Pset .
+ eq placesM(Q) = support(I(Q)) U support(O(Q)) U support(H(Q)) .
 
  op enabled : Tmatrix Pbag -> Bool .
  *** eq enabled(Q, M) = I(Q) <= M and-then H(Q) > M .
@@ -64,7 +64,9 @@ fmod TMATRIX{L :: TRIV} is
 
  *** removes the specified places from a local matrix
  op remove :  Tmatrix Pset -> Tmatrix .
- eq remove(Q, S) = [remove(I(Q), S),remove(O(Q), S),remove(H(Q), S)] .
+ eq remove([I,O,H], S) = [remove(I, S),remove(O, S),remove(H, S)] .
+ eq remove([I, O], S) = [remove(I, S), remove(O, S)] .
+ 
 
 endfm
 
@@ -72,12 +74,3 @@ endfm
 view Tmatrix{L :: TRIV} from TRIV to TMATRIX{L} is 
  sort Elt to Tmatrix . 
 endv
-
-view PsetTM{L :: TRIV} from TRIV to TMATRIX{L} is 
- sort Elt to Pset . 
-endv
-
-*** test
-fmod TMAT-NAT is
- pr TMATRIX{Nat} .
-endfm

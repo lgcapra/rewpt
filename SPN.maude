@@ -23,6 +23,8 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   op in : Net L$Elt -> Bool . *** cheks that a Net contains an action with the specified tag
  ceq in(T ; N, L) = true if tag(T) = L .
   eq in(N, L) = false [owise] .
+  op firingRate : Tran Pbag -> [Float] . *** for convenience
+  eq firingRate(t(L, F, J) |-> Q, M) = firingRate(t(L, F, J), I(Q), M) .  
 endfm
 
 in PT-SYS

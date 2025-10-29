@@ -1,5 +1,5 @@
 *** signature of dining philosophers including a multiset
-fmod PHIL-N-MSET is
+fmod PHIL-MSET is
  pr NAT .
  sorts Phil NeMultiSetPh MultiSetPh .
  subsort Phil < NeMultiSetPh < MultiSetPh . 

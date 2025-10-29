@@ -5,7 +5,7 @@ in ../modSPT/SPN-SYS-MOD
 fmod SPN-NODE{PL :: TRIV} is
   extending NETWORK-MARKING{PL} .
   pr SPN-SIG{String, PL} .
-  subsort Net < Network . 
+  subsort Net < Node . 
 endfm
 
 mod SPN-NODE-SYS{PL :: TRIV} is

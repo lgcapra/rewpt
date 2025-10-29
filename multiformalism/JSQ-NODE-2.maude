@@ -17,6 +17,7 @@ endfm
 
 view JsqNode{PL :: TRIV} from NODE to JSQ-NODE{PL} is
    sort Node to Jsq . 
-   sort State to Pbag .
+   sort Elt to Pbag .
    op next to jnext .
+   op 0 to nilP .
 endv 

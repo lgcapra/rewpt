@@ -52,7 +52,7 @@ ceq B - NeB = B  if B =/= NeB  [owise] .
  eq B ∩ B = B .
  eq B ∩ nil{X} = nil{X} .
  eq N . X + B ∩ N' . X + B' = min(N,N') . X + (B ∩ B') .
-ceq k(j) . X + B ∩ B' = B ∩ B' if B'[X] = undefined .
+ceq k(J) . X + B ∩ B' = B ∩ B' if B'[X] = undefined .
  *** eq N . X + B ∩ B' = B ∩ B' [owise] .
  op _I_ : Gbag{X} Gbag{X} -> Gbag{X} [prec 43 assoc comm] .  *** intersection (aliasing)
  eq B I B' = B ∩ B' .

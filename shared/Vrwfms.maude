@@ -1,6 +1,0 @@
-*** in RWPT-FMS
-
-view RWfms from PTSYSTH to RWPT-FMS is 
- op m0 to m0 .
- op net to net . 
-endv

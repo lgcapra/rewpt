@@ -1,22 +1,19 @@
 in ../PBAG
 in ../shared/MSET
+in ../../lambda/MONOID
 
-*** povides a distributed state notion
-fth STATE is
-   sort State . 
-   op _+_ : State State -> State [assoc comm] . 
-endfth
-
-fmod NETWORK{S :: STATE} is 
+*** the parameter defines a state as commutative monoid
+fmod NETWORK{S :: C-MONOID} is 
  protecting EXT-BOOL .
- sorts Network NetSys .
+ sorts Node Network NetSys .
+ subsort Node < Network .
  op emptyNetW : -> Network [ctor] .
  op _,_ : Network Network -> Network [ctor assoc comm prec 123 id: emptyNetW] .
- op _:_ : Network S$State -> NetSys [ctor prec 125] . *** network with associated state (lowest priority)
+ op _:_ : Network S$Elt -> NetSys [ctor prec 125] . *** network with associated state (lowest priority)
  op netw : NetSys -> Network .
- op state : NetSys -> S$State .
+ op state : NetSys -> S$Elt .
  vars N N' : Network .
- var M : S$State .
+ var M : S$Elt .
  eq netw((N : M))  = N .
  eq state((N : M)) = M .
  op remove : Network Network -> Network .
@@ -27,11 +24,12 @@ fmod NETWORK{S :: STATE} is
  eq in(N, N') = false [owise] .
 endfm
 
-view S-Pbag{PL :: TRIV} from STATE to PBAG{PL} is 
- sort State to Pbag .
+view S-Pbag{PL :: TRIV} from C-MONOID to PBAG{PL} is 
+ sort Elt to Pbag .
+ op 0 to nilP .
 endv
 
-*** network using a multiset of places (a marking) as distributed state
+*** network using a multiset of places (a marking) as distributed state --  the parameter defines the place label
 fmod NETWORK-MARKING{PL :: TRIV} is
   protecting NETWORK{S-Pbag{PL}} .
 endfm

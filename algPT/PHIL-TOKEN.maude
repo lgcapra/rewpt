@@ -1,0 +1,58 @@
+in ALG-PN
+in PHIL-N-V2
+
+*** the philosopher state has an associated predicated
+fth PH-STATE is
+ protecting BOOL . 
+ sort Elt  .
+ op hungry : Elt -> Bool .
+endfth
+
+
+*** philosphers are made of an arbitrary state, with a predicate, and an id
+fmod PHIL-TOKEN{Y :: PH-STATE} is
+   pr PHIL .
+   sort PhilTk .
+   op <__> : Y$Elt Phil -> PhilTk [ctor] .
+endfm
+
+
+view PhilTk{Y :: PH-STATE} from TRIV to PHIL-TOKEN{Y} is 
+ sort Elt to PhilTk . 
+endv
+
+mod DINING-PHIL-TK{Y :: PH-STATE} is
+  inc MARKING-STR{Phil} . *** used for the fork place
+  inc MARKING-STR{PhilTk{Y}} * (sort Mset{PhilTk{Y}} to Mset{PhilTk}, sort NeMset{PhilTk{Y}} to NeMset{PhilTk},
+                                sort Pmarking{PhilTk{Y}} to Pmarking{PhilTk}, 
+                                op empty{PhilTk{Y}} to emptyPhilTk, op mark to markPhilTk) .
+  
+  var Y : Y$Elt . var X : Nat . var K : NzNat .
+  var PhT : PhilTk . var Ph : Phil . vars M M' : Mset{PhilTk} . var F : Mset{Phil} . 
+  rl [th] : p("Think") |-> M PhT  ;  p("Pickup") |-> M' => p("Think") |-> M  ;  p("Pickup") |-> M' PhT .
+ crl [pk] : p("Pickup") |-> M < Y  ph(X) > ; p("Fork") |-> F ph(X) ph(s(X)) ; p("Eat") |-> M'  =>  
+            p("Pickup") |-> M ; p("Fork") |-> F ; p("Eat") |-> M' < Y  ph(X) >  if hungry(Y)  .
+  rl [e]  : p("Eat") |-> M < Y  ph(X) > ; p("Fork") |-> F  ; p("Think") |-> M'  =>  
+            p("Eat") |-> M ; p("Fork") |-> F ph(X) ph(s(X)) ; p("Think") |-> M' < Y ph(X) > .
+  
+  *** defined for convenience
+  op nphil : Nat -> Mset{Phil} [memo] . *** defined for convenience
+  eq nphil(0) = empty{Phil} .
+  eq nphil(K) = ph(sd(K,1)) nphil(sd(K,1)) .
+  op nphiltk : Y$Elt Nat -> Mset{PhilTk} [memo] .
+  eq nphiltk(Y, 0) = emptyPhilTk .
+  eq nphiltk(Y, K) = < Y ph(sd(K,1))> nphiltk(Y, sd(K,1)) . 
+endm
+
+*** model equivalent to the conventional one
+
+view PhilString from PH-STATE to STRING is
+  sort Elt to String .
+  op hungry(S:Elt) to term true .
+endv
+
+mod N-PHIL-AS-STRINGS is
+  including DINING-PHIL-TK{PhilString} . 
+  op m0 : -> Marking [memo] . *** initial configuration
+  eq m0 =  p("Think") |-> nphiltk("ph", N) ; p("Fork") |-> nphil(N) ; p("Eat") |-> emptyPhilTk ; p("Pickup") |-> emptyPhilTk .
+endm

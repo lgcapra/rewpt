@@ -6,12 +6,12 @@ in ../shared/PAIR
 *** PER ORA USATA SOLO PER MODULARITA
 fth STATERATE is
   pr FLOAT .
-  inc STATE .
+  inc C-MONOID .
   sort StateRate . *** pair (state,rate)
   sort StatesRates . *** multiset of (state,rate)
   subsort StateRate < StatesRates .
   *** getters expressing that StateRate is a pair
-  op state : StateRate -> State .
+  op state : StateRate -> Elt .
   op rate  : StateRate -> Float .
   op noStateRate : -> StatesRates .
   op __ : StatesRates StatesRates -> StatesRates [assoc comm id: noStateRate] .
@@ -21,7 +21,7 @@ endfth
 fth NODE is
   inc STATERATE . *** includes another theory 
   sort Node . *** network node
-  op next : Node State -> StatesRates . *** encoding the (non-deterministic) firing rule as operator
+  op next : Node Elt -> StatesRates . *** encoding the (non-deterministic) firing rule as operator
 endfth
 
 *** signature of a generic network
@@ -48,16 +48,16 @@ fmod NETWORK-NODE{N :: NODE} is
   pr NETWORK-SIG .
   sorts Network{N} NetSys{N} .
   subsort N$Node < Network{N} < Network .
-  subsort N$State < State .
+  subsort N$Elt < State .
   subsort NetSys{N}  < NetSys .
   op _,_ : Network{N} Network{N} -> Network{N} [ctor ditto] . *** convenience overloading
-  op _:_ : Network{N} N$State -> NetSys{N} [ctor ditto] . 
+  op _:_ : Network{N} N$Elt -> NetSys{N} [ctor ditto] . 
 endfm 
 
 mod NETWORK-SYS{N :: NODE} is
   inc NETWORK-NODE{N} .
   var N : N$Node .
-  vars M M' : N$State .
+  vars M M' : N$Elt .
   var SR  : N$StateRate .
   var SRs : N$StatesRates .
   var NW : Network .
@@ -67,23 +67,23 @@ endm
 
 
 *** concrete definition of a pair state-rate
-fmod STATE-RATE{S :: STATE} is
+fmod STATE-RATE{S :: C-MONOID} is
   pr FLOAT .
   sort StateRate .
-  op _--_ : S$State Float -> StateRate .
-  op state : StateRate -> S$State .
+  op _--_ : S$Elt Float -> StateRate .
+  op state : StateRate -> S$Elt .
   op rate  : StateRate -> Float .
-  var S : S$State . var R : Float .
+  var S : S$Elt . var R : Float .
   eq state(S -- R) = S .
   eq rate(S -- R) = R .
 endfm
 
-view StateRate{S :: STATE} from TRIV to STATE-RATE{S} is
+view StateRate{S :: C-MONOID} from TRIV to STATE-RATE{S} is
   sort Elt to StateRate .
 endv
 
 *** multiset of pairs (S:State, Float)
-fmod MSET-STATE-RATE{S :: STATE} is
+fmod MSET-STATE-RATE{S :: C-MONOID} is
    pr MSET{StateRate{S}} * (sort Mset{StateRate{S}} to StatesRates, sort NeMset{StateRate{S}} to NeStatesRates,                  
                             op empty{StateRate{S}} to noStateRate) .
 endfm

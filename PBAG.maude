@@ -4,13 +4,7 @@ in ./shared/MSET
 in PLACE
 
 fmod PBAG{L :: TRIV} is
- *** pr (BAG-AND-SET{Place{L}} + MSET-BAG{Place{L}}) * (sort Bag{Place{L}} to Pbag, sort NeBag{Place{L}} to NePbag, 
- ***                          sort  ElBag{Place{L}} to ElPbag, op nil{Place{L}} to nilP, 
- ***                          sort  Set{Place{L}}  to Pset, sort NeSet{Place{L}} to NePset, op emptyS to emptyPset,
- ***                          sort  Mset{Place{L}} to Pmset, sort  NeMset{Place{L}} to NePmset, op empty to emptyPmset,
- ***                          ) .
- *** we only import BAG-AND-SET
- pr (BAG-AND-SET{Place{L}}) * ( sort Bag{Place{L}} to Pbag, sort NeBag{Place{L}} to NePbag, 
+  pr (BAG-AND-SET{Place{L}}) * ( sort Bag{Place{L}} to Pbag, sort NeBag{Place{L}} to NePbag, 
                            sort  ElBag{Place{L}} to ElPbag, op nil to nilP, 
                            sort  Set{Place{L}}  to Pset, sort NeSet{Place{L}} to NePset, op emptyS to emptyPset) .
 
@@ -39,4 +33,9 @@ endfm
 
 view Pbag{L :: TRIV} from TRIV to PBAG{L} is 
  sort Elt to Pbag .
+endv
+
+*** view as a set
+view Pset{L :: TRIV} from TRIV to PBAG{L} is 
+ sort Elt to Pset .
 endv

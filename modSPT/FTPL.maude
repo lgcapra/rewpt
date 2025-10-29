@@ -1,8 +1,8 @@
-in SPN-SYS-MOD
+in SPN-OP
 
 *** signature of the (stochastic) PL model (without priorities)
 fmod FTPL is
- pr SPN-SYS-MOD{String} * (op emptySlab to emptyStr) .
+ pr SPN-OP{String} * (op emptySlab to emptyStr)  .
  ops faultysload faultysass :  -> Tmatrix .
  ops line load ass fault faultyload faultyass : -> Tran . 
  ops cycle faultycycle faultyPL : -> Net [memo] .
@@ -41,9 +41,4 @@ fmod FTPL is
  eq faultySys(I) = setMark(faultyPL(I), "o" "fPL", 1) .
  eq faultyPL = faultyPL(0) .
  
- *** we use process algebra ops to build the same model -- to be defined
- eq  PLA(K) = merge(replAnd(line ; fault, K, "w", "a", loadLab, "s", assLab, "s", "L"), "o" "L") . *** note s used twice: it's at the same time in and out
- eq  PL(K)  = set(set(PLA(K), loadLab, i, "s", K), assLab, o, "s", K) .
- eq  NPL(N,K) = replOr(PLA(K), N, "s", "s", "PL") .
-
 endfm

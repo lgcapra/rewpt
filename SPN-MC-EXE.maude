@@ -39,12 +39,12 @@ fmod SPN-MC-EXE is
   eq aggr-match(S) = $aggr-match(S, noStateTranS) .
   op $aggr-match : System Set{StateTran{System}} -> Set{StateTran{System}} .
   ***ceq $aggr-match(S, Z) = $aggr-match(S,  (XM  --> N' : R)  U Z) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ enabled(T', M) = false /\
-  ***   I := I(q(T')) /\ O := O(q(T)) /\ O = I /\ intersection(support(I),  places(N) U support(I(q(T)) + H(q(T)) + M + O(q(T')) + H(q(T')))) == emptyPset /\
+  ***   I := I(q(T')) /\ O := O(q(T)) /\ O = I /\ intersection(support(I),  netPlaces(N) U support(I(q(T)) + H(q(T)) + M + O(q(T')) + H(q(T')))) == emptyPset /\
   ***   r := rate(T) /\ r' := rate(T')  /\ N' := N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E)) /\
   ***   R := 0.05 /\ XM := {N} & {T , T'} & {M} /\ (XM  --> N' : R) in Z = false . 
   *** optimization: subset of variables used in match
   ceq $aggr-match(S, X) = $aggr-match(S,  (XM  --> S' : R)  U X) if (N ; T ; T')  M := S /\ E := pol(T) /\ E = pol(T') /\ enabled(T', M) = false /\
-     I := I(q(T')) /\ O := O(q(T)) /\ O = I /\ intersection(support(I),  places(N) U support(I(q(T)) + H(q(T)) + M + O(q(T')) + H(q(T')))) == emptyPset /\
+     I := I(q(T')) /\ O := O(q(T)) /\ O = I /\ intersection(support(I),  netPlaces(N) U support(I(q(T)) + H(q(T)) + M + O(q(T')) + H(q(T')))) == emptyPset /\
      r := rate(T) /\ r' := rate(T')  /\ S' := (N ; aggr(T, T', t(tag(T) + "-" + tag(T'), r * r' / (r + r'), E))) M /\
      R := 0.05 /\ XM := {T , T'}  /\ (XM  --> S' : R) in X = false .
   eq $aggr-match(S, X) = X [owise] .

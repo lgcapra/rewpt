@@ -1,11 +1,10 @@
-in E-TMATRIX
+in EMATRIX
 in shared/MAP-SET
-in shared/PAIR
 
 *** PT net signature using the extended matrix representation including flush arcs and a description pf place capacity 
 fmod PT-NET{L :: TRIV, PL :: TRIV} is
- generated-by MAP-SET{L,Ematrix{PL}} * (sort Map{L,Ematrix{PL}} to Net, sort Entry{L,Ematrix{PL}} to Tran, op emptyM to emptyNet,
-                                        op emptyS to emptySlab) .
+ generated-by MAP-SET{L,Ematrix{PL}} * (sort Map{L,Ematrix{PL}} to Net, sort Entry{L,Ematrix{PL}} to Tran, 
+                                        op emptyM to emptyNet, op emptyS to emptySlab) .
  vars L L' : L$Elt . vars T T' : Tran . vars N N' : Net . 
  vars P P' : Place . vars M I O H C B B' : Pbag . vars K K'  : NzNat .
  var EQ : Ematrix . var Q : Tmatrix . var  S : Pset . var F : FlushArcs .
@@ -56,13 +55,13 @@ ceq isOut(L |-> EQ ; N, P) = true if isOut(EQ, P) .
 ceq isH(L |-> EQ ; N, P) = true if isH(m(EQ), P) .
  eq isH(N, P) = false [owise] .
  *** returns the places (of course, the capacity bag is not considered)
- *** op places : Net -> Pset [memo] . 
- *** eq places(N) = $places(N, emptyPset) .  
- *** op $places : Net Pset -> Pset . 
- *** eq $places(emptyNet, S) = S . 
- *** eq $places(T ; N, S) = $places(N, S U places(T)) .
+ op netPlaces : Net -> Pset [memo] . 
+ eq netPlaces(N) = $netPlaces(N, emptyPset) .  
+ op $netPlaces : Net Pset -> Pset . 
+ eq $netPlaces(emptyNet, S) = S . 
+ eq $netPlaces(T ; N, S) = $netPlaces(N, S U placesTran(T)) .
  op placesTran : Tran -> Pset .
- eq placesTran(L |-> EQ) = places(EQ) . 
+ eq placesTran(L |-> EQ) = placesM(EQ) . 
 
  op transitions : Net -> Set{L} .
  eq transitions(N) = keySet(N) .

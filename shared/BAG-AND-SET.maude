@@ -24,7 +24,11 @@ fmod BAG-AND-SET{X :: TRIV} is
  eq $bagFromSet(K, X U S, B) = $bagFromSet(K, S, K . X + B) .
 endfm
 
-*** parameterized trivial view to BAG{X}
-view BagSet{X :: TRIV} from TRIV to BAG-AND-SET{X} is 
+*** parameterized trivial views to BAG-AND-SET{X}
+view Bag{X :: TRIV} from TRIV to BAG-AND-SET{X} is 
  sort Elt to Bag{X} . 
+endv
+
+view Set{X :: TRIV} from TRIV to BAG-AND-SET{X} is 
+ sort Elt to Set{X} . 
 endv

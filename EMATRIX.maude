@@ -1,21 +1,16 @@
-in TMATRIX
 in shared/MAP+
-in shared/PAIR
-
-*** FONDERE TMATRIX e ETMATRIX
+in PBAG
 
 *** flushing arc connections are represented as a map from places to set of places
 fmod FLUSH-ARC{L :: TRIV} is
-  pr MAP+{Place{L}, PsetTM{L}} * (sort Entry{Place{L},PsetTM{L}} to  FlushArc, sort Map{Place{L},PsetTM{L}} to FlushArcs,
-                                  op _|->_ : Place Pset -> Entry{Place{L},PsetTM{L}} to _>>_ ,
+  pr MAP+{Place{L}, Pset{L}} * (sort Entry{Place{L},Pset{L}} to  FlushArc, sort Map{Place{L},Pset{L}} to FlushArcs,
+                                  op _|->_ : Place Pset -> Entry{Place{L},Pset{L}} to _>>_ ,
                                   op emptyM to noFlushArc, op undefined to undefPset) . *** using the view Pset we import TMATRIX
-  pr PAIR{Pbag{L},Pbag{L}} * (sort Pair{Pbag{L},Pbag{L}} to Pair{Pbag,Pbag} ).
   var F : FlushArcs .
   vars S S' : Pset .
   vars I O H B B' B'' : Pbag .
   vars P P' : Place .
   var K : NzNat .
-  var BB : Pair{Pbag,Pbag} .
   op enabled : FlushArcs Pbag -> Bool .
   eq enabled(noFlushArc, B) = true .
   eq enabled(P >> S ; F, K . P + B) = enabled(F, B) .
@@ -30,23 +25,20 @@ fmod FLUSH-ARC{L :: TRIV} is
   eq isOut(P' >> P U S ; F, P) = true .
   eq isOut(F, P) = false [owise] .
   ***
-  op places : FlushArcs -> Pset .
-  eq places(F) = $places(F, emptyPset) .
-  op $places : FlushArcs Pset -> Pset .
-  eq $places(noFlushArc, S) = S .
-  eq $places(P >> S ; F, S') = $places(F, P U S U S') . 
+  op placesF : FlushArcs -> Pset .
+  eq placesF(F) = $placesF(F, emptyPset) .
+  op $placesF : FlushArcs Pset -> Pset .
+  eq $placesF(noFlushArc, S) = S .
+  eq $placesF(P >> S ; F, S') = $placesF(F, P U S U S') . 
   ***
   op remove : FlushArcs Pset -> FlushArcs . *** to be defined
-  *** simulates the effect of flush arcs (assume that the transition is enabled)
-  op flushInOut :  FlushArcs Pbag -> Pair{Pbag,Pbag} . *** calcola l'output totale di archi flush
-  eq flushInOut(F, B) = $flushInOut(F, < nilP ; nilP >, B) .
-  op $flushInOut : FlushArcs Pair{Pbag,Pbag} Pbag -> [Pair{Pbag,Pbag}] . *** calcola l'output totale relativo a un posto "flush"
-  eq $flushInOut(noFlushArc, BB, B') = BB .
-  eq $flushInOut(P >> S ; F , < B ; B'' >, B') = $flushInOut(F, < B + bagFromSet(B'[P], S) ; B'' +  B'[P] . P >, B') . *** def parziale perchè P deve essere in B'
 endfm
 
+in TMATRIX
+
 *** extended place-adjacency representation, including marking parametric arcs 
-fmod E-TMATRIX{L :: TRIV} is
+fmod EMATRIX{L :: TRIV} is 
+ pr TMATRIX{L} .
  pr FLUSH-ARC{L} .
  sort Ematrix .
  subsort Tmatrix < Ematrix .
@@ -57,7 +49,7 @@ fmod E-TMATRIX{L :: TRIV} is
  vars I O H B B' B'' : Pbag .
  vars P P' : Place .
  var K : NzNat .
- var BB : Pair{Pbag,Pbag} .
+ var BB : Smatrix . *** input-output
  
  op _f:_ : Tmatrix FlushArcs -> Ematrix .
  eq M f: noFlushArc = M .
@@ -85,24 +77,24 @@ ceq well-def(M f: F) = false if K . P + I := I(M)  /\ $hasMapping(F, P) .
  eq O(E) = O(m(E)) .
  eq H(E) = H(m(E)) .
  *** set of places
- op places : Ematrix -> Pset .
- eq places(M f: F) = places(M) U places(F) .
+ op placesM : Ematrix -> Pset .
+ eq placesM(M f: F) = placesM(M) U placesF(F) .
  *** removes the specified places from a local matrix
  op remove :  Ematrix Pset -> Ematrix .
  eq remove(M f: F, S) = remove(M, S) f: remove(F, S) . 
  
+ *** simulates the effect of flush arcs (assume that the transition is enabled)
+  op flushInOut :  FlushArcs Pbag -> Smatrix . *** calcola l'output totale di archi flush
+  eq flushInOut(F, B) = $flushInOut(F, [nilP, nilP], B) .
+  op $flushInOut : FlushArcs Smatrix Pbag -> [Smatrix] . *** calcola l'output totale relativo a un posto "flush"
+  eq $flushInOut(noFlushArc, BB, B') = BB .
+  eq $flushInOut(P >> S ; F , [B, B''], B') = $flushInOut(F, [B + bagFromSet(B'[P], S), B'' +  B'[P] . P], B') . *** def parziale perchè P deve essere in B'
 
  *** cumulative firing (adjacency matrix plus flush edges, assuming that the transition is enabled)
  op firing : Ematrix Pbag -> Pbag .
-ceq firing(M f: F, B) = firing(M, B) + 1st(BB) - 2nd(BB) if BB := flushInOut(F, B) .
+ceq firing(M f: F, B) = firing(M, B) + I(BB) - O(BB) if BB := flushInOut(F, B) .
 endfm
 
-view Ematrix{L :: TRIV} from TRIV to E-TMATRIX{L} is 
+view Ematrix{L :: TRIV} from TRIV to EMATRIX{L} is 
   sort Elt to Ematrix . 
 endv
-
-
-*** solo per fare prove
-fmod MATRIX-NAT is
-  pr E-TMATRIX{Nat} .
-endfm

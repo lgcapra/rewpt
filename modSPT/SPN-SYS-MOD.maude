@@ -1,13 +1,17 @@
 *** signature of stochastic PT nets using net-algebra/manipulation symmetric operators
 *** and normalization
-in ../modPT/PT-NORM
-in ../modPT/NET-OP
 in ../FIRING-RATE
 in ../TLAB
+in ../modPT/PT-SYS-MOD
 
-*** SPN definition with labels for symmetric compositional operators  
+*** SPN definition with labels for symmetric compositional operators
+fmod SPN-SIG-MOD{L :: TRIV} is 
+  pr PT-NET-MOD{Tlab{L}} * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}) .
+   pr FIRING-RATE{L, Plab} .
+endfm
+
 fmod SPN-SYS-MOD{L :: TRIV} is 
-  pr (PT-NORM{Tlab{L}} + NET-OP{Tlab{L}} )* (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}) .
+  pr PT-SYS-MOD{Tlab{L}} * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}) .
   pr FIRING-RATE{L, Plab} .
 endfm
 

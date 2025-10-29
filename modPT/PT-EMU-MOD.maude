@@ -1,11 +1,10 @@
 *** defines the PT-system semantics
 in PT-SYS-MOD
 
-mod PT-EMU-MOD{X :: TRIV} is
- inc PT-SYS-MOD{X} .
- vars I O H M M' : Pbag . 
- vars N N' : Net .
- var T : Tran .
+mod PT-EMU-MOD{L :: TRIV} is
+ inc PT-SYS-MOD{L} .
+ vars M M' : Pbag . 
+ vars N N' : Net . var T : Tran .
  *** ordinary firing rule
  *** crl [firing] : N M => N M' if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false .
  *** including normalization

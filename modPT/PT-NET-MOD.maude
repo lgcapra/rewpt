@@ -1,64 +1,64 @@
 *** a new, more effective net representation
 *** in ../shared/MAP+
 in ../PT-NET
-in TMATRIX-MOD
+in EMATRIX-MOD
 in PLAB
 in MONOID-MOD
 
 *** PT nets with structured labels used by compositional ops
 fmod PT-NET-LAB{L :: TRIV} is
-  pr TMATRIX-MOD .
+  pr EMATRIX-MOD .
   pr PT-NET{L, Plab} .
   var J  : Nat .
-  var Q  : Tmatrix . 
+  var Q  : Ematrix . 
   var L : L$Elt . *** tran. lab
   var S : Pset .
   var Lab : Lab . var NeL : NeLab .
   var WL : List{String} . var NeWL : NeList{String} . 
-  var NeSL : NeSet{L} .
-  vars N N' : Net .
+  *** var NeSL : NeSet{L} .
+  *** vars N N' : Net .
  
- *** these operations are those required by theory MO-NODE
+ *** these operations are those required by the theory MO-NODE
   op replaceWithTran : Tran NeLab Nat -> Tran .
-  eq replaceWithTran(L |-> Q, NeL, J) = L |-> replaceWith(Q, NeL, J) .
+  eq replaceWithTran(L |-> Q, NeL, J) = L |-> replaceWithM(Q, NeL, J) .
   op addLabTran : Tran Lab Pset -> Tran . 
-  eq addLabTran(L |-> Q, Lab, S) = L |-> addLab(Q, Lab, S) .
+  eq addLabTran(L |-> Q, Lab, S) = L |-> addLabM(Q, Lab, S) .
   op placesTran : Tran NeList{String} -> Pset .
-  eq placesTran(L |-> Q, NeWL) = places(Q, NeWL) .
+  eq placesTran(L |-> Q, NeWL) = placesM(Q, NeWL) .
   
   *** these operations are specific of PT nets
   *** extract the subnet matching a given suffix
-  op subnet : Net NeList{String} -> Net . 
-  eq subnet(N, NeWL) = $subnet(N, NeWL, emptyNet) .  
-  op $subnet : Net NeList{String} Net -> Net . 
-  eq $subnet(emptyNet, NeWL, N) = N . 
-  eq $subnet(L |-> Q ; N, NeWL, N') = $subnet(N, NeWL, N' ; L |-> sumatrix(Q, NeWL) ) .
+  *** op subnet : Net NeList{String} -> Net . 
+  *** eq subnet(N, NeWL) = $subnet(N, NeWL, emptyNet) .  
+  *** op $subnet : Net NeList{String} Net -> Net . 
+  *** eq $subnet(emptyNet, NeWL, N) = N . 
+  *** eq $subnet(L |-> Q ; N, NeWL, N') = $subnet(N, NeWL, N' ; L |-> sumatrix(Q, NeWL) ) .
   *** the same but with the suffix header fully indicated
-  op subnet : Net List{String} NeLab -> Net .
-  eq subnet(N, WL, NeL) = $subnet(N, WL, NeL, emptyNet) .  
-  op $subnet : Net List{String} NeLab Net -> Net . 
-  eq $subnet(emptyNet, WL, NeL, N) = N . 
-  eq $subnet(L |-> Q ; N, WL, NeL, N') = $subnet(N, WL, NeL, N' ; L |-> sumatrix(Q, WL, NeL)) .
+  *** op subnet : Net List{String} NeLab -> Net .
+  *** eq subnet(N, WL, NeL) = $subnet(N, WL, NeL, emptyNet) .  
+  *** op $subnet : Net List{String} NeLab Net -> Net . 
+  *** eq $subnet(emptyNet, WL, NeL, N) = N . 
+  *** eq $subnet(L |-> Q ; N, WL, NeL, N') = $subnet(N, WL, NeL, N' ; L |-> sumatrix(Q, WL, NeL)) .
   *** overloading
-  op subnet : Net NeLab -> Net .
-  eq subnet(N, NeL) = subnet(N, emptyLs, NeL) .
+  *** op subnet : Net NeLab -> Net .
+  *** eq subnet(N, NeL) = subnet(N, emptyLs, NeL) .
   *** detach the subnet matching a given suffix (version used in the paper: to define)
-  op detache : Net NeLab -> Net .
+  *** op detache : Net NeLab -> Net .
   *** remove places: to be defined
-  op remove :  Net Pset -> Net .
-  eq remove(N, emptyPset) = N .
-  eq remove(N, S) = $remove(N, emptyNet, S) .
-  op $remove : Net Net NePset -> Net .
-  eq $remove(emptyNet, N, S) = N .
-  eq $remove(L |-> Q ; N', N, S) = $remove(N', L |-> remove(Q, S) ; N, S).
+  *** op remove :  Net Pset -> Net .
+  *** eq remove(N, emptyPset) = N .
+  *** eq remove(N, S) = $remove(N, emptyNet, S) .
+  *** op $remove : Net Net NePset -> Net .
+  *** eq $remove(emptyNet, N, S) = N .
+  *** eq $remove(L |-> Q ; N', N, S) = $remove(N', L |-> remove(Q, S) ; N, S).
   *** remove transitions with given labels
-  op remove :  Net Set{L} -> Net .
-  eq remove(N, emptySlab) = N .
-  eq remove(N, NeSL) = $remove(N, emptyNet, NeSL) .
-  op $remove : Net Net NeSet{L} -> Net .
-  eq $remove(emptyNet, N, NeSL) = N .
- ceq $remove(L |-> Q ; N', N, NeSL) = $remove(N', N, NeSL) if L in NeSL .
-  eq $remove(L |-> Q ; N', N, NeSL) = $remove(N', L |-> Q ; N, NeSL) [owise] .
+  *** op remove :  Net Set{L} -> Net .
+  *** eq remove(N, emptySlab) = N .
+  *** eq remove(N, NeSL) = $remove(N, emptyNet, NeSL) .
+  *** op $remove : Net Net NeSet{L} -> Net .
+  *** eq $remove(emptyNet, N, NeSL) = N .
+ *** ceq $remove(L |-> Q ; N', N, NeSL) = $remove(N', N, NeSL) if L in NeSL .
+  *** eq $remove(L |-> Q ; N', N, NeSL) = $remove(N', L |-> Q ; N, NeSL) [owise] .
  
 endfm
 

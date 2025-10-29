@@ -5,7 +5,7 @@ in SPN
 mod SPN-EMU{L :: TRIV, PL :: TRIV} is
  inc SPN-SYS{L, PL} .
  vars M M' : Pbag . var T : Tran . vars N N' : Net .
- crl [firing] : N M => N M' if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ R:Float := firingRate(l(T), I(q(T)), M) .
+ crl [firing] : N M => N M' if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ R:Float := firingRate(T, M) .
 endm
 
 

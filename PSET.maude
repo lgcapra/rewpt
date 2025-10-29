@@ -1,0 +1,11 @@
+in PLACE
+in shared/SET+
+
+fmod PSET{L :: TRIV} is
+  pr (SET+{Place{L}}) * (sort  Set{Place{L}}  to Pset, sort NeSet{Place{L}} to NePset, op emptyS to emptyPset) .
+endfm
+
+
+view Pset{L :: TRIV} from TRIV to PSET{L} is 
+ sort Elt to Pset .
+endv

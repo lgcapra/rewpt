@@ -1,39 +1,44 @@
 in ALG-PN
 
-fmod PHIL-N is
- pr NAT .
+*** dining philosophers' algebraic nets
+fmod PHIL is
+ protecting NAT .
  sort Phil .
- op N : -> Nat . *** alias for model parameter
- op ph : Nat -> Phil [ctor] .
+ op N : -> NzNat [memo ]. *** the model's parameter
+ eq N = 4 .
+ op ph : Nat -> Phil [ctor] . *** denotes the i-th phil
  var X : Nat .
- eq N = 5 .
- ceq ph(X) = ph(X rem N) if X >= N . 
+ ceq ph(X) = ph(X rem N) if X >= N . *** equality mod-N 
 endfm
 
-view Phil from TRIV to PHIL-N is 
+view Phil from TRIV to PHIL is 
  sort Elt to Phil . 
 endv
 
 
 mod DINING-PHIL is
   inc MARKING{Phil, String} .
-  var Ph : Phil . vars B B' B'' : Mset{Phil} . vars X Y : Nat .
+  var Ph : Phil . vars B B' B'' : Mset{Phil} . vars X Y : Nat . var K : NzNat .
   rl [th] : p("Think") |-> B Ph  ;  p("Pickup") |-> B' => p("Think") |-> B  ;  p("Pickup") |-> B' Ph .
 ***  rl [pk] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Eat") |-> B''  =>  
 ***            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) .
   rl [e] : p("Eat") |-> B ph(X) ; p("Fork") |-> B'  ; p("Think") |-> B''  =>  
            p("Eat") |-> B ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Think") |-> B'' ph(X) .
   *** alternatives for pk using guards
-crl [pk2] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(Y) ; p("Eat") |-> B''  =>  
+crl  [pk2] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(Y) ; p("Eat") |-> B''  =>  
               p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) if Y = X + 1 . *** X = Y + 1 behaves differently
 *** crl [pk3] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) Ph ; p("Eat") |-> B''  =>  
 ***            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) if Ph = ph(X + 1) . *** more states than expected
+  
   
 endm
 
 mod DINING-PHIL-M0 is 
   inc DINING-PHIL .
-  op m0 : -> Marking [memo] . op nphils : -> Mset{Phil} [memo] .
-  eq nphils = ph(0) ph(1) ph(2) ph(3) ph(4) .
-  eq m0 =  p("Think") |-> nphils ; p("Fork") |-> nphils ; p("Eat") |-> empty{Phil} ; p("Pickup") |-> empty{Phil} .
+  var K : NzNat .
+  op nphil : Nat -> Mset{Phil} [memo] . *** defined for convenience
+  eq nphil(0) = empty{Phil} .
+  eq nphil(K) = ph(sd(K,1)) nphil(sd(K,1)) .
+  op m0 : -> Marking . 
+  eq m0 =  p("Think") |-> nphil(N) ; p("Fork") |-> nphil(N) ; p("Eat") |-> empty{Phil} ; p("Pickup") |-> empty{Phil} .
 endm

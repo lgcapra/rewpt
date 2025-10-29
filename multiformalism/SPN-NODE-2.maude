@@ -21,5 +21,6 @@ endfm
 
 view SpnNode{PL :: TRIV} from NODE to SPN-NODE{String, PL} is
    sort Node to Net . *** if we want to use the extension with flush arcs and (above all) capacity
-   sort State to Pbag .
+   sort Elt to Pbag .
+   op 0 to nilP .
 endv

@@ -1,8 +1,9 @@
+in SPN-SYS
 in SPN-EMU
 
-mod SPN-EXE is
+*** signature of the SPN-to-CTMC example
+fmod SPN-EXE is
  inc SPN-SYS{String, String} .
- inc SPN-EMU{String, String} .
  op net : -> Net  [memo] .
  op m0  : -> Pbag  [memo] .  
  *** same example as in SPN-EXE
@@ -16,6 +17,15 @@ mod SPN-EXE is
 
  eq m0  = 2 . p("1") +  1 . p("3") .
  
-endm
+ vars L L' : Tlab . vars T T' : Tran . var P : Place . vars B B' M I O : Pbag  .
+ vars r r' : Float . var N : Net . var W : String . var E : Nat . vars Q Q' : Ematrix .
 
+  ***  merges two transitions by assigning the resulting one the specified label
+ op merge : Tran  Tran Tlab -> Tran .
+ eq merge(T, T', L) = L |-> q(T) + q(T') .
+ *** aggregates two transitions by assigning the resulting one the specified label
+ op aggr : Tran  Tran Tlab -> Tran .
+ceq aggr(T, T', L) = L |-> [I(Q), O(Q'), H(Q) + H(Q')] if Q := q(T) /\ Q' := q(T') .
+
+endfm
 

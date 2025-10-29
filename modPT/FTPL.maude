@@ -34,9 +34,4 @@ fmod FTPL is
  eq faultySys(I) = setMark(faultyPL(I), "o" "fPL", 1) .
  eq faultyPL = faultyPL(0) .
  
- *** we use process algebra ops to build the same model -- to be defined
- eq  PLA(K) = merge(replAnd(line ; fault, K, "w", "a", "ld", "s", "as", "s", "L"), "o" "L") . *** note s used twice: it's at the same time in and out
- eq  PL(K)  = set(set(PLA(K), "ld", i, "s", K), "as", o, "s", K) .
- eq  NPL(N,K) = replOr(PLA(K), N, "s", "s", "PL") . 
- 
 endfm

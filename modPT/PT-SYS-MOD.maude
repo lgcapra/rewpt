@@ -1,4 +1,4 @@
-*** PT system's signature
+*** modular PT system's signature
 in PT-NET-MOD
 in ../PT-SYS
 
@@ -13,6 +13,7 @@ view PT-SYS-LAB{L :: TRIV} from MO-NODE-SYS to PT-SYS-LAB{L} is
   sort El to Tran .
   sort SysNode to System .
   op nil to emptyNet  .
+  op _:_ to __ . 
   op replaceWithEl to replaceWithTran . 
   op addLabEl to addLabTran .
   op placesEl to placesTran .
@@ -22,14 +23,14 @@ endv
 
 fmod PT-SYS-MOD{L :: TRIV} is
  pr MO-NODE-SYS-OP{PT-SYS-LAB{L}} .
- var N  : Net . var M  : Pbag .
- var NeL : NeLab . 
- var S : Pset .
+ *** var N  : Net . var M  : Pbag .
+ *** var NeL : NeLab . 
+ *** var S : Pset .
  *** characteristic of the formalism
  *** remove some places
- op remove :  System Pset -> System .
- eq remove(N M, S) = remove(N, S) remove(M, S) .
+ *** op remove :  System Pset -> System .
+ *** eq remove(N M, S) = remove(N, S) remove(M, S) .
  *** subsystem
- op subsys : System NeLab -> System .
- eq subsys(N M, NeL) = subnet(N, NeL) subag(M, NeL) .
+ *** op subsys : System NeLab -> System .
+ *** eq subsys(N M, NeL) = subnet(N, NeL) subag(M, NeL) .
 endfm
