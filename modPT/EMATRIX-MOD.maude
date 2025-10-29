@@ -3,6 +3,7 @@ in ../EMATRIX
 
 fmod EMATRIX-MOD is
  pr PBAG-MOD .
+ pr PSET-MOD .
  pr EMATRIX{Plab} .
  
  vars X Y Z X' Y' Z' : Pbag .
@@ -10,7 +11,7 @@ fmod EMATRIX-MOD is
  vars N N' C1 C2 : Nat .
  vars K K' : NzNat .
  var Q : Ematrix . var Q' : Tmatrix .
- var L   : Lab . var NeL  : NeLab .
+ vars L L'  : Lab . var NeL  : NeLab .
  var Ws :  List{String} . var NWs : NeList{String} .
  var F : FlushArc . var FS FS' : FlushArcs .
  vars S S'  : Pset .
@@ -24,7 +25,7 @@ fmod EMATRIX-MOD is
  eq addLabF(FS, L, S) = $addLabF(FS, noFlushArc, L, S) .
  op $addLabF : FlushArcs FlushArcs Lab Pset -> FlushArcs .
  eq $addLabF(noFlushArc, FS, L, S) = FS .
- eq $addLabF(P >> S' ; FS, FS', L, S) = $addLabF(FS, if P in S then P else addLabP(P, L) fi >> addLabS(S', L, S) ; FS', L, S) .
+ eq $addLabF(p(L') >> S' ; FS, FS', L, S) = $addLabF(FS, if p(L') in S then p(L') else p(L' L) fi >> addLabS(S', L, S) ; FS', L, S) .
  *** no elements to share
  op addLabM : Ematrix Lab -> Tmatrix . *** overloaded
  eq addLabM(Q, L) = addLabM(Q, L, emptyPset) .
@@ -39,7 +40,7 @@ fmod EMATRIX-MOD is
  eq replaceWithF(FS, NeL, N) = $replaceWithF(FS, noFlushArc, NeL, N) .
  op $replaceWithF : FlushArcs FlushArcs NeLab Nat -> FlushArcs .
  eq $replaceWithF(noFlushArc, FS, NeL, N) = FS .
- eq $replaceWithF(P >> S' ; FS, FS', NeL, N) = $replaceWithF(FS, replaceWithP(P, NeL, N) >> replaceWithS(S', NeL, N) ; FS', NeL, N) .
+ eq $replaceWithF(p(L) >> S' ; FS, FS', NeL, N) = $replaceWithF(FS, p(replaceWith(L, NeL, N)) >> replaceWithS(S', NeL, N) ; FS', NeL, N) .
  
  *** derived definitions of placesM
  op placesM : Ematrix NeList{String}  -> Pset .
@@ -50,7 +51,7 @@ fmod EMATRIX-MOD is
  eq placesF(FS, NWs) = $placesF(FS, emptyPset, NWs) .
  op $placesF : FlushArcs Pset NeList{String} -> Pset  .
  eq $placesF(noFlushArc, S, NWs) = S .
- eq $placesF(P >> S' ; FS, S, NWs) = $placesF(FS, if hasSuffix(P, NWs) then P else emptyPset fi U placeS(S', NWs), NWs) .
+ eq $placesF(p(L) >> S' ; FS, S, NWs) = $placesF(FS, if hasSuffix(L, NWs) then p(L) else emptyPset fi U placeS(S', NWs), NWs) .
  
  *** defined analogously (to do)
  op placesM : Ematrix List{String} NeLab  -> Pset .

@@ -1,0 +1,56 @@
+in ../PSET
+in PLAB
+
+fmod PSET-MOD is
+   pr PSET{Plab} .
+   pr INT .
+   vars P P' P'' P''' : Place . 
+   vars K K' : NzNat . vars I J : Nat .
+   vars L L' L'' : Lab . var E : Elab . vars NeL NeL' : NeLab .
+   vars S S' S'' : Pset .
+   vars W W' : String .
+   var Ws : List{String} .
+   var NeWs : NeList{String} .
+   *** checks for the existence in a set of a place whose label matches the given suffix 
+   op existS : Pset NeLab  -> Bool .
+   eq existS(p(L' NeL) U S, NeL) = true  .
+   eq existS(S, NeL) = false [owise] .
+   *** overloading on sets
+   op placeS : Pset NeList{String} -> Pset .
+   eq placeS(S, NeWs) = $placeS(S, NeWs, emptyPset) . 
+   op $placeS : Pset NeList{String} Pset -> Pset .
+   eq $placeS(p(L) U S', NeWs, S) = $placeS(S', NeWs, if hasSuffix(L, NeWs) then S U p(L) else S fi)  .
+   eq $placeS(emptyPset, NeWs, S) = S  .
+  *** analogous, using match instead of hasSuffix (to define)
+   op placeS : Pset NeList{String} NeLab -> Pset .
+   *** overloading on sets
+   op addLabS : Pset Lab Pset -> Pset . 
+   eq addLabS(S, L, S') = $addLabS(S, emptyPset, L, S') .
+   op $addLabS : Pset Pset Lab Pset -> Pset .
+   eq $addLabS(emptyPset, S, L, S') = S .
+   eq $addLabS(p(L') U S', S'', L, S) = $addLabS(S', S'' U if p(L') in S then p(L') else p(L' L) fi, L, S) .
+   *** default
+   op addLabS : Pset Lab -> Pset .
+   eq addLabS(S, L) = addLabS(S, L, emptyPset) .
+   *** overloading on sets
+   op replaceWithS : Pset NeLab Nat -> Pset . 
+   eq replaceWithS(S, NeL, I) = $replaceWithS(S, emptyPset, NeL, I) .
+   op $replaceWithS : Pset Pset NeLab Nat -> Pset .
+   eq $replaceWithS(p(L) U S', S, NeL, I) = $replaceWithS(S', p(replaceWith(L, NeL, I)) U S, NeL, I) .
+   eq $replaceWithS(emptyPset, S, NeL, I) = S .
+   *** set version
+   op existsgrS : Pset NeLab  -> Bool .
+  ceq existsgrS(p(L' < W ; J > L) U S, < W ; I > L) = true  if J > I .
+   eq existsgrS(S, NeL) = false [owise] .
+   *** find the min suffix header's index non present in the set of places
+   op minNotInS : Pset String Lab -> Nat .
+   eq minNotInS(S, W, L) = $minNotInS(S, W, L, 0) .
+   op $minNotInS : Pset String Lab Nat -> Nat . 
+   eq $minNotInS(S, W, L, I) = if existS(S, < W ; I > L) then $minNotInS(S, W, L, I + 1) else I fi .  
+   *** returns the biggest suffix header's index in the specified set of places (-1 if no place with a matching suffix does exist)
+   op maxInS : Pset String Lab -> Int .
+  ceq maxInS(p(L' NeL) U S, W, L) = J if < W ; J > L := NeL /\ existsgrS(S, NeL) == false .  
+   eq maxInS(S, W, L) = -1 [owise] .
+
+endfm 
+

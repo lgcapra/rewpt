@@ -2,11 +2,13 @@
 *** (originally defined for modular PT nets and SPN)
 in PBAG-MOD
 in ../../lambda/MONOID
+in ../PSET
 
 *** a network node seen as monoid
 fth MO-NODE is
   including MONOID+ .
-  including PBAG-MOD .
+  ***including PBAG-MOD .
+  including PSET-MOD .
   op replaceWithEl : El NeLab Nat -> El . *** defined for a single element
   op addLabEl : El Lab Pset -> El . 
   op placesEl : El -> Pset .
@@ -98,6 +100,7 @@ endfm
 *** a node (seen as monoid) with associated state
 fth MO-NODE-SYS is
   including MO-NODE .
+  including PBAG-MOD .
   sort SysNode .
   op _:_ : Elt Pbag -> SysNode .
 endfth
