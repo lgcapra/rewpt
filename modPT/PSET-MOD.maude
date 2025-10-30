@@ -1,6 +1,7 @@
 in ../PSET
 in PLAB
 
+*** set of places with structured labels used in compositional operations
 fmod PSET-MOD is
    pr PSET{Plab} .
    pr INT .

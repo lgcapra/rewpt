@@ -1,22 +1,21 @@
 *** theories and modules helpful to implement symmetric algebraic operators for monoid structures
 *** (originally defined for modular PT nets and SPN)
-in PBAG-MOD
 in ../../lambda/MONOID
-in ../PSET
+in PSET-MOD
 
-*** a network node seen as monoid
-fth MO-NODE is
+*** a network (of nodes) seen as monoid
+fth MO-NET is
   including MONOID+ .
-  ***including PBAG-MOD .
   including PSET-MOD .
-  op replaceWithEl : El NeLab Nat -> El . *** defined for a single element
+  op replaceWithEl : El NeLab Nat -> El . *** defined for a single element of a network
   op addLabEl : El Lab Pset -> El . 
   op placesEl : El -> Pset .
   op placesEl : El NeList{String} -> Pset .
   op inEl : El Place -> Bool .
 endfth
 
-fmod MO-NODE-OP{N :: MO-NODE} is
+*** defines some general operators necessary for manipulation and normalization of a network seen as a monoid, based on structured node labels
+fmod MO-NET-OP{N :: MO-NET} is
   var J   : Nat .  var K : NzNat . vars N N' : N$Elt . var E : N$El .
   vars L L' : Lab . var NeL : NeLab .
   vars W W' : String . var P : Place .
@@ -96,21 +95,22 @@ ceq sdisjoint(N, N') = false if p(L < W ; J > ) U S := places(N) /\ p(L' < W ; J
 ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
 endfm 
 
-
-*** a node (seen as monoid) with associated state
-fth MO-NODE-SYS is
-  including MO-NODE .
+in PBAG-MOD
+*** a node (seen as monoid) with associated distributed shared state
+fth MO-NET-SYS is
+  including MO-NET .
   including PBAG-MOD .
-  sort SysNode .
+  sort SysNode . *** network structure plus shared state
   op _:_ : Elt Pbag -> SysNode .
 endfth
 
-*** necessary to import MO-NODE-OP from inside MO-NODE-SYS-OP
-view MO-NODE-SYS from MO-NODE to MO-NODE-SYS is
+*** necessary to import MO-NET-OP from inside MO-NET-SYS-OP
+view MO-NET-SYS from MO-NET to MO-NET-SYS is
 endv
 
-fmod MO-NODE-SYS-OP{N :: MO-NODE-SYS} is
-  pr MO-NODE-OP{MO-NODE-SYS}{N} .
+*** defines some general operators necessary for manipulation and normalization of a network seen as a monoid, with an associated state, based on structured node labels
+fmod MO-NET-SYS-OP{N :: MO-NET-SYS} is
+  pr MO-NET-OP{MO-NET-SYS}{N} .
   vars J I X  : Nat .  vars K K' : NzNat .
   vars Sys Sys' : N$SysNode . vars N N' : N$Elt . vars M M' M'' : Pbag . vars P P' : Place . 
   vars W W' : String . var WL : List{String} . var NeWL : NeList{String} . 

@@ -8,7 +8,7 @@ fmod PT-SYS-LAB{L :: TRIV} is
   pr PT-SYS{L, Plab} .
 endfm
 
-view PT-SYS-LAB{L :: TRIV} from MO-NODE-SYS to PT-SYS-LAB{L} is
+view PT-SYS-LAB{L :: TRIV} from MO-NET-SYS to PT-SYS-LAB{L} is
   sort Elt to Net .
   sort El to Tran .
   sort SysNode to System .
@@ -22,7 +22,7 @@ endv
 
 
 fmod PT-SYS-MOD{L :: TRIV} is
- pr MO-NODE-SYS-OP{PT-SYS-LAB{L}} .
+ pr MO-NET-SYS-OP{PT-SYS-LAB{L}} .
  *** var N  : Net . var M  : Pbag .
  *** var NeL : NeLab . 
  *** var S : Pset .

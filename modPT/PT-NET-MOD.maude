@@ -18,7 +18,7 @@ fmod PT-NET-LAB{L :: TRIV} is
   *** var NeSL : NeSet{L} .
   *** vars N N' : Net .
  
- *** these operations are those required by the theory MO-NODE
+ *** these operations are those required by the theory MO-NET
   op replaceWithTran : Tran NeLab Nat -> Tran .
   eq replaceWithTran(L |-> Q, NeL, J) = L |-> replaceWithM(Q, NeL, J) .
   op addLabTran : Tran Lab Pset -> Tran . 
@@ -62,7 +62,7 @@ fmod PT-NET-LAB{L :: TRIV} is
  
 endfm
 
-view PT-NET-LAB{L :: TRIV} from MO-NODE to PT-NET-LAB{L} is
+view PT-NET-LAB{L :: TRIV} from MO-NET to PT-NET-LAB{L} is
   sort Elt to Net .
   sort El to Tran .
   op nil to emptyNet  .
@@ -74,7 +74,7 @@ endv
 
 *** signature of a PT net with operator for modularity
 fmod PT-NET-MOD{L :: TRIV} is
- pr MO-NODE-OP{PT-NET-LAB{L}} .
+ pr MO-NET-OP{PT-NET-LAB{L}} .
 endfm
 
 *** trivial view to a PT-NET
