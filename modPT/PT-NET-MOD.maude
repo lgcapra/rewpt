@@ -72,7 +72,7 @@ view PT-NET-LAB{L :: TRIV} from MO-NET to PT-NET-LAB{L} is
   op inEl to inTran .
 endv
 
-*** signature of a PT net with operator for modularity
+*** PT net with structured label wrapped as a modular monoid with suitable compositional and normalization operators
 fmod PT-NET-MOD{L :: TRIV} is
  pr MO-NET-OP{PT-NET-LAB{L}} .
 endfm

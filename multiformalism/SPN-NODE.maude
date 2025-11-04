@@ -3,7 +3,7 @@ in ../SPN
 in ../modSPT/SPN-SYS-MOD
 
 fmod SPN-NODE{PL :: TRIV} is
-  extending NETWORK-MARKING{PL} .
+  extending NETWORK{S-Pbag{PL}} .
   pr SPN-SIG{String, PL} .
   subsort Net < Node . 
 endfm

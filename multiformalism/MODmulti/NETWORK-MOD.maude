@@ -6,7 +6,9 @@ in ../../modPT/PLAB
 *** network using a marking as distributed state, with structured place labels
 fmod NETWORK-MOD is
   pr PBAG-MOD .
-  protecting NETWORK-MARKING{Plab} .
+  pr PSET-MOD .
+  *** protecting NETWORK-MARKING{Plab} .
+  protecting NETWORK{S-Pbag{Plab}} .
   *** abstract operations: we use the same names as in the theory
   op replaceWithEl : Node NeLab Nat -> Node . *** defined for a single element
   op addLabEl : Node Lab Pset -> Node . 
@@ -17,7 +19,7 @@ endfm
 
 
 *** view of a network of nodes as a monoid (with associated ops)
-view NETWORK-MOD from MO-NODE-SYS to NETWORK-MOD is
+view NETWORK-MOD from MO-NET-SYS to NETWORK-MOD is
   sort Elt to Network .
   sort El to Node .
   sort SysNode to NetSys .
@@ -26,7 +28,7 @@ view NETWORK-MOD from MO-NODE-SYS to NETWORK-MOD is
 endv
 
 fmod NETWORK-MOD-SYS is
- pr MO-NODE-SYS-OP{NETWORK-MOD}  .
+ pr MO-NET-SYS-OP{NETWORK-MOD}  .
 endfm
 
 in ../../modSPT/SPN-SYS-MOD
@@ -36,82 +38,80 @@ in ../../modSPT/SPN-EMU-MOD
 
 fmod SPN-NODE-MOD{L :: TRIV} is
   extending NETWORK-MOD-SYS .
-  pr SPN-SIG-MOD{L} * (op setMark to setMarkSPN, 
+  inc SPN-SIG-MOD{L} * (op setMark to setMarkSPN, 
                       op replaceWith to replaceWithSPN, 
                       *** op replaceWith to replaceWithEl, 
                       op $replaceWith to $replaceWithSPN,
                       op addLab to addLabSPN, op $addLab to $addLabSPN, op places to placesSPN, op $places to $placesSPN,
                       op abstract to abstractSPN, op abstractBut to abstractButSPN,  op repl&share to  repl&shareSPN,
-                      op $repl&share to $repl&shareSPN, op replica to replicaSPN, op in to inSPN, op exists to existsSPN,
-                      op minNotIn to minNotInPSN, op sdisjoint to sdisjointSPN, op sjoin to sjoinSPN) .
+                      op $repl&share to  $repl&shareSPN, op replica to replicaSPN, op in to inSPN, op exists to existsSPN
+                      ) .
   subsort Net < Node .
   eq replaceWithEl(N:Net,L:NeLab, I:Nat) = replaceWithSPN(N:Net,L:NeLab, I:Nat) . 
 endfm
 
- *** simile a quello esistente
- mod SPN-NODE-SYS{L :: TRIV} is
-  inc SPN-NODE-MOD{L} .
-  var N : Network .
-  vars PN PN' : Net . 
-  vars M M' : Pbag . 
-  var K : NzNat .
-  var rate : Float .
-  var T : Tran .
-  crl [spn-t] : (N , PN) : M => (N , PN) : M' if T ; PN' := PN /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ rate := firingRate(l(T),I(q(T)), M) .
+ mod SPN-NODE-EMU-MOD{L :: TRIV} is
+  extending NETWORK-MOD-SYS .
+  inc SPN-EMU-MOD{L} * (op setMark to setMarkSPN, 
+                      op replaceWith to replaceWithSPN, 
+                      *** op replaceWith to replaceWithEl, 
+                      op $replaceWith to $replaceWithSPN,
+                      op addLab to addLabSPN, op $addLab to $addLabSPN, op places to placesSPN, op $places to $placesSPN,
+                      op abstract to abstractSPN, op abstractBut to abstractButSPN, op repl&share to  repl&shareSPN,
+                      op $repl&share to $repl&shareSPN, op replica to replicaSPN, op in to inSPN, op exists to existsSPN
+                      ) .
+  subsort System < Node .
+  eq replaceWithEl(S:System, L:NeLab, I:Nat) = replaceWithSPN(S:System, L:NeLab, I:Nat) . 
 endm
+
 
 in ../QUEUE
 
 *** se volessimo definire le stesse cose come "monoidi", così come fatto con le SPN
 *** si dovrebbe definire una coda come una lista di code elementari
 *** oppure si potrebbe definire, internamente ad una coda, la lista di server come monoide
-***fmod QUEUE-LAB is
-***  pr QUEUE{Plab} .
-***  op replaceWithTran : Tran NeLab Nat -> Tran .
-***  eq replaceWithTran(L |-> Q, NeL, J) = L |-> replaceWithM(Q, NeL, J) .
-***  op addLabTran : Tran Lab Pset -> Tran . 
-***  eq addLabTran(L |-> Q, Lab, S) = L |-> addLabM(Q, Lab, S) .
-***  op placesTran : Tran NeList{String} -> Pset .
-***  eq placesTran(L |-> Q, NeWL) = placesM(Q, NeWL) .
-***endfm
-
-*** view QUEUE-LAB{L :: TRIV} from MO-NODE to QUEUE-LAB{L} is
-***   sort Elt to Net .
-***   sort El to Tran .
-***   op nil to emptyNet  .
-***   op replaceWithEl to replaceWithTran . 
-***   op addLabEl to addLabTran .
-***   op placesEl to placesTran .
-***   op inEl to inTran .
-*** endv
 
 fmod QUEUE-MOD is
-  pr QUEUE{Plab} .
-  op replaceWithQueue : Queue NeLab Nat -> Queue . *** to define
+   pr QUEUE{Plab} .
+   op replaceWithQueue : Queue NeLab Nat -> Queue . *** to define
   *** (anche gli altri?)
 endfm
 
 fmod QUEUE-NODE-MOD is
-  extending NETWORK-MOD-SYS .
-  pr QUEUE-MOD .
-  subsort Queue < Node .
-  eq replaceWithEl(Q:Queue,L:NeLab, I:Nat) = replaceWithQueue(Q:Queue,L:NeLab, I:Nat) . 
+   extending NETWORK-MOD-SYS .
+   pr QUEUE-MOD .
+   subsort Queue < Node .
+   eq replaceWithEl(Q:Queue,L:NeLab, I:Nat) = replaceWithQueue(Q:Queue,L:NeLab, I:Nat) . 
 endfm
 
-*** simile a quello esistente
-mod QUEUE-NODE-SYS is
+ mod NETWORK-EXE is
    inc QUEUE-NODE-MOD .
-   inc CONVERSION .
-   var N : Network . var S : Server . var Q : Queue .
-   vars LS LS'  : List{Server} . var NeLQ : NeList{Server} . 
-   var M : Pbag . var K : NzNat . var rate : Float . var P : Place .
-   crl [q-firing] : (N , Q) : M => (N , Q) : M  + 1 . P - 1 . p(S)
-      if LS S LS' := ql(Q) /\ mu(S) > 0.0 /\ K := M[p(S)] /\ K > 0 /\ qenabled(Q, M) /\ 
-      P :=  nextPosDef(LS',out(Q) ) /\ M[P] < cap(P) /\ rate := mu(S) * float(K) / float(clients(ql(Q), M)) .
+   *** inc SPN-NODE-MOD{String} .
+   inc SPN-NODE-EMU-MOD{String} . *** the node is a marked SPN
 endm
 
+ *** just make some trials
+ mod FIRST-EXE is
+   inc NETWORK-EXE .
+   ops loadLab assLab failLab workLab : -> Tlab [memo] .
+   eq loadLab = t("ld", 0.5,   1 ) .
+   eq assLab =  t("as", 2.0,   0 ) .
+   eq workLab = t("ln", 0.1,   1 ) .
+   eq failLab = t("ft", 0.001, 1 ) .
+   ops line load ass  : -> Tran . 
+   op cycle  : -> Net [memo] .
+   eq line =  workLab  |-> [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 1 >), 1 . p(< "f" ; 0 >) ].
+   eq load  = loadLab  |-> [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] .
+   eq ass   = assLab  |-> [1 . p(< "a" ; 1 >) , 1 . p(< "s" ; 0 >)  , nilP ] .
+   eq cycle = load ; line ; ass .
+   op PL : NzNat -> Net . 
+   op NPL  : NzNat NzNat -> Net [memo]. *** N (faulty) prod lines 0 .. N- 1 each of K lines
+   op NPLsys : NzNat NzNat NzNat -> System . 
+   vars N K M : NzNat .
 
-mod NETWORK-EXE is
-  inc QUEUE-NODE-SYS .
-  inc SPN-NODE-SYS{String} .
+   eq PL(K) = repl&shareSPN(cycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >)) . *** a PL is built of K symmetric lines 
+   eq NPL(N, K) = repl&shareSPN(PL(K), N, "PL", p(< "s" ; 0 >)) . *** change here to vary the lines of a PL
+   eq NPLsys(N, K, M) = setMarkSPN(setMarkSPN(NPL(N, K), "o" "PL", 1), "s", K * M) .
+ 
 endm
+

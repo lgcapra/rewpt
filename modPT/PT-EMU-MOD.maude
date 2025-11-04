@@ -8,8 +8,8 @@ mod PT-EMU-MOD{L :: TRIV} is
  *** ordinary firing rule
  *** crl [firing] : N M => N M' if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false .
  *** including normalization
- crl [firing] : N M => N normalize(M') if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false .
+ crl [firing] : N M => N normalizeB(M') if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false .
  *** includes a further potential  optimization: if the marked places are retained then index abstraction is skipped
- *** crl [cfiring] : N M => N normalize(M', support(M) == support(M')) if T ; N' := N /\ enabled(T, M) /\ M' := firing(T, M)  .
+ *** crl [cfiring] : N M => N normalizeB(M', support(M) == support(M')) if T ; N' := N /\ enabled(T, M) /\ M' := firing(T, M)  .
 endm
 

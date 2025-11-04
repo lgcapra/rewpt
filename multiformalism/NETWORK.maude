@@ -30,6 +30,6 @@ view S-Pbag{PL :: TRIV} from C-MONOID to PBAG{PL} is
 endv
 
 *** network using a multiset of places (a marking) as distributed state --  the parameter defines the place label
-fmod NETWORK-MARKING{PL :: TRIV} is
-  protecting NETWORK{S-Pbag{PL}} .
-endfm
+*** fmod NETWORK-MARKING{PL :: TRIV} is
+***  protecting NETWORK{S-Pbag{PL}} .
+*** endfm

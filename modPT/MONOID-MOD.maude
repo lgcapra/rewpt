@@ -59,19 +59,10 @@ ceq in(E ; N, P) = true if inEl(E, P) .
   *** extend the versions defined on Pbag: efficient if places is set as [memo] -- otherwise better to define from scratch
   op exists : N$Elt NeLab  -> Bool .
   eq exists(N, NeL) = existS(places(N), NeL) .
-  *** overloading (defined for convenience)
-  op minNotIn : N$Elt String Lab -> Nat .
-  eq minNotIn(N, W, L) = minNotInS(places(N), W, L) .
-  *** default versions (with a null suffix last part)
-  op minNotIn : N$Elt String -> Nat .
-  eq minNotIn(N, W) = minNotIn(N, W, emptyLab) .
   **** normalization (name abstraction)
   op abstract : N$Elt -> N$Elt .
  ceq abstract(N) = abstract(replaceWith(N, < W ; K > L, K - 1)) if p(L' < W ; K > L) U S := places(N) /\ existS(S, < W ; K - 1 > L) == false .
   eq abstract(N) = N [owise] .
-  *** version 2
- ***ceq abstract(N) = abstract(replaceWith(N, NeL, J)) if S := places(N) /\ p(L' NeL) U S' := places(N) /\ < W ; K > L := NeL /\ J := minNotIn(S', W, L) /\ J < K  /\ K = maxIn(S, W, L) .
- *** eq abstract(N) = N [owise] .
  *** excludes from index abstraction those places (components) matching a given suffix
   op abstractBut : N$Elt String -> N$Elt .
  ceq abstractBut(N, W') = abstractBut(replaceWith(N, < W ; K > L, K - 1), W') if p(L' < W ; K > L) U S := places(N) /\ 1st(last(L' < W ; K > L)) =/= W' /\ existS(S, < W ; K - 1 > L) == false .
@@ -86,13 +77,6 @@ ceq in(E ; N, P) = true if inEl(E, P) .
   *** derived  versionss
  op replica : N$Elt NzNat String -> N$Elt . *** default
  eq replica(N, K, W) = repl&share(N, K, W, emptyPset) .
- *** verifies that two nets may be joined by preserving the symmetry hierarchy
- op sdisjoint : N$Elt N$Elt -> Bool [comm] .  
-ceq sdisjoint(N, N') = false if p(L < W ; J > ) U S := places(N) /\ p(L' < W ; J > ) U S' := places(N')  /\ L < W ; J > =/= L' < W ; J > .
- eq sdisjoint(N, N') = true [owise] .
- ***symmetry preserving net juxtaposition
- op sjoin : N$Elt N$Elt -> [N$Elt]  .
-ceq sjoin(N, N') = N ; N' if sdisjoint(N, N') .
 endfm 
 
 in PBAG-MOD
@@ -120,16 +104,7 @@ fmod MO-NET-SYS-OP{N :: MO-NET-SYS} is
   op st : N$SysNode -> Pbag .  *** shared state of the node
   eq nd(N : M) = N .
   eq st(N : M) = M .
-  *** add a new label to a system's places
- op addLab : N$SysNode Lab -> N$SysNode .
- eq addLab(N : M, L) = addLab(N, L) : addLaB(M, L) .
- *** version specifying shared elements (helpful!)
- op addLab : N$SysNode Lab Pset -> N$SysNode .
- eq addLab(N : M, L, S) = addLab(N, L, S) : addLaB(M, L, S) .
- *** defined for convenience
- op addLab : N$SysNode Lab List{String} -> N$SysNode .
- eq addLab(Sys, L, WL) = addLab(Sys, L, places(nd(Sys), WL)) . 
- 
+  
  *** clears the system's marking by removing non encoded places
  op clearupM : N$SysNode -> N$SysNode .
 ceq clearupM(N : K . P + M) = clearupM(N : M) if in(N, P) == false .
@@ -144,10 +119,7 @@ ceq clearupM(N : K . P + M) = clearupM(N : M) if in(N, P) == false .
  
  *** normalization (name abstraction) 
  op abstract : N$SysNode -> N$SysNode .
-***  ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K > L, K - 1)) if p(L' < W ; K > L) U S := places(nd(Sys)) /\ existS(S, < W ; K - 1 > L) == false .
-***   eq abstract(Sys) = Sys [owise] .
-*** version 2
-ceq abstract(Sys) = abstract(replaceWith(Sys, NeL, J)) if S := places(nd(Sys)) /\ p(L' NeL) U S' := places(nd(Sys)) /\ < W ; K > L := NeL /\ J := minNotInS(S', W, L) /\ J < K  /\ K = maxInS(S, W, L) .
+ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K > L, K - 1)) if p(L' < W ; K > L) U S := places(nd(Sys)) /\ existS(S, < W ; K - 1 > L) == false .
  eq abstract(Sys) = Sys [owise] .
  *** excludes from index abstraction those places (components) matching a given suffix
  op abstractBut : N$SysNode String -> N$SysNode .
@@ -158,17 +130,8 @@ ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K > L, K - 1), W')
 ceq normalize(Sys) = nd(Sys') : minimize(st(Sys')) if Sys' := abstract(Sys) .  
 *** excludes from index abstraction those places (components) matching a given suffix
  op normalize : N$SysNode String -> N$SysNode .
-ceq normalize(Sys, W) = nd(Sys') : normalize(st(Sys')) if Sys' := abstractBut(Sys, W) .  
+ceq normalize(Sys, W) = nd(Sys') : normalizeB(st(Sys')) if Sys' := abstractBut(Sys, W) .  
 
-*** "symmetric" juxtaposition: creates K (disjoint) replica of a node-system each one with a suitably added label suffix (with index 0..K-1) denoting the "nesting" level
- op repl&share  : N$SysNode NzNat String Pset -> N$SysNode .
- eq repl&share(Sys, K, W, S) = $repl&share(Sys, K, W, nil : nilP, S) .
- op $repl&share  : N$SysNode Nat String N$SysNode Pset -> N$SysNode .
- eq $repl&share(Sys, 0, W, Sys', S) = Sys' .
- eq $repl&share(Sys, K, W, Sys', S) = $repl&share(Sys, K - 1, W, join(Sys', addLab(Sys, < W ; K - 1 >, S)), S) .
- *** default versions
- op replica  : N$SysNode NzNat String -> N$SysNode . 
- eq replica(Sys, K, W) =  repl&share(Sys, K, W, emptyPset) .
  *** set a marking for net places with label with a given suffix
  op setMark : N$Elt NeList{String} Nat -> N$SysNode .
  eq setMark(N, NeWL, 0) = N : nilP . 
@@ -179,55 +142,9 @@ ceq normalize(Sys, W) = nd(Sys') : normalize(st(Sys')) if Sys' := abstractBut(Sy
  *** join two systems by summing their markings (identical places are implicitly merged)
  op join : N$SysNode N$SysNode -> N$SysNode [assoc comm] .
  eq join(N : M, N' : M') = (N ; N') : M + M' .
- ***symmetry preserving juxtaposition
- op sjoin : N$SysNode N$SysNode  -> [N$SysNode]  .
- eq sjoin(N : M, N' : M') = sjoin(N, N') : M + M' .
-
- *** NORMALIZATION (SI POTREBBE SPOSTARE TUTTA in PBAG-MOD)
- *** normalization (general): index abstraction plus marking normalization 
- op normalize : Pbag -> Pbag .
- eq normalize(M) = minimize(abstract(M)) . *** seems slightly better than the alternative 
- *** eq normalize(M) = abstract(minimize(M)) . *** alternative
  
- *** flexible version: index-abstraction activated based on a flag
- op normalize : Pbag Bool -> Pbag .
- eq normalize(M, F:Bool) = if F:Bool then minimize(M) else normalize(M) fi .
  
- *** brings a marking (of a symmetric net) to a minimal form
- ops minimize : Pbag -> Pbag  [memo] .
- eq minimize(M) = M [owise] .
- ceq minimize(K . P + K' . P' + M) = minimize(M' + (M - M'' )) if p(L' < W ; I > L) := P /\ p(L'' < W ; J > L) := P' /\
-                      J > I /\ (K =/= K' or-else L' =/= L'')  /\ M'' := extract(M, W, I, J, L) /\
-                      M' := swapLab(M'' + K . P + K' . P', W, L, I, J) /\ le(M', M'' + K . P + K' . P') . *** J > I prunes some matches (same as I > J) 
 
- *** using lex instead of le seems to be a bit less efficient
- *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
- op swapLab : Pbag String Lab Nat Nat -> Pbag .
- eq swapLab(M, W, L, I, I) = M .
-ceq swapLab(M, W, L, I, J) = $swapLab(M, nilP, W, L, I, J) if I =/= J . 
- op $swapLab : Pbag Pbag String Lab Nat Nat -> Pbag .
- eq $swapLab(nilP, M, W, L, I, J) = M .
- eq $swapLab(K . p(L' < W ; I > L) + M, M', W, L, I, J) = $swapLab(M, K . p(L' < W ; J > L) + M', W, L, I, J) .
- eq $swapLab(K . p(L' < W ; J > L) + M, M', W, L, I, J) = $swapLab(M, K . p(L' < W ; I > L) + M', W, L, I, J) .
- eq $swapLab(K . P + M, M', W, L, I, J) = $swapLab(M, K . P + M', W, L, I, J) [owise] .
-
-*** makes name (index) abstraction in a marking in a simple way: repeatedly searches (and in the event, replaces with) a suffix header's index with a missing prdecessor
- op abstract : Pbag -> Pbag .
-ceq abstract(M) = abstract(K . p(L' < W ; K' - 1 > L) + replaceWithB(M', < W ; K' > L, K' - 1)) if K . p(L' < W ; K' > L) + M' := M /\ existsB(M', < W ; K' - 1 > L) == false .
- eq abstract(M) = M [owise] .
- *** version 2 : (repeatedly) finds the smallest missing suffix header's index and the greatest one (if any) and replaces the former with the latter
- *** negli esempi è un po' meno efficiente ma in generale (in casi meno semplici) può essere meglio
-*** ceq abstract(M) = abstract(replaceWith(M, NeL, I)) if K' . p(L' NeL) + M' := M /\ < W ; K > L := NeL /\ I := minNotIn(M', W, L) /\ I < K  /\ K = maxIn(M, W, L) .
-*** eq abstract(M) = M [owise] .  
-
-*** extracts the elements with a given suffix and the suffix header's built of a given string and index in a set
- op extract : Pbag String Nat Nat Lab ->  Pbag .
- eq extract(M, W, I, J, L) = $extract(M, nilP, W, I, J, L) .
- op $extract : Pbag Pbag String Nat Nat Lab ->  Pbag .
- eq $extract(nilP, M, W, I, J, L) = M .
-ceq $extract(K . p(L' < W ; X > L) + M, M', W, I, J, L) = $extract(M, M' + K . p(L' < W ; X > L) , W, I, J, L) if X == I or-else X == J . 
- eq $extract(K . P + M, M', W, I, J, L) = $extract(M, M', W, I, J, L) [owise] . 
- 
 endfm 
 
 

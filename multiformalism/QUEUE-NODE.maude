@@ -3,7 +3,7 @@ in NETWORK
 
 *** MQN as nodes of a network
 fmod QUEUE-NODE{PL :: TRIV} is
-  extending NETWORK-MARKING{PL} .
+  extending NETWORK{S-Pbag{PL}} .
   protecting QUEUE{PL} .
   sort QueueNet .
   subsort Queue < Node QueueNet < Network .

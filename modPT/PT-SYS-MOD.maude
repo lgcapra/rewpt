@@ -21,16 +21,7 @@ view PT-SYS-LAB{L :: TRIV} from MO-NET-SYS to PT-SYS-LAB{L} is
 endv
 
 
+*** PT system with structured label wrapped as a modular monoid with suitable compositional and normalization operators
 fmod PT-SYS-MOD{L :: TRIV} is
  pr MO-NET-SYS-OP{PT-SYS-LAB{L}} .
- *** var N  : Net . var M  : Pbag .
- *** var NeL : NeLab . 
- *** var S : Pset .
- *** characteristic of the formalism
- *** remove some places
- *** op remove :  System Pset -> System .
- *** eq remove(N M, S) = remove(N, S) remove(M, S) .
- *** subsystem
- *** op subsys : System NeLab -> System .
- *** eq subsys(N M, NeL) = subnet(N, NeL) subag(M, NeL) .
 endfm

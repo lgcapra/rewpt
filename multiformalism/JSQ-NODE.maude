@@ -3,7 +3,7 @@ in NETWORK
 
 *** MQN as nodes of a network
 fmod JSQ-NODE{PL :: TRIV} is
-  extending NETWORK-MARKING{PL} .
+  extending NETWORK{S-Pbag{PL}} .
   protecting JSQ{PL} .
   subsort Jsq < Node .
 endfm

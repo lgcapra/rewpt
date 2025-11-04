@@ -40,7 +40,7 @@ fmod EMATRIX-MOD is
  eq replaceWithF(FS, NeL, N) = $replaceWithF(FS, noFlushArc, NeL, N) .
  op $replaceWithF : FlushArcs FlushArcs NeLab Nat -> FlushArcs .
  eq $replaceWithF(noFlushArc, FS, NeL, N) = FS .
- eq $replaceWithF(p(L) >> S' ; FS, FS', NeL, N) = $replaceWithF(FS, p(replaceWith(L, NeL, N)) >> replaceWithS(S', NeL, N) ; FS', NeL, N) .
+ eq $replaceWithF(p(L) >> S' ; FS, FS', NeL, N) = $replaceWithF(FS, p(replaceWithL(L, NeL, N)) >> replaceWithS(S', NeL, N) ; FS', NeL, N) .
  
  *** derived definitions of placesM
  op placesM : Ematrix NeList{String}  -> Pset .

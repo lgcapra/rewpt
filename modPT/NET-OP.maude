@@ -42,11 +42,6 @@ ceq mergeT(N ; L |-> Q ; L |-> Q', Z) = L |-> Q +  Q' ; mergeT(N, Z) if L in Z .
  eq mergeP(N, W) = net(mergeP(N nilP, W)) .
  
  ***  derived versions (characteristic of the formalism) specifying transitions to share  as well 
- op repl&share  : System NzNat String Pset Set{L} -> System .
- eq repl&share(Sys, K, W, S, Z) = mergeT(repl&share(Sys, K, W, S), Z) . 
- op repl&share : System NzNat String List{String} Set{L} -> System .
- eq repl&share(Sys, K, W, Lw, Z) = repl&share(Sys, K, W, places(n(Sys), Lw), Z) .
- *** net level
  op repl&share : Net NzNat String Pset Set{L} -> Net .
  eq repl&share(N, K, W, S, Z) = mergeT(repl&share(N, K, W, S), Z) . 
  op repl&share : Net NzNat String List{String} Set{L} -> Net .

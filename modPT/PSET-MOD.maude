@@ -37,21 +37,7 @@ fmod PSET-MOD is
    op replaceWithS : Pset NeLab Nat -> Pset . 
    eq replaceWithS(S, NeL, I) = $replaceWithS(S, emptyPset, NeL, I) .
    op $replaceWithS : Pset Pset NeLab Nat -> Pset .
-   eq $replaceWithS(p(L) U S', S, NeL, I) = $replaceWithS(S', p(replaceWith(L, NeL, I)) U S, NeL, I) .
+   eq $replaceWithS(p(L) U S', S, NeL, I) = $replaceWithS(S', p(replaceWithL(L, NeL, I)) U S, NeL, I) .
    eq $replaceWithS(emptyPset, S, NeL, I) = S .
-   *** set version
-   op existsgrS : Pset NeLab  -> Bool .
-  ceq existsgrS(p(L' < W ; J > L) U S, < W ; I > L) = true  if J > I .
-   eq existsgrS(S, NeL) = false [owise] .
-   *** find the min suffix header's index non present in the set of places
-   op minNotInS : Pset String Lab -> Nat .
-   eq minNotInS(S, W, L) = $minNotInS(S, W, L, 0) .
-   op $minNotInS : Pset String Lab Nat -> Nat . 
-   eq $minNotInS(S, W, L, I) = if existS(S, < W ; I > L) then $minNotInS(S, W, L, I + 1) else I fi .  
-   *** returns the biggest suffix header's index in the specified set of places (-1 if no place with a matching suffix does exist)
-   op maxInS : Pset String Lab -> Int .
-  ceq maxInS(p(L' NeL) U S, W, L) = J if < W ; J > L := NeL /\ existsgrS(S, NeL) == false .  
-   eq maxInS(S, W, L) = -1 [owise] .
-
 endfm 
 

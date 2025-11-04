@@ -4,7 +4,7 @@ in PLAB
 fmod PBAG-MOD is
  pr PBAG{Plab} .
  vars P P' P'' P''' : Place . 
- vars K K' : NzNat . vars I J : Nat .
+ vars K K' : NzNat . vars I J X : Nat .
  vars B B' B'' : Pbag . vars NeB NeB' : NePbag .
  vars EB EB' : ElPbag .
  vars L L' L'' : Lab . var E : Elab . vars NeL NeL' : NeLab .
@@ -57,14 +57,12 @@ fmod PBAG-MOD is
  *** default
  op addLaB : Pbag Lab -> Pbag .
  eq addLaB(B, L) = addLaB(B, L, emptyPset) .
- 
   *** replaces in all places whose label match the given suffix with a corresponding suffix having as header's index the specified value
  op replaceWithB : Pbag NeLab Nat -> Pbag . 
  eq replaceWithB(B, NeL, I) = $replaceWithB(B, nilP, NeL, I) .
  op $replaceWithB : Pbag Pbag NeLab Nat -> Pbag .
- eq $replaceWithB(K . p(L) + B', B, NeL, I) = $replaceWithB(B', K . p(replaceWith(L, NeL, I)) + B, NeL, I) .
+ eq $replaceWithB(K . p(L) + B', B, NeL, I) = $replaceWithB(B', K . p(replaceWithL(L, NeL, I)) + B, NeL, I) .
  eq $replaceWithB(nilP, B, NeL, I) = B .
-
  *** set a weight for a set of places -- builds on set(B, P, I) defined in BAG module (note: P is a Set)
  op set : Pbag Pset Nat -> Pbag .
 ceq set(B, S, I) = $set(B, S, I) if S :: Place == false . *** S is not a singleton (we avoid recursion)
@@ -75,19 +73,6 @@ ceq set(B, S, I) = $set(B, S, I) if S :: Place == false . *** S is not a singlet
  op existsB : Pbag NeLab -> Bool .
  eq existsB(K . p(L' NeL) + B, NeL) = true  .
  eq existsB(B, NeL) = false [owise] .
- ***
- op existsgrB : Pbag NeLab  -> Bool .
-ceq existsgrB(K . p(L' < W ; J > L) + B, < W ; I > L) = true  if J > I .
- eq existsgrB(B, NeL) = false [owise] .
- ***
- op minNotInB : Pbag String Lab -> Nat .
- eq minNotInB(B, W, L) = $minNotInB(B, W, L, 0) .
- op $minNotInB : Pbag String Lab Nat -> Nat . 
- eq $minNotInB(B, W, L, I) = if existsB(B, < W ; I > L) then $minNotInB(B, W, L, I + 1) else I fi .  
- ***
- op maxInB : Pbag String Lab -> Int .
-ceq maxInB(K . p(L' NeL) + B, W, L) = J if < W ; J > L := NeL /\ existsgrB(B, NeL) == false .  
- eq maxInB(B, W, L) = -1 [owise] .
 *** sub-bag matching a prefix
  op subag : Pbag  NeLab  -> Pbag . 
  eq subag(B, NeL) = $subag(B, NeL, nilP) .  
@@ -101,26 +86,45 @@ ceq $subag(K . p(L) + B, NeL, B') = $subag(B, NeL, B' + K . p(L)) if hasSuffix(L
 ceq $match(K . p(L) + B, NeWs, B') = $match(B, NeWs, B' + K . p(L)) if match(L, NeWs) .
  eq $match(B, NeWs, B') = B' [owise] .
 
-*** DEFINIZIONI NON USATE MA POTENZIALMENTE UTILI
-*** gives the sub-bag of places whose labes have (match) a given suffix (NOTE a String is also a NeList{String})
- *** op subag : Pbag NeList{String} -> Pbag . 
- *** eq subag(B, NeWs) = $subag(B, NeWs, nilP) .  
- *** op $subag : Pbag NeList{String} Pbag -> Pbag . 
-*** ceq $subag(K . P + B, NeWs, B') = $subag(B, NeWs, B' + K . P) if hasSuffix(P, NeWs) .
- *** eq $subag(B, NeWs, B') = B' [owise] .
- *** op subag : Pbag List{String} NeLab  -> Pbag . 
- *** eq subag(B, Ws, NeL) = $subag(B, Ws, NeL, nilP) .  
- *** op $subag : Pbag List{String} NeLab Pbag -> Pbag . 
-*** ceq $subag(K . P + B, Ws, NeL, B') = $subag(B, Ws, NeL, B' + K . P) if hasSuffix(P, Ws, NeL) .
- *** eq $subag(B, Ws, NeL, B') = B' [owise] .
- *** might be defined in terms of a previous one
-  *** gives the sub-bag of places whose labes match a given pref-suffix
- *** op match : Pbag List{String} NeLab  -> Pbag . 
- *** eq match(B, Ws, NeL) = $match(B, Ws, NeL, nilP) .  
- *** op $match : Pbag List{String} NeLab Pbag -> Pbag . 
-*** ceq $match(K . P + B, Ws, NeL, B') = $match(B, Ws, NeL, B' + K . P) if match(P, Ws, NeL) .
- *** eq $match(B, Ws, NeL, B') = B' [owise] .
+ *** STATE NORMALIZATION (SI POTREBBE SPOSTARE TUTTA in PBAG-MOD)
+ *** normalization (general): index abstraction plus marking normalization 
+ op normalizeB : Pbag -> Pbag .
+ eq normalizeB(B) = minimize(abstractB(B)) . *** seems slightly better than the alternative 
+ *** eq normalizeB(B) = abstractB(minimize(B)) . *** alternative
  
+ *** flexible version: index-abstraction activated based on a flag
+ op normalizeB : Pbag Bool -> Pbag .
+ eq normalizeB(B, F:Bool) = if F:Bool then minimize(B) else normalizeB(B) fi .
+ 
+ *** brings a marking (of a symmetric net) to a minimal form
+ op minimize : Pbag -> Pbag  [memo] .
+ eq minimize(B) = B [owise] .
+ceq minimize(K . P + K' . P' + B) = minimize(B' + (B - B'' )) if p(L' < W ; I > L) := P /\ p(L'' < W ; J > L) := P' /\
+                      J > I /\ (K =/= K' or-else L' =/= L'')  /\ B'' := extract(B, W, I, J, L) /\
+                      B' := swapLab(B'' + K . P + K' . P', W, L, I, J) /\ le(B', B'' + K . P + K' . P') . *** J > I prunes some matches (same as I > J) 
+ *** using lex instead of le seems to be a bit less efficient
+*** makes name (index) abstraction in a marking in a simple way: repeatedly searches (and in the event, replaces with) a suffix header's index with a missing prdecessor
+ op abstractB : Pbag -> Pbag .
+ceq abstractB(B) = abstractB(K . p(L' < W ; K' - 1 > L) + replaceWithB(B', < W ; K' > L, K' - 1)) if K . p(L' < W ; K' > L) + B' := B /\ existsB(B', < W ; K' - 1 > L) == false .
+ eq abstractB(B) = B [owise] .
+ 
+ *** extracts the elements with a given suffix and the suffix header's built of a given string and index in a set
+ op extract : Pbag String Nat Nat Lab ->  Pbag .
+ eq extract(B, W, I, J, L) = $extract(B, nilP, W, I, J, L) .
+ op $extract : Pbag Pbag String Nat Nat Lab ->  Pbag .
+ eq $extract(nilP, B, W, I, J, L) = B .
+ceq $extract(K . p(L' < W ; X > L) + B, B', W, I, J, L) = $extract(B, B' + K . p(L' < W ; X > L) , W, I, J, L) if X == I or-else X == J . 
+ eq $extract(K . P + B, B', W, I, J, L) = $extract(B, B', W, I, J, L) [owise] . 
+*** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
+ op swapLab : Pbag String Lab Nat Nat -> Pbag .
+ eq swapLab(B, W, L, I, I) = B .
+ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J . 
+ op $swapLab : Pbag Pbag String Lab Nat Nat -> Pbag .
+ eq $swapLab(nilP, B, W, L, I, J) = B .
+ eq $swapLab(K . p(L' < W ; I > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; J > L) + B', W, L, I, J) .
+ eq $swapLab(K . p(L' < W ; J > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; I > L) + B', W, L, I, J) .
+ eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
+
 endfm
 
 
