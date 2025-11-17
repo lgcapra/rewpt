@@ -14,7 +14,7 @@ mod QUEUE-NODE-SYS{PL :: TRIV} is
    including QUEUE-NODE{PL} .
    inc CONVERSION .
    var N : Network . var S : Server . var Q : Queue .
-   vars LS LS'  : List{Server} . var NeLQ : NeList{Server} . 
+   vars LS LS'  : ServerList . var NeLQ : NeServerList . 
    var M : Pbag . var K : NzNat . var rate : Float . var P : Place .
 
    crl [q-firing] : (N , Q) : M => (N , Q) : M  + 1 . P - 1 . p(S)

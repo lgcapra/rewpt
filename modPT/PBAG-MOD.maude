@@ -14,13 +14,13 @@ fmod PBAG-MOD is
  var NeWs : NeList{String} .
 
  *** gives the sub-bag of places whose labes have (match) a given suffix (NOTE a String is also a NeList{String})
- op placesB : Pbag NeList{String} -> Pset .
- eq placesB(B, NeWs) = $placesB(B, NeWs, emptyPset) . 
- op $placesB : Pbag NeList{String} Pset -> Pset .
- eq $placesB(K . p(L) + B, NeWs, S) = $placesB(B, NeWs, if hasSuffix(L, NeWs) then S U p(L) else S fi)  .
- eq $placesB(nilP, NeWs, S) = S  .
+ op placesB : Pbag List{String} -> Pset .
+ eq placesB(B, Ws) = $placesB(B, Ws, emptyPset) . 
+ op $placesB : Pbag List{String} Pset -> Pset .
+ eq $placesB(K . p(L) + B, Ws, S) = $placesB(B, Ws, if hasSuffix(L, Ws) then S U p(L) else S fi)  .
+ eq $placesB(nilP, Ws, S) = S  .
  *** analogous, using match instead of hasSuffix (to define)
- op placesB : Pbag NeList{String} NeLab -> Pset .
+ *** op placesB : Pbag NeList{String} NeLab -> Pset .
 
  *** le: strict TO on bags obtained by permuting a bag's elements -- defined without passing through lists
  op cmp : ElPbag ElPbag -> Nat .   *** compare method between el. bags  -- results in {0,1,2}
@@ -124,7 +124,6 @@ ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J .
  eq $swapLab(K . p(L' < W ; I > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; J > L) + B', W, L, I, J) .
  eq $swapLab(K . p(L' < W ; J > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; I > L) + B', W, L, I, J) .
  eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
-
 endfm
 
 

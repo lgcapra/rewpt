@@ -1,0 +1,92 @@
+in ../../PBAG
+in ../QUEUE
+in ../../modPT/MONOID-MOD
+in ../../modPT/PLAB
+
+
+fmod SERVER-LIST-LAB is 
+   protecting SERVER-LIST{Plab} .
+   protecting PSET-MOD .
+   var P : Place . var F : Float .  var J  : Nat . var S : Pset .
+   vars L L' : Lab . var NeL : NeLab . var WL : List{String} . var NeWL : NeList{String} . 
+   op replaceWithServer : Server NeLab Nat -> Server .
+   eq replaceWithServer(p(L) @ F, NeL, J) = p(replaceWithL(L, NeL, J)) @ F .
+   op addLabServer : Server Lab Pset -> Server . 
+   eq addLabServer(p(L') @ F, L, S) = if p(L') in S then p(L') else p(L' L) fi @ F .
+   op placesServer : Server List{String} -> Pset .
+   eq placesServer(p(L) @ F, WL) = if hasSuffix(L, WL) then p(L) else emptyPset fi .
+   op inServer : Server Place -> Bool .
+   eq inServer(p(L) @ F, p(L')) = L == L' .
+endfm 
+
+view SERVER-LIST-LAB from MO-NET to SERVER-LIST-LAB is
+  sort Elt to ServerList .
+  sort El to Server .
+  op nil to nilSeL  .
+  op _;_ to __ .
+  op replaceWithEl to replaceWithServer . 
+  op addLabEl to addLabServer .
+  op placesEl to placesServer .
+  op inEl to inServer .
+endv
+
+*** SERVER-LIST with structured label wrapped as a modular monoid with suitable compositional and normalization operators
+fmod SERVER-LIST-MOD is
+ pr MO-NET-OP{SERVER-LIST-LAB} .
+endfm
+
+*** multi-class queues built over elementary servers 
+fmod QUEUE-MOD is 
+  protecting SERVER-LIST-MOD .
+  protecting PBAG-MOD .
+  sorts Queue SimpleQ ElQueue .
+  subsort ElQueue < SimpleQ < Queue .
+  vars Q Q' : Server .
+  var SQ : SimpleQ .
+  var Qu : Queue .
+  vars LS LS' LS'' : ServerList . 
+  var NeLS : NeServerList .
+  vars M M' M'' : Pbag . 
+  var P : Place .
+  op _>_ : NeServerList Place -> SimpleQ [ctor] .
+  op _>_ : Server Place -> ElQueue [ctor ditto] . *** an elementary queue
+  op [_,_] _  : Pbag Pbag SimpleQ -> Queue [ctor] . *** queue with prefixed enabling conditions
+  eq [nilP, nilP] SQ = SQ .  
+  op ql : Queue -> NeServerList . *** the enclosed list of elementary queues
+  eq ql(LS > P) = LS .
+  eq ql([M, M'] SQ) = ql(SQ) .
+  op out : Queue -> Place .
+  eq out(LS > P) = P .
+  eq out([M, M'] SQ) = out(SQ) .
+  op well-def : NeServerList -> Bool .
+  op pin : Queue -> Place .
+  eq pin(Q LS > P) = p(Q) .
+  eq pin([M, M'] SQ ) = pin(SQ) .
+ ceq well-def(LS Q LS' Q' LS'') = false if p(Q) = p(Q') .
+  eq well-def(Q LS) = true [owise] . 
+  op clients : ServerList Pbag -> [Nat] [memo] .
+ ceq clients(Q LS, M) = M[p(Q)] + clients(LS, M) if well-def(Q LS) .
+  eq clients(nilSeL, M) = 0 .
+  op clients : Queue Pbag -> [Nat] .
+  eq clients(Qu, M) = clients(ql(Qu), M) . 
+  op qenabled : Queue Pbag -> Bool . *** the queue "enabling" condition
+  eq qenabled(SQ, M) = true .
+  eq qenabled([M, M'] SQ, M'') = enabCond(M, M', M'')  . *** similar to the PN tran. enabling condition (M input, M' inhibitor)
+  op cap : ElQueue -> NzNat .
+  eq cap(X:ElQueue) = cap(pin(X:ElQueue)) .
+  *** return the place of the next element if any, otherwise the specified default place (convenience op)
+   op nextPosDef : ServerList Place -> Place [memo] .  
+   eq nextPosDef(LS , P) = if LS  == nilSeL then P else p(head(LS )) fi .
+   
+   *** "modular" ops
+   var J  : Nat . var S : Pset . vars L L' : Lab . var NeL : NeLab . var WL : List{String} .  
+   op replaceWithQueue : Queue NeLab Nat -> Queue . 
+   eq replaceWithQueue(NeLS > p(L), NeL, J) = replaceWith(NeLS, NeL, J) >  p(replaceWithL(L, NeL, J)) . 
+   op addLabQueue : Queue Lab Pset -> Queue . 
+   eq addLabQueue(NeLS > p(L'), L, S) = addLab(NeLS, L, S) > if p(L') in S then p(L') else p(L' L) fi  .
+   op placesQueue : Queue List{String} -> Pset .
+   eq placesQueue(NeLS > p(L), WL) = places(NeLS, WL) U if hasSuffix(L, WL) then p(L) else emptyPset fi .
+   op inQueue : Queue Place -> Bool .
+   eq inQueue(NeLS > p(L), p(L')) = L == L' or-else in(NeLS, p(L')) .
+   
+endfm

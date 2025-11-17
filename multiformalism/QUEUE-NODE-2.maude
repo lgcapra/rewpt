@@ -6,14 +6,14 @@ fmod QUEUE-NODE{PL :: TRIV} is
    pr QUEUE{PL} .
    pr MSET-MARKING-RATE{PL} .
    pr CONVERSION .
-   var S  : Server . var Q : Queue . var LS  : List{Server} . 
+   var S  : Server . var Q : Queue . var LS  : ServerList . 
    var K : Nat . var rate : Float . var M : Pbag .
    var MS : StatesRates . vars P P' : Place .
    op qnext  : Queue Pbag -> StatesRates . *** non deterministic firing (see the corresponding rule)
   ceq qnext(Q, M) = $qnext(ql(Q), noStateRate, out(Q), K, M) if K := clients(ql(Q), M) /\ K > 0 /\ qenabled(Q, M) .
    eq qnext(Q, M) = noStateRate [owise]. 
-   op $qnext : List{Server} StatesRates Place NzNat Pbag -> StatesRates .
-   eq $qnext(nilElQ, MS, P, K, M) = MS .
+   op $qnext : ServerList StatesRates Place NzNat Pbag -> StatesRates .
+   eq $qnext(nilSeL, MS, P, K, M) = MS .
   ceq $qnext(S LS, MS, P, K, M) = $qnext(LS, MS, P, K, M) if P' := nextPosDef(LS, P) /\ mu(S) == 0.0 or-else M[p(S)] == 0 or-else M[P'] >= cap(P') . *** takes cap into accout
   ceq $qnext(S LS, MS, P, K, M) = $qnext(LS, MS (M  + 1 . nextPosDef(LS, P) - 1 . p(S) -- rate ), P, K, M) 
          if rate := mu(S) * float(M[p(S)]) / float(K) [owise] .  

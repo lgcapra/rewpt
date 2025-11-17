@@ -9,8 +9,7 @@ fth MO-NET is
   including PSET-MOD .
   op replaceWithEl : El NeLab Nat -> El . *** defined for a single element of a network
   op addLabEl : El Lab Pset -> El . 
-  op placesEl : El -> Pset .
-  op placesEl : El NeList{String} -> Pset .
+  op placesEl : El List{String} -> Pset .
   op inEl : El Place -> Bool .
 endfth
 
@@ -38,27 +37,23 @@ fmod MO-NET-OP{N :: MO-NET} is
   *** defined for convenience (maps to the previous version)
   op addLab : N$Elt Lab List{String} -> N$Elt .
   eq addLab(N, L, WL) = addLab(N, L, places(N, WL)) . 
-  *** set of places
-  op places : N$Elt -> Pset [memo] .
-  eq places(N) = $places (N, emptyPset) .
-  op $places : N$Elt Pset -> Pset .
-  eq $places(nil, S) = S .
-  eq $places(E ; N, S) = $places (N, S U placesEl(E)) .
-  *** places matching a suffix (derived definitions) 
+  *** places matching (the text part of) a suffix 
   op places : N$Elt List{String} -> Pset .
-  eq places(N, emptyLs) = places(N) .
-  eq places(N, NeWL) = $places(N, NeWL, emptyPset) .
-  op $places : N$Elt NeList{String} Pset -> Pset .
-  eq $places(nil, NeWL, S) = S .
-  eq $places(E ; N, NeWL, S) = $places (N, NeWL, S U placesEl(E, NeWL)) .
-  *** efficient implementation
+  eq places(N, WL) = $places(N, WL, emptyPset) .
+  op $places : N$Elt List{String} Pset -> Pset .
+  eq $places(nil, WL, S) = S .
+  eq $places(E ; N, WL, S) = $places(N, WL, S U placesEl(E, WL)) .
+  *** entire set of places (derived)
+  op places : N$Elt -> Pset [memo] .
+  eq places(N) = places (N, emptyLs) .
+  *** 
   op in : N$Elt Place -> Bool . 
-ceq in(E ; N, P) = true if inEl(E, P) .
+ ceq in(E ; N, P) = true if inEl(E, P) .
   eq in(N, P) = false [owise] .
  
   *** extend the versions defined on Pbag: efficient if places is set as [memo] -- otherwise better to define from scratch
-  op exists : N$Elt NeLab  -> Bool .
-  eq exists(N, NeL) = existS(places(N), NeL) .
+  *** op exists : N$Elt NeLab  -> Bool .
+  *** eq exists(N, NeL) = existS(places(N), NeL) .
   **** normalization (name abstraction)
   op abstract : N$Elt -> N$Elt .
  ceq abstract(N) = abstract(replaceWith(N, < W ; K > L, K - 1)) if p(L' < W ; K > L) U S := places(N) /\ existS(S, < W ; K - 1 > L) == false .
@@ -67,16 +62,21 @@ ceq in(E ; N, P) = true if inEl(E, P) .
   op abstractBut : N$Elt String -> N$Elt .
  ceq abstractBut(N, W') = abstractBut(replaceWith(N, < W ; K > L, K - 1), W') if p(L' < W ; K > L) U S := places(N) /\ 1st(last(L' < W ; K > L)) =/= W' /\ existS(S, < W ; K - 1 > L) == false .
   eq abstractBut(N, W) = N [owise] .
+  *** new: for terms without an associated state normalization coincides with name abstraction (FORSE NON SERVE?)
+  op normalize : N$Elt -> N$Elt .
+  eq normalize(N) = abstract(N) .
+  op normalizeBut : N$Elt String -> N$Elt .
+  eq normalizeBut(N, W) = abstractBut(N, W) .
 
   *** "symmetric" juxtaposition: creates K (disjoint) replica of a node's structure each one with a suitably added label suffix (index 0..K-1) denoting the "nesting" level
   op repl&share : N$Elt NzNat String Pset -> N$Elt .
- eq repl&share(N, K, W, S) = $repl&share(N, K, W, nil, S) .
- op $repl&share : N$Elt Nat String N$Elt Pset -> N$Elt .
- eq $repl&share(N, 0, W, N', S) = N' .
- eq $repl&share(N, K, W, N', S) = $repl&share(N, K - 1, W, (N' ; addLab(N, < W ; K - 1 >, S)), S) .
+  eq repl&share(N, K, W, S) = $repl&share(N, K, W, nil, S) .
+  op $repl&share : N$Elt Nat String N$Elt Pset -> N$Elt .
+  eq $repl&share(N, 0, W, N', S) = N' .
+  eq $repl&share(N, K, W, N', S) = $repl&share(N, K - 1, W, (N' ; addLab(N, < W ; K - 1 >, S)), S) .
   *** derived  versionss
- op replica : N$Elt NzNat String -> N$Elt . *** default
- eq replica(N, K, W) = repl&share(N, K, W, emptyPset) .
+  op replica : N$Elt NzNat String -> N$Elt . *** default
+  eq replica(N, K, W) = repl&share(N, K, W, emptyPset) .
 endfm 
 
 in PBAG-MOD
@@ -106,24 +106,25 @@ fmod MO-NET-SYS-OP{N :: MO-NET-SYS} is
   eq st(N : M) = M .
   
  *** clears the system's marking by removing non encoded places
- op clearupM : N$SysNode -> N$SysNode .
-ceq clearupM(N : K . P + M) = clearupM(N : M) if in(N, P) == false .
- eq clearupM(Sys) = Sys [owise] .
+ op clearUp : N$SysNode -> N$SysNode .
+ceq clearUp(N : K . P + M) = clearUp(N : M) if in(N, P) == false .
+ eq clearUp(Sys) = Sys [owise] .
 
   *** derived version 
  op replaceWith : N$SysNode NeLab Nat -> N$SysNode .
  eq replaceWith(N : M, NeL, J) = replaceWith(N, NeL, J) : replaceWithB(M, NeL, J) .
+ op places : N$SysNode List{String} -> Pset .
+ eq places(N : M, WL) = places(N, WL) . 
+ op places : N$SysNode -> Pset .
+ eq places(N : M) = places(N) . 
 
-*** removes isolated places
-*** ceq N K . P + M = N : M if in(N, P) = false . *** removes isolated places from the marking
- 
  *** normalization (name abstraction) 
  op abstract : N$SysNode -> N$SysNode .
-ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K > L, K - 1)) if p(L' < W ; K > L) U S := places(nd(Sys)) /\ existS(S, < W ; K - 1 > L) == false .
+ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K > L, K - 1)) if p(L' < W ; K > L) U S := places(Sys) /\ existS(S, < W ; K - 1 > L) == false .
  eq abstract(Sys) = Sys [owise] .
  *** excludes from index abstraction those places (components) matching a given suffix
  op abstractBut : N$SysNode String -> N$SysNode .
-ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K > L, K - 1), W') if p(L' < W ; K > L) U S := places(nd(Sys)) /\ 1st(last(L' < W ; K > L)) =/= W' /\ existS(S, < W ; K - 1 > L) == false .
+ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K > L, K - 1), W') if p(L' < W ; K > L) U S := places(Sys) /\ 1st(last(L' < W ; K > L)) =/= W' /\ existS(S, < W ; K - 1 > L) == false .
  eq abstractBut(Sys, W) = Sys [owise] .
  *** normalize a system assuming that its labelling is well-defined: for the "net", only index abstraction applies 
  op normalize : N$SysNode -> N$SysNode .
@@ -143,8 +144,6 @@ ceq normalize(Sys, W) = nd(Sys') : normalizeB(st(Sys')) if Sys' := abstractBut(S
  op join : N$SysNode N$SysNode -> N$SysNode [assoc comm] .
  eq join(N : M, N' : M') = (N ; N') : M + M' .
  
- 
-
 endfm 
 
 

@@ -14,44 +14,49 @@ fmod SERVER{PL :: TRIV} is
   eq p(P @ F) = P .
 endfm
 
+
 *** default view to SERVER
 view Server{PL :: TRIV} from TRIV to SERVER{PL} is
    sort Elt to Server .
 endv
 
+fmod SERVER-LIST{PL :: TRIV} is 
+   protecting LIST{Server{PL}} * (sort List{Server{PL}} to ServerList, sort NeList{Server{PL}} to NeServerList,
+                                  op nil to nilSeL) .
+endfm 
+
 *** multi-class queues built over elementary servers 
 fmod QUEUE{PL :: TRIV} is 
-  protecting LIST{Server{PL}} * (sort List{Server{PL}} to List{Server}, sort NeList{Server{PL}} to NeList{Server},
-                                  op nil to nilElQ) .
+  protecting SERVER-LIST{PL} .
   protecting PBAG{PL} .
   sorts Queue SimpleQ ElQueue .
   subsort ElQueue < SimpleQ < Queue .
   vars Q Q' : Server .
   var SQ : SimpleQ .
   var Qu : Queue .
-  vars LQ LQ' LQ'' : List{Server} . 
-  var NeLQ : NeList{Server} .
+  vars LQ LQ' LQ'' : ServerList . 
+  var NeLQ : NeServerList .
   vars M M' M'' : Pbag . 
   var P : Place .
-  op _>_ : NeList{Server} Place -> SimpleQ [ctor] .
+  op _>_ : NeServerList Place -> SimpleQ [ctor] .
   op _>_ : Server Place -> ElQueue [ctor ditto] . *** an elementary queue
   op [_,_] _  : Pbag Pbag SimpleQ -> Queue [ctor] . *** queue with prefixed enabling conditions
   eq [nilP, nilP] SQ = SQ .  
-  op ql : Queue -> NeList{Server} . *** the enclosed list of elementary queues
+  op ql : Queue -> NeServerList . *** the enclosed list of elementary queues
   eq ql(LQ > P) = LQ .
   eq ql([M, M'] SQ) = ql(SQ) .
   op out : Queue -> Place .
   eq out(LQ > P) = P .
   eq out([M, M'] SQ) = out(SQ) .
-  op well-def : NeList{Server} -> Bool .
+  op well-def : NeServerList -> Bool .
   op pin : Queue -> Place .
   eq pin(Q LQ > P) = p(Q) .
   eq pin([M, M'] SQ ) = pin(SQ) .
  ceq well-def(LQ Q LQ' Q' LQ'') = false if p(Q) = p(Q') .
   eq well-def(Q LQ) = true [owise] . 
-  op clients : List{Server} Pbag -> [Nat] [memo] .
+  op clients : ServerList Pbag -> [Nat] [memo] .
  ceq clients(Q LQ, M) = M[p(Q)] + clients(LQ, M) if well-def(Q LQ) .
-  eq clients(nilElQ, M) = 0 .
+  eq clients(nilSeL, M) = 0 .
   op clients : Queue Pbag -> [Nat] .
   eq clients(Qu, M) = clients(ql(Qu), M) . 
   op qenabled : Queue Pbag -> Bool . *** the queue "enabling" condition
@@ -60,7 +65,7 @@ fmod QUEUE{PL :: TRIV} is
   op cap : ElQueue -> NzNat .
   eq cap(X:ElQueue) = cap(pin(X:ElQueue)) .
   *** return the place of the next element if any, otherwise the specified default place (convenience op)
-   op nextPosDef : List{Server} Place -> Place [memo] .  
-   eq nextPosDef(LQ , P) = if LQ  == nilElQ then P else p(head(LQ )) fi .
+   op nextPosDef : ServerList Place -> Place [memo] .  
+   eq nextPosDef(LQ , P) = if LQ  == nilSeL then P else p(head(LQ )) fi .
    
 endfm

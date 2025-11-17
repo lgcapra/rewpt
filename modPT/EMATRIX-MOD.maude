@@ -43,18 +43,18 @@ fmod EMATRIX-MOD is
  eq $replaceWithF(p(L) >> S' ; FS, FS', NeL, N) = $replaceWithF(FS, p(replaceWithL(L, NeL, N)) >> replaceWithS(S', NeL, N) ; FS', NeL, N) .
  
  *** derived definitions of placesM
- op placesM : Ematrix NeList{String}  -> Pset .
- eq placesM([X,Y,Z], NWs) = placesB(X, NWs) U placesB(Y, NWs) U placesB(Z, NWs) .
- eq placesM([X,Y], NWs) = placesB(X, NWs) U placesB(Y, NWs) .
- eq placesM(Q' f: FS, NWs) = placesM(Q', NWs) U placesF(FS, NWs) . 
- op placesF : FlushArcs NeList{String} -> Pset .
- eq placesF(FS, NWs) = $placesF(FS, emptyPset, NWs) .
+ op placesM : Ematrix List{String}  -> Pset .
+ eq placesM([X,Y,Z], Ws) = placesB(X, Ws) U placesB(Y, Ws) U placesB(Z, Ws) .
+ eq placesM([X,Y], Ws) = placesB(X, Ws) U placesB(Y, Ws) .
+ eq placesM(Q' f: FS, Ws) = placesM(Q', Ws) U placesF(FS, Ws) . 
+ op placesF : FlushArcs List{String} -> Pset .
+ eq placesF(FS, Ws) = $placesF(FS, emptyPset, Ws) .
  op $placesF : FlushArcs Pset NeList{String} -> Pset  .
- eq $placesF(noFlushArc, S, NWs) = S .
- eq $placesF(p(L) >> S' ; FS, S, NWs) = $placesF(FS, if hasSuffix(L, NWs) then p(L) else emptyPset fi U placeS(S', NWs), NWs) .
+ eq $placesF(noFlushArc, S, Ws) = S .
+ eq $placesF(p(L) >> S' ; FS, S, Ws) = $placesF(FS, if hasSuffix(L, Ws) then p(L) else emptyPset fi U placeS(S', Ws), Ws) .
  
  *** defined analogously (to do)
- op placesM : Ematrix List{String} NeLab  -> Pset .
+ *** op placesM : Ematrix List{String} NeLab  -> Pset .
  
  *** op match : Tmatrix List{String} NeLab -> Tmatrix .
  *** eq match([X,Y,Z], Ws, NeL) = [match(X, Ws, NeL), match(Y, Ws, NeL), match(Z, Ws, NeL)] .

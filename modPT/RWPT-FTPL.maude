@@ -13,7 +13,18 @@ mod RWPT-FTPL is
  var W : String .
  vars L L' L0 L1 L2 L3 L4 L5 L6 L7 : Lab .
  var Sys Sys' : System .
- var Sp : Pset .
+ var Ps : Pset .
+
+ op minNotIn : Net String Lab -> Nat .
+ eq minNotIn(N, W, L) = minNotInS(places(N), W, L) .
+ *** default versions (with a null suffix last part)
+ op minNotIn : Net String -> Nat .
+ eq minNotIn(N, W) = minNotIn(N, W, emptyLab) . 
+ op minNotInS : Pset String Lab -> Nat .
+ eq minNotInS(Ps, W, L) = $minNotInS(Ps, W, L, 0) .
+ op $minNotInS : Pset String Lab Nat -> Nat . 
+ eq $minNotInS(Ps, W, L, I) = if existS(Ps, < W ; I > L) then $minNotInS(Ps, W, L, I + 1) else I fi .  
+ 
 
 *** the rule syr1 replaces a nominal PL with a faulty one: is correct (symmetric) but doesn't match the normalization requirements
 ***crl [syr1] : N S + 1 . P7 => ( N' ; [2 . P1, 2 . P2, nilP] |-> Tload ;  [2 . P4, 2 . P1, nilP] |-> Tass  ) set(S, P3, 0) + S[P3] . P2 + 1 . P0 
@@ -46,10 +57,10 @@ crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 
 
 *** marking abstractions (derived from readable versions)
 *** crl [ar1] : N  nilP => normalize(joinAbs(Sys, Sys'))   
-***   if  p(L < "PL" ; I >) U Sp := places(N) /\ Sys := detache(N, nomPL(I)) nilP /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
-*** crl [ar2] : N nilP =>  normalize(N'' nilP) if p(L < "fPL" ; I >)  U Sp := places(N) /\ N' := faultyPL(I) /\  N'' := detache(N, N') /\ N'' =/= emptyNet .
+***   if  p(L < "PL" ; I >) U Ps := places(N) /\ Sys := detache(N, nomPL(I)) nilP /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
+*** crl [ar2] : N nilP =>  normalize(N'' nilP) if p(L < "fPL" ; I >)  U Ps := places(N) /\ N' := faultyPL(I) /\  N'' := detache(N, N') /\ N'' =/= emptyNet .
 *** (paper versions)
-*** crl [ar1p] : N nilP => normalize(attach(N', faultyPL, "fPL") nilP)  if  p(L < "PL" ; I >) U Sp := places(N) /\ N' := detache(N, < "PL" ; I >)  .
-*** crl [ar2p] : N nilP => normalize(N'' nilP)  if p(L < "fPL" ; I >)  U Sp := places(N) /\  N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyNet  .
+*** crl [ar1p] : N nilP => normalize(attach(N', faultyPL, "fPL") nilP)  if  p(L < "PL" ; I >) U Ps := places(N) /\ N' := detache(N, < "PL" ; I >)  .
+*** crl [ar2p] : N nilP => normalize(N'' nilP)  if p(L < "fPL" ; I >)  U Ps := places(N) /\  N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyNet  .
 
 endm  

@@ -23,8 +23,8 @@ fmod PT-NET-LAB{L :: TRIV} is
   eq replaceWithTran(L |-> Q, NeL, J) = L |-> replaceWithM(Q, NeL, J) .
   op addLabTran : Tran Lab Pset -> Tran . 
   eq addLabTran(L |-> Q, Lab, S) = L |-> addLabM(Q, Lab, S) .
-  op placesTran : Tran NeList{String} -> Pset .
-  eq placesTran(L |-> Q, NeWL) = placesM(Q, NeWL) .
+  op placesTran : Tran List{String} -> Pset .
+  eq placesTran(L |-> Q, WL) = placesM(Q, WL) .
   
   *** these operations are specific of PT nets
   *** extract the subnet matching a given suffix
