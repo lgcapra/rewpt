@@ -1,0 +1,36 @@
+in QUEUE-NODE-MOD
+in SPN-NODE-MOD
+
+*** just to make some trials
+ mod FIRST-EXE is
+   inc QUEUE-NODE-SYS-MOD .
+   inc SPN-NODE-SYS-MOD{String} .
+   ops loadLab assLab failLab workLab : -> Tlab [memo] .
+   eq loadLab = t("ld", 0.5,   1 ) .
+   eq assLab =  t("as", 2.0,   0 ) .
+   eq workLab = t("ln", 0.1,   1 ) .
+   eq failLab = t("ft", 0.001, 1 ) .
+   ops line load ass  : -> Tran . 
+   op cycle  : -> Net [memo] .
+   eq line =  workLab  |-> [1 . p(< "w" ; 0 >) , 1 . p(< "a" ; 1 >), 1 . p(< "f" ; 0 >) ].
+   eq load  = loadLab  |-> [1 . p(< "s" ; 0 >) , 1 . p(< "w" ; 0 >) , nilP ] .
+   eq ass   = assLab  |-> [1 . p(< "a" ; 1 >) , 1 . p(< "s" ; 0 >)  , nilP ] .
+   eq cycle = load ; line ; ass .
+   op PL : NzNat -> Net . 
+   op NPL  : NzNat NzNat -> Net [memo]. *** N (faulty) prod lines 0 .. N- 1 each of K lines
+   op NPLsys : NzNat NzNat NzNat -> NetSys . 
+   vars N K M : NzNat .
+   
+   eq PL(K) = repl&shareSPN(cycle, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >)) . *** a PL is built of K symmetric lines 
+   eq NPL(N, K) = repl&shareSPN(PL(K), N, "PL", p(< "s" ; 0 >)) . *** change here to vary the lines of a PL
+   op newElQueue : Place Place Float -> [ElQueue] .
+   vars P P' : Place . var R : Float . var S : Pset .
+  ceq newElQueue(P, P', R) = P @ R > P' if P =/= P' .
+   op pool : NzNat Place Place Float Pset -> [Network] .
+   eq pool(N, P, P', R, S) = repl&share(newElQueue(P, P', R), N, "Q", S) .
+   op pool2 : -> [Network] .
+   eq pool2 = pool(2, p(< "cpu" ; 0 >), p(< "s" ; 0 >), 1.0, p(< "s" ; 0 >)) .
+   eq NPLsys(N, K, M) = setMark(setMark((NPL(N, K), pool2), "o" "PL", 1), "s", K * M) . *** si dovrebbe fare sull'intero network
+ 
+endm
+

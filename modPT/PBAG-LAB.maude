@@ -1,0 +1,74 @@
+in ../PBAG
+in PSET-LAB
+
+fmod PBAG-LAB is 
+ pr PSET-LAB .
+ pr PBAG{Plab} .
+ var W : String . var WL : List{String} . var NeWL : NeList{String} . vars P P' : Place .
+ vars K K' : NzNat . vars I J X : Nat . var S : Pset . vars B B' B'' : Pbag . vars NeB NeB' : NePbag .
+ vars EB EB' : ElPbag . vars NeL NeL' : NeLab . vars L L' L'' : Lab .  
+  
+  *** needed to implement a PBAG as a monoid
+ op replaceWithElB : ElPbag NeLab Nat -> ElPbag .
+ eq replaceWithElB(K . P, NeL, J) = K . replaceWithP(P, NeL, J) .
+ op addLabElB : ElPbag Lab Pset -> ElPbag . 
+ eq addLabElB(K . P, L, S) = K . addLabP(P, L, S) .
+ op placesElB : ElPbag List{String} -> Pset .
+ eq placesElB(K . P, WL) = placesP(P, WL) .
+ op inElB : ElPbag Place -> Bool .
+ eq inElB(K . P, P') = P == P' .
+
+  *** le: strict TO on bags obtained by permuting a bag's elements -- defined without passing through lists
+ op le  : Pbag Pbag -> Bool . *** to avoid any confusion with < , <= bag operators etc.
+ eq le(B, B) = false .
+ eq le(nilP, NeB) = true .
+ eq le(NeB, nilP) = false .
+ eq le(NeB + B', NeB + B'') = le(B', B'') . 
+ eq le(NeB, NeB') = cmp(min(NeB), min(NeB')) == 1 [owise] . 
+ *** NEW: we also consider place capacity
+ op cmp : ElPbag ElPbag -> Nat .   *** compare method between el. bags  -- results in {0,1,2}
+ eq cmp(K . P, K . P') = cmp(P, P') .
+ eq cmp(K . P, K' . P') = if K < K' then 1 else 2 fi [owise] . *** alternative
+ *** finds the min elementary bag, based on le
+ op min : NePbag -> ElPbag .
+ eq min(EB) = EB . *** optimization
+ eq min(K . P + NeB) = min(NeB, K . P) . 
+ op min : NePbag ElPbag -> ElPbag . 
+ eq min(EB + NeB, EB') =  min(NeB, min(EB, EB')) .
+ eq min(EB, EB) = EB .
+ eq min(EB, EB') = if cmp(EB, EB') == 1 then EB else EB' fi [owise] .
+ *** extracts the elements with a given suffix and the suffix header's built of a given string and index in a set
+ op extract : Pbag String Nat Nat Lab  ->  Pbag .
+ eq extract(B, W, I, J, L) = $extract(B, nilP, W, I, J, L) . *** new: added param WL
+ op $extract : Pbag Pbag String Nat Nat Lab  ->  Pbag .
+ eq $extract(nilP, B, W, I, J, L) = B .
+ceq $extract(K . p(L' < W ; X > L) + B, B', W, I, J, L) = $extract(B, B' + K . p(L' < W ; X > L) , W, I, J, L) if X == I or-else X == J  . 
+ eq $extract(K . P + B, B', W, I, J, L) = $extract(B, B', W, I, J, L) [owise] . 
+*** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
+ op swapLab : Pbag String Lab Nat Nat -> Pbag .
+ eq swapLab(B, W, L, I, I) = B .
+ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J . 
+ op $swapLab : Pbag Pbag String Lab Nat Nat -> Pbag .
+ eq $swapLab(nilP, B, W, L, I, J) = B .
+ eq $swapLab(K . p(L' < W ; I > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; J > L) + B', W, L, I, J) .
+ eq $swapLab(K . p(L' < W ; J > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; I > L) + B', W, L, I, J) .
+ eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
+ *** brings a marking (of a symmetric net) to a minimal form by considering index swaps
+ op minimize : Pbag -> Pbag  .
+ eq minimize(B) = B [owise] .
+ceq minimize(K . P + K' . P' + B) = minimize(B' + (B - B'' )) if p(L' < W ; I > L) := P /\ p(L'' < W ; J > L) := P' /\
+                     J > I /\ (K =/= K' or-else L' =/= L'')  /\ B'' := extract(B, W, I, J, L) /\ B' := swapLab(B'' + K . P + K' . P', W, L, I, J) /\ le(B', B'' + K . P + K' . P') . *** J > I prunes some matches (same as I > J) 
+
+*** sub-bag matching a prefix (used in the examples)
+ op subag : Pbag  NeLab  -> Pbag . 
+ eq subag(B, NeL) = $subag(B, NeL, nilP) .  
+ op $subag : Pbag NeLab Pbag -> Pbag . 
+ceq $subag(K . P + B, NeL, B') = $subag(B, NeL, B' + K . P) if hasSuffix(lab(P), NeL) .
+ eq $subag(B, NeL, B') = B' [owise] .
+ *** match the prefix: slightly different from subag (used in the examples)
+ op match : Pbag NeList{String} -> Pbag . 
+ eq match(B, NeWL) = $match(B, NeWL, nilP) .  
+ op $match : Pbag List{String} Pbag -> Pbag . 
+ceq $match(K . P + B, NeWL, B') = $match(B, NeWL, B' + K . P) if match(lab(P), NeWL) .
+ eq $match(B, NeWL, B') = B' [owise] .
+endfm

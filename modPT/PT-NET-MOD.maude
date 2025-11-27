@@ -3,7 +3,6 @@
 in ../PT-NET
 in EMATRIX-MOD
 in PLAB
-in MONOID-MOD
 
 *** PT nets with structured labels used by compositional ops
 fmod PT-NET-LAB{L :: TRIV} is

@@ -22,8 +22,8 @@ fmod PLAB is
  eq $strLab(emptyLab, Ls) = Ls .
  eq $strLab(< W ; I > L, Ls) = $strLab(L, Ls W) .
  ***
- op replaceWithL : Lab NeLab Nat -> Lab .
-ceq replaceWithL(L' NeL, NeL, I) = L' < W ; I > L if < W ; J > L := NeL /\ I =/= J .
+ op replaceWithL : Lab NeLab Nat -> Lab . *** new!
+ceq replaceWithL(L' NeL, NeL, I) = L' < W ; I > L if < W ; J > L := NeL /\ I =/= J  .
  eq replaceWithL(L, NeL, I) = L [owise] .
  
  *** checks that the label's suffix matches the given one

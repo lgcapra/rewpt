@@ -5,14 +5,13 @@ in ../SPN-NODE
 in ../JSQ-NODE
 in ../QUEUE-NODE
 
-*** blockchain representation (parametrized in palce labels) with separated Markov-modulation 
+*** blockchain representation (parametrized in place labels) with separated Markov-modulation 
 mod MM-BLOCKCHAIN is
   inc SPN-NODE-SYS{Plab} .  
   inc QUEUE-NODE-SYS{Plab}  .
   inc JSQ-NODE-SYS{Plab} .
   inc SPN-EMU{String,Plab} .
 
-  
   sort MMnetwork . *** markov modulated network
   op MM:_N:_ : System NetSys -> MMnetwork  [ctor] .
   op mc  : MMnetwork -> System .
@@ -26,16 +25,16 @@ endm
 *** forse alcuni operatori si potrebbero spostare
 mod BLOCKCHAIN-OP is
   inc MM-BLOCKCHAIN .
-  var q : ElQueue . var Q : Queue . vars Nq : Network . var K : NzNat . vars P P' : Place . 
+  var q : ElQueue . var Q : Queue . var K : NzNat . vars P P' : Place . 
   var R : Float . vars i j : Nat . var s : String . var L : Lab .
-  var J : Jsq . var NQ : QueueNet . vars N N' : Network . var S : Pset . var M : Pbag .
+  var J : Jsq .  vars N N' Nq : Network . var S : Pset . var M : Pbag .
 
-  op allClients : QueueNet Pbag -> [Nat] .
-  op $allClients : Network Pbag Nat -> Nat .
-  eq allClients(NQ, M) = $allClients(NQ, M , 0) .
+  op allClients : Network Pbag -> [Nat] .
+  op $allClients : Network Pbag Nat -> [Nat] .
+  eq allClients(Nq, M) = $allClients(Nq, M , 0) .
   eq $allClients(emptyNetW, M, j) = j . 
   eq $allClients(Q, M, j) = j + clients(Q, M) .
-  eq $allClients((Q, NQ), M, j) = $allClients(NQ, M, j + clients(Q, M)) [owise] .
+  eq $allClients((Q, Nq), M, j) = $allClients(Nq, M, j + clients(Q, M)) [owise] .
   *** creates a new elementary queue (places may have a capacity)
   op newElQueue : Place Place Float -> [ElQueue] .
  ceq newElQueue(P, P', R) = P @ R > P' if P =/= P' .
@@ -48,23 +47,23 @@ mod BLOCKCHAIN-OP is
   eq repl(p(< s ; i >, K), j) = p(< s ; i + j >, K) .
   eq repl(p(< s ; i >), j) = p(< s ; i + j >) .
   *** creates a pool of similar elementary nets working in parallel 
-  op pool : ElQueue NzNat -> QueueNet .  
+  op pool : ElQueue NzNat -> Network .  
   eq pool(q, K) = $pool(q, K, emptyNetW) .
-  op $pool  : ElQueue Nat Network -> QueueNet .
+  op $pool  : ElQueue Nat Network -> Network .
   eq $pool(q, 0, Nq) = Nq .
  ceq $pool(q, K, Nq) = $pool(q, K - 1, (Nq, newElQueue(repl(P', K - 1), P, R))) if P' @ R > P := q .
  *** connect a JSQ to a network of queues (nice!)
- op connect : Jsq QueueNet -> Jsq .
- eq connect(J, NQ) = $connect(NQ, J) . 
+ op connect : Jsq Network -> Jsq .
+ eq connect(J, Nq) = $connect(Nq, J) . 
  op $connect : Network Jsq -> Jsq .
  eq $connect(emptyNetW, J) = J .
  eq $connect((Q, N), P |> S) = $connect(N, P |> S U pin(Q)) .
  *** connect and link 
- op connect&link : Jsq QueueNet -> Network .
- eq connect&link(J, NQ) = connect(J, NQ), NQ .
+ op connect&link : Jsq Network -> Network .
+ eq connect&link(J, Nq) = connect(J, Nq), Nq .
  *** disconnect a JSQ from network of queues (nice!)
- op disconnect : Jsq QueueNet -> Jsq .
- eq disconnect(J, NQ) = $disconnect(NQ, J) . 
+ op disconnect : Jsq Network -> Jsq .
+ eq disconnect(J, Nq) = $disconnect(Nq, J) . 
  op $disconnect : Network Jsq -> Jsq .
  eq $disconnect(emptyNetW, J) = J .
  eq $disconnect((Q, N), P |> S) = $disconnect(N, P |> delete(pin(Q), S)) . 
@@ -110,7 +109,7 @@ mod BLOCKCHAIN-EXE is
   ***cpu (pool)
   op cpu1 : -> ElQueue [memo] .
   eq cpu1 = newElQueue(cpuI, cpuO, 5.0) . 
-  ops cpu3 cpu6 cpu8 : -> QueueNet [memo] .
+  ops cpu3 cpu6 cpu8 : -> Network [memo] .
   eq cpu3 = pool(cpu1, 3) .
   eq cpu6 = pool(cpu1, 6) .
   eq cpu8 = pool(cpu1, 8) .
@@ -148,8 +147,8 @@ mod BLOCKCHAIN-EXE is
   crl  [S0>S1] : MM: Q S N: (Nw : B) => MM: Q 1 . L(1) N: (netWork1 : B) 
          if S == 1 . L(1) + 1 . s-tran /\ in(Nw, buffer) . 
   
-   crl  [S1>S0] : MM: Q S N: (Nw : B) => MM: Q 1 . L(0) N: (netWork0 : set(B, pin(cpu1), k)) 
-         if S == 1 . L(0) + 1 . s-tran  /\ in(Nw, cpu3) /\ k := allClients(cpu3, B) /\ k <= cap(cpu1) .
+  crl  [S1>S0] : MM: Q S N: (Nw : B) => MM: Q 1 . L(0) N: (netWork0 : set(B, pin(cpu1), k)) 
+         if S == 1 . L(0) + 1 . s-tran  /\ in(Nw, cpu3) /\ k := allClients(cpu3, B) /\ k <= cap(pin(cpu1)) =/= false .
 
   *** MM network initial configuration (for searches)
   op MMsys0 : -> MMnetwork .

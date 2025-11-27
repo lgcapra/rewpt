@@ -10,7 +10,8 @@ endfm
 
 mod JSQ-NODE-SYS{PL :: TRIV} is
    including JSQ-NODE{PL} .
-   var N : Network . var B : Pbag . vars p p' : Place  .
-   vars S : Pset . var NeS : NePset . 
-   crl (N , p |> NeS) : 1 . p + B => (N , p |> NeS) : B + 1 . p' if p' U S := emin(B, NeS) /\ rate:Float := firingRate(p, B).  
+   var N : Network . var B : Pbag . vars P P' : Place  . var S : Pset . var NeS : NePset .
+   op firingRate : Jsq Pbag -> Float .
+   eq firingRate(P |> NeS, B) = 100.0 . *** dummy implementation 
+   crl (N , P |> NeS) : 1 . P + B => (N , P |> NeS) : B + 1 . P' if P' U S := emin(B, NeS) /\ rate:Float := firingRate(P |> NeS, B).  
 endm

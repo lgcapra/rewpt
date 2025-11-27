@@ -26,7 +26,7 @@ mod RWPT-FTPL is
  op minNotInS : Pset String Lab -> Nat .
  eq minNotInS(Ps, W, L) = $minNotInS(Ps, W, L, 0) .
  op $minNotInS : Pset String Lab Nat -> Nat . 
- eq $minNotInS(Ps, W, L, I) = if existS(Ps, < W ; I > L) then $minNotInS(Ps, W, L, I + 1) else I fi .  
+ eq $minNotInS(Ps, W, L, I) = if exists(Ps, < W ; I > L) then $minNotInS(Ps, W, L, I + 1) else I fi .  
    
 
 *** triggered by a local deadlock

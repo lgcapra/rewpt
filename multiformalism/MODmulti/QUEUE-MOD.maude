@@ -1,22 +1,19 @@
-in ../../PBAG
 in ../QUEUE
-in ../../modPT/MONOID-MOD
-in ../../modPT/PLAB
-
+in ../../modPT/MO-NET-OP
 
 fmod SERVER-LIST-LAB is 
    protecting SERVER-LIST{Plab} .
    protecting PSET-MOD .
-   var P : Place . var F : Float .  var J  : Nat . var S : Pset .
-   vars L L' : Lab . var NeL : NeLab . var WL : List{String} . var NeWL : NeList{String} . 
+   vars P P' : Place . var F : Float .  var J  : Nat . var S : Pset .
+   var L : Lab . var NeL : NeLab . var WL : List{String} . 
    op replaceWithServer : Server NeLab Nat -> Server .
-   eq replaceWithServer(p(L) @ F, NeL, J) = p(replaceWithL(L, NeL, J)) @ F .
+   eq replaceWithServer(P @ F, NeL, J) = replaceWithP(P, NeL, J) @ F .
    op addLabServer : Server Lab Pset -> Server . 
-   eq addLabServer(p(L') @ F, L, S) = if p(L') in S then p(L') else p(L' L) fi @ F .
+   eq addLabServer(P @ F, L, S) = addLabP(P, L, S) @ F .
    op placesServer : Server List{String} -> Pset .
-   eq placesServer(p(L) @ F, WL) = if hasSuffix(L, WL) then p(L) else emptyPset fi .
+   eq placesServer(P @ F, WL) = placesP(P, WL) .
    op inServer : Server Place -> Bool .
-   eq inServer(p(L) @ F, p(L')) = L == L' .
+   eq inServer(P @ F, P') = P == P' .
 endfm 
 
 view SERVER-LIST-LAB from MO-NET to SERVER-LIST-LAB is
@@ -47,7 +44,7 @@ fmod QUEUE-MOD is
   vars LS LS' LS'' : ServerList . 
   var NeLS : NeServerList .
   vars M M' M'' : Pbag . 
-  var P : Place .
+  vars P P' : Place .
   op _>_ : NeServerList Place -> SimpleQ [ctor] .
   op _>_ : Server Place -> ElQueue [ctor ditto] . *** an elementary queue
   op [_,_] _  : Pbag Pbag SimpleQ -> Queue [ctor] . *** queue with prefixed enabling conditions
@@ -79,14 +76,14 @@ fmod QUEUE-MOD is
    eq nextPosDef(LS , P) = if LS  == nilSeL then P else p(head(LS )) fi .
    
    *** "modular" ops
-   var J  : Nat . var S : Pset . vars L L' : Lab . var NeL : NeLab . var WL : List{String} .  
+   var J  : Nat . var S : Pset . var L : Lab . var NeL : NeLab . var WL : List{String} .  
    op replaceWithQueue : Queue NeLab Nat -> Queue . 
-   eq replaceWithQueue(NeLS > p(L), NeL, J) = replaceWith(NeLS, NeL, J) >  p(replaceWithL(L, NeL, J)) . 
+   eq replaceWithQueue(NeLS > P, NeL, J) = replaceWith(NeLS, NeL, J) >  replaceWithP(P, NeL, J) . 
    op addLabQueue : Queue Lab Pset -> Queue . 
-   eq addLabQueue(NeLS > p(L'), L, S) = addLab(NeLS, L, S) > if p(L') in S then p(L') else p(L' L) fi  .
+   eq addLabQueue(NeLS > P, L, S) = addLab(NeLS, L, S) > addLabP(P, L, S)   .
    op placesQueue : Queue List{String} -> Pset .
-   eq placesQueue(NeLS > p(L), WL) = places(NeLS, WL) U if hasSuffix(L, WL) then p(L) else emptyPset fi .
+   eq placesQueue(NeLS > P, WL) = places(NeLS, WL) U placesP(P, WL) .
    op inQueue : Queue Place -> Bool .
-   eq inQueue(NeLS > p(L), p(L')) = L == L' or-else in(NeLS, p(L')) .
+   eq inQueue(NeLS > P, P') = P == P' or-else in(NeLS, P') .
    
 endfm

@@ -34,6 +34,10 @@ ceq L |-> EQ = emptyNet if dead(m(EQ)) . *** removes dead transitions
  eq enabled(T, M) =  hasConcession(T, M) .
  op hasConcession : Tran Pbag -> Bool .
  eq hasConcession(L |-> EQ, M) = enabled(EQ, M) .
+ op enabNet : Net Pbag -> Net . *** the enabled set seen as a net
+ eq enabNet(emptyNet, M) = emptyNet .
+ eq enabNet(T ; N, M) = enabNet(N, M) ; if hasConcession(T, M) then T else emptyNet fi .   *** riscrivere usando tail rec
+
  *** doesn't consider enabling and capacity, but considers flush arcs
  op firing : Tran Pbag -> Pbag .
  eq firing(L |-> EQ, M) = firing(EQ, M) . 

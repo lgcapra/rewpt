@@ -1,4 +1,5 @@
 in PBAG-MOD
+in PSET-MOD
 in ../EMATRIX
 
 fmod EMATRIX-MOD is
@@ -18,40 +19,40 @@ fmod EMATRIX-MOD is
  
  *** add a new label to a matrix' elements (version specifying places to share)
  op addLabM : Ematrix Lab Pset -> Ematrix . 
- eq addLabM([X,Y,Z], L, S) = [addLaB(X, L, S), addLaB(Y, L, S), addLaB(Z, L, S)] .
- eq addLabM([X,Y], L, S) = [addLaB(X, L, S), addLaB(Y, L, S)] .
+ eq addLabM([X,Y,Z], L, S) = [addLab(X, L, S), addLab(Y, L, S), addLab(Z, L, S)] .
+ eq addLabM([X,Y], L, S) = [addLab(X, L, S), addLab(Y, L, S)] .
  eq addLabM(Q' f: FS, L, S) = addLabM(Q', L, S) f: addLabF(FS, L, S) .
  op addLabF : FlushArcs Lab Pset -> FlushArcs . 
  eq addLabF(FS, L, S) = $addLabF(FS, noFlushArc, L, S) .
  op $addLabF : FlushArcs FlushArcs Lab Pset -> FlushArcs .
  eq $addLabF(noFlushArc, FS, L, S) = FS .
- eq $addLabF(p(L') >> S' ; FS, FS', L, S) = $addLabF(FS, if p(L') in S then p(L') else p(L' L) fi >> addLabS(S', L, S) ; FS', L, S) .
+ eq $addLabF(P >> S' ; FS, FS', L, S) = $addLabF(FS, addLabP(P, L, S) >> addLab(S', L, S) ; FS', L, S) .
+ 
  *** no elements to share
  op addLabM : Ematrix Lab -> Tmatrix . *** overloaded
  eq addLabM(Q, L) = addLabM(Q, L, emptyPset) .
- 
 
  ***
  op replaceWithM : Ematrix NeLab Nat -> Tmatrix .
- eq replaceWithM([X,Y,Z], NeL, N) = [replaceWithB(X, NeL, N), replaceWithB(Y, NeL, N), replaceWithB(Z, NeL, N)] .
- eq replaceWithM([X,Y], NeL, N) = [replaceWithB(X, NeL, N), replaceWithB(Y, NeL, N)] .
+ eq replaceWithM([X,Y,Z], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N), replaceWith(Z, NeL, N)] .
+ eq replaceWithM([X,Y], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N)] .
  eq replaceWithM(Q' f: FS, NeL, N) = replaceWithM(Q', NeL, N) f: replaceWithF(FS, NeL, N) .
  op replaceWithF : FlushArcs NeLab Nat -> FlushArcs .
  eq replaceWithF(FS, NeL, N) = $replaceWithF(FS, noFlushArc, NeL, N) .
  op $replaceWithF : FlushArcs FlushArcs NeLab Nat -> FlushArcs .
  eq $replaceWithF(noFlushArc, FS, NeL, N) = FS .
- eq $replaceWithF(p(L) >> S' ; FS, FS', NeL, N) = $replaceWithF(FS, p(replaceWithL(L, NeL, N)) >> replaceWithS(S', NeL, N) ; FS', NeL, N) .
+ eq $replaceWithF(P >> S' ; FS, FS', NeL, N) = $replaceWithF(FS, replaceWithP(P, NeL, N) >> replaceWith(S', NeL, N) ; FS', NeL, N) .
  
  *** derived definitions of placesM
  op placesM : Ematrix List{String}  -> Pset .
- eq placesM([X,Y,Z], Ws) = placesB(X, Ws) U placesB(Y, Ws) U placesB(Z, Ws) .
- eq placesM([X,Y], Ws) = placesB(X, Ws) U placesB(Y, Ws) .
+ eq placesM([X,Y,Z], Ws) = places(X, Ws) U places(Y, Ws) U places(Z, Ws) .
+ eq placesM([X,Y], Ws) = places(X, Ws) U places(Y, Ws) .
  eq placesM(Q' f: FS, Ws) = placesM(Q', Ws) U placesF(FS, Ws) . 
  op placesF : FlushArcs List{String} -> Pset .
  eq placesF(FS, Ws) = $placesF(FS, emptyPset, Ws) .
  op $placesF : FlushArcs Pset NeList{String} -> Pset  .
  eq $placesF(noFlushArc, S, Ws) = S .
- eq $placesF(p(L) >> S' ; FS, S, Ws) = $placesF(FS, if hasSuffix(L, Ws) then p(L) else emptyPset fi U placeS(S', Ws), Ws) .
+ eq $placesF(P >> S' ; FS, S, Ws) = $placesF(FS, places(P U S', Ws), Ws) .
  
  *** defined analogously (to do)
  *** op placesM : Ematrix List{String} NeLab  -> Pset .

@@ -1,0 +1,16 @@
+*** multiformalism "modular" representation exploiting symmetries
+in ../NETWORK
+in ../../modPT/PSET-MOD
+in ../../modPT/PBAG-MOD
+
+*** network using a marking as distributed state, with structured place labels
+fmod NETWORK-LAB is
+  pr PBAG-MOD .
+  pr PSET-MOD .
+  protecting NETWORK{S-Pbag{Plab}} .
+  *** abstract operations: we use the same names as in the theory
+  op replaceWithEl : Node NeLab Nat -> Node . *** defined for a single element
+  op addLabEl : Node Lab Pset -> Node . 
+  op placesEl : Node NeList{String} -> Pset .
+  op inEl : Node Place -> Bool .
+endfm

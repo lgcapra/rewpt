@@ -31,13 +31,9 @@ fmod QUEUE{PL :: TRIV} is
   protecting PBAG{PL} .
   sorts Queue SimpleQ ElQueue .
   subsort ElQueue < SimpleQ < Queue .
-  vars Q Q' : Server .
-  var SQ : SimpleQ .
-  var Qu : Queue .
-  vars LQ LQ' LQ'' : ServerList . 
-  var NeLQ : NeServerList .
-  vars M M' M'' : Pbag . 
-  var P : Place .
+  vars Q Q' : Server . var SQ : SimpleQ . var Qu : Queue .
+  vars LQ LQ' LQ'' : ServerList . var NeLQ : NeServerList .
+  vars M M' M'' : Pbag . var P : Place .
   op _>_ : NeServerList Place -> SimpleQ [ctor] .
   op _>_ : Server Place -> ElQueue [ctor ditto] . *** an elementary queue
   op [_,_] _  : Pbag Pbag SimpleQ -> Queue [ctor] . *** queue with prefixed enabling conditions
@@ -62,10 +58,7 @@ fmod QUEUE{PL :: TRIV} is
   op qenabled : Queue Pbag -> Bool . *** the queue "enabling" condition
   eq qenabled(SQ, M) = true .
   eq qenabled([M, M'] SQ, M'') = enabCond(M, M', M'')  . *** similar to the PN tran. enabling condition (M input, M' inhibitor)
-  op cap : ElQueue -> NzNat .
-  eq cap(X:ElQueue) = cap(pin(X:ElQueue)) .
   *** return the place of the next element if any, otherwise the specified default place (convenience op)
-   op nextPosDef : ServerList Place -> Place [memo] .  
-   eq nextPosDef(LQ , P) = if LQ  == nilSeL then P else p(head(LQ )) fi .
-   
+  op nextPosDef : ServerList Place -> Place [memo] .  
+  eq nextPosDef(LQ , P) = if LQ  == nilSeL then P else p(head(LQ )) fi .
 endfm

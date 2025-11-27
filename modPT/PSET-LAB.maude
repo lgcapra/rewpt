@@ -1,0 +1,38 @@
+in ../PSET
+in PLAB
+
+*** new: we must consider place capacity
+fmod PSET-LAB is 
+   pr PSET{Plab} .
+   var J  : Nat . vars K K' : NzNat . var S : Pset . vars P P' : Place .
+   vars L L' : Lab . var NeL : NeLab . var WL : List{String} .
+   op replaceWithP : Place NeLab Nat -> Place .
+   eq replaceWithP(p(L), NeL, J) = p(replaceWithL(L, NeL, J)) .
+   eq replaceWithP(p(L, K), NeL, J) = p(replaceWithL(L, NeL, J), K) .
+  
+   op addLabP : Place Lab Pset -> Place . 
+   eq addLabP(p(L'), L, S) = if p(L') in S then p(L') else p(L' L) fi   .
+   eq addLabP(p(L', K), L, S) = if p(L', K) in S then p(L', K) else p(L' L, K) fi   .
+   
+   op placesP : Place List{String} -> Pset .
+   eq placesP(P, WL) = if hasSuffix(lab(P), WL) then P else emptyPset fi .
+   op inP : Place Place -> Bool .
+   eq inP(P, P') = P == P' .
+
+   *** checks for the existence in a set of a place whose label matches the given suffix (new!) 
+   op exists : Pset NeLab  -> Bool .
+  ceq exists(P U S, NeL) = true if L' NeL := lab(P) .
+   eq exists(S, NeL) = false [owise] .
+   *** used in the example( RWLPT)
+   op exists : Pset NeLab  -> Bool .
+  ceq exists(P U S, NeL) = true if L' NeL := lab(P)  .
+   eq exists(S, NeL) = false [owise] .
+
+   *** new! (takes place capacity into account, used in PBAG-LAB to define a total order between multisets)
+   op cmp : Place Place -> Nat .
+   eq cmp(p(L), p(L', K)) = 1 . *** unbounded places are "less" than bounded places
+   eq cmp(p(L, K), p(L')) = 2 .
+  ceq cmp(p(L, K), p(L', K')) = if K < K' then 1 else 2 fi if K =/= K' . 
+   eq cmp(P, P') = cmp(lab(P), lab(P')) [owise] . *** current version
+endfm
+

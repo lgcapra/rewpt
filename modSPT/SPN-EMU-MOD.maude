@@ -5,11 +5,11 @@ in SPN-SYS-MOD
 mod SPN-EMU-MOD{L :: TRIV} is
  inc SPN-SYS-MOD{L} .
  vars M M' : Pbag . var T : Tran . vars N N' : Net .
- *** crl [firing] : N M => N M' if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ R:Float := firingRate(l(T), I(q(T)), M) .
+ *** crl [firing] : N M => N M' if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ R:Float := firingRate(T, M) .
  *** including normalization
- crl [firing] : N M => N normalizeB(M') if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false  /\ R:Float := firingRate(l(T), I(q(T)), M) .
- *** includes a further potential  optimization: if the marked places are retained then index abstraction is skipped
- *** crl [cfiring] : N M => N normalizeB(M', support(M) == support(M')) if T ; N' := N /\ enabled(T, M) /\ M' := firing(T, M)  .
+ crl [firing] : N M => N minimize(abstract(M')) if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false  /\ R:Float := firingRate(T, M) .
+ *** potential  optimization: if the marked places are retained then index abstraction is skipped
+ *** crl [cfiring] : N M => N minimize(if support(M) == support(M') then M' else abstract(M') fi) if T ; N' := N /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false  /\ R:Float := firingRate(T, M) .
 endm
 
 

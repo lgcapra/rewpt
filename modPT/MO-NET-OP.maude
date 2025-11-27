@@ -1,0 +1,75 @@
+*** theories and modules helpful to implement symmetric algebraic operators for monoid structures
+*** (originally defined for modular PT nets and SPN)
+in ../../lambda/MONOID
+in PSET-LAB
+*** in PLAB
+
+*** a network (of nodes) seen as monoid
+fth MO-NET is
+  including MONOID+ .
+  *** including PSET{Plab} .
+  including PSET-LAB .
+  op replaceWithEl : El NeLab Nat -> El . *** defined for a single element of a network
+  op addLabEl : El Lab Pset -> El . 
+  op placesEl : El List{String} -> Pset .
+  op inEl : El Place -> Bool .
+endfth
+
+*** defines some general operators necessary for manipulation and normalization of a network seen as a monoid, based on structured node labels
+fmod MO-NET-OP{N :: MO-NET} is
+  var J   : Nat .  var K : NzNat . vars N N' : N$Elt . var E : N$El .
+  vars L L' : Lab . var NeL : NeLab .
+  vars W W' : String . var P : Place .
+  vars S S' : Pset . var WL : List{String} .  var NeWL : NeList{String} .
+  *** replace the index of the header of a structured lab
+  op replaceWith : N$Elt NeLab Nat -> N$Elt .
+  eq replaceWith(N, NeL, J) = $replaceWith(N, NeL, J, nil) .  
+  op $replaceWith : N$Elt NeLab Nat N$Elt -> N$El . 
+  eq $replaceWith(nil, NeL, J, N) = N . 
+  eq $replaceWith(E ; N, NeL, J, N') = $replaceWith(N, NeL, J, N' ; replaceWithEl(E, NeL, J)) . 
+  *** append a new tag to the net's places, but those to share (i.e., to which not to add the tag)
+  op addLab : N$Elt Lab Pset -> N$Elt . 
+  eq addLab(N, L, S) = $addLab(N, nil, L, S) .
+  op $addLab : N$Elt N$Elt Lab Pset -> N$Elt .
+  eq $addLab(nil, N, L, S) = N .
+  eq $addLab(E ; N', N, L, S) = $addLab(N', addLabEl(E, L, S) ; N, L, S) .
+  *** simple (default) version
+  op addLab : N$Elt Lab -> N$Elt . 
+  eq addLab(N, L) = addLab(N, L, emptyPset) .
+  *** defined for convenience (maps to the previous version)
+  op addLab : N$Elt Lab List{String} -> N$Elt .
+  eq addLab(N, L, WL) = addLab(N, L, places(N, WL)) . 
+  *** places matching (the text part of) a suffix 
+  op places : N$Elt List{String} -> Pset .
+  eq places(N, WL) = $places(N, WL, emptyPset) .
+  op $places : N$Elt List{String} Pset -> Pset .
+  eq $places(nil, WL, S) = S .
+  eq $places(E ; N, WL, S) = $places(N, WL, S U placesEl(E, WL)) .
+  *** entire set of places (derived)
+  op places : N$Elt -> Pset [memo] .
+  eq places(N) = places (N, emptyLs) .
+  *** 
+  op in : N$Elt Place -> Bool . 
+ ceq in(E ; N, P) = true if inEl(E, P) .
+  eq in(N, P) = false [owise] .
+ 
+  **** name abstraction
+  op abstract : N$Elt -> N$Elt .
+ ceq abstract(N) = abstract(replaceWith(N, < W ; K > L, J)) if p(L' < W ; K > L) U S := places(N) /\ J := sd(K,1) /\ exists(S, < W ; J > L) == false .
+  eq abstract(N) = N [owise] .
+ *** excludes from index abstraction those places (components) matching a given suffix
+  op abstractBut : N$Elt String -> N$Elt .
+ ceq abstractBut(N, W') = abstractBut(replaceWith(N, < W ; K > L, J), W') if p(L' < W ; K > L) U S := places(N) /\ 1st(last(L' < W ; K > L)) =/= W' /\ J := sd(K,1)  /\ exists(S, < W ; J > L) == false .
+  eq abstractBut(N, W) = N [owise] .
+  
+  *** "symmetric" juxtaposition: creates K (disjoint) replica of a node's structure each one with a suitably added label suffix (index 0..K-1) denoting the "nesting" level
+  op repl&share : N$Elt NzNat String Pset -> N$Elt .
+  eq repl&share(N, K, W, S) = $repl&share(N, K, W, nil, S) .
+  op $repl&share : N$Elt Nat String N$Elt Pset -> N$Elt .
+  eq $repl&share(N, 0, W, N', S) = N' .
+ceq $repl&share(N, K, W, N', S) = $repl&share(N, J, W, (N' ; addLab(N, < W ; J >, S)), S) if J := sd(K,1) .
+  *** derived  versions
+  op replica : N$Elt NzNat String -> N$Elt . *** default
+  eq replica(N, K, W) = repl&share(N, K, W, emptyPset) .
+endfm 
+

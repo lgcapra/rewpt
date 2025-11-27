@@ -2,15 +2,14 @@ fmod PLACE{L :: TRIV} is
  pr NAT .
  sorts Bplace Place . 
  subsort Bplace < Place .
+ var L : L$Elt . var K : NzNat .
  op p : L$Elt -> Place [ctor] .
  op p : L$Elt NzNat -> Bplace [ctor] .
  op lab : Place -> L$Elt .
- op cap : Place -> NzNat .
- var L : L$Elt . var K : NzNat .
  eq lab(p(L)) = L .
  eq lab(p(L,K)) = L .
+ op cap : Bplace -> NzNat .
  eq cap(p(L,K)) = K .
- eq cap(p(L)) = 100000000000000 . *** infinite cap
 endfm
 
 *** default view 

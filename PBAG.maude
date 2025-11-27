@@ -8,25 +8,31 @@ fmod PBAG{L :: TRIV} is
                            sort  ElBag{Place{L}} to ElPbag, op nil to nilP, 
                            sort  Set{Place{L}}  to Pset, sort NeSet{Place{L}} to NePset, op emptyS to emptyPset) .
 
-    vars I H M : Pbag . vars S S' : Pset .
-    vars K K' : NzNat . vars N N'  : Nat .
-    var L : L$Elt . var p : Place .
+  vars I H M B : Pbag . vars S S' : Pset .
+  vars K K' : NzNat . vars N N'  : Nat .
+  var L : L$Elt . var P : Place .
     *** defined here for convenience
-    op enabCond : Pbag Pbag Pbag -> Bool . 
-    eq enabCond(I, H, M) = I <= M and-then H > M .
-    *** checks if some place exceeds its capacity
-    op overCap : Pbag -> Bool .
+  op enabCond : Pbag Pbag Pbag -> Bool . 
+  eq enabCond(I, H, M) = I <= M and-then H > M .
+   *** checks if some place exceeds its capacity
+   op overCap : Pbag -> Bool .
   ceq overCap(M + K . p(L, K')) = true if K > K' .
    eq overCap(M) = false [owise] .
   *** determines the places in a bag with lesser multiplicity among those in a given set that are non-saturated  
    op emin : Pbag NePset -> Pset .
  ceq emin(K . p(L, K') + M, p(L, K') U S) = emin(M, S) if K >= K' . *** filter out saturated places
   eq emin(M, emptyPset) = emptyPset .
-  eq emin(M, S U p) = $emin(M, S, p, M[p]) [owise] . 
+  eq emin(M, S U P) = $emin(M, S, P, M[P]) [owise] . 
   op $emin : Pbag Pset Pset Nat -> Pset .
  ceq $emin(M, S, S', N) = S' if S == emptyPset or-else M == nilP .
- ceq $emin(M, p U S, S', N') = if N > N' then $emin(M, S, S', N') else 
-                      if N < N' then $emin(M, S, p, N) else $emin(M, S, S' U p, N') fi fi if N := M[p] .
+ ceq $emin(M, P U S, S', N') = if N > N' then $emin(M, S, S', N') else 
+                      if N < N' then $emin(M, S, P, N) else $emin(M, S, S' U P, N') fi fi if N := M[P] .
+ *** set the multiplicity of some places
+ op set : Pbag Pset Nat -> Pbag .
+ceq set(B, S, N) = $set(B, S, N) if S :: Place == false . *** S is not a singleton (we avoid recursion)
+ op $set : Pbag Pset Nat -> Pbag . 
+ eq $set(B, emptyPset, N) = B .  
+ eq $set(B, S U P , N) = $set(set(B, P, N), S , N) .
 
 endfm
 

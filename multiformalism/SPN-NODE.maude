@@ -10,11 +10,7 @@ endfm
 
 mod SPN-NODE-SYS{PL :: TRIV} is
   including SPN-NODE{PL} .
-  var N : Network .
-  vars PN PN' : Net . 
-  vars M M' : Pbag . 
-  var K : NzNat .
-  var rate : Float .
-  var T : Tran .
-  crl [spn-t] : (N , PN) : M => (N , PN) : M' if T ; PN' := PN /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ rate := firingRate(l(T),I(q(T)), M) .
+  var N : Network . vars PN PN' : Net . vars M M' : Pbag . 
+  var K : NzNat . var rate : Float . var T : Tran .
+  crl [spn-t] : (N , PN) : M => (N , PN) : M' if T ; PN' := PN /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ rate := firingRate(T, M) .
 endm

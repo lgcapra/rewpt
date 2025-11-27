@@ -1,4 +1,4 @@
-*** lexicographically ordered lists (lx to right)
+*** lexicographically ordered lists (rx to lx)
 fmod COMPARABLE-LIST{X :: STRICT-TOTAL-ORDER} is 
  pr SORTABLE-LIST{X} .
  pr EXT-BOOL . 
@@ -14,8 +14,8 @@ fmod COMPARABLE-LIST{X :: STRICT-TOTAL-ORDER} is
  eq  cmp(nil, NeL) = 1 .
  eq  cmp(NeL, nil) = 2 .
  eq  cmp(nil, nil) = 0 .
- eq  cmp(NeL L', NeL L'') = cmp(L', L'') .
- eq  cmp(E L, E' L') = if E < E' then 1 else 2 fi [owise] .
+ eq  cmp(L' NeL, L'' NeL) = cmp(L', L'') .
+ eq  cmp(L E, L' E') = if E < E' then 1 else 2 fi [owise] .
 endfm
 
 

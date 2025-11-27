@@ -1,0 +1,22 @@
+in NETWORK-MOD
+in JSQ-MOD
+
+fmod JSQ-NODE-MOD is
+   extending NETWORK-MOD .
+   pr JSQ-MOD .
+   subsort Jsq < Node .
+   var J : Jsq . var NeL : NeLab . var L : Lab . var S : Pset . var I : Nat . var Ls : List{String} . var P : Place . 
+   eq replaceWithEl(J, NeL, I) = replaceWithJsq(J, NeL, I) . 
+   eq addLabEl(J, L, S) = addLabJsq(J, L, S) .
+   eq placesEl(J, Ls) = placesJsq(J, Ls) .
+   eq inEl(J, P) = inJsq(J, P) .
+endfm
+
+mod JSQ-NODE-SYS-MOD is
+  inc JSQ-NODE-MOD .
+  inc CONVERSION .
+  var N : Network . var S : Server . var J : Jsq . vars LS LS'  : ServerList . var NeLQ : NeServerList . 
+  var M : Pbag . var K : NzNat . var rate : Float . var P : Place .
+  crl [q-firing] : (N , J) : M => (N , J) : normalize(M  + 1 . P - 1 . p(S)) if LS S LS' := ql(J) /\ mu(S) > 0.0 /\ K := M[p(S)] /\ K > 0 
+      /\ qenabled(J, M) /\ P :=  nextPosDef(LS',out(J) ) /\ M[P] < cap(P) /\ rate := mu(S) * float(K) / float(clients(ql(J), M)) .     
+endm

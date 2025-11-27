@@ -1,0 +1,30 @@
+in ../../modSPT/SPN-SYS-MOD
+in NETWORK-MOD
+
+*** renaming necessary to avoid multiple definitions
+fmod SPN-NODE-MOD{L :: TRIV} is
+  extending NETWORK-MOD .
+  inc SPN-SIG-MOD{L} * ( 
+                       op replaceWith to replaceWithSPN, op $replaceWith to $replaceWithSPN, op in to inSPN,
+                       op addLab to addLabSPN, op $addLab to $addLabSPN, op places to placesSPN, op $places to $placesSPN,
+                       op abstract to abstractSPN, op abstractBut to abstractButSPN,
+                       op repl&share to  repl&shareSPN, op $repl&share to  $repl&shareSPN, op replica to replicaSPN,
+                       op normalize to normalizeSPN, op normalizeBut to normalizeButSPN
+                      ) .
+  subsort Net < Node .
+  var N : Net . var NeL : NeLab . var L : Lab . var S : Pset . var I : Nat . var Ls : List{String} . var P : Place .
+  eq replaceWithEl(N, NeL, I) = replaceWithSPN(N, NeL, I) .
+  eq addLabEl(N, L, S) = addLabSPN(N, L, S) .
+  eq placesEl(N, Ls) = placesSPN(N, Ls) .
+  eq inEl(N, P) = inSPN(N, P) .
+  *** COMMENTO: in alternativa si poteva rinominare op replaceWith to replaceWithEl, ...
+  *** più compatto, ma produce dei warning " operator replaceWithEl has been imported from both ...""
+endfm
+
+mod SPN-NODE-SYS-MOD{PL :: TRIV} is
+  inc SPN-NODE-MOD{PL} .
+  var N : Network . vars PN PN' : Net . vars M M' : Pbag . var T : Tran .
+  var K : NzNat . var rate : Float .
+  crl [spn-t] : (N , PN) : M => (N , PN) : normalize(M') if T ; PN' := PN /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ rate := firingRate(l(T),I(q(T)), M) . 
+endm
+

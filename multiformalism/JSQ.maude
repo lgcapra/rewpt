@@ -1,13 +1,11 @@
 *** JSQ switcher (uses only places)
-in ../PBAG
+*** in ../PBAG
+in ../PSET
 
 fmod JSQ{PL :: TRIV} is
-  pr PBAG{PL} . *** PBAG is used in the extension
+  pr PSET{PL} .
   pr FLOAT .
-  var vars P P' : Place  .
-  var S : Pset .
-  var B : Pbag .
-  var L : PL$Elt .
+  var vars P P' : Place  . var S : Pset . var L : PL$Elt .
   sort Jsq .
   op _|>_ : Place Pset -> [Jsq] [ctor] .
  cmb P |> S : Jsq if cap(P) = 1 /\ P in S = false . *** JSQ must have capacity 1
@@ -20,6 +18,4 @@ fmod JSQ{PL :: TRIV} is
   eq newJsq(P) = P |> emptyPset . 
   op newJsq : PL$Elt -> Jsq .
   eq newJsq(L) = p(L, 1) |> emptyPset .
-  op firingRate : Place Pbag -> Float .
-  eq firingRate(P, B) = 100.0 . *** should be high
 endfm

@@ -1,0 +1,32 @@
+in ../../modPT/MO-NET-OP
+in ../../modPT/PSET-MOD
+
+*** JSQ switcher (modular version)
+fmod JSQ-MOD is
+  pr PSET-MOD . *** set of places defined as monoid
+  pr FLOAT .
+  var vars P P' : Place  . var S : Pset . var L : Lab .
+  sort Jsq .
+  op _|>_ : Place Pset -> [Jsq] [ctor] . *** partial function because ...
+ cmb P |> S : Jsq if cap(P) = 1 /\ P in S = false . *** JSQs must have capacity 1
+  op In  : Jsq -> Place .
+  eq In(P |> S) = P .
+  op Out : Jsq -> Pset .
+  eq Out(P |> S) = S .
+  ***create an "empty JSQ" from a place (label)
+  op newJsq : Place -> [Jsq] . 
+  eq newJsq(P) = P |> emptyPset . 
+  op newJsq : Lab -> Jsq .
+  eq newJsq(L) = p(L, 1) |> emptyPset .
+  
+  *** modularity ops  
+  var I  : Nat .  var NeL : NeLab . var WL : List{String} .  
+  op replaceWithJsq : Jsq NeLab Nat -> Jsq . 
+  eq replaceWithJsq(P |> S, NeL, I) = replaceWithP(P, NeL, I) |> replaceWith(S, NeL, I)  . 
+  op addLabJsq : Jsq Lab Pset -> Jsq . 
+  eq addLabJsq(P |> S, L, S) = addLabP(P, L, S) |> addLab(S, L, S) .
+  op placesJsq : Jsq List{String} -> Pset .
+  eq placesJsq(P |> S, WL) = places(S U P, WL) .
+  op inJsq : Jsq Place -> Bool .
+  eq inJsq(P |> S, P') = in(S U P, P') .
+endfm
