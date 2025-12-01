@@ -1,5 +1,6 @@
 in MO-NET-OP
 in PBAG-MOD
+in PSET-MOD
 
 *** a node (seen as monoid) with associated distributed shared state
 fth MO-NET-SYS is
@@ -16,6 +17,7 @@ endv
 *** defines some general operators necessary for manipulation and normalization of a network seen as a monoid, with an associated state, based on structured node labels
 fmod MO-NET-SYS-OP{N :: MO-NET-SYS} is
   pr MO-NET-OP{MO-NET-SYS}{N} .
+  pr PSET-MOD .
   vars J I X  : Nat .  vars K K' : NzNat .
   vars Sys Sys' : N$SysNode . vars N N' : N$Elt . vars M M' M'' : Pbag . vars P P' : Place . 
   vars W W' : String . var WL : List{String} . var NeWL : NeList{String} . 
@@ -41,11 +43,11 @@ ceq clearUp(N : K . P + M) = clearUp(N : M) if in(N, P) == false .
 
  *** normalization (name abstraction) 
  op abstract : N$SysNode -> N$SysNode .
-ceq abstract(Sys) = abstract(replaceWith(Sys, < W ; K > L, J)) if p(L' < W ; K > L) U S := places(Sys) /\ J := sd(K,1) /\ exists(S, < W ; J > L) == false .
+ceq abstract(N : M) = abstract(replaceWith(N : M, < W ; K > L, J)) if p(L' < W ; K > L) U S := places(N) /\ J := sd(K,1) /\ in(S, < W ; J > L) == false .
  eq abstract(Sys) = Sys [owise] .
  *** excludes from index abstraction those places (components) matching a given suffix
  op abstractBut : N$SysNode String -> N$SysNode .
-ceq abstractBut(Sys, W') = abstractBut(replaceWith(Sys, < W ; K > L, J), W') if p(L' < W ; K > L) U S := places(Sys)  /\ 1st(last(L' < W ; K > L)) =/= W' /\ J := sd(K,1) /\ exists(S, < W ; J > L) == false .
+ceq abstractBut(N : M, W') = abstractBut(replaceWith(N : M, < W ; K > L, J), W') if p(L' < W ; K > L) U S := places(N)  /\ 1st(last(L' < W ; K > L)) =/= W' /\ J := sd(K,1) /\ in(S, < W ; J > L) == false .
  eq abstractBut(Sys, W) = Sys [owise] .
  *** normalize a system assuming that its labelling is well-defined: for the "net", only index abstraction applies 
  op normalize : N$SysNode -> N$SysNode .

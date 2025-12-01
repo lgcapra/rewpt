@@ -27,6 +27,8 @@ fmod JSQ-MOD is
   eq addLabJsq(P |> S, L, S) = addLabP(P, L, S) |> addLab(S, L, S) .
   op placesJsq : Jsq List{String} -> Pset .
   eq placesJsq(P |> S, WL) = places(S U P, WL) .
-  op inJsq : Jsq Place -> Bool .
-  eq inJsq(P |> S, P') = in(S U P, P') .
+  op placesJsq : Jsq NeLab -> Pset .
+  eq placesJsq(P |> S, NeL) = places(S U P, NeL) .
+  op placesJsq : Jsq  -> Pset .
+  eq placesJsq(P |> S) = S U P .
 endfm

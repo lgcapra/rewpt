@@ -9,7 +9,8 @@ fmod QUEUE-NODE-MOD is
    eq replaceWithEl(Q, NeL, I) = replaceWithQueue(Q, NeL, I) . 
    eq addLabEl(Q, L, S) = addLabQueue(Q, L, S) .
    eq placesEl(Q, Ls) = placesQueue(Q, Ls) .
-   eq inEl(Q, P) = inQueue(Q, P) .
+   eq placesEl(Q, NeL) = placesQueue(Q, NeL) .
+   eq placesEl(Q) = placesQueue(Q) .
 endfm
 
 mod QUEUE-NODE-SYS-MOD is

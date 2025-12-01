@@ -23,7 +23,7 @@ mod RWPT-FTPL is
  op minNotInS : Pset String Lab -> Nat .
  eq minNotInS(Ps, W, L) = $minNotInS(Ps, W, L, 0) .
  op $minNotInS : Pset String Lab Nat -> Nat . 
- eq $minNotInS(Ps, W, L, I) = if exists(Ps, < W ; I > L) then $minNotInS(Ps, W, L, I + 1) else I fi .  
+ eq $minNotInS(Ps, W, L, I) = if in(Ps, < W ; I > L) then $minNotInS(Ps, W, L, I + 1) else I fi .  
  
 
 *** the rule syr1 replaces a nominal PL with a faulty one: is correct (symmetric) but doesn't match the normalization requirements
@@ -36,7 +36,7 @@ mod RWPT-FTPL is
 
 *** more readable (corrected)
 crl [rew1.1] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)),"fPL")   
-       if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ S' =/= nilP /\ Sys := detache(N, nomPL(I)) S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
+        if  dead (N S) /\ S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ S' := subag(S'', < "PL" ; I >) /\ S' =/= nilP /\ Sys := detache(N, nomPL(I)) S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
 *** triggered by a local deadlock
 *** crl [rew1.2] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | match(S', "w") |), "a" "fPL", | match(S', "a") |)))   
 ***     if  S'' + 1 . p(< "f" ; J > L < "PL" ; I >) := S /\ N' := nomPL(I) /\ dead (N' S) /\ S' := subag(S'', < "PL" ; I >) /\ Sys := detache(N, N') S'' - S' /\ Sys' := faultySys(minNotIn(N, "fPL"))  .
@@ -51,8 +51,8 @@ crl [rew1.1] : N  S => normalize(join(Sys, setMark(setMark(Sys', "w" "fPL", | ma
 ***   dead(N' S + 1 . p(< "f" ; J > L < "fPL" ; I >)) /\ S' := subag(S, < "fPL" ; I >) .
 *** more readable
 crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 >)] + | S' |), "PL")  if 
-           S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ 
-           N'' =/= emptyNet  /\ S' := subag(S'', < "fPL" ; I >) .
+            S'' + 1 . p(< "f" ; J > L < "fPL" ; I >) :=  S /\ N' := faultyPL(I) /\  dead(N' S)  /\ N'' := detache(N, N') /\ 
+            N'' =/= emptyNet  /\ S' := subag(S'', < "fPL" ; I >) .
 
 
 *** marking abstractions (derived from readable versions)
@@ -63,4 +63,9 @@ crl [rew2.1] : N S => normalize(N'' set(S'' - S', p(< "s" ; 0 >), S[p(< "s" ; 0 
 *** crl [ar1p] : N nilP => normalize(attach(N', faultyPL, "fPL") nilP)  if  p(L < "PL" ; I >) U Ps := places(N) /\ N' := detache(N, < "PL" ; I >)  .
 *** crl [ar2p] : N nilP => normalize(N'' nilP)  if p(L < "fPL" ; I >)  U Ps := places(N) /\  N'' := detache(N, < "fPL" ; I >) /\ N'' =/= emptyNet  .
 
+*** test
+op m : -> Pbag .
+eq m = 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 0 >) + 1 . p(< "a" ; 0 > < "L" ; 1 > < "PL" ; 1 >) + 1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 3 >) + 
+    1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 3 >) + 1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 0 >) + 
+    1 . p(< "f" ; 0 > < "L" ; 1 > < "PL" ; 1 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 0 >) + 1 . p(< "w" ; 0 > < "L" ; 1 > < "PL" ; 1 >) .
 endm  

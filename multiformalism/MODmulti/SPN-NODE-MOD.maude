@@ -16,7 +16,8 @@ fmod SPN-NODE-MOD{L :: TRIV} is
   eq replaceWithEl(N, NeL, I) = replaceWithSPN(N, NeL, I) .
   eq addLabEl(N, L, S) = addLabSPN(N, L, S) .
   eq placesEl(N, Ls) = placesSPN(N, Ls) .
-  eq inEl(N, P) = inSPN(N, P) .
+  eq placesEl(N, NeL) = placesSPN(N, NeL) .
+  eq placesEl(N) = placesSPN(N) .
   *** COMMENTO: in alternativa si poteva rinominare op replaceWith to replaceWithEl, ...
   *** più compatto, ma produce dei warning " operator replaceWithEl has been imported from both ...""
 endfm

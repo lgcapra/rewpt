@@ -15,9 +15,12 @@ fmod PBAG-LAB is
  eq addLabElB(K . P, L, S) = K . addLabP(P, L, S) .
  op placesElB : ElPbag List{String} -> Pset .
  eq placesElB(K . P, WL) = placesP(P, WL) .
- op inElB : ElPbag Place -> Bool .
- eq inElB(K . P, P') = P == P' .
-
+ op placesElB : ElPbag NeLab -> Pset .
+ eq placesElB(K . P, NeL) = placesP(P, NeL) .
+ op placesElB : ElPbag  -> Pset .
+ eq placesElB(K . P) = P . *** trivial
+ 
+ 
   *** le: strict TO on bags obtained by permuting a bag's elements -- defined without passing through lists
  op le  : Pbag Pbag -> Bool . *** to avoid any confusion with < , <= bag operators etc.
  eq le(B, B) = false .
@@ -39,7 +42,7 @@ fmod PBAG-LAB is
  eq min(EB, EB') = if cmp(EB, EB') == 1 then EB else EB' fi [owise] .
  *** extracts the elements with a given suffix and the suffix header's built of a given string and index in a set
  op extract : Pbag String Nat Nat Lab  ->  Pbag .
- eq extract(B, W, I, J, L) = $extract(B, nilP, W, I, J, L) . *** new: added param WL
+ eq extract(B, W, I, J, L) = $extract(B, nilP, W, I, J, L) . 
  op $extract : Pbag Pbag String Nat Nat Lab  ->  Pbag .
  eq $extract(nilP, B, W, I, J, L) = B .
 ceq $extract(K . p(L' < W ; X > L) + B, B', W, I, J, L) = $extract(B, B' + K . p(L' < W ; X > L) , W, I, J, L) if X == I or-else X == J  . 
@@ -54,10 +57,11 @@ ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J .
  eq $swapLab(K . p(L' < W ; J > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; I > L) + B', W, L, I, J) .
  eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
  *** brings a marking (of a symmetric net) to a minimal form by considering index swaps
- op minimize : Pbag -> Pbag  .
+ op minimize : Pbag -> Pbag  [memo] .
  eq minimize(B) = B [owise] .
 ceq minimize(K . P + K' . P' + B) = minimize(B' + (B - B'' )) if p(L' < W ; I > L) := P /\ p(L'' < W ; J > L) := P' /\
-                     J > I /\ (K =/= K' or-else L' =/= L'')  /\ B'' := extract(B, W, I, J, L) /\ B' := swapLab(B'' + K . P + K' . P', W, L, I, J) /\ le(B', B'' + K . P + K' . P') . *** J > I prunes some matches (same as I > J) 
+                    J > I /\ (K =/= K' or-else L' =/= L'')  /\ B'' := extract(B, W, I, J, L) /\
+                    B' := swapLab(B'' + K . P + K' . P', W, L, I, J) /\ le(B', B'' + K . P + K' . P') . *** J > I prunes some matches (same as I > J) 
 
 *** sub-bag matching a prefix (used in the examples)
  op subag : Pbag  NeLab  -> Pbag . 

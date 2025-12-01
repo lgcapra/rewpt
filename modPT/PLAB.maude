@@ -50,5 +50,6 @@ endfm
 
 *** default view
 view Plab from TRIV to PLAB is 
- sort Elt to NeLab . 
+ *** sort Elt to NeLab . 
+ sort Elt to Lab .
 endv

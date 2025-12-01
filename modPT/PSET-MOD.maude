@@ -1,5 +1,6 @@
 in PSET-LAB
 in MO-NET-OP
+
 view PSET-LAB from MO-NET to PSET-LAB is
   sort Elt to Pset .
   sort El to Place .

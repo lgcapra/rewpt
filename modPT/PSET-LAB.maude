@@ -16,17 +16,17 @@ fmod PSET-LAB is
    
    op placesP : Place List{String} -> Pset .
    eq placesP(P, WL) = if hasSuffix(lab(P), WL) then P else emptyPset fi .
-   op inP : Place Place -> Bool .
-   eq inP(P, P') = P == P' .
+   op placesP : Place NeLab -> Pset .
+   eq placesP(p(L' NeL), NeL) = p(L' NeL) .
+   eq placesP(P, NeL) = emptyPset [owise] .
+   op placesP : Place -> Pset .
+   eq placesP(P) = P . *** trivial
+   
 
-   *** checks for the existence in a set of a place whose label matches the given suffix (new!) 
-   op exists : Pset NeLab  -> Bool .
-  ceq exists(P U S, NeL) = true if L' NeL := lab(P) .
-   eq exists(S, NeL) = false [owise] .
-   *** used in the example( RWLPT)
-   op exists : Pset NeLab  -> Bool .
-  ceq exists(P U S, NeL) = true if L' NeL := lab(P)  .
-   eq exists(S, NeL) = false [owise] .
+   *** checks for the existence in a set of a place whose label matches the given suffix -- used in the example( RWLPT)
+   *** op exists : Pset NeLab  -> Bool .
+  *** ceq exists(P U S, NeL) = true if L' NeL := lab(P)  .
+   *** eq exists(S, NeL) = false [owise] .
 
    *** new! (takes place capacity into account, used in PBAG-LAB to define a total order between multisets)
    op cmp : Place Place -> Nat .

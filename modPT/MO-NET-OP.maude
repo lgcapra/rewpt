@@ -7,12 +7,12 @@ in PSET-LAB
 *** a network (of nodes) seen as monoid
 fth MO-NET is
   including MONOID+ .
-  *** including PSET{Plab} .
   including PSET-LAB .
   op replaceWithEl : El NeLab Nat -> El . *** defined for a single element of a network
   op addLabEl : El Lab Pset -> El . 
   op placesEl : El List{String} -> Pset .
-  op inEl : El Place -> Bool .
+  op placesEl : El Lab -> Pset .
+  op placesEl : El  -> Pset .
 endfth
 
 *** defines some general operators necessary for manipulation and normalization of a network seen as a monoid, based on structured node labels
@@ -36,7 +36,7 @@ fmod MO-NET-OP{N :: MO-NET} is
   *** simple (default) version
   op addLab : N$Elt Lab -> N$Elt . 
   eq addLab(N, L) = addLab(N, L, emptyPset) .
-  *** defined for convenience (maps to the previous version)
+  *** defined for convenience 
   op addLab : N$Elt Lab List{String} -> N$Elt .
   eq addLab(N, L, WL) = addLab(N, L, places(N, WL)) . 
   *** places matching (the text part of) a suffix 
@@ -45,21 +45,36 @@ fmod MO-NET-OP{N :: MO-NET} is
   op $places : N$Elt List{String} Pset -> Pset .
   eq $places(nil, WL, S) = S .
   eq $places(E ; N, WL, S) = $places(N, WL, S U placesEl(E, WL)) .
-  *** entire set of places (derived)
+  *** entire set of places
   op places : N$Elt -> Pset [memo] .
-  eq places(N) = places (N, emptyLs) .
-  *** 
+  eq places(N) = $places(N, emptyPset) .
+  op $places : N$Elt Pset -> Pset .
+  eq $places(nil, S) = S .
+  eq $places(E ; N, S) = $places(N, S U placesEl(E)) .
+  *** eq places(N) = places(N, emptyLs) .
+  *** places matching a suffix 
+  op places : N$Elt NeLab -> Pset  .
+  eq places(N, NeL) = $places(N, NeL, emptyPset) .
+  op $places : N$Elt NeLab Pset -> Pset .
+  eq $places(nil, NeL, S) = S .
+  eq $places(E ; N, NeL, S) = $places(N, NeL, S U placesEl(E, NeL)) .
+ 
+  *** looks for a place
   op in : N$Elt Place -> Bool . 
- ceq in(E ; N, P) = true if inEl(E, P) .
+ ceq in(E ; N, P) = true if P in places(E) .
   eq in(N, P) = false [owise] .
+  *** looks for a place with a label prefix
+  op in : N$Elt NeLab -> Bool .
+ ceq in(E ; N , NeL) = true if placesEl(E, NeL) =/= emptyPset  .
+  eq in(N, NeL) = false [owise] .
  
   **** name abstraction
   op abstract : N$Elt -> N$Elt .
- ceq abstract(N) = abstract(replaceWith(N, < W ; K > L, J)) if p(L' < W ; K > L) U S := places(N) /\ J := sd(K,1) /\ exists(S, < W ; J > L) == false .
+ ceq abstract(E ; N) = abstract(replaceWithEl(E, < W ; K > L, J) ; replaceWith(N , < W ; K > L, J)) if p(L' < W ; K > L) U S := placesEl(E) /\ J := sd(K,1) /\ in(N, < W ; J > L) == false .
   eq abstract(N) = N [owise] .
  *** excludes from index abstraction those places (components) matching a given suffix
   op abstractBut : N$Elt String -> N$Elt .
- ceq abstractBut(N, W') = abstractBut(replaceWith(N, < W ; K > L, J), W') if p(L' < W ; K > L) U S := places(N) /\ 1st(last(L' < W ; K > L)) =/= W' /\ J := sd(K,1)  /\ exists(S, < W ; J > L) == false .
+ ceq abstractBut(E ; N, W') = abstractBut(replaceWithEl(E, < W ; K > L, J) ; replaceWith(N, < W ; K > L, J), W') if p(L' < W ; K > L) U S := placesEl(N) /\ 1st(last(L' < W ; K > L)) =/= W' /\ J := sd(K,1)  /\ in(N, < W ; J > L) == false .
   eq abstractBut(N, W) = N [owise] .
   
   *** "symmetric" juxtaposition: creates K (disjoint) replica of a node's structure each one with a suitably added label suffix (index 0..K-1) denoting the "nesting" level
@@ -67,7 +82,7 @@ fmod MO-NET-OP{N :: MO-NET} is
   eq repl&share(N, K, W, S) = $repl&share(N, K, W, nil, S) .
   op $repl&share : N$Elt Nat String N$Elt Pset -> N$Elt .
   eq $repl&share(N, 0, W, N', S) = N' .
-ceq $repl&share(N, K, W, N', S) = $repl&share(N, J, W, (N' ; addLab(N, < W ; J >, S)), S) if J := sd(K,1) .
+ ceq $repl&share(N, K, W, N', S) = $repl&share(N, J, W, (N' ; addLab(N, < W ; J >, S)), S) if J := sd(K,1) .
   *** derived  versions
   op replica : N$Elt NzNat String -> N$Elt . *** default
   eq replica(N, K, W) = repl&share(N, K, W, emptyPset) .

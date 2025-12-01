@@ -8,10 +8,8 @@ in PLAB
 fmod PT-NET-LAB{L :: TRIV} is
   pr EMATRIX-MOD .
   pr PT-NET{L, Plab} .
-  var J  : Nat .
-  var Q  : Ematrix . 
-  var L : L$Elt . *** tran. lab
-  var S : Pset .
+  var J  : Nat . var Q  : Ematrix . var P : Place . 
+  var S : Pset . var L : L$Elt . *** tran. lab
   var Lab : Lab . var NeL : NeLab .
   var WL : List{String} . var NeWL : NeList{String} . 
   *** var NeSL : NeSet{L} .
@@ -19,11 +17,13 @@ fmod PT-NET-LAB{L :: TRIV} is
  
  *** these operations are those required by the theory MO-NET
   op replaceWithTran : Tran NeLab Nat -> Tran .
-  eq replaceWithTran(L |-> Q, NeL, J) = L |-> replaceWithM(Q, NeL, J) .
+  eq replaceWithTran(L |-> Q, NeL, J) = L |-> replaceWith(Q, NeL, J) .
   op addLabTran : Tran Lab Pset -> Tran . 
-  eq addLabTran(L |-> Q, Lab, S) = L |-> addLabM(Q, Lab, S) .
+  eq addLabTran(L |-> Q, Lab, S) = L |-> addLab(Q, Lab, S) .
   op placesTran : Tran List{String} -> Pset .
-  eq placesTran(L |-> Q, WL) = placesM(Q, WL) .
+  eq placesTran(L |-> Q, WL) = places(Q, WL) .
+  op placesTran : Tran NeLab -> Pset .
+  eq placesTran(L |-> Q, NeL) = places(Q, NeL) .
   
   *** these operations are specific of PT nets
   *** extract the subnet matching a given suffix
@@ -68,7 +68,6 @@ view PT-NET-LAB{L :: TRIV} from MO-NET to PT-NET-LAB{L} is
   op replaceWithEl to replaceWithTran . 
   op addLabEl to addLabTran .
   op placesEl to placesTran .
-  op inEl to inTran .
 endv
 
 *** PT net with structured label wrapped as a modular monoid with suitable compositional and normalization operators

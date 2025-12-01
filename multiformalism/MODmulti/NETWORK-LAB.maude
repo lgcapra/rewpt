@@ -11,6 +11,7 @@ fmod NETWORK-LAB is
   *** abstract operations: we use the same names as in the theory
   op replaceWithEl : Node NeLab Nat -> Node . *** defined for a single element
   op addLabEl : Node Lab Pset -> Node . 
-  op placesEl : Node NeList{String} -> Pset .
-  op inEl : Node Place -> Bool .
+  op placesEl : Node List{String} -> Pset .
+  op placesEl : Node Lab -> Pset .
+  op placesEl : Node  -> Pset .
 endfm

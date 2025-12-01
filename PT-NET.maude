@@ -22,12 +22,11 @@ fmod PT-NET{L :: TRIV, PL :: TRIV} is
  eq I(T) = I(m(T)) .
  eq O(T) = O(m(T)) .
  eq H(T) = H(m(T)) .
- 
  eq L |-> [nilP, nilP] = emptyNet . *** removes isolated transitions
-*** eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** removes transitions not changing the marking
+ *** eq L |-> [M,M,H] = emptyNet [metadata "null t"] . *** removes transitions not changing the marking
 
-op dead : Tran -> Bool .  *** checks for structurally dead transitions 
-eq dead(L |-> EQ) = dead(m(EQ)) .
+ op dead : Tran -> Bool .  *** checks for structurally dead transitions 
+ eq dead(L |-> EQ) = dead(m(EQ)) .
 ceq L |-> EQ = emptyNet if dead(m(EQ)) . *** removes dead transitions
  *** doesn't consider the capacity
  op enabled : Tran Pbag -> Bool .
@@ -41,12 +40,6 @@ ceq L |-> EQ = emptyNet if dead(m(EQ)) . *** removes dead transitions
  *** doesn't consider enabling and capacity, but considers flush arcs
  op firing : Tran Pbag -> Pbag .
  eq firing(L |-> EQ, M) = firing(EQ, M) . 
-  *** test the existence of a place (of course, the capacity bag is not considered) 
- ***op in : Net Place -> Bool . 
-***ceq in(T ; N, P) = true if inTran(T, P) .
-*** eq in(N, P) = false [owise] .
- op inTran : Tran Place -> Bool .
- eq inTran(L |-> EQ, P) = in(EQ, P) .
  *** test the existence of a transition
  op in :  Net L$Elt -> Bool . 
  eq in(N, L) = $hasMapping(N, L) .
@@ -65,11 +58,11 @@ ceq isH(L |-> EQ ; N, P) = true if isH(m(EQ), P) .
  eq $netPlaces(emptyNet, S) = S . 
  eq $netPlaces(T ; N, S) = $netPlaces(N, S U placesTran(T)) .
  op placesTran : Tran -> Pset .
- eq placesTran(L |-> EQ) = placesM(EQ) . 
-
+ eq placesTran(L |-> EQ) = places(EQ) . 
+ ***
  op transitions : Net -> Set{L} .
  eq transitions(N) = keySet(N) .
-
+ ***
  op detache : Net Net -> Net .
  eq detache(N ; N', N') = N .
  eq detache(N, N') = N [owise] .  

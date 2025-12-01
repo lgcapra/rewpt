@@ -11,22 +11,21 @@ fmod FLUSH-ARC{L :: TRIV} is
   vars P P' : Place .
   var K : NzNat .
   ***
-  op in : FlushArcs Place -> Bool .
-  eq in(F, P) = isIn(F, P) or-else isOut(F, P) .
-  op isIn  : FlushArcs Place -> Bool .
-  eq isIn(P >> S ; F, P) = true .
-  eq isIn(F, P) = false [owise] .
-  op isOut : FlushArcs Place -> Bool .
-  eq isOut(P' >> P U S ; F, P) = true .
-  eq isOut(F, P) = false [owise] .
+  *** op in : FlushArcs Place -> Bool .
+  *** eq in(F, P) = isIn(F, P) or-else isOut(F, P) .
+  *** op isIn  : FlushArcs Place -> Bool .
+  *** eq isIn(P >> S ; F, P) = true .
+  *** eq isIn(F, P) = false [owise] .
+  *** op isOut : FlushArcs Place -> Bool .
+  *** eq isOut(P' >> P U S ; F, P) = true .
+  *** eq isOut(F, P) = false [owise] .
   ***
-  op placesF : FlushArcs -> Pset .
-  eq placesF(F) = $placesF(F, emptyPset) .
-  op $placesF : FlushArcs Pset -> Pset .
-  eq $placesF(noFlushArc, S) = S .
-  eq $placesF(P >> S ; F, S') = $placesF(F, P U S U S') . 
-  ***
-  op remove : FlushArcs Pset -> FlushArcs . *** to be defined
+  op places : FlushArcs -> Pset .
+  eq places(F) = $places(F, emptyPset) .
+  op $places : FlushArcs Pset -> Pset .
+  eq $places(noFlushArc, S) = S .
+  eq $places(P >> S ; F, S') = $places(F, P U S U S') . 
+  *** op remove : FlushArcs Pset -> FlushArcs . *** to be defined
 endfm
 
 in TMATRIX
@@ -68,19 +67,19 @@ ceq well-def(M f: F) = false if K . P + I := I(M)  /\ $hasMapping(F, P) .
  op enabled : Ematrix Pbag -> [Bool] . *** partial function
  ceq enabled(M f: F, B) = enabled(M, B) and-then enabled(F, B) if well-def(M f: F) .
  *** test the existence of a place
- op in : Ematrix Place -> Bool . 
- eq in(M f: F, P) = in(F, P) or-else in(M, P) .
+ *** op in : Ematrix Place -> Bool . 
+ *** eq in(M f: F, P) = in(F, P) or-else in(M, P) .
  *** elements of the adjacency matrix
  ops I O H : Ematrix -> Pbag .
  eq I(E) = I(m(E)) .
  eq O(E) = O(m(E)) .
  eq H(E) = H(m(E)) .
  *** set of places
- op placesM : Ematrix -> Pset .
- eq placesM(M f: F) = placesM(M) U placesF(F) .
+ op places : Ematrix -> Pset .
+ eq places(M f: F) = places(M) U places(F) .
  *** removes the specified places from a local matrix
- op remove :  Ematrix Pset -> Ematrix .
- eq remove(M f: F, S) = remove(M, S) f: remove(F, S) . 
+ ***op remove :  Ematrix Pset -> Ematrix .
+ ***eq remove(M f: F, S) = remove(M, S) f: remove(F, S) . 
  
  *** simulates the effect of flush arcs (assume that the transition is enabled)
   op flushInOut :  FlushArcs Pbag -> Smatrix . *** calcola l'output totale di archi flush

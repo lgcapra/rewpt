@@ -17,7 +17,6 @@ view PT-SYS-LAB{L :: TRIV} from MO-NET-SYS to PT-SYS-LAB{L} is
   op replaceWithEl to replaceWithTran . 
   op addLabEl to addLabTran .
   op placesEl to placesTran .
-  op inEl to inTran .
 endv
 
 in MO-NET-SYS-OP

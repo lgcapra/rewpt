@@ -12,8 +12,10 @@ fmod SERVER-LIST-LAB is
    eq addLabServer(P @ F, L, S) = addLabP(P, L, S) @ F .
    op placesServer : Server List{String} -> Pset .
    eq placesServer(P @ F, WL) = placesP(P, WL) .
-   op inServer : Server Place -> Bool .
-   eq inServer(P @ F, P') = P == P' .
+   op placesServer : Server NeLab -> Pset .
+   eq placesServer(P @ F, NeL) = placesP(P, NeL) .
+   op placesServer : Server -> Pset .
+   eq placesServer(P @ F) = P .
 endfm 
 
 view SERVER-LIST-LAB from MO-NET to SERVER-LIST-LAB is
@@ -24,7 +26,6 @@ view SERVER-LIST-LAB from MO-NET to SERVER-LIST-LAB is
   op replaceWithEl to replaceWithServer . 
   op addLabEl to addLabServer .
   op placesEl to placesServer .
-  op inEl to inServer .
 endv
 
 *** SERVER-LIST with structured label wrapped as a modular monoid with suitable compositional and normalization operators
@@ -56,9 +57,9 @@ fmod QUEUE-MOD is
   eq out(LS > P) = P .
   eq out([M, M'] SQ) = out(SQ) .
   op well-def : NeServerList -> Bool .
-  op pin : Queue -> Place .
-  eq pin(Q LS > P) = p(Q) .
-  eq pin([M, M'] SQ ) = pin(SQ) .
+  op in : Queue -> Place .
+  eq in(Q LS > P) = p(Q) .
+  eq in([M, M'] SQ ) = in(SQ) .
  ceq well-def(LS Q LS' Q' LS'') = false if p(Q) = p(Q') .
   eq well-def(Q LS) = true [owise] . 
   op clients : ServerList Pbag -> [Nat] [memo] .
@@ -70,7 +71,7 @@ fmod QUEUE-MOD is
   eq qenabled(SQ, M) = true .
   eq qenabled([M, M'] SQ, M'') = enabCond(M, M', M'')  . *** similar to the PN tran. enabling condition (M input, M' inhibitor)
   op cap : ElQueue -> NzNat .
-  eq cap(X:ElQueue) = cap(pin(X:ElQueue)) .
+  eq cap(X:ElQueue) = cap(in(X:ElQueue)) .
   *** return the place of the next element if any, otherwise the specified default place (convenience op)
    op nextPosDef : ServerList Place -> Place [memo] .  
    eq nextPosDef(LS , P) = if LS  == nilSeL then P else p(head(LS )) fi .
@@ -83,7 +84,9 @@ fmod QUEUE-MOD is
    eq addLabQueue(NeLS > P, L, S) = addLab(NeLS, L, S) > addLabP(P, L, S)   .
    op placesQueue : Queue List{String} -> Pset .
    eq placesQueue(NeLS > P, WL) = places(NeLS, WL) U placesP(P, WL) .
-   op inQueue : Queue Place -> Bool .
-   eq inQueue(NeLS > P, P') = P == P' or-else in(NeLS, P') .
-   
+   op placesQueue : Queue NeLab -> Pset .
+   eq placesQueue(NeLS > P, NeL) = places(NeLS, NeL) U placesP(P, NeL) .
+   op placesQueue : Queue  -> Pset .
+   eq placesQueue(NeLS > P) = places(NeLS) U P .
+
 endfm

@@ -1,10 +1,12 @@
 in QUEUE-NODE-MOD
 in SPN-NODE-MOD
+in JSQ-NODE-MOD
 
 *** just to make some trials
  mod FIRST-EXE is
    inc QUEUE-NODE-SYS-MOD .
    inc SPN-NODE-SYS-MOD{String} .
+   inc JSQ-NODE-SYS-MOD .
    ops loadLab assLab failLab workLab : -> Tlab [memo] .
    eq loadLab = t("ld", 0.5,   1 ) .
    eq assLab =  t("as", 2.0,   0 ) .

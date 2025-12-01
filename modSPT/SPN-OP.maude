@@ -1,7 +1,0 @@
-*** signature of stochastic PT nets using net-algebra/manipulation symmetric operators
-in ../modPT/NET-OP
-
-*** definition of specific ops for SPN  
-fmod SPN-OP{L :: TRIV} is 
-  pr NET-OP{Tlab{L}} * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}) .
-endfm

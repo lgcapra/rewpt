@@ -15,10 +15,18 @@ endv
 *** new! defined as a monoid
 fmod PBAG-MOD is
  pr MO-NET-OP{PBAG-LAB} .  
- var B : Pbag .
+ vars B B' : Pbag .
  op normalize : Pbag -> Pbag  .
- *** eq normalize(B) = minimize(abstract(B)) .
- eq normalize(B) = minimize(abstract(B)) . *** alt
+ eq normalize(B) = minimize(abstract(B)) .
+ ***  vars K K' : NzNat . vars L L'  : Lab . var NeL : NeLab . var W : String .
+ *** eq normalize(B) = minimize(abstractB(B)) . *** alternative
+ *** like abstract (defined in MO-NET-OP in a generic way) but a little more efficient
+ *** op abstractB : Pbag -> Pbag .
+*** ceq abstractB(B) = abstractB(K . p(L' < W ; K' - 1 > L) + replaceWith(B', < W ; K' > L, K' - 1)) if K . p(L' < W ; K' > L) + B' := B /\ in(B', < W ; K' - 1 > L) == false .
+ *** eq abstractB(B) = B [owise] .
+ *** op existsB : Pbag NeLab -> Bool .
+ *** eq existsB(K . p(L' NeL) + B, NeL) = true  .
+ *** eq existsB(B, NeL) = false [owise] .
 endfm 
 
 

@@ -1,0 +1,16 @@
+*** signature of stochastic PT emulating an MC
+in ../../PT-SYS
+in ../../modPT/PLAB
+
+
+fmod MC is
+  pr PT-SYS{Float, Plab} * (sort Net to Q, sort Tran to Qentry, sort Smatrix to Qsmatrix, sort Tmatrix to Qtmatrix, sort Ematrix to Qematrix,
+                           op [_,_,_] to [_;_;_] , op [_,_] to [_;_], op flushInOut to flushInOutQ, op enabled to enabledQ) .
+endfm
+
+mod MC-EMU is
+ inc MC .
+ var M  : Pbag . var T : Qentry . vars N N' : Q .
+ crl [state-tran] : N M => N firing(T, M) if T ; N' := N  /\ enabledQ(T, M) /\ R:Float := lab(T) .
+endm
+

@@ -9,14 +9,14 @@ fmod JSQ-NODE-MOD is
    eq replaceWithEl(J, NeL, I) = replaceWithJsq(J, NeL, I) . 
    eq addLabEl(J, L, S) = addLabJsq(J, L, S) .
    eq placesEl(J, Ls) = placesJsq(J, Ls) .
-   eq inEl(J, P) = inJsq(J, P) .
+   eq placesEl(J, NeL) = placesJsq(J, NeL) .
+   eq placesEl(J) = placesJsq(J) .
 endfm
 
 mod JSQ-NODE-SYS-MOD is
   inc JSQ-NODE-MOD .
-  inc CONVERSION .
-  var N : Network . var S : Server . var J : Jsq . vars LS LS'  : ServerList . var NeLQ : NeServerList . 
-  var M : Pbag . var K : NzNat . var rate : Float . var P : Place .
-  crl [q-firing] : (N , J) : M => (N , J) : normalize(M  + 1 . P - 1 . p(S)) if LS S LS' := ql(J) /\ mu(S) > 0.0 /\ K := M[p(S)] /\ K > 0 
-      /\ qenabled(J, M) /\ P :=  nextPosDef(LS',out(J) ) /\ M[P] < cap(P) /\ rate := mu(S) * float(K) / float(clients(ql(J), M)) .     
+  var N : Network . var B : Pbag . vars P P' : Place  . var S : Pset . var NeS : NePset .
+  op jsqRate : Jsq Pbag -> Float .
+  eq jsqRate(P |> NeS, B) = 100.0 . *** dummy implementation 
+  crl (N , P |> NeS) : 1 . P + B => (N , P |> NeS) : normalize(B + 1 . P') if P' U S := emin(B, NeS) /\ rate:Float := jsqRate(P |> NeS, B) .     
 endm

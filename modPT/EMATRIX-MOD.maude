@@ -18,45 +18,54 @@ fmod EMATRIX-MOD is
  vars S S'  : Pset .
  
  *** add a new label to a matrix' elements (version specifying places to share)
- op addLabM : Ematrix Lab Pset -> Ematrix . 
- eq addLabM([X,Y,Z], L, S) = [addLab(X, L, S), addLab(Y, L, S), addLab(Z, L, S)] .
- eq addLabM([X,Y], L, S) = [addLab(X, L, S), addLab(Y, L, S)] .
- eq addLabM(Q' f: FS, L, S) = addLabM(Q', L, S) f: addLabF(FS, L, S) .
- op addLabF : FlushArcs Lab Pset -> FlushArcs . 
- eq addLabF(FS, L, S) = $addLabF(FS, noFlushArc, L, S) .
- op $addLabF : FlushArcs FlushArcs Lab Pset -> FlushArcs .
- eq $addLabF(noFlushArc, FS, L, S) = FS .
- eq $addLabF(P >> S' ; FS, FS', L, S) = $addLabF(FS, addLabP(P, L, S) >> addLab(S', L, S) ; FS', L, S) .
+ op addLab : Ematrix Lab Pset -> Ematrix . 
+ eq addLab([X,Y,Z], L, S) = [addLab(X, L, S), addLab(Y, L, S), addLab(Z, L, S)] .
+ eq addLab([X,Y], L, S) = [addLab(X, L, S), addLab(Y, L, S)] .
+ eq addLab(Q' f: FS, L, S) = addLab(Q', L, S) f: addLab(FS, L, S) .
+ op addLab : FlushArcs Lab Pset -> FlushArcs . 
+ eq addLab(FS, L, S) = $addLab(FS, noFlushArc, L, S) .
+ op $addLab : FlushArcs FlushArcs Lab Pset -> FlushArcs .
+ eq $addLab(noFlushArc, FS, L, S) = FS .
+ eq $addLab(P >> S' ; FS, FS', L, S) = $addLab(FS, addLabP(P, L, S) >> addLab(S', L, S) ; FS', L, S) .
  
  *** no elements to share
- op addLabM : Ematrix Lab -> Tmatrix . *** overloaded
- eq addLabM(Q, L) = addLabM(Q, L, emptyPset) .
+ op addLab : Ematrix Lab -> Tmatrix . *** overloaded
+ eq addLab(Q, L) = addLab(Q, L, emptyPset) .
 
  ***
- op replaceWithM : Ematrix NeLab Nat -> Tmatrix .
- eq replaceWithM([X,Y,Z], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N), replaceWith(Z, NeL, N)] .
- eq replaceWithM([X,Y], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N)] .
- eq replaceWithM(Q' f: FS, NeL, N) = replaceWithM(Q', NeL, N) f: replaceWithF(FS, NeL, N) .
- op replaceWithF : FlushArcs NeLab Nat -> FlushArcs .
- eq replaceWithF(FS, NeL, N) = $replaceWithF(FS, noFlushArc, NeL, N) .
- op $replaceWithF : FlushArcs FlushArcs NeLab Nat -> FlushArcs .
- eq $replaceWithF(noFlushArc, FS, NeL, N) = FS .
- eq $replaceWithF(P >> S' ; FS, FS', NeL, N) = $replaceWithF(FS, replaceWithP(P, NeL, N) >> replaceWith(S', NeL, N) ; FS', NeL, N) .
- 
- *** derived definitions of placesM
- op placesM : Ematrix List{String}  -> Pset .
- eq placesM([X,Y,Z], Ws) = places(X, Ws) U places(Y, Ws) U places(Z, Ws) .
- eq placesM([X,Y], Ws) = places(X, Ws) U places(Y, Ws) .
- eq placesM(Q' f: FS, Ws) = placesM(Q', Ws) U placesF(FS, Ws) . 
- op placesF : FlushArcs List{String} -> Pset .
- eq placesF(FS, Ws) = $placesF(FS, emptyPset, Ws) .
- op $placesF : FlushArcs Pset NeList{String} -> Pset  .
- eq $placesF(noFlushArc, S, Ws) = S .
- eq $placesF(P >> S' ; FS, S, Ws) = $placesF(FS, places(P U S', Ws), Ws) .
+ op replaceWith : Ematrix NeLab Nat -> Tmatrix .
+ eq replaceWith([X,Y,Z], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N), replaceWith(Z, NeL, N)] .
+ eq replaceWith([X,Y], NeL, N) = [replaceWith(X, NeL, N), replaceWith(Y, NeL, N)] .
+ eq replaceWith(Q' f: FS, NeL, N) = replaceWith(Q', NeL, N) f: replaceWith(FS, NeL, N) .
+ op replaceWith : FlushArcs NeLab Nat -> FlushArcs .
+ eq replaceWith(FS, NeL, N) = $replaceWith(FS, noFlushArc, NeL, N) .
+ op $replaceWith : FlushArcs FlushArcs NeLab Nat -> FlushArcs .
+ eq $replaceWith(noFlushArc, FS, NeL, N) = FS .
+ eq $replaceWith(P >> S' ; FS, FS', NeL, N) = $replaceWith(FS, replaceWithP(P, NeL, N) >> replaceWith(S', NeL, N) ; FS', NeL, N) .
+
+ *** derived definitions of places
+ op places : Ematrix List{String}  -> Pset .
+ eq places([X,Y,Z], Ws) = places(X, Ws) U places(Y, Ws) U places(Z, Ws) .
+ eq places([X,Y], Ws) = places(X, Ws) U places(Y, Ws) .
+ eq places(Q' f: FS, Ws) = places(Q', Ws) U places(FS, Ws) . 
+ op places : FlushArcs List{String} -> Pset .
+ eq places(FS, Ws) = $places(FS, emptyPset, Ws) .
+ op $places : FlushArcs Pset NeList{String} -> Pset  .
+ eq $places(noFlushArc, S, Ws) = S .
+ eq $places(P >> S' ; FS, S, Ws) = $places(FS, places(P U S', Ws), Ws) .
+ ***
+ op places : Ematrix NeLab  -> Pset .
+ eq places([X,Y,Z], NeL) = places(X, NeL) U places(Y, NeL) U places(Z, NeL) .
+ eq places([X,Y], NeL) = places(X, NeL) U places(Y, NeL) .
+ eq places(Q' f: FS, NeL) = places(Q', NeL) U places(FS, NeL) . 
+ op places : FlushArcs NeLab -> Pset .
+ eq places(FS, NeL) = $places(FS, emptyPset, NeL) .
+ op $places : FlushArcs Pset NeLab -> Pset  .
+ eq $places(noFlushArc, S, NeL) = S .
+ eq $places(P >> S' ; FS, S, NeL) = $places(FS, places(P U S', NeL), NeL) .
+
  
  *** defined analogously (to do)
- *** op placesM : Ematrix List{String} NeLab  -> Pset .
- 
  *** op match : Tmatrix List{String} NeLab -> Tmatrix .
  *** eq match([X,Y,Z], Ws, NeL) = [match(X, Ws, NeL), match(Y, Ws, NeL), match(Z, Ws, NeL)] .
  *** eq match([X,Y], Ws, NeL) = [match(X, Ws, NeL), match(Y, Ws, NeL)] .

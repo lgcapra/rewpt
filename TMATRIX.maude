@@ -37,8 +37,8 @@ fmod TMATRIX{L :: TRIV} is
  eq isOut(Q, P) = O(Q)[P] > 0 .
  eq isH(Q, P)   = H(Q)[P] > 0 .
 
- op placesM : Tmatrix -> Pset .
- eq placesM(Q) = support(I(Q)) U support(O(Q)) U support(H(Q)) .
+ op places : Tmatrix -> Pset .
+ eq places(Q) = support(I(Q)) U support(O(Q)) U support(H(Q)) .
 
  op enabled : Tmatrix Pbag -> Bool .
  *** eq enabled(Q, M) = I(Q) <= M and-then H(Q) > M .
