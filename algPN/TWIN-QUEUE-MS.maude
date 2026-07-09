@@ -1,0 +1,42 @@
+in ../shared/ELIST
+in ALG-PN
+
+*** EXAMPLE:  algebraic net shema using two (embedded) lists where some tasks are non-deterministically picked up fairly from a repository
+
+*** version using MSET
+mod TWIN-QUEUE-MS{X :: TRIV} is
+ pr MARKING-STR{X} .
+ pr MARKING-STR{Elist{X}} * (op mark to markL ) . *** renaming mark is mandatory  
+ 
+ *** op init : -> Marking . *** alias - intial marking
+ *** eq init =  p("queue") |-> [niL{X}] [niL{X}] ; p("task") |-> X Y Y Z Z Z . 
+ *** we shoud define X Y Z as ops (that is, pseudo-variables) of sort X$Elt or (better) of a supersort Sup{X} of X$Elt
+ *** however, we can search using variables directly
+ *** e.g., 
+ *** search p("queue") |-> [niL{X}] [niL{X}] ; p("task") |-> X:X$Elt Y:X$Elt X:X$Elt Y:X$Elt =>! F:Marking .
+ 
+ var M : Marking .
+ var B : Mset{X} .
+ vars L L' : List{X} .
+ var LB : Mset{Elist{X}} .
+ vars X Y Z : X$Elt .
+ 
+ *** withdraws two occurrences of an element from p("task"), by appending each to one of the list in p("queue")
+ rl [d] : p("queue") |-> [L] [L']  ;  p("task") |-> X X B => p("queue") |-> [L, X] [L', X] ; p("task") |-> B .
+ 
+ *** withdraws residual single elements from p("task"), by appending them to one of the thw lists (randomly chosen) 
+crl [l] : p("queue") |-> [L] [L'] ;  p("task") |-> X B => p("queue") |-> [L, X] [L'] ; p("task") |-> B if not(X leq B) .
+
+*** serves (removes) the head element of (from) one of the queues (chosen nondeterministically)
+rl [s] : p("queue") |-> [X, L]  [L'] ;  p("task") |-> B => p("queue") |->  [L] [L'] ; p("task") |-> B X .
+endm
+
+*** example of instantiation with Nat
+
+mod TWIN-QUEUE-NAT is
+  inc TWIN-QUEUE-MS{Nat} . 
+  op m0 : -> Marking [memo] . 
+  op ms0 : -> Mset{Nat} .
+  eq m0 =  p("queue") |-> [nil] [nil] ; p("task") |-> ms0  .
+  eq ms0 =  0 0 0 1 1 2 . 
+endm

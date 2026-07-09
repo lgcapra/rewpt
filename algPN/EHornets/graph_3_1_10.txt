@@ -1,0 +1,883 @@
+Maude> search init =>! M:Marking .
+search in EHORNET-BOS : init =>! M:Marking .
+
+No solution.
+states: 76  rewrites: 196253 in 20ms cpu (23ms real) (9812650 rewrites/second)
+Maude> show search graph .
+state 0, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 1 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 1, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 2 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+arc 1 ===> state 3 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+arc 2 ===> state 4 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X (
+    b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+
+state 2, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 1.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 5 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 3, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 2.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 6 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 4, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 1.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 7 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 5, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 1.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 8 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M ;
+    p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b = true
+    /\ Rate:Float := rate(T) * 1.0 .)
+
+state 6, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 2.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 9 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M ;
+    p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b = true
+    /\ Rate:Float := rate(T) * 1.0 .)
+
+state 7, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 1.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 0 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M ;
+    p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b = true
+    /\ Rate:Float := rate(T) * 1.0 .)
+
+state 8, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 10 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 9, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    2.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 11 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 10, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 2 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X (
+    b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 12 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+arc 2 ===> state 13 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+
+state 11, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    2.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 3 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X (
+    b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 13 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+arc 2 ===> state 14 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+
+state 12, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 1.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 15 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 13, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 2.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 16 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 14, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 3.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 17 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 15, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 1.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 18 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 16, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 2.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 19 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 17, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 3.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 20 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 18, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 21 (crl [adaptXor] : p("game") |-> B X b M => p("game") |-> (X M) B X' b if T ; T' ; N := X /\ 1st(
+    tag(T)) = "0" /\ 1st(tag(T')) = "0" /\ R := rate(T) /\ R' := rate(T') /\ R / (R' + R) > 8.0000000000000004e-1 =
+    true /\ X' := T ; N /\ Rate:Float := 1.5 .)
+arc 1 ===> state 22 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 19, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    2.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 23 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 20, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    3.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 24 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 21, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a",
+    3.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t(
+    "stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 25 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 22, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 12 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 25 (crl [adaptXor] : p("game") |-> B X b M => p("game") |-> (X M) B X' b if T ; T' ; N := X /\ 1st(
+    tag(T)) = "0" /\ 1st(tag(T')) = "0" /\ R := rate(T) /\ R' := rate(T') /\ R / (R' + R) > 8.0000000000000004e-1 =
+    true /\ X' := T ; N /\ Rate:Float := 1.5 .)
+arc 2 ===> state 26 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+arc 3 ===> state 27 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+
+state 23, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    2.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 13 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 27 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+arc 2 ===> state 28 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+
+state 24, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    3.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 14 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 28 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+arc 2 ===> state 29 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+
+state 25, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a",
+    3.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t(
+    "stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p(
+    "dec-in-1")
+arc 0 ===> state 30 (crl [playaa-red] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |->
+    B' X' (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; N := X /\ 1st(tag(T)) = "0" /\ synch("game:aa") =
+    ch(T ; T') /\ not in(N, "0" @ "b") = true /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := (N ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+arc 1 ===> state 31 (crl [playab-red] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |->
+    B' X (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; N := X /\ 1st(tag(T)) = "0" /\ not in(N, "0" @ if
+    ch(T) == "a" then "b" else "a" fi) = true /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true
+    /\ Rate:Float := rate(T) * rate(T') * 3.0 .)
+
+state 26, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 1.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 32 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 27, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 2.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 33 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 28, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 3.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 34 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 29, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 4.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p(
+    "in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p(
+    "dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 35 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 30, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p(
+    "dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |->
+    [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game")
+    |-> emptyNT
+arc 0 ===> state 36 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 31, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p(
+    "dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |->
+    [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game")
+    |-> emptyNT
+arc 0 ===> state 37 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 32, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 1.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 38 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 33, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 2.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 39 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 34, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 3.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 40 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 35, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 4.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p(
+    "in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p(
+    "dec-out-1"), 1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 41 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 36, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p(
+    "dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |->
+    [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 42 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 37, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p(
+    "dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |->
+    [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 21 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 38, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @
+    "b", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 42 (crl [adaptXor] : p("game") |-> B X b M => p("game") |-> (X M) B X' b if T ; T' ; N := X /\ 1st(
+    tag(T)) = "0" /\ 1st(tag(T')) = "0" /\ R := rate(T) /\ R' := rate(T') /\ R / (R' + R) > 8.0000000000000004e-1 =
+    true /\ X' := T ; N /\ Rate:Float := 1.5 .)
+arc 1 ===> state 43 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 39, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    2.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 44 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 40, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    3.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 45 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 41, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 46 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 42, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @
+    "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t(
+    "stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 47 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 43, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @
+    "b", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 26 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 47 (crl [adaptXor] : p("game") |-> B X b M => p("game") |-> (X M) B X' b if T ; T' ; N := X /\ 1st(
+    tag(T)) = "0" /\ 1st(tag(T')) = "0" /\ R := rate(T) /\ R' := rate(T') /\ R / (R' + R) > 8.0000000000000004e-1 =
+    true /\ X' := T ; N /\ Rate:Float := 1.5 .)
+arc 2 ===> state 48 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+
+state 44, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    2.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 27 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 48 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+arc 2 ===> state 49 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+
+state 45, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    3.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 28 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 49 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+arc 2 ===> state 50 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+
+state 46, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 1.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 29 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 50 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+
+state 47, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @
+    "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 1.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t(
+    "stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p(
+    "dec-in-1")
+arc 0 ===> state 30 (crl [playab-red] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |->
+    B' X (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; N := X /\ 1st(tag(T)) = "0" /\ not in(N, "0" @ if
+    ch(T) == "a" then "b" else "a" fi) = true /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true
+    /\ Rate:Float := rate(T) * rate(T') * 3.0 .)
+
+state 48, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 2.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 51 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 49, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 3.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 52 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 50, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 4.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p(
+    "in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p(
+    "dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 53 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 51, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 2.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 54 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 52, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 3.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 55 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 53, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 4.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p(
+    "in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p(
+    "dec-out-1"), 1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 56 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 54, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @
+    "b", 2.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 57 (crl [adaptXor] : p("game") |-> B X b M => p("game") |-> (X M) B X' b if T ; T' ; N := X /\ 1st(
+    tag(T)) = "0" /\ 1st(tag(T')) = "0" /\ R := rate(T) /\ R' := rate(T') /\ R / (R' + R) > 8.0000000000000004e-1 =
+    true /\ X' := T ; N /\ Rate:Float := 1.5 .)
+arc 1 ===> state 58 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 55, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    3.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 59 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 56, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 60 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 57, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @
+    "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t(
+    "stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 61 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 58, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @
+    "b", 2.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 48 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 61 (crl [adaptXor] : p("game") |-> B X b M => p("game") |-> (X M) B X' b if T ; T' ; N := X /\ 1st(
+    tag(T)) = "0" /\ 1st(tag(T')) = "0" /\ R := rate(T) /\ R' := rate(T') /\ R / (R' + R) > 8.0000000000000004e-1 =
+    true /\ X' := T ; N /\ Rate:Float := 1.5 .)
+arc 2 ===> state 62 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+
+state 59, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    3.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0,
+    1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0")
+    + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 49 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 62 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+arc 2 ===> state 63 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+
+state 60, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 2.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 50 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 63 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+
+state 61, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @
+    "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t(
+    "stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p(
+    "dec-in-1")
+arc 0 ===> state 64 (crl [playab-red] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |->
+    B' X (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; N := X /\ 1st(tag(T)) = "0" /\ not in(N, "0" @ if
+    ch(T) == "a" then "b" else "a" fi) = true /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true
+    /\ Rate:Float := rate(T) * rate(T') * 3.0 .)
+
+state 62, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 3.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 65 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 63, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 4.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p(
+    "in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p(
+    "dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 66 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 64, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p(
+    "dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |->
+    [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game")
+    |-> emptyNT
+arc 0 ===> state 67 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 65, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 3.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p("in"),
+    1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p("dec-out-1"),
+    1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 68 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 66, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 4.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p(
+    "in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p(
+    "dec-out-1"), 1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 69 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 67, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p(
+    "dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("1" @ "b", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("start" @ "", 1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |->
+    [1 . p("dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 57 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 68, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @
+    "b", 3.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 70 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 69, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 71 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 70, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @
+    "b", 3.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("1" @ "b", 7.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 62 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 72 (crl [playbb] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:bb") = ch(T ; T') /\ R := rate(T) /\ R + Delta' <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta)) ;
+    setRate(T, R + Delta') /\ Rate:Float := R * R' * 1.5 .)
+
+state 71, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 7.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b",
+    4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 3.0, 1) |-> [1 . p("dec-in-1"), 1 . p(
+    "dec-out-1"), nilP] ; t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 63 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)
+arc 1 ===> state 72 (crl [playaa] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X'
+    (b + post(T ; T') - pre) ; p("game") |-> B X' M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) =
+    "0" /\ synch("game:aa") = ch(T ; T') /\ R := rate(T) /\ R + Delta <= MaxRate = true /\ R' := rate(T') /\ R' +
+    Delta' <= MaxRate = true /\ pre := pre(T ; T') /\ pre <= b = true /\ X' := ((T'' ; N) ; setRate(T', R' + Delta')) ;
+    setRate(T, R + Delta) /\ Rate:Float := R * R' * 1.5 .)
+
+state 72, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 4.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p(
+    "in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p(
+    "dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-out-0") + 1 . p("dec-out-1") ; p("game") |-> emptyNT
+arc 0 ===> state 73 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 73, MsetMarking{NetToken}: p("evaluated_game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p("out"), 1 . p("in"), nilP]
+    ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @ "b", 4.0, 1) |-> [1 . p(
+    "dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ;
+    t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "", 1.0, 1) |-> [1 . p(
+    "in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p("dec-out-0") + 1 . p(
+    "dec-out-1"), 1 . p("out"), nilP]) 1 . p("out") ; p("game") |-> emptyNT
+arc 0 ===> state 74 (crl [reset] : p("evaluated_game") |-> B X b M ; p("game") |-> B' => p("evaluated_game") |-> B X M
+    ; p("game") |-> B' X (b + post(T) - pre) if T ; N := X /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b =
+    true /\ Rate:Float := rate(T) * 1.0 .)
+
+state 74, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @
+    "b", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("in")
+arc 0 ===> state 75 (crl [firing] : (T ; N) M:Pbag B:Mset{Pbag} => (T ; N) B:Mset{Pbag} firing(T, M:Pbag) if ch(T) =
+    emptyMsetS /\ I(T) <= M:Pbag = true /\ R := firing-rate(T, M:Pbag) .)
+
+state 75, MsetMarking{NetToken}: p("evaluated_game") |-> emptyNT ; p("game") |-> (t("" @ "reset", 1.0, 1) |-> [1 . p(
+    "out"), 1 . p("in"), nilP] ; t("0" @ "a", 1.0e+1, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("0" @
+    "b", 4.0, 1) |-> [1 . p("dec-in-0"), 1 . p("dec-out-0"), nilP] ; t("1" @ "a", 4.0, 1) |-> [1 . p("dec-in-1"), 1 .
+    p("dec-out-1"), nilP] ; t("1" @ "b", 1.0e+1, 1) |-> [1 . p("dec-in-1"), 1 . p("dec-out-1"), nilP] ; t("start" @ "",
+    1.0, 1) |-> [1 . p("in"), 1 . p("dec-in-0") + 1 . p("dec-in-1"), nilP] ; t("stop" @ "", 1.0, 1) |-> [1 . p(
+    "dec-out-0") + 1 . p("dec-out-1"), 1 . p("out"), nilP]) 1 . p("dec-in-0") + 1 . p("dec-in-1")
+arc 0 ===> state 72 (crl [playab] : p("evaluated_game") |-> B' ; p("game") |-> B X b M => p("evaluated_game") |-> B' X
+    (b + post(T ; T') - pre) ; p("game") |-> B X M if T ; T' ; T'' ; N := X /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0"
+    /\ synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b = true /\ Rate:Float := rate(T) * rate(T') * 3.0
+    .)

@@ -1,0 +1,232 @@
+in NET-TOKEN
+
+*** workflow-nets' signature
+fmod WFN{L :: TRIV} is
+  pr PT-NET{L, String} .
+  pr CONVERSION .
+  vars L L' : L$Elt .
+  vars K K' U U' : NzNat .
+  vars N N' : Net .
+  vars I O H I' O' H' B B' : Pbag .
+  vars S S' S'' : String .
+  
+  op wfnet? : Net -> Bool .
+  eq wfnet?(N) = isIn(N, p("in")) and-then isOut(N, p("out")) and-then not(isOut(N, p("in"))) and-then not(isIn(N, p("out"))) .
+  
+ *** utilities
+  op rename : Pbag String String -> Pbag .
+  eq rename(K . p(S) + B, S, S') = K . p(S') + B .
+  eq rename(B, S, S') = B [owise] .
+ 
+  ops renameI renameO : Net String String -> Net . *** renaming restricted to Input/Output places of a net
+  eq renameI(N, S, S') = $renameI(N, emptyNet, S, S') .
+  op $renameI : Net Net String String -> Net .
+  eq $renameI(emptyNet, N, S, S') = N .
+  eq $renameI(N ; L |-> [I, O, H] , N', S, S') = $renameI(N, L |-> [rename(I, S, S'), O, H] ; N', S, S') .
+  eq renameO(N, S, S') = $renameO(N, emptyNet, S, S') .
+  op $renameO : Net Net String String -> Net .
+  eq $renameO(emptyNet, N, S, S') = N .
+  eq $renameO(N ; L |-> [I, O, H] , N', S, S') = $renameO(N, L |-> [I, rename(O, S, S'), H] ; N', S, S') .
+
+  op cat : String String -> String . *** concatenates using a '-' if the first string is not empty 
+  eq cat("",S) = S .
+  eq cat(S, S') = S + "-" + S' [owise] .      
+  op cat : String Nat -> String . *** append an index to a string
+  eq cat(S, n:Nat) = cat(S, string(n:Nat, 10)) [owise] .
+
+  *** PA operators (work as expected if the operands are workflow-nets)
+  op seq : Net Net String -> Net  . *** the string parameter is used to rename the merged Out/In places of the operands  
+  op alt : Net Net -> Net [assoc comm] . *** implicitly associative
+  op par : Net Net String L$Elt L$Elt -> Net  . *** the string parameter is used to rename the In/Out places of the operands - the labels are those of the new fork-join transitions
+  eq seq(N, N', S) = renameO(N, "out", S) ; renameI(N',"in", S)  .
+  eq alt(N, N') = N ; N'  .
+  vars W W' W'' : Net . 
+  vars in1 in2 out1 out2 : String .
+ ceq par(N, N', S, L, L') = L |-> [1 . p("in"), 1 . p(in1) + 1 . p(in2), nilP] ; L' |-> [1 . p(out1) + 1 . p(out2), 1 . p("out"), nilP] ;
+        renameO(renameI(N, "in", in1), "out", out1) ; renameO(renameI(N', "in", in2), "out", out2) 
+        if S' := cat(S ,"in") /\ S'' := cat(S,"out") /\ in1 := cat(S', 0) /\ in2 := cat(S', 1) /\ out1 := cat(S'', 0) /\ out2 := cat(S'', 1) .
+  op elWfn : L$Elt -> Tran .
+  eq elWfn(L) = L |-> [1 . p("in"), 1 . p("out"), nilP] .
+  op loop : Net L$Elt -> Net . *** "closure" of a Wfn
+  eq loop(N, L) = N ; L |-> [1 . p("out"), 1 . p("in"), nilP] . 
+endfm
+
+*** stochastic wfn signature
+fmod S-WFN{L :: TRIV} is
+  pr WFN{Tlab{Tag{L}}} .
+endfm
+
+*** signature of stochastic wfn net-tokens (parametric in transition's tag)
+fmod WFN-TOKEN is
+  pr S-WFN{String} .
+  pr NET-TOKEN{String, String}  .
+  sort Wfn .
+  subsort Wfn < NetToken .
+  var NT : NetToken .
+  cmb NT : Wfn if wfnet?(n(NT)) . *** characterizes workflow nets(-tokens) 
+endfm
+
+*** maps the NT-TYPE theory to WFN-TOKEN
+view Wfn from NT-TYPE to WFN-TOKEN is
+  sort Token to Wfn .
+endv 
+
+*** an implementation of theory SYNCH
+fmod SYNCH-EXE is
+  pr NT-SIG{String, String} .
+  var  N : Net . 
+  var  T : Tran .
+  var  L : Lab .
+  vars  S C : String .
+  op synch : String -> Mset{String} .
+  op theta : Net -> Net . *** not required
+  eq synch("T1") = "ch1" "ch1" "ch2" . 
+  eq  synch(W:String) = empty{String} [owise] . *** just an example
+ ceq  theta(T ; N) = T ; T if 1st(tag(T)) == "a" .
+ ceq  theta(T ; N) =  T if 1st(tag(T)) == "b" [owise] .
+  eq  theta(N) = emptyNet [owise] .
+endfm
+
+*** view to SYNCH-EXE
+view Synch from SYNCH to SYNCH-EXE is 
+endv
+
+*** simple example of stochastic EHornets, all places hold stochastic wfn
+mod EHORNET-EXE is
+ inc NET-TOKEN-SYS{String, String}  . *** includes net-tokens' autonomous firing
+ inc EHORNET-SYNCH{Wfn, Nat, Synch} .
+ ops net net' : -> Net  [memo] . 
+ ops m0 m0' m0'' : -> Pbag  [memo] .  
+ ops nt nt' nt'' : -> NetToken [memo] . *** the least sort is (should be) Wfn
+
+ eq net =  elWfn(t("a" @ "ch1", 1.0, 1))  .
+ eq net' = t("b" @ "ch2", 2.0, 1) |-> [1 . p("x") + 1 . p("in"), 1 . p("out"), nilP] ;
+           t("c" @ "", 3.0, 1) |-> [1 . p("in"), nilP, nilP] .
+ 
+ eq m0  =  1 . p("in") + 1 . p("out") .
+ eq m0'  = 1 . p("in")  .
+ eq m0'' = 1 . p("x") + 1 . p("in") .
+ eq nt = net m0 nilP .
+ eq nt' = net m0' .
+ eq nt'' = net' m0'' .
+
+ op init : -> Marking [memo] . *** system-net initial marking
+ eq init = p(1) |-> nt ; p(2) |-> nt' ; p(3) |-> nt'' ; p(4) |-> empty{Wfn}  ;
+           p(5) |-> empty{Wfn}  ; p(6) |-> empty{Wfn}  ; p(7) |-> empty{Wfn}  .
+ vars B B' B'' B1 B2 B3 B4 : Mset{Wfn} .
+ vars X Y Z W N N' : Net .
+ vars k k' : NzNat .
+ vars M1 M2 M3 M4 : Mset{Pbag} .
+ vars b1 b2 b3 pre pre' Pi2 cum' newm newm' : Pbag .
+ vars out1 out2 out3 out4 : Pmset .
+  *** system net synchronization transition (encoded as a rule) - pre(T1) = {p1,p2,3}, post{T1} = {p4,p5,p6,p7}  
+*** crl [T1] : p(1) |-> (X b1 M1) B ;  p(2) |-> (X b2 M2)  B' ; p(3) |-> (Y b3 M3) B'' ; p(4) |-> B1 ; p(5) |-> B2 ; p(6) |-> B3 ; p(7) |-> B4 
+***          =>  
+***           p(1) |-> (X M1) B ; p(2) |-> (X M2) B' ; p(3) |-> (Y M3) B'' ; p(4) |-> B1 (X bag(out1)) ; p(5) |-> B2 (X bag(out2)) ; p(6) |-> B3 (Y bag(out3)) ; p(7) |-> B4 (Y bag(out4))  
+***           if X =/= Y /\ N  := theta(X) /\ N' := theta(Y) /\ synch("T1") = ch(N ; N') /\ Pi2 := b1 + b2 + b3 /\ pre := pre(N ; N') /\ pre <= Pi2 
+***           /\ out1 out2 out3 out4 := mset(b1 + b2 + post(N) - pre(N)) mset(b3 + post(N') - pre(N')) /\ R:Float := 1.5 .
+*** alternative (similar, but symmetric in the management of the cumulative pre- and post-sets)
+crl [T1] : p(1) |-> (X b1 M1) B ;  p(2) |-> (X b2 M2)  B' ; p(3) |-> (Y b3 M3) B'' ; p(4) |-> B1 ; p(5) |-> B2 ; p(6) |-> B3 ; p(7) |-> B4 
+          =>  
+           p(1) |-> (X M1) B ; p(2) |-> (X M2) B' ; p(3) |-> (Y M3) B'' ; p(4) |-> B1 (X bag(out1)) ; p(5) |-> B2 (X bag(out2)) ; p(6) |-> B3 (Y bag(out3)) ; p(7) |-> B4 (Y bag(out4))  
+           if X =/= Y /\ N ; N' := X ; X ; Y /\ synch("T1") = ch(N) /\ Pi2 := b1 + b2 + b3 /\ pre := pre(N) /\ pre <= Pi2 
+           /\ out1 out2 out3 out4 := mset(Pi2 + post(N) - pre) /\ R:Float := 1.5 .
+ *** system net autonomous transition - pre(T2) = {p3}, post{T2} = {p7}
+ crl [T2] : p(3) |-> (X b3 M3) B ; p(7) |-> B' => p(3) |-> (X M3) B ; p(7) |-> B' (X b3) if synch("T2") == empty{String} /\ R:Float := 2.0 .
+endm
+
+*** implementation of theory SYNCH for the bos example
+fmod SYNCH-BOS is
+  inc MSET-BAG{String} * (op nil to nilS).
+  op synch : String -> Mset{String} .
+  eq synch("game:aa") = "a" "a" . 
+  eq synch("game:bb") = "b" "b" .
+  eq synch("game:ab") = "a" "b" .
+  eq synch("reset") = "reset" .
+  eq synch(W:String) = empty{String} [owise] .
+endfm
+
+*** view to SYNCH-BOS
+view SynchBos from SYNCH to SYNCH-BOS is 
+endv
+
+*** battle of the sexes example
+mod EHORNET-BOS is
+ inc S-WFN{String} . 
+ inc EHORNET-GEN-SYNCH{String, String, String, SynchBos} . *** system- and object-net places labelled by strings
+ inc NET-TOKEN-SYS{String, String}  . *** includes net-tokens' autonomous firing
+ vars S S' : String .
+ var I K : Nat .
+ vars B B'  : Mset{NetToken} .
+ vars X X' N N' : Net .
+ vars M M' : Mset{Pbag} .
+ vars b b' pre pre' Pi2 cum' newm newm' : Pbag .
+ vars out : Pmset .
+ var L : Tag . vars D F R R' : Float . var Q : Tmatrix . var TL : Lab .
+ 
+ ops Delta Delta' MaxRate : -> Float [memo] . *** rate increment (pay-off)
+ eq Delta = 3.0 .
+ eq Delta' = 1.0 .
+ eq MaxRate = 1000.0 .
+ op a : String Nat Float -> Tran .  *** encodes an action
+ eq a(S, I, F) = elWfn(t(string(I, 10) @ S , F, 1)) . 
+ ops a0 b0 a1 b1 : -> Tran . *** aliasing
+ eq a0 = a("a", 0, 70.0) . eq b0 = a("b", 0, 30.0) . eq a1 = a("a", 1, 55.0) .  eq b1 = a("b", 1, 45.0) .
+
+ ops ag0 ag1 Bos Bos' Lbos : -> Net . *** aliasing
+ eq ag0 = alt(a0,b0) . eq ag1 = alt(a1,b1) .
+ ops start stop : -> Lab . *** aliasing
+ eq start = t("start" @ "", 1.0, 1) . *** object-net autonomous
+ eq stop =  t("stop" @ "" , 1.0, 1) .  *** object-net autonomous
+ eq Bos = par(ag0, ag1, "dec", start, stop) . *** the Bos wfn
+ eq Lbos = loop(Bos, t("" @ "reset", 1.0, 1)) . *** it's not a wfn because of the loop
+ 
+ op init : -> Marking [memo] . *** system-net initial marking
+ eq init = p("game") |-> Lbos 1 . p("in") ; p("evaluated_game") |-> empty{NetToken}  .
+
+ vars T T' T'' : Tran .
+ *** the rules have a (partially) simplified form due to the "deterministic" behaviour of system-net transitions in the example
+ *** the final rate value of the synchronization has to be adjusted
+ *** the two plays aa and bb could be folded into a single rule (as done for the two other rewrites ab and ba)
+ crl [playaa] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                 p("game") |-> (X' M) B ; p("evaluated_game") |-> B' (X' b + post(T ; T') - pre)    
+                    if T  ; T' ; T'' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0" /\ synch("game:aa") = ch(T ; T') /\ 
+                    R := rate(T) /\ R + Delta <= MaxRate /\ R' := rate(T') /\ R' + Delta' <= MaxRate /\ pre := pre(T ; T') /\ pre <= b /\ 
+                    X' := setRate(T, R + Delta) ; setRate(T', R' + Delta') ; T'' ; N /\ Rate:Float := R * R' * 1.5 .
+ *** almost the same structure as aa -- the rate increases are swapped
+ crl [playbb] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                 p("game") |-> (X' M) B ; p("evaluated_game") |-> B' (X' b + post(T ; T') - pre)    
+                    if T  ; T' ; T'' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0" /\ synch("game:bb") = ch(T ; T') /\
+                    R := rate(T) /\ R + Delta' <= MaxRate /\ R' := rate(T') /\ R' + Delta <= MaxRate /\ pre := pre(T ; T') /\ pre <= b /\
+                    X' := setRate(T, R + Delta') ; setRate(T', R' + Delta) ; T'' ; N /\ Rate:Float := R * R' * 1.5 .
+ *** folds a0b1 and b0a1
+ crl [playab] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                 p("game") |-> (X M) B ; p("evaluated_game") |-> B' (X b + post(T ; T') - pre)    
+                    if T  ; T' ; T'' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T'')) = "0" /\ 
+                    synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b /\ Rate:Float := rate(T) * rate(T') * 3.0 .
+
+*** play game with the "reduced" bos net (the two plays aa and bb could be folded into a single rule)
+crl [playaa-red] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                    p("game") |-> (X' M) B ; p("evaluated_game") |-> B' (X' b + post(T ; T') - pre)    
+                      if T  ; T' ; N := X  /\ 1st(tag(T)) = "0" /\ synch("game:aa") = ch(T ; T') /\ not(in(N, "0" @ "b")) /\
+                      R := rate(T) /\ R + Delta <= MaxRate /\ R' := rate(T') /\ R' + Delta' <= MaxRate /\ pre := pre(T ; T') /\ pre <= b /\ 
+                      X' := setRate(T, R + Delta) ; setRate(T', R' + Delta') ; N /\ Rate:Float := R * R' * 1.5 .
+crl [playbb-red] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                    p("game") |-> (X' M) B ; p("evaluated_game") |-> B' (X' b + post(T ; T') - pre)    
+                      if T  ; T' ; N := X  /\ 1st(tag(T)) = "0" /\ synch("game:bb") = ch(T ; T') /\ not(in(N, "0" @ "a")) /\
+                      R := rate(T) /\ R + Delta' <= MaxRate /\ R' := rate(T') /\ R' + Delta <= MaxRate /\ pre := pre(T ; T') /\ pre <= b /\ 
+                      X' := setRate(T, R + Delta') ; setRate(T', R' + Delta) ; N /\ Rate:Float := R * R' * 1.5 .
+crl [playab-red] : p("game") |-> (X b M) B ;  p("evaluated_game") |-> B' => 
+                    p("game") |-> (X M) B ; p("evaluated_game") |-> B' (X b + post(T ; T') - pre)    
+                      if T  ; T'  ; N := X  /\ 1st(tag(T)) = "0" /\ not(in(N, "0" @ if ch(T) == "a" then "b" else "a" fi)) /\
+                      synch("game:ab") = ch(T ; T') /\ pre := pre(T ; T') /\ pre <= b /\ Rate:Float := rate(T) * rate(T') * 3.0 .
+
+crl [reset] :    p("evaluated_game") |-> (X b M) B ; p("game")  |-> B' => 
+                 p("evaluated_game") |-> (X M) B ; p("game") |-> B' (X b + post(T) - pre)    
+                    if T ; N := X  /\ synch("reset") = ch(T) /\ pre := pre(T) /\ pre <= b /\ Rate:Float := rate(T) * 1.0 .
+
+*** structural adaptation of object-nets (the rule is "symmetric")
+crl [adaptXor] : p("game") |-> (X b M) B  => p("game") |-> (X M) (X' b) B     
+                    if T ;  T' ; N := X  /\ 1st(tag(T)) = "0" /\ 1st(tag(T')) = "0" /\ 
+                    R := rate(T) /\ R' := rate(T') /\ R / (R' + R) > 0.8 /\ X' := T ; N /\ Rate:Float := 1.5 .
+endm
