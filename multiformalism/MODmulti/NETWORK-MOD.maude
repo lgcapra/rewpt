@@ -13,7 +13,7 @@ endv
 
 *** wraps a NETWORK into a MONOID with modular ops
 fmod NETWORK-MOD is
- op normalize : Pbag -> Pbag .
- eq normalize(B:Pbag) = minimize(abstract(B:Pbag)) .
+ *** op normalize : Pbag -> Pbag .
+ *** eq normalize(B:Pbag) = minimize(abstract(B:Pbag)) .
  pr MO-NET-SYS-OP{NETWORK-LAB}  .
 endfm

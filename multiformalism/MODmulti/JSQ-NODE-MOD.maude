@@ -15,8 +15,8 @@ endfm
 
 mod JSQ-NODE-SYS-MOD is
   inc JSQ-NODE-MOD .
-  var N : Network . var B : Pbag . vars P P' : Place  . var S : Pset . var NeS : NePset .
+  var N : Network . var B : Pbag . var P : Bplace . var P' : Place  . var S : Pset . var NeS : NePset .
   op jsqRate : Jsq Pbag -> Float .
-  eq jsqRate(P |> NeS, B) = 100.0 . *** dummy implementation 
-  crl (N , P |> NeS) : 1 . P + B => (N , P |> NeS) : normalize(B + 1 . P') if P' U S := emin(B, NeS) /\ rate:Float := jsqRate(P |> NeS, B) .     
+  eq jsqRate(J:Jsq, B) = 100.0 . *** dummy implementation 
+  crl (N , P |> NeS) : 1 . P + B => (N , P |> NeS) : normalize(B + 1 . P') if P' U S := emin(B, NeS) /\ rate:Float := jsqRate(P |> NeS, B) .    
 endm

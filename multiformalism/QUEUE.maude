@@ -33,32 +33,38 @@ fmod QUEUE{PL :: TRIV} is
   subsort ElQueue < SimpleQ < Queue .
   vars Q Q' : Server . var SQ : SimpleQ . var Qu : Queue .
   vars LQ LQ' LQ'' : ServerList . var NeLQ : NeServerList .
-  vars M M' M'' : Pbag . var P : Place .
+  vars B B' B'' : Pbag . vars P P' : Place . var R : Float .
   op _>_ : NeServerList Place -> SimpleQ [ctor] .
   op _>_ : Server Place -> ElQueue [ctor ditto] . *** an elementary queue
   op [_,_] _  : Pbag Pbag SimpleQ -> Queue [ctor] . *** queue with prefixed enabling conditions
   eq [nilP, nilP] SQ = SQ .  
   op ql : Queue -> NeServerList . *** the enclosed list of elementary queues
   eq ql(LQ > P) = LQ .
-  eq ql([M, M'] SQ) = ql(SQ) .
-  op out : Queue -> Place .
-  eq out(LQ > P) = P .
-  eq out([M, M'] SQ) = out(SQ) .
+  eq ql([B, B'] SQ) = ql(SQ) .
+  op pout : Queue -> Place .
+  eq pout(LQ > P) = P .
+  eq pout([B, B'] SQ) = pout(SQ) .
   op well-def : NeServerList -> Bool .
   op pin : Queue -> Place .
   eq pin(Q LQ > P) = p(Q) .
-  eq pin([M, M'] SQ ) = pin(SQ) .
+  eq pin([B, B'] SQ ) = pin(SQ) .
  ceq well-def(LQ Q LQ' Q' LQ'') = false if p(Q) = p(Q') .
   eq well-def(Q LQ) = true [owise] . 
   op clients : ServerList Pbag -> [Nat] [memo] .
- ceq clients(Q LQ, M) = M[p(Q)] + clients(LQ, M) if well-def(Q LQ) .
-  eq clients(nilSeL, M) = 0 .
+ ceq clients(Q LQ, B) = B[p(Q)] + clients(LQ, B) if well-def(Q LQ) .
+  eq clients(nilSeL, B) = 0 .
   op clients : Queue Pbag -> [Nat] .
-  eq clients(Qu, M) = clients(ql(Qu), M) . 
+  eq clients(Qu, B) = clients(ql(Qu), B) . 
   op qenabled : Queue Pbag -> Bool . *** the queue "enabling" condition
-  eq qenabled(SQ, M) = true .
-  eq qenabled([M, M'] SQ, M'') = enabCond(M, M', M'')  . *** similar to the PN tran. enabling condition (M input, M' inhibitor)
+  eq qenabled(SQ, B) = true .
+  eq qenabled([B, B'] SQ, B'') = enabCond(B, B', B'')  . *** similar to the PN tran. enabling condition (B input, B' inhibitor)
   *** return the place of the next element if any, otherwise the specified default place (convenience op)
   op nextPosDef : ServerList Place -> Place [memo] .  
   eq nextPosDef(LQ , P) = if LQ  == nilSeL then P else p(head(LQ )) fi .
+  *** creates a new elementary queue (places may have a capacity)
+  op newElQueue : Pbag Pbag Place Place Float -> [Queue] .
+ ceq newElQueue(B, B', P, P', R) = [B, B'] P @ R > P' if P =/= P' .
+  op newElQueue : Place Place Float -> [Queue] .
+  eq newElQueue(P, P', R) = newElQueue(nilP, nilP, P, P', R) .
+  
 endfm

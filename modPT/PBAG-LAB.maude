@@ -48,18 +48,19 @@ fmod PBAG-LAB is
 ceq $extract(K . p(L' < W ; X > L) + B, B', W, I, J, L) = $extract(B, B' + K . p(L' < W ; X > L) , W, I, J, L) if X == I or-else X == J  . 
  eq $extract(K . P + B, B', W, I, J, L) = $extract(B, B', W, I, J, L) [owise] . 
 *** given a marking, a label suffix with an header element and two indices, rewrites the marking by swapping the suffix's header indices
- op swapLab : Pbag String Lab Nat Nat -> Pbag .
+ op swapLab : Pbag String Lab Nat Nat -> Pbag . *** new! also considers bounded places
  eq swapLab(B, W, L, I, I) = B .
 ceq swapLab(B, W, L, I, J) = $swapLab(B, nilP, W, L, I, J) if I =/= J . 
  op $swapLab : Pbag Pbag String Lab Nat Nat -> Pbag .
  eq $swapLab(nilP, B, W, L, I, J) = B .
- eq $swapLab(K . p(L' < W ; I > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; J > L) + B', W, L, I, J) .
- eq $swapLab(K . p(L' < W ; J > L) + B, B', W, L, I, J) = $swapLab(B, K . p(L' < W ; I > L) + B', W, L, I, J) .
+ceq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . replaceWithP(P, < W ; I > L, J) + B', W, L, I, J) if L' < W ; I > L := lab(P) .
+ceq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . replaceWithP(P, < W ; J > L, I) + B', W, L, I, J) if L' < W ; J > L := lab(P) .
  eq $swapLab(K . P + B, B', W, L, I, J) = $swapLab(B, K . P + B', W, L, I, J) [owise] .
  *** brings a marking (of a symmetric net) to a minimal form by considering index swaps
  op minimize : Pbag -> Pbag  [memo] .
  eq minimize(B) = B [owise] .
-ceq minimize(K . P + K' . P' + B) = minimize(B' + (B - B'' )) if p(L' < W ; I > L) := P /\ p(L'' < W ; J > L) := P' /\
+*** new! also considers bounded places
+ceq minimize(K . P + K' . P' + B) = minimize(B' + (B - B'' )) if L' < W ; I > L := lab(P) /\ L'' < W ; J > L := lab(P') /\
                     J > I /\ (K =/= K' or-else L' =/= L'')  /\ B'' := extract(B, W, I, J, L) /\
                     B' := swapLab(B'' + K . P + K' . P', W, L, I, J) /\ le(B', B'' + K . P + K' . P') . *** J > I prunes some matches (same as I > J) 
 

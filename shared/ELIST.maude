@@ -4,8 +4,10 @@ fmod ELIST{X :: TRIV} is
  sorts NeElist{X} Elist{X} .
  subsort NeElist{X} < Elist{X} .
  *** wrap
- op `[_`] : List{X} -> Elist{X} [ctor] .
- op `[_`] : NeList{X} -> NeElist{X} [ctor] .
+ op [_] : List{X} -> Elist{X} [ctor] .
+ op [_] : NeList{X} -> NeElist{X} [ctor] .
+ op l : Elist{X} -> List{X} .
+ eq l([L:List{X}]) =  L:List{X} .
 endfm
 
 *** parameterized trivial view to E-LIST{X}

@@ -19,5 +19,7 @@ mod QUEUE-NODE-SYS-MOD is
   var N : Network . var S : Server . var Q : Queue . vars LS LS'  : ServerList . var NeLQ : NeServerList . 
   var M : Pbag . var K : NzNat . var rate : Float . var P : Place .
   crl [q-firing] : (N , Q) : M => (N , Q) : normalize(M  + 1 . P - 1 . p(S)) if LS S LS' := ql(Q) /\ mu(S) > 0.0 /\ K := M[p(S)] /\ K > 0 
-      /\ qenabled(Q, M) /\ P :=  nextPosDef(LS',out(Q) ) /\ M[P] < cap(P) /\ rate := mu(S) * float(K) / float(clients(ql(Q), M)) .     
+     /\ qenabled(Q, M) /\ P :=  nextPosDef(LS', pout(Q) ) /\ M[P] < cap(P) /\ rate := mu(S) * float(K) / float(clients(ql(Q), M)) .  
+  *** crl [q-firing] : (N , Q) : M => (N , Q) : M  + 1 . P - 1 . p(S) if LS S LS' := ql(Q) /\ mu(S) > 0.0 /\ K := M[p(S)] /\ K > 0 
+  ***     /\ qenabled(Q, M) /\ P :=  nextPosDef(LS', pout(Q) ) /\ M[P] < cap(P) /\ rate := mu(S) * float(K) / float(clients(ql(Q), M)) .   
 endm

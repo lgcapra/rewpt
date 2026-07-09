@@ -8,8 +8,7 @@ fmod PBAG{L :: TRIV} is
                            sort  ElBag{Place{L}} to ElPbag, op nil to nilP, 
                            sort  Set{Place{L}}  to Pset, sort NeSet{Place{L}} to NePset, op emptyS to emptyPset) .
 
-  vars I H M B : Pbag . vars S S' : Pset .
-  vars K K' : NzNat . vars N N'  : Nat .
+  vars I H M B : Pbag . vars S S' : Pset . vars K K' D : NzNat . vars N N'  : Nat .
   var L : L$Elt . var P : Place .
     *** defined here for convenience
   op enabCond : Pbag Pbag Pbag -> Bool . 
@@ -33,7 +32,13 @@ ceq set(B, S, N) = $set(B, S, N) if S :: Place == false . *** S is not a singlet
  op $set : Pbag Pset Nat -> Pbag . 
  eq $set(B, emptyPset, N) = B .  
  eq $set(B, S U P , N) = $set(set(B, P, N), S , N) .
-
+ *** enabling degree (1st param: input; 2nd param marking)
+ op enabDegree : Pbag Pbag -> [NzNat] .
+ eq enabDegree(nilP, M) = 1 . *** the input arc is null
+ eq enabDegree(B:NePbag, M) = $enabDegree(B:NePbag, M, 1000000000000000) .
+ op $enabDegree : Pbag Pbag NzNat -> [NzNat] .  
+ eq $enabDegree(K . P + I , K' . P + M, D) = $enabDegree(I , M, min(D, K' quo K)) .
+ eq $enabDegree(nilP, M, D) = D .
 endfm
 
 

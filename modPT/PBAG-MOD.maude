@@ -16,7 +16,7 @@ endv
 fmod PBAG-MOD is
  pr MO-NET-OP{PBAG-LAB} .  
  vars B B' : Pbag .
- op normalize : Pbag -> Pbag  .
+ op normalize : Pbag -> Pbag [memo] .
  eq normalize(B) = minimize(abstract(B)) .
  ***  vars K K' : NzNat . vars L L'  : Lab . var NeL : NeLab . var W : String .
  *** eq normalize(B) = minimize(abstractB(B)) . *** alternative

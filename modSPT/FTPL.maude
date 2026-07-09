@@ -1,8 +1,13 @@
-in SPN-OP
+in ../modPT/NET-OP
+
+*** specific ops for SPN  
+fmod SPN-OP{L :: TRIV} is 
+  pr NET-OP{Tlab{L}} * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}) .
+endfm
 
 *** signature of the (stochastic) PL model (without priorities)
 fmod FTPL is
- pr SPN-OP{String} * (op emptySlab to emptyStr)  .
+ protecting SPN-OP{String}  .
  ops faultysload faultysass :  -> Tmatrix .
  ops line load ass fault faultyload faultyass : -> Tran . 
  ops cycle faultycycle faultyPL : -> Net [memo] .
@@ -26,7 +31,7 @@ fmod FTPL is
  eq ass   = assLab  |-> [1 . p(< "a" ; 0 >) , 1 . p(< "s" ; 0 >)  , nilP ] .
  eq cycle = load ; line ; ass .
  eq PL(K) = repl&share(cycle ; fault, K, "L", p (< "o" ; 0 >) U p(< "s" ; 0 >), assLab U loadLab) . *** a PL is built of K symmetric lines 
- eq NPL(N, K) = repl&share(PL(K), N, "PL", p(< "s" ; 0 >), emptyStr) . *** change here to vary the lines of a PL
+ eq NPL(N, K) = repl&share(PL(K), N, "PL", p(< "s" ; 0 >), emptySlab) . *** change here to vary the lines of a PL
  eq NPLsys(N, K, M) = setMark(setMark(NPL(N, K), "o" "PL", 1), "s", K * M) .
  *** helpful in system rewrite
 *** the i-th nominal PL

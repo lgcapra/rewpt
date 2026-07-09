@@ -4,7 +4,7 @@ in FTPL
 *** stochastic rewritable PL system model
 mod RWPT-FTPL is
  inc FTPL .
- inc SPN-EMU-MOD{String} * (op emptySlab to emptyStr) .
+ inc SPN-EMU-MOD{String}  .
 
  vars N N' N'' : Net .
  vars Tload Tfail Tfail1 Tfail2 Tass Tline Tline1 Tline2  : String .

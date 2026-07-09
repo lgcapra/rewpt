@@ -1,10 +1,10 @@
 in PT-NET
-in FIRING-RATE
+in TLAB
 
 *** Stochastic Petri Net signature parameterized in tran labels
 fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
   pr PT-NET{Tlab{L}, PL}  * (sort Set{Tlab{L}} to Set{Tlab}, sort NeSet{Tlab{L}} to NeSet{Tlab}) .
-  pr FIRING-RATE{L, PL} .
+  pr CONVERSION .
   var M  : Pbag .
   var Q : Ematrix .
   var T : Tran .
@@ -24,7 +24,8 @@ fmod SPN-SIG{L :: TRIV, PL :: TRIV} is
  ceq in(T ; N, L) = true if tag(T) = L .
   eq in(N, L) = false [owise] .
   op firingRate : Tran Pbag -> [Float] . *** for convenience
-  eq firingRate(t(L, F, J) |-> Q, M) = firingRate(t(L, F, J), I(Q), M) .  
+  eq firingRate(T, M) = if pol(T) == 1 then rate(T) else rate(T) * float(if pol(T) == 0 
+                           then enabDegree(I(T), M) else min(pol(T), enabDegree(I(T), M)) fi) fi .  
 endfm
 
 in PT-SYS

@@ -1,26 +1,17 @@
-fmod ANY-MATCH-CLASS is
-  sort AnyMatchClass .
+fmod MATCH is
+  sorts Match NeMatch .
+  subsort NeMatch < Match .
+  op emptyMatch : -> Match .
+  op _&_ : Match Match -> Match [ctor assoc comm id: emptyMatch] . 
 endfm
-
-view AnyMatchClass from TRIV to ANY-MATCH-CLASS is 
- sort Elt to AnyMatchClass . 
-endv
 
 *** this module defines classes (groups) of matches (bindings) pf the same kind, that is, potentially permutable
 fmod MATCH-CLASS{X :: TRIV} is
-  pr ANY-MATCH-CLASS .
+  extending MATCH .
   sorts MatchGroup{X} MatchClass{X} .
   subsort X$Elt < MatchGroup{X}  .
-  subsort MatchClass{X} < AnyMatchClass .
+  subsort MatchClass{X} < Match .
   op _,_ : MatchGroup{X} MatchGroup{X} -> MatchGroup{X} [ctor assoc comm prec  21] .
   op {_} : MatchGroup{X} -> MatchClass{X} [ctor prec 22 ] .
 endfm
 
-*** A AnyMatchClass is a list of match classes
-fmod MATCH is
-  pr LIST{AnyMatchClass} * (sort List{AnyMatchClass} to Match, sort NeList{AnyMatchClass} to NeMatches, op __ to _&_, op nil to emptyMatch) .
-endfm
-
-view Match from TRIV to MATCH is 
- sort Elt to Match . 
-endv

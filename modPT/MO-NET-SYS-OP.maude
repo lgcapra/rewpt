@@ -43,7 +43,7 @@ ceq clearUp(N : K . P + M) = clearUp(N : M) if in(N, P) == false .
 
  *** normalization (name abstraction) 
  op abstract : N$SysNode -> N$SysNode .
-ceq abstract(N : M) = abstract(replaceWith(N : M, < W ; K > L, J)) if p(L' < W ; K > L) U S := places(N) /\ J := sd(K,1) /\ in(S, < W ; J > L) == false .
+ceq abstract(N : M) = abstract(replaceWith(N : M, < W ; K > L, J)) if P U S := places(N) /\ L' < W ; K > L := lab(P) /\ J := sd(K,1) /\ in(S, < W ; J > L) == false .
  eq abstract(Sys) = Sys [owise] .
  *** excludes from index abstraction those places (components) matching a given suffix
  op abstractBut : N$SysNode String -> N$SysNode .

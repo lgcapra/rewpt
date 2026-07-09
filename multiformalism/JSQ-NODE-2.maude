@@ -8,10 +8,14 @@ fmod JSQ-NODE{PL :: TRIV} is
   var NeS : NePset . var SR : StatesRates . var L : PL$Elt . 
   op jnext  : Jsq Pbag -> StatesRates . *** non deterministic (see the corresponding rule)
  ceq jnext(p |> S, B) =  noStateRate if S == emptyPset or-else B[p] == 0 . *** particular case: "empty" JSQ
+  *** generalizzare al caso generale (capacità qualsiasi)
   eq jnext(p |> NeS, B) = $jnext(emin(B, NeS), noStateRate, B - 1 . p) [owise] .
   op $jnext : Pset StatesRates Pbag -> StatesRates .
   eq $jnext(emptyPset, SR, B) = SR .
-  eq $jnext(p U S, SR, B) = $jnext(S, (B + 1 . p -- firingRate(p, B)) SR, B) . 
+  eq $jnext(p U S, SR, B) = $jnext(S, (B + 1 . p -- jsqRate(p, B)) SR, B) . 
+  op jsqRate : Place Pbag -> Float .
+  eq jsqRate(p, B) = 100.0 . *** dummy implementation 
+  
 endfm
 
 

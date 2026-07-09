@@ -1,26 +1,13 @@
-in ../../modPT/MO-NET-OP
+in ../JSQ
 in ../../modPT/PSET-MOD
 
 *** JSQ switcher (modular version)
 fmod JSQ-MOD is
+  pr JSQ{Plab} .
   pr PSET-MOD . *** set of places defined as monoid
-  pr FLOAT .
-  var vars P P' : Place  . var S : Pset . var L : Lab .
-  sort Jsq .
-  op _|>_ : Place Pset -> [Jsq] [ctor] . *** partial function because ...
- cmb P |> S : Jsq if cap(P) = 1 /\ P in S = false . *** JSQs must have capacity 1
-  op In  : Jsq -> Place .
-  eq In(P |> S) = P .
-  op Out : Jsq -> Pset .
-  eq Out(P |> S) = S .
-  ***create an "empty JSQ" from a place (label)
-  op newJsq : Place -> [Jsq] . 
-  eq newJsq(P) = P |> emptyPset . 
-  op newJsq : Lab -> Jsq .
-  eq newJsq(L) = p(L, 1) |> emptyPset .
-  
+  var var P  : Bplace  . var S : Pset . var L : Lab . var NeL : NeLab . 
+  var I  : Nat . var WL : List{String} .  
   *** modularity ops  
-  var I  : Nat .  var NeL : NeLab . var WL : List{String} .  
   op replaceWithJsq : Jsq NeLab Nat -> Jsq . 
   eq replaceWithJsq(P |> S, NeL, I) = replaceWithP(P, NeL, I) |> replaceWith(S, NeL, I)  . 
   op addLabJsq : Jsq Lab Pset -> Jsq . 

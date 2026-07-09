@@ -5,16 +5,16 @@ in ../PSET
 fmod JSQ{PL :: TRIV} is
   pr PSET{PL} .
   pr FLOAT .
-  var vars P P' : Place  . var S : Pset . var L : PL$Elt .
+  var var P  : Bplace  . var S : Pset . var L : PL$Elt . var I  : Nat . 
   sort Jsq .
-  op _|>_ : Place Pset -> [Jsq] [ctor] .
- cmb P |> S : Jsq if cap(P) = 1 /\ P in S = false . *** JSQ must have capacity 1
-  op In  : Jsq -> Place .
+  op _|>_ : Bplace Pset -> [Jsq] [ctor] . *** partial function because ...
+ cmb p(L, 1) |> S : Jsq if p(L, 1) in S = false . *** JSQs input places must have capacity 1 and be disjoint from outputs 
+  op In  : Jsq -> Bplace .
   eq In(P |> S) = P .
   op Out : Jsq -> Pset .
   eq Out(P |> S) = S .
   ***create an "empty JSQ" from a place (label)
-  op newJsq : Place -> [Jsq] . 
+  op newJsq : Bplace -> [Jsq] . 
   eq newJsq(P) = P |> emptyPset . 
   op newJsq : PL$Elt -> Jsq .
   eq newJsq(L) = p(L, 1) |> emptyPset .

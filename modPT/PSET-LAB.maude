@@ -18,6 +18,7 @@ fmod PSET-LAB is
    eq placesP(P, WL) = if hasSuffix(lab(P), WL) then P else emptyPset fi .
    op placesP : Place NeLab -> Pset .
    eq placesP(p(L' NeL), NeL) = p(L' NeL) .
+   eq placesP(p(L' NeL, K), NeL) = p(L' NeL, K) . *** new
    eq placesP(P, NeL) = emptyPset [owise] .
    op placesP : Place -> Pset .
    eq placesP(P) = P . *** trivial

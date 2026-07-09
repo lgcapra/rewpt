@@ -26,6 +26,7 @@ mod SPN-NODE-SYS-MOD{PL :: TRIV} is
   inc SPN-NODE-MOD{PL} .
   var N : Network . vars PN PN' : Net . vars M M' : Pbag . var T : Tran .
   var K : NzNat . var rate : Float .
-  crl [spn-t] : (N , PN) : M => (N , PN) : normalize(M') if T ; PN' := PN /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ rate := firingRate(l(T),I(q(T)), M) . 
+  crl [spn-t] : (N , PN) : M => (N , PN) : normalize(M') if T ; PN' := PN /\ hasConcession(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ rate := firingRate(T, M) .
+  *** crl [spn-t] : (N , PN) : M => (N , PN) : M' if T ; PN' := PN /\ hasConcession(T, M) /\ M' := firing(T, M) /\ overCap(M') = false /\ rate := firingRate(T, M) . 
 endm
 

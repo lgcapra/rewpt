@@ -7,7 +7,7 @@ in ../../modPT/PBAG-MOD
 fmod NETWORK-LAB is
   pr PBAG-MOD .
   pr PSET-MOD .
-  protecting NETWORK{S-Pbag{Plab}} .
+  protecting NETWORK-M{Plab} .
   *** abstract operations: we use the same names as in the theory
   op replaceWithEl : Node NeLab Nat -> Node . *** defined for a single element
   op addLabEl : Node Lab Pset -> Node . 

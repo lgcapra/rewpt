@@ -11,6 +11,6 @@ endfm
 mod MC-EMU is
  inc MC .
  var M  : Pbag . var T : Qentry . vars N N' : Q .
- crl [state-tran] : N M => N firing(T, M) if T ; N' := N  /\ enabledQ(T, M) /\ R:Float := lab(T) .
+ crl [state-tran] : N M => N firing(T, M) if T ; N' := N  /\ hasConcession(T, M) /\ R:Float := lab(T) .
 endm
 

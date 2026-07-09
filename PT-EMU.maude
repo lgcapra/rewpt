@@ -4,5 +4,5 @@ in PT-SYS
 mod PT-EMU{L :: TRIV, PL :: TRIV} is
  inc PT-SYS{L, PL} .
  vars M M' : Pbag . var T : Tran . vars N N' : Net .
- crl [firing] : N M => N M' if T ; N' := N  /\ enabled(T, M) /\ M' := firing(T, M) /\ overCap(M') = false .
+ crl [firing] : N M => N M' if T ; N' := N  /\ hasConcession(T, M) /\ M' := firing(T, M) /\ overCap(M') = false .
 endm
