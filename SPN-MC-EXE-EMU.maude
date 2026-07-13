@@ -1,0 +1,11 @@
+in SPN-MC-EXE
+
+*** this system module defines the rewrite rules (implicitly including firing) for the SPN redundant state-transition description
+mod SPN-STATE-TRAN-SYS is
+  inc SPN-MC-EXE  . 
+  vars S S' : System . var RS : Set{Rate{System}} . var R :  Float .
+  rl [rew-S] : Src: S Trg: (RS U S' : R) => mcStateTran(S') .
+  var N : Net . var M : Pbag .
+  *** rl [rew-S] : Src: S Trg: (RS U (N M) : R) => mcStateTran(if N == emptyNet then n(S) else N fi M) .
+endm
+

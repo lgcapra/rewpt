@@ -1,0 +1,10 @@
+--- exeriments of variable term rewriting
+mod VAR-TERM_REW is
+  protecting STRING .
+  op _*_ : String String -> String [ctor assoc comm prec 121 format (d r os d)] .
+  rl X:String * X:String => X:String .
+endm
+
+--- the following rewritings give the same results
+rew S:String * "a" * S:String .
+rew "a" * S:String * S:String .

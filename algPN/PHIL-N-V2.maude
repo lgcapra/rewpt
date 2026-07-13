@@ -20,15 +20,15 @@ mod DINING-PHIL is
   inc MARKING{Phil, String} .
   var Ph : Phil . vars B B' B'' : Mset{Phil} . vars X Y : Nat . var K : NzNat .
   rl [th] : p("Think") |-> B Ph  ;  p("Pickup") |-> B' => p("Think") |-> B  ;  p("Pickup") |-> B' Ph .
-***  rl [pk] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Eat") |-> B''  =>  
-***            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) .
+  rl [pk] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Eat") |-> B''  =>  
+            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) .
   rl [e] : p("Eat") |-> B ph(X) ; p("Fork") |-> B'  ; p("Think") |-> B''  =>  
            p("Eat") |-> B ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Think") |-> B'' ph(X) .
-  *** alternatives for pk using guards
-crl  [pk2] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(Y) ; p("Eat") |-> B''  =>  
-              p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) if Y = X + 1 . *** X = Y + 1 behaves differently
-*** crl [pk3] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) Ph ; p("Eat") |-> B''  =>  
-***            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) if Ph = ph(X + 1) . *** more states than expected
+ *** alternatives for pk using guards
+--- crl  [pk2] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(Y) ; p("Eat") |-> B''  =>  
+---              p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) if Y = X + 1 . *** X = Y + 1 behaves differently
+--- crl [pk3] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) Ph ; p("Eat") |-> B''  =>  
+---            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) if Ph = ph(X + 1) . *** more states than expected
   
   
 endm

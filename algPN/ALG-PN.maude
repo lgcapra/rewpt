@@ -10,14 +10,14 @@ fmod ALG-PN-MARKING{PL :: TRIV} is
  sorts Pmarking Marking .
  subsort Pmarking < Marking .
  op emptyM : -> Marking [ctor] .
- op _;_ : Marking Marking -> Marking [ctor assoc comm id: emptyM prec 121 format (d r os d)] .
+ op _;_ : Marking Marking -> Marking [ctor assoc comm id: emptyM prec 51 format (d r os d)] .
  op place : Pmarking -> Place .
  var P  : Place .
  vars Mp Mp' : Pmarking .
  var M : Marking .
  op undefined : -> [Pmarking] .
  *** look-up
- op _[_] : Marking Place -> [Pmarking] [prec 23] .
+ op _[_] : Marking Place -> [Pmarking] [prec 53] .
 ceq (M ; Mp)[P] = Mp if place(Mp) = P /\ not($marked(M, P)) .
  eq M[P] = undefined [owise] .
  op $marked : Marking Place -> Bool .
@@ -32,7 +32,7 @@ fmod B-MARKING{X :: TRIV, PL :: TRIV} is
   protecting BAG{X} .
   sort Bpmarking{X} .
   subsort Bpmarking{X} < Pmarking . 
-  op _|->_ : Place Bag{X} -> Bpmarking{X} [ctor] .
+  op _|->_ : Place Bag{X} -> Bpmarking{X} [ctor prec 43] .
   var B  : Bag{X} .
   var P  : Place .
   eq place(P |-> B) = P .
@@ -54,7 +54,7 @@ fmod MARKING{X :: TRIV, PL :: TRIV} is
   protecting MSET{X} .
   sort Pmarking{X} .
   subsort Pmarking{X} < Pmarking .
-  op _|->_ : Place Mset{X} -> Pmarking{X} [ctor] .
+  op _|->_ : Place Mset{X} -> Pmarking{X} [ctor prec 43] .
   var B  : Mset{X} .
   var P  : Place .
   eq place(P |-> B) = P .
@@ -81,4 +81,3 @@ fmod MARKING-STR{X :: TRIV} is
         *** , sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X}, sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}
         ) .
 endfm
-

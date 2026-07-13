@@ -1,0 +1,27 @@
+in NETWORK-MOD
+in ../JSQ
+
+fmod JSQ-MOD is
+  pr JSQ{Plab} .
+  pr PSET-MOD  . *** set of places defined as monoid
+endfm
+
+fmod JSQ-NODE-MOD is
+   protecting JSQ-MOD .
+   extending NETWORK-MOD .
+   subsort Jsq < Node .
+   var L : Lab . var NeL : NeLab . var P : Place . var S : Pset . var I : Nat . var Ls : List{String} .  
+   eq replaceWithEl(P |> S, NeL, I) = replaceWithP(P, NeL, I) |> replaceWith(S, NeL, I)  . 
+   eq addLabEl(P |> S, L, S) = addLabP(P, L, S) |> addLab(S, L, S)  .
+   eq placesEl(P |> S, Ls) = places(S U P, Ls)  .
+   eq placesEl(P |> S, NeL) = places(S U P, NeL) .
+   eq placesEl(P |> S) = S U P .
+endfm
+
+mod JSQ-NODE-SYS-MOD is
+  inc JSQ-NODE-MOD .
+  var N : Network . var B : Pbag . var P : Bplace . var P' : Place  . var S : Pset . var NeS : NePset .
+  op jsqRate : Jsq Pbag -> Float .
+  eq jsqRate(J:Jsq, B) = 100.0 . *** dummy implementation 
+  crl (N , P |> NeS) : 1 . P + B => (N , P |> NeS) : normalize(B + 1 . P') if P' U S := emin(B, NeS) /\ rate:Float := jsqRate(P |> NeS, B) .    
+endm

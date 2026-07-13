@@ -1,0 +1,55 @@
+*** the example used for WRLA26  (some ops defined in BLOCKCHAIN)
+in QUEUE-NODE-MOD
+in SPN-NODE-MOD
+in JSQ-NODE-MOD-2
+in ../../modSPT/SPN-EMU-MOD.maude
+
+*** hybrid network composed of PN, QN, JSQ 
+mod HNET is
+ inc QUEUE-NODE-SYS-MOD .
+ inc SPN-NODE-SYS-MOD{String} .
+ inc JSQ-NODE-SYS-MOD .
+ 
+ var s : String . var L : Lab . var J : Jsq . 
+ vars K N : Nat .
+ 
+ op mergeTran : Network -> Network . *** merges transitions with the same label
+ *** creates elementary input/output transitions (of type 1-server) to/from a given placeace
+ op synch : Network String -> Network . *** synchronizes all places with a speficic label
+ ops newTin newTout : Place Float -> Tran . 
+ *** connect a JSQ to a network of queues (nice!)
+ op connect&link : Jsq Network -> Network .
+ *** symmetrical remove
+ op remove : Network Elab List{String} -> Network . *** symmetric removal
+ op remove&relab : Network NeLab String  -> Network . ***  removal with relabeling
+ 
+ op p : String Nat ->  Place [memo] . *** place with elementary label
+ ops lambda gamma delta omega : -> Float . 
+ eq lambda = 0.5 . eq gamma = 0.2 . eq delta = 0.1 . eq omega = 1.2 .
+ ops k n : -> NzNat [memo] . *** model's parameter
+ eq k = 3 . eq n = 5 .
+ ops network network' : -> Network [memo] .
+ op  line : Nat -> Network .
+ ops load ass : Nat -> Tran [memo] .
+ eq load(K) = t("load", lambda, 0) |-> [1 .  p("S", K), 1 .  p("W", K)] .
+ eq ass(K)  = t("ass", lambda, 0) |-> [1 .  p("A", K), 1 .  p("E", K)] .
+ op q : Nat -> Queue .
+ eq q(K) = newElQueue(p("W", K),  p("A", K), delta) .
+ *** the line component made up of k similar sub-lines 
+ eq line(K) = load(K), q(K), ass(K) .
+ ops PL SL : NzNat -> Network . 
+ eq SL(K) = repl&share(line(0), K, "L",  p("S", 0) U  p("E", 0)) . *** creates K similar sublines sharing S and E
+ eq PL(K) = mergeTran(SL(K)) . *** merges transitions with the same label
+ *** the PL component made up of n similar lines
+ op NPL : NzNat NzNat -> Network .     
+ eq NPL(N, K) = synch(replica(PL(K), N, "PL"), "E") . *** dovrebbe essere questo 
+ *** eq NPL(N, K) = replica(PL(K), N, "PL") .
+ eq network = newTout(p("B", 0), omega), connect&link(newJsq(p("B", 0)), NPL(n, k)) .
+ op SYS : -> NetSys .
+ eq SYS = network : nilP . *** empty initial state
+ *** example of rewrite
+ vars NET NET' LN : Network .
+ op cond : Network -> [Bool] .
+ crl [remlines] : NET  => remove(NET, < "L" ; k - 1 >, "PL") if NET = network /\ cond(NET) .
+ crl [remline] :  NET => remove&relab(NET, < "L" ; k - 1 > < "PL" ; 0 >, "FPL") if NET = network /\ cond(NET) .  
+endm 
