@@ -6,7 +6,7 @@ fmod MSET{X :: TRIV} is
  sorts Mset{X} NeMset{X} . 
  subsort X$Elt < NeMset{X} < Mset{X} . 
  op empty{X} : -> Mset{X} [ctor] . 
- op __ : Mset{X} Mset{X} -> Mset{X} [ctor assoc comm id: empty{X}] .
+ op __ : Mset{X} Mset{X} -> Mset{X} [ctor assoc comm id: empty{X} prec 39] .
  op __ : NeMset{X} Mset{X} -> NeMset{X} [ctor ditto] .
 
  op len : Mset{X} -> Nat .
@@ -14,17 +14,19 @@ fmod MSET{X :: TRIV} is
  vars M M' : Mset{X} .
  var X : X$Elt .
  eq len(M X) = 1 + len(M) .
- op _leq_ : Mset{X} Mset{X} -> Bool . *** checks that the 1st mset is contained in the 2nd
+ op _leq_ : Mset{X} Mset{X} -> Bool . --- checks that the 1st mset is contained in the 2nd
  eq M leq M M' = true .
  eq M leq M' = false [owise] .
- op _diff_ : Mset{X} Mset{X} -> Mset{X} .
- eq (M M') diff M' = M .
- eq M diff M' = M [owise] . 
- op supp : Mset{X} -> Mset{X} . *** support
+ op _-_ : Mset{X} Mset{X} -> [Mset{X}] .
+ op _diff_ : Mset{X} Mset{X} -> [Mset{X}] . --- alternative name for the previous operator
+ eq (M M') - M' = M .
+ eq M diff M' = M - M' .
+ op supp : Mset{X} -> Mset{X} . --- support
  eq supp(empty{X}) = empty{X} .
  eq supp(M X X) = supp(M X) . 
  eq supp(M) = M [owise] . 
 endfm
+
 
 *** links the two representations of multisets
 fmod MSET-BAG{X :: TRIV} is
@@ -54,3 +56,7 @@ endv
 view MsetBag{X :: TRIV} from TRIV to MSET-BAG{X} is
    sort Elt to Bag{X} .
 endv
+
+fmod NAT-MSET is
+ pr MSET{Nat} .
+endfm

@@ -17,9 +17,6 @@ fmod REW-ALG-PN{PL :: TRIV, TL :: TRIV} is
   ceq T, T' = [X] pre(T) ; pre(T') => post(T) ; post(T') if X := lab(T) /\ X = lab(T')  . --- merge transitions with same label (necessary because places may have different types)
 endfm
 
-
-
-
 fmod ALG-PN-STR is
   protecting REW-ALG-PN{String,String} .
 endfm
@@ -67,6 +64,23 @@ view SUBST-SET from TRIV to SUBST-SET is
   sort Elt to SubstSet .
 endv
 
+mod MATCH-FINDER is
+  protecting SUBST-SET .
+  op allMatches : Module Term Term -> SubstSet .
+  op $allMatches : Module Term Term Nat -> SubstSet .
+
+  var mod : Module . 
+  vars T U :  Term . 
+  var X : Nat .
+  var SUBST : [Substitution] .
+  
+  eq allMatches(mod, T, U) = $allMatches(mod, T, U, 0) .
+  ceq $allMatches(mod, T, U, X) = SUBST $allMatches(mod, T, U, X + 1) 
+      if SUBST := metaMatch(mod, T, U, nil, X) /\ SUBST =/= noMatch .
+  eq $allMatches(mod, T, U, X) = emptySet [owise] .
+endm
+
+
 view Transition{PL :: TRIV, TL :: TRIV} from TRIV to REW-ALG-PN{PL, TL} is
   sort Elt to Transition .
 endv
@@ -77,72 +91,63 @@ fmod TRAN-INSTANCES{PL :: TRIV, TL :: TRIV} is
                                            sort  Map{Transition{PL,TL},SUBST-SET} to AllTransitionInstances) .
 endfm
 
-mod MULTI-MATCH-SIMULATOR{PL :: TRIV, TL :: TRIV} is
-  --- protecting TERM-SET .
-  --- protecting SUBST-SET .
-  --- protecting DINING-PHIL-REW .
-  protecting TRAN-INSTANCES{PL, TL} .
+mod ALG-PN-EMU{PL :: TRIV, TL :: TRIV} is
+  pr  TRAN-INSTANCES{PL, TL} .
+  pr MATCH-FINDER .
 
-  --- op applicaTuttiIMatch : Module Term Term -> TermSet .
-  --- op cercaEApplica : Module Term Term Term Nat -> TermSet .
-
-  op enabTranInstances : Module Net Marking -> AllTransitionInstances . --- the whole set of enabled transition instances of a net in a given marking 
-  op $enabTranInstances : Module Net AllTransitionInstances Marking -> AllTransitionInstances .
-  op allTranMatches : Module Transition Marking -> SubstSet .
-  op allMatches : Module Term Term -> SubstSet .
-  op $allMatches : Module Term Term Nat -> SubstSet .
-
-  var T : Transition .
-  var N : Net .
-  var Mark : Marking .
-  var MOD : Module . 
-  vars PRE POST M :  Term . 
-  var X : Nat .
-  var SUBST : [Substitution] .
-  vars INST INST' : AllTransitionInstances .
+  op allTranInstances : Module Net Marking -> AllTransitionInstances . --- the whole set of enabled transition instances of a net in a given marking 
+  op $allTranInstances : Module Net AllTransitionInstances Marking -> AllTransitionInstances .
+  op tranInstances : Module Transition Marking -> SubstSet .
   
-
-  eq enabTranInstances(MOD, N, Mark) = $enabTranInstances(MOD, N, empty, Mark) .
-  eq $enabTranInstances(MOD, emptyN, INST, Mark) = INST .
-  ceq $enabTranInstances(MOD, (T, N), INST, Mark) = $enabTranInstances(MOD, N, INST', Mark) 
-      if INST' := INST , (T |-> allTranMatches(MOD, T, Mark)) .
-  --- affinchè il match funzioni bisogna completare la parte dx (pre) con ... ;  M:Marking (in alternativa si potrebbe completare la regola stessa)
+  var T : Transition . var N : Net . vars M PRE POST : Marking .
+  vars INST INST' : AllTransitionInstances .
+  var I : Substitution . 
+  var S : SubstSet .
+  var MOD : Module .
+  op mod : -> Module [memo] . ---alias
+  op errMark : -> [Marking] . --- used in downTerm
+  
+  eq allTranInstances(MOD, N, M) = $allTranInstances(MOD, N, empty, M) .
+  eq $allTranInstances(MOD, emptyN, INST, M) = INST .
+  ceq $allTranInstances(MOD, (T, N), INST, M) = $allTranInstances(MOD, N, INST', M) 
+      if INST' := INST , (T |-> tranInstances(MOD, T, M)) .
+  
+  eq tranInstances(MOD, T, M) = allMatches(MOD, '_;_['Mrest:Marking, upTerm(pre(T))], upTerm(M)) .
+  --- affinchè il match funzioni bisogna completare la parte dx (pre) con ... ;  Mrest:Marking (in alternativa si potrebbe completare la regola stessa)
   --- questo perchè metaXmatch sembra dare lo stesso risultato di metaMatch (capire perchè)
   --- attenzione: poi se ne dovrà tnere conto quando si applicherà la sostituzione a post (per ora non lo facciamo)
-  eq allTranMatches(MOD, T, Mark) = allMatches(MOD, '_;_['M:Marking, upTerm(pre(T))], upTerm(Mark)) .
-  eq allMatches(MOD, PRE, M) = $allMatches(MOD, PRE, M, 0) .
-  ceq $allMatches(MOD, PRE, M, X) = SUBST $allMatches(MOD, PRE, M, X + 1) 
-      if SUBST := metaMatch(MOD, PRE, M, nil, X) /\ SUBST =/= noMatch .
-  eq $allMatches(MOD, PRE, M, X) = emptySet [owise] .
   
-  --- generato da AI (non viene riconosciuto metaSubstitutte)
-  --- 1. Punto di ingresso
-  --- eq applicaTuttiIMatch(MOD, 'r[PRE, POST], M) = 
-  ---     cercaEApplica(MOD, PRE, POST, M, 0) .
-
-  --- 2. Caso ricorsivo: usiamo metaSubstitute(MOD, POST, SUBST)
-  --- ceq cercaEApplica(MOD, PRE, POST, M, N) =
-  ---      metaSubstitute(MOD, POST, SUBST) 
-  ---      comma 
-  ----      cercaEApplica(MOD, PRE, POST, M, N + 1)
-  --- if 
-  ---  SUBST := metaMatch(MOD, PRE, M, nil, N) .
-
-  --- 3. Caso base
-  --- ceq cercaEApplica(MOD, PRE, POST, M, N) = emptySet
-  ---  if metaMatch(MOD, PRE, M, nil, N) == noMatch .
+  crl [firing] : N, T M => N, T (M ; POST - PRE) if I S := tranInstances(mod, T, M)  /\ 
+             PRE  := downTerm(applySubstitution(mod, upTerm(pre(T)), I), errMark) /\ 
+             POST := downTerm(applySubstitution(mod, upTerm(post(T)),I), errMark) .
 endm
 
-mod ALG-PN-SIM is
-  inc MULTI-MATCH-SIMULATOR{String, String} .
-  pr  DINING-PHIL-REW .
-  op mod : -> Module . ---alias
-  eq mod =  upModule('DINING-PHIL-REW, false) .
-  --- ops pre post m : -> Term . --- aliases
-  --- consideriamo th
-  --- eq pre = '_;_['M:Marking, '_|->_['p['"Pickup".String], 'B':Mset`{Phil`}], '_|->_['p['"Think".String], '__['B:Mset`{Phil`}, 'Ph:Phil]]] .
-    ---upTerm(pre(th(B:Mset{Phil},B':Mset{Phil},Ph:Phil)) ; M:Marking) .
-  --- eq m = upTerm(m0) . 
+mod DINING-PHIL-SIM is
+  inc ALG-PN-EMU{String, String} .
+  pr DINING-PHIL-REW .
+  eq mod = upModule('DINING-PHIL-REW, false) . 
 endm
 
- red enabTranInstances(mod,net(B:Mset{Phil}, B':Mset{Phil}, B'':Mset{Phil}, Ph:Phil, X:Nat),m0) .
+ red allTranInstances(mod,net(B:Mset{Phil}, B':Mset{Phil}, B'':Mset{Phil}, Ph:Phil, X:Nat),m0) .
+
+ red allTranInstances(mod,net(B:Mset{Phil}, B':Mset{Phil}, B'':Mset{Phil}, Ph:Phil, X:Nat),m0)[th(B:Mset{Phil}, B':Mset{Phil}, Ph:Phil)] .
+
+ red 'B':Mset`{Phil`} <- 'empty`{Phil`}.Mset`{Phil`} ;
+  'B:Mset`{Phil`} <- '__['ph['0.Zero], 'ph['s_['0.Zero]], 'ph['s_^2['0.Zero]], 'ph['s_^3['0.Zero]]] ;
+  'M:Marking <- '_;_['_|->_['p['"Eat".String], 'empty`{Phil`}.Mset`{Phil`}], '_|->_['p['"Fork".String], '__['ph[
+    '0.Zero], 'ph['s_['0.Zero]], 'ph['s_^2['0.Zero]], 'ph['s_^3['0.Zero]], 'ph['s_^4['0.Zero]]]]] ;
+  'Ph:Phil <- 'ph['s_^4['0.Zero]] .
+
+ red applySubstitution(mod, upTerm(post(th(B:Mset{Phil}, B':Mset{Phil}, Ph:Phil))), 
+ ('B':Mset`{Phil`} <- 'empty`{Phil`}.Mset`{Phil`} ;
+  'B:Mset`{Phil`} <- '__['ph['0.Zero], 'ph['s_['0.Zero]], 'ph['s_^2['0.Zero]], 'ph['s_^3['0.Zero]]] ;
+  'M:Marking <- '_;_['_|->_['p['"Eat".String], 'empty`{Phil`}.Mset`{Phil`}], '_|->_['p['"Fork".String], '__['ph[
+    '0.Zero], 'ph['s_['0.Zero]], 'ph['s_^2['0.Zero]], 'ph['s_^3['0.Zero]], 'ph['s_^4['0.Zero]]]]] ;
+  'Ph:Phil <- 'ph['s_^4['0.Zero]])) .
+
+  red applySubstitution(mod, upTerm(pre(th(B:Mset{Phil}, B':Mset{Phil}, Ph:Phil))), 
+ ('B':Mset`{Phil`} <- 'empty`{Phil`}.Mset`{Phil`} ;
+  'B:Mset`{Phil`} <- '__['ph['0.Zero], 'ph['s_['0.Zero]], 'ph['s_^2['0.Zero]], 'ph['s_^3['0.Zero]]] ;
+  'M:Marking <- '_;_['_|->_['p['"Eat".String], 'empty`{Phil`}.Mset`{Phil`}], '_|->_['p['"Fork".String], '__['ph[
+    '0.Zero], 'ph['s_['0.Zero]], 'ph['s_^2['0.Zero]], 'ph['s_^3['0.Zero]], 'ph['s_^4['0.Zero]]]]] ;
+  'Ph:Phil <- 'ph['s_^4['0.Zero]])) .

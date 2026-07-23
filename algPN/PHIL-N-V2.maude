@@ -5,7 +5,7 @@ fmod PHIL is
  protecting NAT .
  sort Phil .
  op N : -> NzNat [memo ]. *** the model's parameter
- eq N = 5 .
+ eq N = 6 .
  op ph : Nat -> Phil [ctor] . *** denotes the i-th phil
  var X : Nat .
  ceq ph(X) = ph(X rem N) if X >= N . *** equality mod-N 
