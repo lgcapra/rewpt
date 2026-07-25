@@ -1,9 +1,9 @@
 in ../shared/MSET
 in ../PLACE
 
-**** Algebraic PN specification ***
+--- Algebraic PN specification based on the abstract specification
+--- of an algebraic net's marking plus rewrite rules for the transition firing
 
-*** abstract specification of an algebraic net's marking
 fmod ALG-PN-MARKING{PL :: TRIV} is 
  pr PLACE{PL}  .
  pr EXT-BOOL .
@@ -23,13 +23,14 @@ ceq (M ; Mp)[P] = Mp if place(Mp) = P /\ not($marked(M, P)) .
  op $marked : Marking Place -> Bool .
 ceq $marked((M ; Mp), P) = true if place(Mp) = P .
   eq $marked(M, P) = false [owise] .
- op _-_ : Marking Marking -> [Marking] [prec 53].
-ceq M - M = emptyM if M =/= emptyM .
- eq M - emptyM = M .
+ op _subtr_ : Marking Marking -> [Marking] [prec 53].
+ceq M subtr M = emptyM if M =/= emptyM .
+ eq M subtr emptyM = M .
  
 endfm
 
-*** AL-PN submarking of specific type (1st parameter) parametric in the label of places
+--- place marking of specific type (1st parameter) parametric in the label of places
+
 fmod B-MARKING{X :: TRIV, PL :: TRIV} is
   ex ALG-PN-MARKING{PL} .
   *** protecting MSET-BAG{X}  . *** if we want to use both representations
@@ -41,10 +42,10 @@ fmod B-MARKING{X :: TRIV, PL :: TRIV} is
   var P  : Place .
   vars M M'  : Marking .
   eq place(P |-> B) = P .
-  op mark : Bpmarking{X} -> Bag{X} . *** careful! must be renamed when importing multiple times the module 
+  op mark : Bpmarking{X} -> Bag{X} . --- careful! must be renamed when importing multiple times the module 
   eq mark(P |-> B) = B .
   eq  P |-> B ; P |-> B' = P |-> B + B' .
-  eq M ; P |-> B - M' ; P |-> B' = (M - M') ; (P |-> B - B')  .
+  eq M ; P |-> B subtr M' ; P |-> B' = (M subtr M') ; (P |-> B - B')  .
   ***  we may also introduce the sort Marking{X} 
   ***  sort  Bmarking{X} .
   **** subsort Bpmarking{X} < Bmarking{X} .
@@ -54,7 +55,8 @@ fmod B-MARKING{X :: TRIV, PL :: TRIV} is
 endfm
 
 
-*** alternative (similar) representation of place marking based on MSET
+--- alternative representation of place marking based on MSET
+
 fmod MARKING{X :: TRIV, PL :: TRIV} is
   ex ALG-PN-MARKING{PL} .
   *** protecting MSET-BAG{X} .
@@ -69,7 +71,7 @@ fmod MARKING{X :: TRIV, PL :: TRIV} is
   op mark : Pmarking{X} -> Mset{X} . --- must be renamed when importing the module multiple times
   eq mark(P |-> B) = B .
   eq  P |-> B ; P |-> B' = P |-> B B' .
-  eq M ; P |-> B - M' ; P |-> B' = (M - M') ; (P |-> B - B')  .
+  eq M ; P |-> B subtr M' ; P |-> B' = (M subtr M') ; (P |-> B - B')  .
   
   *** sort Marking{X} .
   *** subsort Pmarking{X} < Marking{X} .
@@ -77,7 +79,8 @@ fmod MARKING{X :: TRIV, PL :: TRIV} is
   *** op _;_ : Marking{X} Marking{X} -> Marking{X} [ctor ditto] . *** overloading
 endfm
 
-*** partial instantiation of B-MARKING using strings as place labels
+--- partial instantiation of B-MARKING using strings as place labels
+
 fmod B-MARKING-STR{X :: TRIV} is
    pr B-MARKING{TRIV,String}{X} * (sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X},
                   sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}, sort Bpmarking{TRIV}{X} to Bpmarking{X}
@@ -85,7 +88,8 @@ fmod B-MARKING-STR{X :: TRIV} is
                   ) .
 endfm
 
-*** partial instantiation of MARKING using strings as place labels
+--- partial instantiation of MARKING using strings as place labels
+
 fmod MARKING-STR{X :: TRIV} is
    pr MARKING{TRIV,String}{X} * (sort Mset{TRIV}{X} to Mset{X}, sort NeMset{TRIV}{X} to NeMset{X}, op empty{TRIV}{X} to empty{X},
         sort Pmarking{TRIV}{X} to Pmarking{X}

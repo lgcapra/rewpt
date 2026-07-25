@@ -1,8 +1,8 @@
-in PHIL-N-V2
+in DINING-PHIL
 
-*** dining philospers with a nested (or meta-) model removing and reinserting philosophers from/to the table 
+--- dining philospers with a nested (or meta-) model removing and reinserting philosophers from/to the table 
+--- simple renaming stuff to avoid conflicts between BL and ML
 
-*** simple renaming stuff to avoid conflicts between BL and ML
 mod PHIL-BL is 
   inc DINING-PHIL-M0 * (sort Place to BL-Place, sort Bplace to BL-Bplace, op p to bl-p, 
       sort Marking to BL-Marking, sort Pmarking to BL-Pmarking,
