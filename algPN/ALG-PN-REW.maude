@@ -1,23 +1,44 @@
 in ALG-PN.maude
 
+--- In this version, the algebraic net is represented as a set of transitions, juxstaposed with a marking.
+--- Each transition is a 4-tuple (label, pre, post, guard) where pre and post are markings and guard is denoted by a string.
+--- Transitions are variable terms of sort Transition, and represent rewrite rules. 
+--- The transition firing is emulated by a rewrite rule that, using the meta-level representation of the module,
+--- matches the precondition of a transition, with the current marking and adds the difference between pre- and postcondition.
+--- Transition guards are represented as strings, and they are evaluated using metaParse to avoid wrong evaluations to 'false'.
+--- The guard encoding as a string has some trickness to perimt the use of arbitrary variables when searching.
+
+--- Possible alternative (not yet implemented) : represent guards as variable boolean terms; divide the modules used by guards into two submodules,ù
+--- a signature (without equations) and an equational definition of operators; only use the former when meta-representing guards  
+
 fmod REW-ALG-PN{PL :: TRIV, TL :: TRIV} is
   pr ALG-PN-MARKING{PL} .
+  pr STRING .
 
-  sorts Transition Net System .
-  subsort Transition < Net .
+  sorts Transition GuardedTran Net System .
+  subsort Transition < GuardedTran < Net .
   
   op emptyN : -> Net [ctor] .
   op [_]_=>_ : TL$Elt Marking Marking -> Transition [ctor prec 53] .
+  op _[_] : Transition String -> GuardedTran [ctor prec 57] .
   op _,_ : Net Net -> Net [ctor assoc comm id: emptyN prec 121] .
   op __ : Net Marking -> System [ctor prec 121] .
-  ops pre post : Transition -> Marking .
-  op lab : Transition -> TL$Elt .
+  ops pre post : GuardedTran -> Marking .
+  op lab : GuardedTran -> TL$Elt .
+  op guard : GuardedTran -> String .
   
-  vars M M' : Marking . vars T T' : Transition . var N : Net . var X : TL$Elt . var P : Place . 
+  vars M M' : Marking . vars T T' : Transition .
+  var N : Net . var X : TL$Elt . var P : Place . var G : String . 
+  
+  eq T["true"] = T .
   eq pre([X] M => M') = M .
   eq post([X] M => M') = M' .
   eq lab([X] M => M') = X .
-  ceq T, T' = [X] pre(T) ; pre(T') => post(T) ; post(T') if X := lab(T) /\ X = lab(T')  . --- merge transitions with same label (necessary because places may have different types)
+  eq guard(T) = "true" .
+  eq pre(T[G]) = pre(T) .
+  eq post(T[G]) = post(T) .
+  eq lab(T[G]) = lab(T) .
+  eq guard(T[G]) = G .
 endfm
 
 view Substitution from TRIV to META-LEVEL is
@@ -36,10 +57,9 @@ fmod MATCH-FINDER is
   op allMatches : Module Term Term -> Set{Substitution} .
   op $allMatches : Module Term Term Nat -> Set{Substitution} .
 
-  var mod : Module . 
-  vars T U :  Term . 
-  var X : Nat .
+  var mod : Module . vars T U :  Term . var X : Nat .
   var SUBST : [Substitution] .
+
   eq allMatches(mod, T, U) = $allMatches(mod, T, U, 0) .
   ceq $allMatches(mod, T, U, X) = SUBST, $allMatches(mod, T, U, X + 1) 
       if SUBST := metaMatch(mod, T, U, nil, X) /\ SUBST =/= noMatch .
@@ -50,43 +70,60 @@ endfm
 
 mod ALG-PN-EMU{PL :: TRIV, TL :: TRIV} is
   pr MATCH-FINDER .
+  pr LEXICAL .
   pr REW-ALG-PN{PL, TL} .
   
-  op tranInstances : Module Transition Marking -> Set{Substitution} .
   op errMark : -> [Marking] [ctor] . --- used in downTerm
-  op mod : -> Module [memo] . ---alias (lately bounded)
+  op errBool : -> [Bool] [ctor] .
+  ops upPre upPost upGuard : GuardedTran -> Term [memo] . --- meta representation of the preset/postset/guard of a transition
+  op mod : -> Module [memo] . --- meta-representation of the module (lately bounded)
   
-  var T : Transition . var N : Net . vars M PRE POST : Marking .
+  var T : GuardedTran . var N : Net .
+  vars M PRE POST : Marking .
   var I : Substitution .  var S : Set{Substitution} .
-  var MOD : Module .
-  
-  eq tranInstances(MOD, T, M) = allMatches(MOD, '_;_['Mrest:Marking, upTerm(pre(T))], upTerm(M)) .
+
+  eq upPre(T)   = upTerm(pre(T)) .
+  eq upPost(T)  = upTerm(post(T)) .
+  eq upGuard(T) = getTerm(metaParse(mod, tokenize(guard(T)), 'Bool)) .
+
   --- to make the match work, the right-hand side (pre) must be completed with ... ;  Mrest:Marking (alternatively the rule itself could be completed)
   --- this is because metaXmatch seems to give the same result as metaMatch (need to understand why)
-  
-  crl [firing] : N, T M => N, T (M ; POST subtr PRE) if I, S := tranInstances(mod, T, M)  /\ 
-             PRE  := downTerm(applySubstitution(mod, upTerm(pre(T)), I), errMark) /\ 
-             POST := downTerm(applySubstitution(mod, upTerm(post(T)),I), errMark) .
+  crl [firing] : N, T M => N, T (M ; POST subtr PRE) if  
+        I, S := allMatches(mod, '_;_['Mrest:Marking, upPre(T)], upTerm(M)) /\ 
+        (guard(T) == "true" or-else downTerm(applySubstitution(mod, upGuard(T), I), errBool) == true) /\
+        PRE  := downTerm(applySubstitution(mod, upPre(T),  I), errMark) /\ 
+        POST := downTerm(applySubstitution(mod, upPost(T), I), errMark)  .
+        
 endm
 
---- example of dining philosophers' algebraic nets (signature)
+--- example: dining philosophers' algebraic nets
 
 in PHIL-N
 
-fmod DINING-PHIL is
+mod REW-DINING-PHIL is
   pr MARKING{Phil, String} .
-  pr REW-ALG-PN{String, String} .
+  inc ALG-PN-EMU{String, String} .
 
-  op th : Mset{Phil} Mset{Phil} Phil -> Transition . --- aliases
-  ops e pk  : Mset{Phil} Mset{Phil} Mset{Phil} Nat  -> Transition . --- aliases
-  op net : Mset{Phil} Mset{Phil} Mset{Phil} Phil Nat  -> Transition . --- aliases
- 
-  var Ph : Phil . vars B B' B'' : Mset{Phil} . vars X Y : Nat . var K : NzNat .
-  eq th(B, B', Ph)    = ["th"] p("Think") |-> B Ph  ;  p("Pickup") |-> B' => p("Think") |-> B  ;  p("Pickup") |-> B' Ph .
+  --- aliases for the transitions and the net
+  op th  : Mset{Phil} Mset{Phil} Phil -> GuardedTran [memo] . 
+  op pk  : Mset{Phil} Mset{Phil} Mset{Phil} Nat  ->  Transition [memo] . 
+  op  e  : Mset{Phil} Mset{Phil} Mset{Phil} Nat  -> Transition [memo] . 
+  op net : Mset{Phil} Mset{Phil} Mset{Phil} Phil Nat  -> Net [memo] . 
+  
+  eq mod = upModule('DINING-PHIL, false) . --- module binding for the meta-level representation of the module
+  
+  var Ph : Phil . vars B B' B'' : Mset{Phil} . var X : Nat . var K : NzNat .
+
+  eq th(B, B', Ph)  = ["th"] p("Think") |-> B Ph  ;  p("Pickup") |-> B' => p("Think") |-> B  ;  p("Pickup") |-> B' Ph
+                     ["len(" + string(upTerm(B)) + ") > 0"] . --- the guard requires that at least two philosophers are thinking
+                     
+                     
   eq pk(B, B', B'', X) = ["pk"] p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Eat") |-> B''  =>  
             p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) .
+  
   eq e(B, B', B'', X) = ["e"]  p("Eat") |-> B ph(X) ; p("Fork") |-> B'  ; p("Think") |-> B''  =>  
          p("Eat") |-> B ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Think") |-> B'' ph(X) .
+  
   eq net(B, B', B'', Ph, X) = th(B, B', Ph) , pk(B, B', B'', X), e(B, B', B'', X) .
 
   op nphil : Nat -> Mset{Phil} [memo] . *** defined for convenience
@@ -95,14 +132,20 @@ fmod DINING-PHIL is
   op m0 : -> Marking . 
   eq m0 =  p("Think") |-> nphil(N) ; p("Fork") |-> nphil(N) ; p("Eat") |-> empty{Phil} ; p("Pickup") |-> empty{Phil} .
   
-endfm
-
-mod DINING-PHIL-EMU is
-  inc ALG-PN-EMU{String, String} .
-  inc DINING-PHIL .
-  eq mod = upModule('DINING-PHIL, false) . --- alias for the module
-  --- example of Net rewrite
-  crl N:Net, T:Transition => N:Net if lab(T:Transition) = "th" .
+  --- simple example of net rewrite (remove the guard of a transition)
+  var T : Transition . var N : Net . var M : Marking . var G : String .
+  crl N, T[G] M => N, T M if mark(M[p("Fork")]) = empty{Phil} .
 endm
 
-search in DINING-PHIL-EMU : net(B:Mset{Phil}, B':Mset{Phil}, B'':Mset{Phil}, Ph:Phil, X:Nat) m0 =>! S:System .
+search in REW-DINING-PHIL : net(B:Mset{Phil}, B':Mset{Phil}, B'':Mset{Phil}, Ph:Phil, X:Nat) m0 =>! S:System .
+
+--- debugging
+
+--- red th(B:Mset{Phil}, B':Mset{Phil},  Ph:Phil) .
+
+--- red upGuard(th(B:Mset{Phil}, B':Mset{Phil},  Ph:Phil)) . 
+
+--- red allMatches(mod, '_;_['Mrest:Marking, upPre(th(B:Mset{Phil}, B':Mset{Phil},  Ph:Phil))], upTerm(m0)) . 
+
+---variables are arbitrarily permuted/renamed (same outcome)
+search in REW-DINING-PHIL : net(B':Mset{Phil}, B:Mset{Phil}, G:Mset{Phil}, Ph:Phil, J:Nat) m0 =>! S:System .
