@@ -146,8 +146,8 @@ mod REW-DINING-PHIL is
   var T : DefaultTran . var T' : Transition . var N : Net . 
   vars M  M' M'' : Marking . 
   
-  crl N, T M => N, T' M if lab(T) = "th" /\ len(mark(M[p("Think")])) > 1 /\
-      M':Mset{Phil} := mark(pre(T)[p("Think")]) /\ M'':Mset{Phil} := mark(pre(T)[p("Pickup")]) /\ 
+  crl N, T M => N, T' M if lab(T) = "th" /\ len(M[p("Think")]) > 1 /\
+      M':Mset{Phil} := pre(T)[p("Think")] /\ M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
       T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].
 endm
 

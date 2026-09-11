@@ -15,7 +15,7 @@ endv
 
 mod DYN-PHIL is
   inc MARKING{Phil-BL, String} . 
-  inc MARKING{Phil, String} * ( op mark to markPh) .
+  inc MARKING{Phil, String} * (op _[_] : Marking Place -> [Mset{Phil}] to _<_>) .
 
   op meta-m0 : -> [Marking] . 
   eq meta-m0 = p("BL") |-> m0 ; p("Removed") |-> empty{Phil} .

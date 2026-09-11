@@ -11,18 +11,14 @@ fmod ALG-PN-MARKING{PL :: TRIV} is
  subsort Pmarking < Marking .
  op emptyM : -> Marking [ctor] .
  op _;_ : Marking Marking -> Marking [ctor assoc comm id: emptyM prec 51 format (d r os d)] .
- op place : Pmarking -> Place .
- var P  : Place .
+ op place : Pmarking -> Place . --- abstract operator to get the place of a place marking
  vars Mp Mp' : Pmarking .
- vars M M' M'' : Marking .
- op undefined : -> [Pmarking] .
- *** look-up
- op _[_] : Marking Place -> [Pmarking] [prec 53] .
-ceq (M ; Mp)[P] = Mp if place(Mp) = P /\ not($marked(M, P)) .
- eq M[P] = undefined [owise] .
- op $marked : Marking Place -> Bool .
-ceq $marked((M ; Mp), P) = true if place(Mp) = P .
-  eq $marked(M, P) = false [owise] .
+ var M  : Marking .
+ *** check places (of different types) are not repeated in a marking
+ op wellDefined :  Marking -> Bool .
+ceq wellDefined(M ; Mp ; Mp') = false if place(Mp) = place(Mp') .
+ eq wellDefined(M) = true [owise] .
+ *** place-wise subtraction
  op _subtr_ : Marking Marking -> [Marking] [prec 53].
 ceq M subtr M = emptyM if M =/= emptyM .
  eq M subtr emptyM = M .
@@ -42,9 +38,16 @@ fmod B-MARKING{X :: TRIV, PL :: TRIV} is
   var P  : Place .
   vars M M'  : Marking .
   eq place(P |-> B) = P .
-  op mark : Bpmarking{X} -> Bag{X} . --- careful! must be renamed when importing multiple times the module 
-  eq mark(P |-> B) = B .
+  
+  --- lookup is a partial op that must be renamed when importing the module multiple times
+  op _[_] : Marking Place -> [Bag{X}] .
+  op _[_] : Bpmarking{X} Place -> Bag{X} . --- careful! must be renamed when importing multiple times the module 
+  eq (P |-> B ; M)[P] = B .
+  
+  --- there can be only one occurrence of a place in a marking (otherwise, we merge them)
   eq  P |-> B ; P |-> B' = P |-> B + B' .
+  
+  --- place-wise subtraction
   eq M ; P |-> B subtr M' ; P |-> B' = (M subtr M') ; (P |-> B - B')  .
   ***  we may also introduce the sort Marking{X} 
   ***  sort  Bmarking{X} .
@@ -63,14 +66,22 @@ fmod MARKING{X :: TRIV, PL :: TRIV} is
   pr MSET{X} .
   sort Pmarking{X} .
   subsort Pmarking{X} < Pmarking .
-  op _|->_ : Place Mset{X} -> Pmarking{X} [ctor prec 43] .
   vars B B' : Mset{X} .
   var P  : Place .
   vars M M'  : Marking .
+
+  op _|->_ : Place Mset{X} -> Pmarking{X} [ctor prec 43] .
   eq place(P |-> B) = P .
-  op mark : Pmarking{X} -> Mset{X} . --- must be renamed when importing the module multiple times
-  eq mark(P |-> B) = B .
-  eq  P |-> B ; P |-> B' = P |-> B B' .
+
+  --- lookup is a partial op that must be renamed when importing the module multiple times
+  op _[_] : Marking Place -> [Mset{X}] . 
+  op _[_] : Pmarking{X} Place -> Mset{X} [ditto] . 
+  
+  eq (P |-> B ; M)[P] = B .
+  
+  --- there can be only one occurrence of a place in a marking (otherwise, we merge them)
+  eq  P |-> B ; P |-> B' = P |-> B B' . 
+  --- place-wise subtraction
   eq M ; P |-> B subtr M' ; P |-> B' = (M subtr M') ; (P |-> B - B')  .
   
   *** sort Marking{X} .
@@ -95,4 +106,8 @@ fmod MARKING-STR{X :: TRIV} is
         sort Pmarking{TRIV}{X} to Pmarking{X}
         *** , sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X}, sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}
         ) .
+endfm
+
+fmod MARKING-STR-NAT is
+  pr MARKING-STR{Nat} .
 endfm

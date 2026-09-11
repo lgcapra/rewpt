@@ -65,8 +65,8 @@ in ../ALG-PN
 
 mod MFQ{X :: TRIV-NZ} is
  pr MARKING-STR{Task{X}}  .
- pr MARKING-STR{Qnet{X}}   * (op mark to markQnet) . *** renaming mark is mandatory
- pr MARKING-STR{Queue{X}}  * ( op mark to markQ )  .  *** renaming mark is mandatory
+ pr MARKING-STR{Qnet{X}}   * (op _[_] : Marking Place -> [Mset{Qnet{X}}] to _(_)) . *** renaming lookup is mandatory
+ pr MARKING-STR{Queue{X}}  * ( op _[_] : Marking Place -> [Mset{Queue{X}}] to _<_>)  .  *** renaming lookup is mandatory
 
  vars Q Q' : Queue{X} .
  vars LQ LQ' LQ'' : List{Queue{X}} .
@@ -88,7 +88,7 @@ crl [serve-nonexh-shift] : p("mfq") |-> [LQ, Q, Q', LQ']  => p("mfq") |-> [LQ, (
 crl [serve-noexh-last] : p("mfq") |-> [LQ, Q]  => p("mfq") |-> [LQ, (q: L, X @ sd(K', K) ts: K)]  
       if Q = firstNe(LQ, Q) /\ (q: X @ K', L ts: K) := Q /\ K' > K .
 *** uncomment the following rule if you want the model becomes live (otherwise it enters an absorbing state)
-rl [reset] : p("served") |-> B X @ 0 ; p("task") |->  B' => p("served") |-> B ; p("task") |->  B' tsk(X) .
+rl [reset] : p("served") |-> B (X @ 0) ; p("task") |->  B' => p("served") |-> B ; p("task") |->  B' tsk(X) .
 
 *** simulates a failure on a queue in the network
 rl [fail] :  p("mfq") |-> [LQ, Q, LQ'] ; p("failed") |-> MQ  => p("mfq") |-> [LQ, LQ'] ; p("failed") |-> Q MQ .

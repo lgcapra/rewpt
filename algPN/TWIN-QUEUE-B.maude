@@ -7,7 +7,7 @@ in ALG-PN
 mod TWIN-QUEUE-B{X :: TRIV} is
  *** types of places
  pr B-MARKING-STR{X} . 
- pr B-MARKING-STR{Elist{X}} * (op mark to markL) . *** renaming mark is mandatory !
+ pr B-MARKING-STR{Elist{X}} * (op _[_] : Marking Place -> [Bag{Elist{X}}] to _(_)) . *** renaming lookup is mandatory !
  
  *** op m0 : -> Marking . *** alias - intial marking and implicilty net's places' structure
  *** eq m0 =  p("queue") |-> 2 . [nil] ; p("task") |-> 1 . 0 + 2 . 1 + 3 . 2 . *** the lists in p1 are initially empty 

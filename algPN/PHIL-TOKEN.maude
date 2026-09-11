@@ -25,7 +25,7 @@ mod DINING-PHIL-TK{Y :: B-STATE} is
   inc MARKING-STR{Phil} . *** used for the fork place
   inc MARKING-STR{PhilTk{Y}} * (sort Mset{PhilTk{Y}} to Mset{PhilTk}, sort NeMset{PhilTk{Y}} to NeMset{PhilTk},
                                 sort Pmarking{PhilTk{Y}} to Pmarking{PhilTk}, 
-                                op empty{PhilTk{Y}} to emptyPhilTk, op mark to markPhilTk) .
+                                op empty{PhilTk{Y}} to emptyPhilTk, op _[_] : Marking Place -> [Mset{PhilTk{Y}}] to _(_)) .
   
   var Y : Y$Elt . var X : Nat . var K : NzNat .
   var PhT : PhilTk . var Ph : Phil . vars M M' : Mset{PhilTk} . var F : Mset{Phil} . 

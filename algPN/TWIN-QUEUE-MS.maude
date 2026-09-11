@@ -6,7 +6,7 @@ in ALG-PN
 *** version using MSET
 mod TWIN-QUEUE-MS{X :: TRIV} is
  pr MARKING-STR{X} .
- pr MARKING-STR{Elist{X}} * (op mark to markL ) . *** renaming mark is mandatory  
+ pr MARKING-STR{Elist{X}} * (op _[_] : Marking Place -> [Mset{Elist{X}}] to _(_)) . *** renaming lookup is mandatory  
  
  *** op init : -> Marking . *** alias - intial marking
  *** eq init =  p("queue") |-> [niL{X}] [niL{X}] ; p("task") |-> X Y Y Z Z Z . 

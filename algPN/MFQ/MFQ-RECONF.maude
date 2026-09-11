@@ -1,7 +1,7 @@
 in QUEUE
 
 mod MFQ-STR-BL is 
-  inc MFQ-STR * (sort Place to BL-Place, op p to bl-p, sort Marking to BL-Marking, sort Pmarking to BL-Pmarking,
+  inc MFQ-STR * (sort Place to BL-Place, sort Bplace to BL-Bplace, op p to bl-p, sort Marking to BL-Marking, sort Pmarking to BL-Pmarking,
           sort Pmarking{Queue{Burst}} to BL-Pmarking{Queue{Burst}}, sort Pmarking{Qnet{Burst}} to BL-Pmarking{Qnet{Burst}},
           sort Pmarking{Task{Burst}} to BL-Pmarking{Task{Burst}}) .
 endm
@@ -13,7 +13,7 @@ endv
 
 mod MFQ-RECONF is
   inc MARKING-STR{Mfq} . 
-  inc MARKING-STR{Queue{Burst}} * ( op mark to markT) .
+  inc MARKING-STR{Queue{Burst}} * ( op _[_] : Marking Place -> [Mset{Queue{Burst}}] to _|_|) .
   
   op meta-m0 : -> [Marking] . 
   eq meta-m0 = p("mfq-meta") |-> m0 ; p("recover") |-> empty{Queue{Burst}} .
