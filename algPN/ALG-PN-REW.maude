@@ -53,7 +53,6 @@ endfm
 
 mod APN-EMU{PL :: TRIV, TL :: TRIV} is
   pr MATCH-FINDER .
-  pr LEXICAL .
   pr REW-APN{PL, TL} .
   
   op errMark : -> [Marking] [ctor] . --- used in downTerm
