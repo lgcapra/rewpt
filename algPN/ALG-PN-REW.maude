@@ -1,34 +1,32 @@
 in ALG-PN.maude
+in MATCH-FINDER
 
 --- In this version, a rewritable algebraic Petri net (REW_APN) is represented as a free comm. monoid of transitions, juxstaposed with a marking.
---- The REW-APN signature, which builds on the original APN definition, corresponds to module REW-ALG-PN.
+--- The REW-APN signature, which builds on the original APN definition, corresponds to module REW-APN.
 --- Each transition is a 4-tuple (label, pre, post, guard) where pre and post are terms of sort Marking (coming from the original APN definition)
 --- and the guard is a boolean term;
 --- pre, post and guard may contain variables, which are instantiated when the transition is fired (pre and post describe the transition
 --- input and output connection, respectively).
---- In this version, the subsort relation between transitions with a default true guard and those with a guard that is a boolean term
---- is established by a membership equation, rather than sytactically, as in the previous version.
 --- Transitions syntactically encode rewrite rules. 
 --- A term of sort Net (the REW-APN structure) is the AC juxtposition of transitions, and it is right juxtaposed with a ground term of sort Marking,
 --- coming from the original definition, which represents the current state. 
 --- As mentioned, the pre-post sets of a transition are described as well by terms of sort Marking, but these terms can contain variables.
---- The REW-APN dynamics is formalized in the system module ALG-PN-EMU (emulator of a rewritable algebraic PN).
+--- The REW-APN dynamics is formalized in the system module APN-EMU (emulator of a rewritable algebraic PN).
 --- Transition firing is emulated by a distinguished rewrite rule that, using the meta-level representation of a specific module,
 --- matches the preset of a transition against the current marking and, if this match succeeds, 
 --- adds the difference between the pre- and post-sets to the marking.
 --- The predefined meta-level's metaMatch and applySubstitution are used. 
 --- Transition guards are themeselves boolean terms that can contain variables.
 
---- NOTE the module REW-ALG-PN is parameterized by two trivial theories, for the place and for the transition labels.
---- The parameter PL is bound to the corresponding parameter of imported module ALG-PN-MARKING .
+--- NOTE the module REW-APN is parameterized by two trivial theories, for the place and for the transition labels.
+--- The parameter PL is bound to the corresponding parameter of imported module APN-MARKING .
 
 
-
-fmod REW-ALG-PN{PL :: TRIV, TL :: TRIV} is
-  pr ALG-PN-MARKING{PL} .
+fmod REW-APN{PL :: TRIV, TL :: TRIV} is
+  pr APN-MARKING{PL} .
   
-  sorts DefaultTran Transition Net System .
-  subsort DefaultTran < Transition < Net .
+  sorts Transition Net System .
+  subsort  Transition < Net .
   
   op emptyN : -> Net [ctor] .
   op [_]_=>_[_] : TL$Elt Marking Marking Bool -> Transition [ctor prec 57] .
@@ -47,41 +45,16 @@ fmod REW-ALG-PN{PL :: TRIV, TL :: TRIV} is
   eq guard([L] M => M' [G]) = G .
 
   eq [L] M => M' [false] = emptyN .
-  mb [L] M => M' [true] : DefaultTran .
-
-endfm
-
-view Substitution from TRIV to META-LEVEL is
-  sort Elt to Substitution .
-endv
-
-fmod SUBST-SET is
-  pr SET{Substitution} * (op empty to NoSubst) .
-endfm
-
---- finds all matches of a term in a module, returning the corresponding substitutions
-
-fmod MATCH-FINDER is
-  pr SUBST-SET .
   
-  op allMatches : Module Term Term -> Set{Substitution} .
-  op $allMatches : Module Term Term Nat -> Set{Substitution} .
-
-  var mod : Module . vars T U :  Term . var X : Nat .
-  var SUBST : [Substitution] .
-
-  eq allMatches(mod, T, U) = $allMatches(mod, T, U, 0) .
-  ceq $allMatches(mod, T, U, X) = SUBST, $allMatches(mod, T, U, X + 1) 
-      if SUBST := metaMatch(mod, T, U, nil, X) /\ SUBST =/= noMatch .
-  eq $allMatches(mod, T, U, X) = NoSubst [owise] .
 endfm
+
 
 --- emulates the transition firing in an algebraic net
 
-mod ALG-PN-EMU{PL :: TRIV, TL :: TRIV} is
+mod APN-EMU{PL :: TRIV, TL :: TRIV} is
   pr MATCH-FINDER .
   pr LEXICAL .
-  pr REW-ALG-PN{PL, TL} .
+  pr REW-APN{PL, TL} .
   
   op errMark : -> [Marking] [ctor] . --- used in downTerm
   op errBool : -> [Bool] [ctor] .
@@ -106,13 +79,13 @@ mod ALG-PN-EMU{PL :: TRIV, TL :: TRIV} is
         
 endm
 
---- example: dining philosophers' algebraic net
+--- example: classical dining philosophers
 
 in PHIL-N
 
 mod REW-DINING-PHIL is
   pr MARKING{Phil, String} .
-  inc ALG-PN-EMU{String, String} .
+  inc APN-EMU{String, String} .
 
   --- aliases for the transitions and the entire net
   op th  : Mset{Phil} Mset{Phil} Phil -> Transition [memo] . 
@@ -143,12 +116,11 @@ mod REW-DINING-PHIL is
   eq m0 =  p("Think") |-> nphil(N) ; p("Fork") |-> nphil(N) ; p("Eat") |-> empty{Phil} ; p("Pickup") |-> empty{Phil} .
   
   --- tricky example of net rewrite (set th transition's guard to a boolean term that is true if the number of philosophers in the precondition of th is greater than the number of philosophers in the precondition of pk)
-  var T : DefaultTran . var T' : Transition . var N : Net . 
-  vars M  M' M'' : Marking . 
+  vars T  T' : Transition . var N : Net .  vars M  M' M'' : Marking . 
   
-  crl N, T M => N, T' M if lab(T) = "th" /\ len(M[p("Think")]) > 1 /\
-      M':Mset{Phil} := pre(T)[p("Think")] /\ M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
-      T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].
+  crl N, T M => N, T' M if lab(T) = "th" /\ guard(T) /\ len(M[p("Think")]) > 1 /\
+    M':Mset{Phil} := pre(T)[p("Think")] /\ M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
+    T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].
 endm
 
 --- debugging

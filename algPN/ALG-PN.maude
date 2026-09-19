@@ -1,10 +1,10 @@
 in ../shared/MSET
 in ../PLACE
 
---- Algebraic PN specification based on the abstract specification
---- of an algebraic net's marking plus rewrite rules for the transition firing
+--- Algebraic PN specification based on the abstract specification of an APN marking 
+--- plus rewrite rules for the transitions
 
-fmod ALG-PN-MARKING{PL :: TRIV} is 
+fmod APN-MARKING{PL :: TRIV} is 
  pr PLACE{PL}  .
  pr EXT-BOOL .
  sorts Pmarking Marking .
@@ -14,55 +14,24 @@ fmod ALG-PN-MARKING{PL :: TRIV} is
  op place : Pmarking -> Place . --- abstract operator to get the place of a place marking
  vars Mp Mp' : Pmarking .
  var M  : Marking .
- *** check places (of different types) are not repeated in a marking
- op wellDefined :  Marking -> Bool .
-ceq wellDefined(M ; Mp ; Mp') = false if place(Mp) = place(Mp') .
- eq wellDefined(M) = true [owise] .
- *** place-wise subtraction
+ var P : Place .
+ 
+ *** check the existence of places (in a marking)
+ op exists : Place Marking -> Bool .
+ceq exists(P, M ; Mp) = true if place(Mp) = P .
+ eq exists(P, M) = false [owise] .
+
+ *** place-wise subtraction (generic part)
  op _subtr_ : Marking Marking -> [Marking] [prec 53].
 ceq M subtr M = emptyM if M =/= emptyM .
  eq M subtr emptyM = M .
  
 endfm
 
---- place marking of specific type (1st parameter) parametric in the label of places
-
-fmod B-MARKING{X :: TRIV, PL :: TRIV} is
-  ex ALG-PN-MARKING{PL} .
-  *** protecting MSET-BAG{X}  . *** if we want to use both representations
-  pr BAG{X} .
-  sort Bpmarking{X} .
-  subsort Bpmarking{X} < Pmarking . 
-  op _|->_ : Place Bag{X} -> Bpmarking{X} [ctor prec 43] .
-  vars B B' : Bag{X} .
-  var P  : Place .
-  vars M M'  : Marking .
-  eq place(P |-> B) = P .
-  
-  --- lookup is a partial op that must be renamed when importing the module multiple times
-  op _[_] : Marking Place -> [Bag{X}] .
-  op _[_] : Bpmarking{X} Place -> Bag{X} . --- careful! must be renamed when importing multiple times the module 
-  eq (P |-> B ; M)[P] = B .
-  
-  --- there can be only one occurrence of a place in a marking (otherwise, we merge them)
-  eq  P |-> B ; P |-> B' = P |-> B + B' .
-  
-  --- place-wise subtraction
-  eq M ; P |-> B subtr M' ; P |-> B' = (M subtr M') ; (P |-> B - B')  .
-  ***  we may also introduce the sort Marking{X} 
-  ***  sort  Bmarking{X} .
-  **** subsort Bpmarking{X} < Bmarking{X} .
-  ***  subsort Bmarking{X}  < Marking .
-  ***  op _|->_ : Place Bag{X} -> Bpmarking{X} [ctor] .
-  **** op _;_ : Bmarking{X} Bmarking{X} -> Bmarking{X} [ctor ditto] . *** overloading
-endfm
-
-
---- alternative representation of place marking based on MSET
+--- place marking of specific type (representation based on MSET)
 
 fmod MARKING{X :: TRIV, PL :: TRIV} is
-  ex ALG-PN-MARKING{PL} .
-  *** protecting MSET-BAG{X} .
+  ex APN-MARKING{PL} .
   pr MSET{X} .
   sort Pmarking{X} .
   subsort Pmarking{X} < Pmarking .
@@ -71,43 +40,58 @@ fmod MARKING{X :: TRIV, PL :: TRIV} is
   vars M M'  : Marking .
 
   op _|->_ : Place Mset{X} -> Pmarking{X} [ctor prec 43] .
-  eq place(P |-> B) = P .
+  eq place(P |-> B) = P . --- defines the abstract operator place in terms of the concrete operator _|->_
 
-  --- lookup is a partial op that must be renamed when importing the module multiple times
+    --- there can be only one occurrence of a place in a marking, otherwise, they are merged (crucial)
+  eq  P |-> B ; P |-> B' = P |-> B  B' .
+
+  --- lookup is a partial op; must be renamed when importing the module multiple times
   op _[_] : Marking Place -> [Mset{X}] . 
-  op _[_] : Pmarking{X} Place -> Mset{X} [ditto] . 
-  
-  eq (P |-> B ; M)[P] = B .
-  
-  --- there can be only one occurrence of a place in a marking (otherwise, we merge them)
-  eq  P |-> B ; P |-> B' = P |-> B B' . 
-  --- place-wise subtraction
+ ceq (P |-> B ; M)[P] = B if not(exists(P, M)) .
+
+  --- place-wise subtraction (specific part)
   eq M ; P |-> B subtr M' ; P |-> B' = (M subtr M') ; (P |-> B - B')  .
   
-  *** sort Marking{X} .
-  *** subsort Pmarking{X} < Marking{X} .
-  *** subsort Marking{X}  < Marking .
-  *** op _;_ : Marking{X} Marking{X} -> Marking{X} [ctor ditto] . *** overloading
-endfm
-
---- partial instantiation of B-MARKING using strings as place labels
-
-fmod B-MARKING-STR{X :: TRIV} is
-   pr B-MARKING{TRIV,String}{X} * (sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X},
-                  sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}, sort Bpmarking{TRIV}{X} to Bpmarking{X}
-                  *** , sort Mset{TRIV}{X} to Mset{X}, op empty{TRIV}{X} to empty{X}
-                  ) .
 endfm
 
 --- partial instantiation of MARKING using strings as place labels
 
 fmod MARKING-STR{X :: TRIV} is
    pr MARKING{TRIV,String}{X} * (sort Mset{TRIV}{X} to Mset{X}, sort NeMset{TRIV}{X} to NeMset{X}, op empty{TRIV}{X} to empty{X},
-        sort Pmarking{TRIV}{X} to Pmarking{X}
-        *** , sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X}, sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}
-        ) .
+        sort Pmarking{TRIV}{X} to Pmarking{X} ) .
 endfm
 
-fmod MARKING-STR-NAT is
-  pr MARKING-STR{Nat} .
+
+--- place marking of specific type (representation based on BAG)
+
+fmod B-MARKING{X :: TRIV, PL :: TRIV} is
+  ex APN-MARKING{PL} .
+  pr BAG{X} .
+  sort Bpmarking{X} .
+  subsort Bpmarking{X} < Pmarking . 
+  vars B B' : Bag{X} .
+  var P  : Place .
+  vars M M'  : Marking .
+  
+  op _|->_ : Place Bag{X} -> Bpmarking{X} [ctor prec 43] .
+  eq place(P |-> B) = P . --- defines the abstract operator place in terms of the concrete operator _|->_
+  
+  --- there can be only one occurrence of a place in a marking, otherwise they are merged (crucial)
+  eq  P |-> B ; P |-> B' = P |-> B + B' .
+
+  --- lookup is a partial op that must be renamed when importing the module multiple times
+  op _[_] : Marking Place -> [Bag{X}] .
+ ceq (P |-> B ; M)[P] = B if not(exists(P, M)) .
+  
+  --- place-wise subtraction
+  eq M ; P |-> B subtr M' ; P |-> B' = (M subtr M') ; (P |-> B - B')  .
+  
+endfm
+
+
+--- partial instantiation of B-MARKING using strings as place labels
+
+fmod B-MARKING-STR{X :: TRIV} is
+   pr B-MARKING{TRIV,String}{X} * (sort Bag{TRIV}{X} to Bag{X}, sort ElBag{TRIV}{X} to ElBag{X},
+                  sort NeBag{TRIV}{X} to NeBag{X}, op nil{TRIV}{X} to nil{X}, sort Bpmarking{TRIV}{X} to Bpmarking{X} ) .
 endfm

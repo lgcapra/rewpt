@@ -1,0 +1,24 @@
+view Substitution from TRIV to META-LEVEL is
+  sort Elt to Substitution .
+endv
+
+fmod SUBST-SET is
+  pr SET{Substitution} * (op empty to NoSubst) .
+endfm
+
+--- finds all matches of a term in a module, returning the corresponding substitutions
+
+fmod MATCH-FINDER is
+  pr SUBST-SET .
+  
+  op allMatches : Module Term Term -> Set{Substitution} .
+  op $allMatches : Module Term Term Nat -> Set{Substitution} .
+
+  var mod : Module . vars T U :  Term . var X : Nat .
+  var SUBST : [Substitution] .
+
+  eq allMatches(mod, T, U) = $allMatches(mod, T, U, 0) .
+  ceq $allMatches(mod, T, U, X) = SUBST, $allMatches(mod, T, U, X + 1) 
+      if SUBST := metaMatch(mod, T, U, nil, X) /\ SUBST =/= noMatch .
+  eq $allMatches(mod, T, U, X) = NoSubst [owise] .
+endfm
