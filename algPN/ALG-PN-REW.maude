@@ -83,14 +83,14 @@ endm
 in PHIL-N
 
 mod REW-DINING-PHIL is
-  pr MARKING{Phil, String} .
+  pr DINING-PHIL-MARK .
   inc APN-EMU{String, String} .
 
   --- aliases for the transitions and the entire net
   op th  : Mset{Phil} Mset{Phil} Phil -> Transition [memo] . 
-  op pk  : Mset{Phil} Mset{Phil} Mset{Phil} Nat  ->  Transition [memo] . 
-  op  e  : Mset{Phil} Mset{Phil} Mset{Phil} Nat  -> Transition [memo] . 
-  op net : Mset{Phil} Mset{Phil} Mset{Phil} Phil Nat  -> Net [memo] . 
+  op pk  : Mset{Phil} Mset{Phil} Mset{Phil} Nat NzNat ->  Transition [memo] . 
+  op  e  : Mset{Phil} Mset{Phil} Mset{Phil} Nat NzNat -> Transition [memo] . 
+  op net : Mset{Phil} Mset{Phil} Mset{Phil} Phil Nat NzNat -> Net [memo] . 
   
   eq mod = upModule('REW-DINING-PHIL, false) . --- module binding for the meta-level representation of the module
   
@@ -100,37 +100,32 @@ mod REW-DINING-PHIL is
 
   eq th(B, B', Ph)  = ["th"] p("Think") |-> B Ph  ;  p("Pickup") |-> B' => p("Think") |-> B  ;  p("Pickup") |-> B' Ph [true] . 
                      
-  eq pk(B, B', B'', X) = ["pk"] p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Eat") |-> B''  =>  
-            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) [true] .
+  eq pk(B, B', B'', X, K) = ["pk"] p("Pickup") |-> B ph(X, K) ; p("Fork") |-> B' ph(X, K) ph(s(X), K) ; p("Eat") |-> B''  =>  
+            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X, K) [true] .
   
-  eq e(B, B', B'', X) = ["e"]  p("Eat") |-> B ph(X) ; p("Fork") |-> B'  ; p("Think") |-> B''  =>  
-         p("Eat") |-> B ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Think") |-> B'' ph(X) [true] .
+  eq e(B, B', B'', X, K) = ["e"]  p("Eat") |-> B ph(X, K) ; p("Fork") |-> B'  ; p("Think") |-> B''  =>  
+         p("Eat") |-> B ; p("Fork") |-> B' ph(X, K) ph(s(X), K) ; p("Think") |-> B'' ph(X, K) [true] .
   
-  eq net(B, B', B'', Ph, X) = th(B, B', Ph) , pk(B, B', B'', X), e(B, B', B'', X) .
+  eq net(B, B', B'', Ph, X, K) = th(B, B', Ph) , pk(B, B', B'', X, K), e(B, B', B'', X, K) .
 
-  op nphil : Nat -> Mset{Phil} [memo] . *** defined for convenience
-  eq nphil(0) = empty{Phil} .
-  eq nphil(K) = ph(sd(K,1)) nphil(sd(K,1)) .
-  op m0 : -> Marking . 
-  eq m0 =  p("Think") |-> nphil(N) ; p("Fork") |-> nphil(N) ; p("Eat") |-> empty{Phil} ; p("Pickup") |-> empty{Phil} .
+  --- tricky example of net rewrite where th transition's guard is set to a boolean term that is true if the number of philosophers in the precondition of th is greater than the number of philosophers in the precondition of pk)
+  vars T  T' : Transition . var N : Net .  var S : Marking . 
   
-  --- tricky example of net rewrite (set th transition's guard to a boolean term that is true if the number of philosophers in the precondition of th is greater than the number of philosophers in the precondition of pk)
-  vars T  T' : Transition . var N : Net .  vars M  M' M'' : Marking . 
-  
-  crl N, T M => N, T' M if lab(T) = "th" /\ guard(T) /\ len(M[p("Think")]) > 1 /\
-    M':Mset{Phil} := pre(T)[p("Think")] /\ M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
-    T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].
+ --- crl N, T S => N, T' S if lab(T) = "th" /\ guard(T) /\ len(S[p("Think")]) > 1 /\
+ ---   M':Mset{Phil} := pre(T)[p("Think")] /\ M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
+ ---    T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].
 endm
 
 --- debugging
 
 red th(B:Mset{Phil}, B':Mset{Phil},  Ph:Phil) .
-
+  
 red upGuard(th(B:Mset{Phil}, B':Mset{Phil},  Ph:Phil)) . 
 
-red allMatches(mod, '_;_['Mrest:Marking, upPre(th(B:Mset{Phil}, B':Mset{Phil},  Ph:Phil))], upTerm(m0)) . 
+red allMatches(mod, '_;_['Mrest:Marking, upPre(th(B:Mset{Phil}, B':Mset{Phil},  Ph:Phil))], upTerm(m0(5))) . 
 
 --- arbitrary variable names can be used
-search in REW-DINING-PHIL : net(B':Mset{Phil}, B:Mset{Phil}, G:Mset{Phil}, Ph:Phil, J:Nat) m0 =>! S:System .
+search in REW-DINING-PHIL : net(B':Mset{Phil}, B:Mset{Phil}, G:Mset{Phil}, Ph:Phil, J:Nat, K:NzNat) m0(5) =>! S:System .
 
-search in REW-DINING-PHIL : net(B', B, G:Mset{Phil}, Ph, J:Nat) m0 =>* N:Net M:Marking such that N':Net, T:Transition := N:Net /\ guard(T:Transition) =/= true .
+--- search states where the transition th has a non-trivial guards .
+--- search in REW-DINING-PHIL : net(B', B, G:Mset{Phil}, Ph, J:Nat, K:NzNat) m0(6) =>* N:Net M:Marking such that N':Net, T:Transition := N:Net /\ guard(T:Transition) =/= true .

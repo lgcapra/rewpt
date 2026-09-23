@@ -22,6 +22,7 @@ endv
 
 mod ACTIVE-PHIL is
   inc DINING-PHIL-TK{PhilNet} . 
-  op m0 : -> Marking [memo] . *** alias for initial configuration
-  eq m0 =  p("Think") |-> nphiltk(phil-sys0, N) ; p("Fork") |-> nphil(N) ; p("Eat") |-> emptyPhilTk ; p("Pickup") |-> emptyPhilTk .
+  op m0 NzNat : -> Marking [memo] . *** alias for initial configuration
+  var N : NzNat .
+  eq m0(N) =  p("Think") |-> nphiltk(phil-sys0, N) ; p("Fork") |-> nphil(N) ; p("Eat") |-> emptyPhilTk ; p("Pickup") |-> emptyPhilTk .
 endm

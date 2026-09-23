@@ -5,27 +5,31 @@ in ALG-PN
 
 mod DINING-PHIL is
   inc MARKING{Phil, String} .
-  var Ph : Phil . vars B B' B'' : Mset{Phil} . vars X Y : Nat . var K : NzNat .
+  var Ph : Phil . vars B B' B'' : Mset{Phil} . var X : Nat . var K : NzNat .
   rl [th] : p("Think") |-> B Ph  ;  p("Pickup") |-> B' => p("Think") |-> B  ;  p("Pickup") |-> B' Ph .
-  rl [pk] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Eat") |-> B''  =>  
-            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) .
-  rl [e] : p("Eat") |-> B ph(X) ; p("Fork") |-> B'  ; p("Think") |-> B''  =>  
-           p("Eat") |-> B ; p("Fork") |-> B' ph(X) ph(s(X)) ; p("Think") |-> B'' ph(X) .
- *** alternatives for pk using guards
---- crl  [pk2] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) ph(Y) ; p("Eat") |-> B''  =>  
----              p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) if Y = X + 1 . *** X = Y + 1 behaves differently
---- crl [pk3] : p("Pickup") |-> B ph(X) ; p("Fork") |-> B' ph(X) Ph ; p("Eat") |-> B''  =>  
----            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X) if Ph = ph(X + 1) . *** more states than expected
-  
-  
+  rl [pk] : p("Pickup") |-> B ph(X, K) ; p("Fork") |-> B' ph(X, K) ph(s(X), K) ; p("Eat") |-> B''  =>  
+            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X, K) .
+  rl [e] : p("Eat") |-> B ph(X, K) ; p("Fork") |-> B'  ; p("Think") |-> B''  =>  
+           p("Eat") |-> B ; p("Fork") |-> B' ph(X, K) ph(s(X), K) ; p("Think") |-> B'' ph(X, K) . 
 endm
+
+--- this module defines the initial configuration of the dining philosophers' net in a parameterized way (the number of philosophers is a parameter)
+
+fmod DINING-PHIL-MARK is 
+  pr MARKING{Phil, String} .
+  op nphil : NzNat -> NeMset{Phil} . *** allows creating a set of philosophers of arbitrary size
+  var N : NzNat . var K : Nat . var B : Mset{Phil} .
+  eq nphil(N) = $nphil(N, N, empty{Phil}) .
+  op $nphil : Nat NzNat Mset{Phil} -> Mset{Phil} .
+  eq $nphil(0, N, B) = B .
+  eq $nphil(s(K), N, B) = $nphil(K, N, B ph(K, N)) .
+  op m0 : NzNat -> Marking [memo] . 
+  eq m0(N) =  p("Think") |-> nphil(N) ; p("Fork") |-> nphil(N) ; p("Eat") |-> empty{Phil} ; p("Pickup") |-> empty{Phil} .
+endfm
 
 mod DINING-PHIL-M0 is 
   inc DINING-PHIL .
-  var K : NzNat .
-  op nphil : Nat -> Mset{Phil} [memo] . *** defined for convenience
-  eq nphil(0) = empty{Phil} .
-  eq nphil(K) = ph(sd(K,1)) nphil(sd(K,1)) .
-  op m0 : -> Marking . 
-  eq m0 =  p("Think") |-> nphil(N) ; p("Fork") |-> nphil(N) ; p("Eat") |-> empty{Phil} ; p("Pickup") |-> empty{Phil} .
+  pr DINING-PHIL-MARK .
 endm
+
+search in DINING-PHIL-M0 : m0(5) =>! M:Marking . 

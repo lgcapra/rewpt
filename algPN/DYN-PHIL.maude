@@ -17,18 +17,19 @@ mod DYN-PHIL is
   inc MARKING{Phil-BL, String} . 
   inc MARKING{Phil, String} * (op _[_] : Marking Place -> [Mset{Phil}] to _<_>) .
 
-  op meta-m0 : -> [Marking] . 
-  eq meta-m0 = p("BL") |-> m0 ; p("Removed") |-> empty{Phil} .
+  var M : BL-Marking . vars B B' B'' : Mset{Phil} . var X : Nat . var N : NzNat . 
+  
+  op meta-m0 : NzNat -> [Marking] .
+  eq meta-m0(N) = p("BL") |-> m0(N) ; p("Removed") |-> empty{Phil} .
 
-  var M : BL-Marking . vars B B' B'' : Mset{Phil} . var X : Nat .
    
   *** moves away a phil, who brings with him/her the fork
-   rl [remove] : p("BL") |-> (M ; bl-p("Think") |-> ph(X) B ; bl-p("Fork") |-> ph(X) B') ; 
+   rl [remove] : p("BL") |-> (M ; bl-p("Think") |-> ph(X, N) B ; bl-p("Fork") |-> ph(X, N) B') ; 
       p("Removed") |-> B'' => 
-      p("BL") |-> (M ; bl-p("Think") |-> B ; bl-p("Fork") |-> B') ; p("Removed") |-> B'' ph(X) . 
+      p("BL") |-> (M ; bl-p("Think") |-> B ; bl-p("Fork") |-> B') ; p("Removed") |-> B'' ph(X, N) . 
   *** restores (re-introduces) a phil who previously moved away
    rl [restore] : p("BL") |-> (M ; bl-p("Think") |-> B ; bl-p("Fork") |-> B') ; 
-      p("Removed") |-> B'' ph(X) => 
-      p("BL") |-> (M ; bl-p("Think") |-> B ph(X) ; bl-p("Fork") |-> B' ph(X)) ; p("Removed") |-> B'' .
+      p("Removed") |-> B'' ph(X, N) => 
+      p("BL") |-> (M ; bl-p("Think") |-> B ph(X, N) ; bl-p("Fork") |-> B' ph(X, N)) ; p("Removed") |-> B'' .
 
 endm

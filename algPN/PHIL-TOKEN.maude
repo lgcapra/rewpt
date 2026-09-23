@@ -1,5 +1,4 @@
-in ALG-PN
-in PHIL-N
+in DINING-PHIL
 
 *** boolean states have an associated predicated
 fth B-STATE is
@@ -22,26 +21,26 @@ view PhilTk{Y :: B-STATE} from TRIV to PHIL-TOKEN{Y} is
 endv
 
 mod DINING-PHIL-TK{Y :: B-STATE} is
-  inc MARKING-STR{Phil} . *** used for the fork place
+  --- inc MARKING-STR{Phil} . *** used for the fork place
+  inc DINING-PHIL-MARK .
   inc MARKING-STR{PhilTk{Y}} * (sort Mset{PhilTk{Y}} to Mset{PhilTk}, sort NeMset{PhilTk{Y}} to NeMset{PhilTk},
                                 sort Pmarking{PhilTk{Y}} to Pmarking{PhilTk}, 
                                 op empty{PhilTk{Y}} to emptyPhilTk, op _[_] : Marking Place -> [Mset{PhilTk{Y}}] to _(_)) .
   
-  var Y : Y$Elt . var X : Nat . var K : NzNat .
+  var Y : Y$Elt . var X : Nat . vars K N : NzNat .
   var PhT : PhilTk . var Ph : Phil . vars M M' : Mset{PhilTk} . var F : Mset{Phil} . 
   rl [th] : p("Think") |-> M PhT  ;  p("Pickup") |-> M' => p("Think") |-> M  ;  p("Pickup") |-> M' PhT .
- crl [pk] : p("Pickup") |-> M < Y  ph(X) > ; p("Fork") |-> F ph(X) ph(s(X)) ; p("Eat") |-> M'  =>  
-            p("Pickup") |-> M ; p("Fork") |-> F ; p("Eat") |-> M' < Y  ph(X) >  if pr(Y)  .
-  rl [e]  : p("Eat") |-> M < Y  ph(X) > ; p("Fork") |-> F  ; p("Think") |-> M'  =>  
-            p("Eat") |-> M ; p("Fork") |-> F ph(X) ph(s(X)) ; p("Think") |-> M' < Y ph(X) > .
+ crl [pk] : p("Pickup") |-> M < Y  ph(X, K) > ; p("Fork") |-> F ph(X, K) ph(s(X), K) ; p("Eat") |-> M'  =>  
+            p("Pickup") |-> M ; p("Fork") |-> F ; p("Eat") |-> M' < Y  ph(X, K) >  if pr(Y)  .
+  rl [e]  : p("Eat") |-> M < Y  ph(X, K) > ; p("Fork") |-> F  ; p("Think") |-> M'  =>  
+            p("Eat") |-> M ; p("Fork") |-> F ph(X, K) ph(s(X), K) ; p("Think") |-> M' < Y ph(X, K) > .
   
-  *** defined for convenience
-  op nphil : Nat -> Mset{Phil} [memo] . *** defined for convenience
-  eq nphil(0) = empty{Phil} .
-  eq nphil(K) = ph(sd(K,1)) nphil(sd(K,1)) .
-  op nphiltk : Y$Elt Nat -> Mset{PhilTk} [memo] .
-  eq nphiltk(Y, 0) = emptyPhilTk .
-  eq nphiltk(Y, K) = < Y ph(sd(K,1))> nphiltk(Y, sd(K,1)) . 
+  --- allows creating a set of phil-tokens of arbitrary size
+  op nphiltk : Y$Elt NzNat -> NeMset{PhilTk} . 
+  eq nphiltk(Y, N) = $nphiltk(Y, N, N, emptyPhilTk) .
+  op $nphiltk : Y$Elt Nat NzNat Mset{PhilTk} -> Mset{PhilTk} .
+  eq $nphiltk(Y, 0, N, M) = M .
+  eq $nphiltk(Y, s(X), N, M) = $nphiltk(Y, X, N, M < Y ph(X, N) >) .
 endm
 
 *** model equivalent to the conventional one
@@ -53,6 +52,7 @@ endv
 
 mod N-PHIL-AS-STRINGS is
   including DINING-PHIL-TK{PhilString} . 
-  op m0 : -> Marking [memo] . *** initial configuration
-  eq m0 =  p("Think") |-> nphiltk("ph", N) ; p("Fork") |-> nphil(N) ; p("Eat") |-> emptyPhilTk ; p("Pickup") |-> emptyPhilTk .
+  op m0 : NzNat -> Marking [memo] .  *** initial configuration
+  var N : NzNat . 
+  eq m0(N) =  p("Think") |-> nphiltk("ph", N) ; p("Fork") |-> nphil(N) ; p("Eat") |-> emptyPhilTk ; p("Pickup") |-> emptyPhilTk .
 endm
