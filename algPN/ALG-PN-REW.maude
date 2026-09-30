@@ -1,4 +1,4 @@
-in ALG-PN.maude
+in DINING-PHIL.maude
 in MATCH-FINDER
 
 --- In this version, a rewritable algebraic Petri net (REW_APN) is represented as a free comm. monoid of transitions, juxstaposed with a marking.
@@ -111,9 +111,9 @@ mod REW-DINING-PHIL is
   --- tricky example of net rewrite where th transition's guard is set to a boolean term that is true if the number of philosophers in the precondition of th is greater than the number of philosophers in the precondition of pk)
   vars T  T' : Transition . var N : Net .  var S : Marking . 
   
- --- crl N, T S => N, T' S if lab(T) = "th" /\ guard(T) /\ len(S[p("Think")]) > 1 /\
- ---   M':Mset{Phil} := pre(T)[p("Think")] /\ M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
- ---    T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].
+  crl N, T S => N, T' S if lab(T) = "th" /\ guard(T) /\ len(S[p("Think")]) > 1 /\
+    M':Mset{Phil} := pre(T)[p("Think")] /\ M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
+    T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].
 endm
 
 --- debugging
