@@ -11,16 +11,16 @@ fmod MSET{X :: TRIV} is
 
  op len : Mset{X} -> Nat .
  eq len(empty{X}) = 0 .
- vars M M' : Mset{X} .
+ vars M M' : Mset{X} . 
  var X : X$Elt .
  eq len(M X) = 1 + len(M) .
  op _leq_ : Mset{X} Mset{X} -> Bool . --- checks that the 1st mset is contained in the 2nd
  eq M leq M M' = true .
  eq M leq M' = false [owise] .
- op _-_ : Mset{X} Mset{X} -> [Mset{X}] .
- op _diff_ : Mset{X} Mset{X} -> [Mset{X}] . --- alternative name for the previous operator
- eq (M M') - M' = M .
- eq M diff M' = M - M' .
+ op _diff_ : Mset{X} Mset{X} -> Mset{X} [right id: empty{X}] .
+ var M'' : NeMset{X} .
+ eq M M'' diff M' M'' = M diff M' .
+ eq M diff M'' = M [owise] .
  op supp : Mset{X} -> Mset{X} . --- support
  eq supp(empty{X}) = empty{X} .
  eq supp(M X X) = supp(M X) . 

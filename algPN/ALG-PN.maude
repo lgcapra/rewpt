@@ -50,7 +50,7 @@ fmod MARKING{X :: TRIV, PL :: TRIV} is
  ceq (P |-> B ; M)[P] = B if not(exists(P, M)) .
 
   --- place-wise subtraction (specific part)
-  eq M ; P |-> B subtr M' ; P |-> B' = (M subtr M') ; (P |-> B - B')  .
+  eq M ; P |-> B subtr M' ; P |-> B' = (M subtr M') ; (P |-> B diff B')  .
   
 endfm
 

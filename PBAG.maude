@@ -1,6 +1,5 @@
 *** def base, senza tutti gli operatori per gestire le etichette "strutturate" dellìapproccio modulare 
 in ./shared/BAG-AND-SET
-in ./shared/MSET
 in PLACE
 
 fmod PBAG{L :: TRIV} is
@@ -50,3 +49,11 @@ endv
 view Pset{L :: TRIV} from TRIV to PBAG{L} is 
  sort Elt to Pset .
 endv
+
+in ./shared/MSET
+
+--- module to link the two representations of multisets of places
+fmod P-MSET-BAG{L :: TRIV} is
+  pr MSET-BAG{Place{L}} * ( sort Bag{Place{L}}  to Pbag,  sort NeBag{Place{L}}  to NePbag, sort ElBag{Place{L}} to ElPbag, op nil to nilP, 
+                     sort Mset{Place{L}} to Pmset, sort NeMset{Place{L}} to NePmset, op empty{Place{L}} to emptyP) .
+endfm
