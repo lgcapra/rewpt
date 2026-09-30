@@ -1,0 +1,95 @@
+--- This is just to understand why we need the meta-match in the previous definition 
+--- This is a simple example where trasitions are not rules but just terms
+--- Note that there is a unique require rule here (that can potentially fire 
+--- any of the defined transitions in the net)
+fmod PLACE is
+ sort Place .
+endfm
+
+
+view Place from TRIV to PLACE is
+  sort Elt to Place .
+endv
+
+fmod MARKING  is
+ pr MAP{Place, Nat} * (sort Map{Place,Nat} to Marking) .
+ 
+ --- -----------------
+ vars N N' : Nat .
+ vars M M' : Marking .
+ vars P P' : Place .
+ --- -----------------
+
+ --- Assuming that in M <= M', M' contains all the places mentioned in M
+ op _<=_ : Marking Marking -> Bool .
+ eq empty <= M = true .
+ eq (P |-> N, M') <= (P |-> N', M) = N <= N' and M' <= M .
+ eq M <= M' = false [owise] .
+
+ --- Substraction
+ op _-_ : Marking Marking -> Marking .
+ eq M - empty = M .
+ eq (P |-> N, M') - (P |-> N', M) = (P |-> sd(N,N')), (M' - M) .
+ eq M' - M = empty [owise] .
+
+ --- Addition
+ op _+_ : Marking Marking -> Marking .
+ eq M + empty = M .
+ eq (P |-> N, M') + (P |-> N', M) = (P |-> (N + N')), (M' + M) .
+ eq M' + M = empty [owise] .
+endfm
+
+fmod TRANSITION is
+ pr MARKING .
+ pr STRING . 
+
+ sort Transition .
+ op [_]_=>_ : String Marking Marking -> Transition [ctor] .
+endfm
+
+
+view Transition from TRIV to TRANSITION is
+  sort Elt to Transition .
+endv
+
+mod STATE is
+ pr SET{Transition} * (sort Set{Transition} to Net) .
+ sort State .
+ op _@_ : Net Marking -> State [ctor] .
+
+ var NET : Net .
+ var ID : String .
+ vars PRE POST  M M' : Marking .
+
+
+ crl [step] : (NET, ([ID] PRE => POST)) @ M =>
+              (NET, ([ID] PRE => POST)) @ ( (M - PRE) + POST)
+     if PRE <= M .
+
+endm
+
+mod EXAMPLE is
+ ex STATE .
+ op initM : -> Marking .
+ op initN : -> Net .
+ op init  : -> State .
+
+ ops a b c : -> Place . 
+
+ var NET : Net .
+ var ID : String .
+ vars PRE POST  M M' : Marking .
+
+ eq init = initN  @ initM .
+ eq initM = a |-> 3, b |-> 0, c |-> 0 .
+ eq initN =
+  ( ["ab"] (a |-> 1) => (b |-> 1) ),
+  ( ["bc"] (b |-> 2) => (c |-> 1) ) .
+endm
+
+eof 
+
+red init .
+rew [1] init .
+
+search init =>! S:State .
