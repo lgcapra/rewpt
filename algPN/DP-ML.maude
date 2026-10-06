@@ -1,0 +1,153 @@
+--- Trying to use the meta-level to represent changes in the net
+--- Transitions in the net are "simple" rewrite rules (on markings)
+--- This  avoids the need of variables in the representation of transitions
+--- Operations on the net are operations on the rewrite theory (using the meta-level
+--- to add, remove or modify rewrite rules). 
+
+--- Places, tokens and set of tokens
+fmod BASE is
+ pr NAT .
+ sorts Place Token Tokens .
+ subsort Token < Tokens .
+
+ op empty : -> Tokens .
+ op _,_ : Tokens Tokens -> Tokens [ctor comm assoc id: empty] .
+
+ var T : Token .
+ var TS : Tokens .
+ op |_| : Tokens -> Nat .
+ eq | empty | = 0 .
+ eq | T, TS | = 1 + | TS | .
+endfm
+
+
+view Place from TRIV to BASE is
+  sort Elt to Place .
+endv
+view Tokens from TRIV to BASE is
+  sort Elt to Tokens .
+endv
+
+fmod MARKING  is
+ pr MAP{Place, Tokens} * (sort Map{Place,Tokens} to Marking) .
+endfm
+
+--- A state takes a module and a marking : MOD @ MARK
+--- The module should contain the rules representing the transitions 
+mod STATE is
+ pr MARKING .
+ pr META-LEVEL .
+ sort State .
+ op _@_ : Module Marking -> State [ctor] .
+ op error : -> Marking [ctor] .
+
+ --- Boxed marking (needed to avoid renamings) 
+ sort BMarking .
+ op [_] : Marking -> BMarking [ctor] .
+endm
+
+
+view BMarking from TRIV to STATE is
+  sort Elt to BMarking .
+endv
+
+
+mod SEMANTICS is
+ pr SET{BMarking} * (sort Set{BMarking} to SBMarking) .
+
+ --- ------------------------------
+ vars PRE POST  M M' : Marking .
+ var MOD : Module .
+ var TERM : Term .
+ var STATE : State .
+ var RES? : ResultTriple? .
+ var N : Nat .
+ var SBMAR : SBMarking .
+ var RS : RuleSet .
+ var Q : Qid .
+ vars T T' : Term .
+ vars ATTS : AttrSet .
+ var COND : Condition .
+ --- ------------------------------
+
+
+ --- Successor states
+ op next : State -> SBMarking .
+ op next : State Nat -> SBMarking .
+ eq next(STATE) = next(STATE, 0) .
+
+ ceq next(MOD @ M, N) = 
+  if RES? == failure
+  then empty
+  else [downTerm(getTerm(RES?), error)], next(MOD @ M, s(N))
+  fi 
+ if RES? := metaSearch(MOD, upTerm(M), 'M:Marking, nil, '+, 1, N) .
+
+ --- Only one rule needed to move to the next state
+ crl [step] : MOD @ M => MOD @ M'
+  if [M'], SBMAR := next(MOD @ M) .
+
+ --- Possible operations in the net, e.g., adding transitions. 
+ --- Adding a rule to a theory
+  --- Adds to M the rules Rls
+ op addRls : Module RuleSet -> Module .
+ eq addRls(MOD, RS)
+   = (mod 'NEW-MOD is
+   getImports(MOD)
+ sorts getSorts(MOD) .
+ getSubsorts(MOD) getOps(MOD)
+ getMbs(MOD) getEqs(MOD)
+   (getRls(MOD) RS) endm ) .
+
+  --- Checking if a rule with a given label is in the module 
+  op in : Qid Module  -> Bool .
+  op in : Qid RuleSet  -> Bool .
+  eq in(Q, MOD) = in(Q, getRls(MOD)) .
+  eq in(Q, RS (rl T => T' [ ATTS  label(Q) ].)) = true .
+  eq in(Q, RS (crl T => T' if COND  [ ATTS  label(Q) ].)) = true .
+  eq in(Q, RS) = false [owise] .
+
+endm
+
+mod EXAMPLE is
+ ex SEMANTICS .
+ pr NAT .
+ op initM : -> Marking .
+ op init  : -> State .
+
+ ops a b c : -> Place . 
+ ops p q  : Nat -> Token .
+ 
+
+ vars AS BS CS : Tokens .
+ var X Y Z : Nat .
+ vars MOD MOD' : Module .
+ var M : Marking .
+
+
+ eq init = ['EXAMPLE]  @ initM .
+
+ eq initM = a |-> (p(0), p(1), p(2)), b |-> (q(1), q(2)) .
+
+ rl [ab] : a |-> (AS, p(X)), b |-> (BS, q(Y)) => 
+           a |-> (AS      ), b |-> (BS, q(X), q(Y), q(X + Y)) .
+
+ --- Adding a rule to the net when a condition is true 
+ crl [add] : MOD  @ (M, b |-> BS) =>
+             MOD' @ (M, b |-> BS) 
+  if | BS | >= 8 and
+     not in('NEWRULE, MOD) /\ 
+     MOD' := addRls(MOD,  rl  '_`,_['_|->_['a.Place, 'AS:Tokens], '_|->_['b.Place, '_`,_['BS:Tokens, 'q['Y:Nat]]]] => 
+                              '_`,_['_|->_['a.Place, '_`,_['AS:Tokens, 'q['Y:Nat]]], '_|->_['b.Place, 'BS:Tokens]] [ label('NEWRULE) ]. ) .
+
+endm
+
+
+eof 
+
+red init .
+rew [1] init .
+
+--- Without add: 79 solutions 
+--- With add, 2121 solutions 
+search init =>* S:State .
