@@ -1,6 +1,6 @@
 in ../PBAG
 in ../shared/MSET
-in ../../lambda/MONOID
+in ../../lambda/base/MONOID
 
 *** the parameter defines a state as commutative monoid
 fmod NETWORK{S :: C-MONOID} is 

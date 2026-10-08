@@ -132,15 +132,14 @@ mod BLOCKCHAIN-EXE is
   crl  [S0>S1] : MM: Q S N: (Nw : B) => MM: Q 1 . L(1) N: normalize((network(1) : B)) 
          if S == 1 . L(1) + 1 . s-tran /\ in(Nw, buffer) . 
   
-  crl  [S1>S0] : MM: Q S N: (Nw : B) => MM: Q 1 . L(0) N: normalize((network(0) : set(B, pin(cpu(1, N)), i))) 
-          if S == 1 . L(0) + 1 . s-tran  /\ in(Nw, cpu(3, N)) /\ i := allClients(cpu(3, N), B) /\ (i <= cap(pin(cpu(1, N)))) =/= false .
+  crl  [S1>S0] : MM: Q S N: (Nw : B) => MM: Q 1 . L(0) N: normalize((network(0) : set(B, P, i))) 
+          if S == 1 . L(0) + 1 . s-tran  /\ in(Nw, cpu(3, N)) /\ i := allClients(cpu(3, N), B) /\ P := pin(cpu(1, N)) /\ capGe(P, i) .
 
   crl  [S1>S2] : MM: Q S N: (Nw : B) => MM: Q 1 . L(2) N: normalize((network(2) : B)) 
           if S == 1 . L(2) + 1 . s-tran  /\ in(Nw, cpu(3, N))  .
 
-  crl  [S2>S1] : MM: Q S N: (Nw : B) => MM: Q 1 . L(1) N: normalize((network(1) : set(B, pin(cpu(1, N)), i))) 
-          if S == 1 . L(1) + 1 . s-tran  /\ in(Nw, cpu(6, N)) /\ i := allClients(cpu(6, N), B) /\ (i <= cap(pin(cpu(1, N)))) =/= false .
-
+  crl  [S2>S1] : MM: Q S N: (Nw : B) => MM: Q 1 . L(1) N: normalize((network(1) : set(B, P, i))) 
+          if S == 1 . L(1) + 1 . s-tran  /\ in(Nw, cpu(6, N)) /\ i := allClients(cpu(6, N), B) /\ P := pin(cpu(1, N)) /\ capGe(P, i) .
 
   *** MM network initial configuration (for searches)
   op MMsys0 : -> MMnetwork .

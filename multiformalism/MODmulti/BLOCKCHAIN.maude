@@ -55,7 +55,7 @@ mod BLOCKCHAIN-OP is
  *** connect a JSQ to a network of queues (nice!)
  op connect : Jsq Network -> Jsq .
  eq connect(J, emptyNetW) = J .
- eq connect(P |> S, (Q, N)) = connect(P |> S U in(Q), N) .
+ eq connect(P |> S, (Q, N)) = connect(P |> S U pin(Q), N) .
  eq connect(J, (Nd, N)) = connect(J, N) [owise] .
  *** connect and link 
  op connect&link : Jsq Network -> Network .
@@ -63,7 +63,7 @@ mod BLOCKCHAIN-OP is
  *** disconnect a JSQ from network of queues (nice!)
  op disconnect : Jsq Network -> Jsq .
  eq disconnect(J, emptyNetW) = J .
- eq disconnect(P |> S, (Q, N)) = disconnect(P |> delete(in(Q), S), N) . 
+ eq disconnect(P |> S, (Q, N)) = disconnect(P |> delete(pin(Q), S), N) . 
  eq disconnect(J, (Nd, N)) = disconnect(J, N) [owise] .
  *** disconnect and (re-)link 
  op disconnect&link : Jsq Network -> Network .
@@ -124,8 +124,8 @@ mod BLOCKCHAIN-EXE is
  ops A B : Place -> ElQueue . *** parametric in the input place
  eq A(P) = newElQueue(P, p(< "A" ; 0 >, N), 2.0) . 
  eq B(P) = newElQueue(P, p(< "B" ; 0 >, N), 4.0) .
- eq A0 = A(out(cpu1))  . 
- eq B0 = B(out(cpu1))  .
+ eq A0 = A(pout(cpu1))  . 
+ eq B0 = B(pout(cpu1))  .
 
   *** Storage
   op storage : -> ElQueue [memo] .
@@ -134,9 +134,9 @@ mod BLOCKCHAIN-EXE is
   *** the network (blockchain) in the state L0
   op networksys0 : -> NetSys .
   ops network0 network1 : -> Network  [memo] .
-  eq tout = newTout(out(A0), 1.0) .
+  eq tout = newTout(pout(A0), 1.0) .
   eq network0 = buffer, cpu1, A0, tout .
-  eq network1 = tin, connect&link(newJsq(pin(1)), cpu3), B0, newTout(out(B0), 1.0) .
+  eq network1 = tin, connect&link(newJsq(pin(1)), cpu3), B0, newTout(pout(B0), 1.0) .
   eq networksys0 = network0 : nilP . 
   
   var MC : System . var Q : Net . var S : Pbag . var Nw : Network . var B : Pbag .   
@@ -144,8 +144,8 @@ mod BLOCKCHAIN-EXE is
   crl  [S0>S1] : MM: Q S N: (Nw : B) => MM: Q 1 . L(1) N: (network1 : B) 
          if S == 1 . L(1) + 1 . s-tran /\ in(Nw, buffer) . 
   
-  crl  [S1>S0] : MM: Q S N: (Nw : B) => MM: Q 1 . L(0) N: (network0 : set(B, in(cpu1), k)) 
-         if S == 1 . L(0) + 1 . s-tran  /\ in(Nw, cpu3) /\ k := allClients(cpu3, B) /\ k <= cap(in(cpu1)) =/= false .
+  crl  [S1>S0] : MM: Q S N: (Nw : B) => MM: Q 1 . L(0) N: (network0 : set(B, P, k)) 
+         if S == 1 . L(0) + 1 . s-tran  /\ in(Nw, cpu3) /\ P := pin(cpu1) /\ k := allClients(cpu3, B) /\ capGe(P, k)  .
 
   *** MM network initial configuration (for searches)
   op MMsys0 : -> MMnetwork .

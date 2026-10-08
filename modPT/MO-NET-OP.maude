@@ -1,6 +1,6 @@
 *** theories and modules helpful to implement symmetric algebraic operators for monoid structures
 *** (originally defined for modular PT nets and SPN)
-in ../../lambda/MONOID
+in ../../lambda/base/MONOID
 in PSET-LAB
 *** in PLAB
 
@@ -23,15 +23,15 @@ fmod MO-NET-OP{N :: MO-NET} is
   vars S S' : Pset . var WL : List{String} .  var NeWL : NeList{String} .
   *** replace the index of the header of a structured lab
   op replaceWith : N$Elt NeLab Nat -> N$Elt .
-  eq replaceWith(N, NeL, J) = $replaceWith(N, NeL, J, nil) .  
+  eq replaceWith(N, NeL, J) = $replaceWith(N, NeL, J, N$nil) .  
   op $replaceWith : N$Elt NeLab Nat N$Elt -> N$El . 
-  eq $replaceWith(nil, NeL, J, N) = N . 
+  eq $replaceWith(N$nil, NeL, J, N) = N . 
   eq $replaceWith(E ; N, NeL, J, N') = $replaceWith(N, NeL, J, N' ; replaceWithEl(E, NeL, J)) . 
   *** append a new tag to the net's places, but those to share (i.e., to which not to add the tag)
   op addLab : N$Elt Lab Pset -> N$Elt . 
-  eq addLab(N, L, S) = $addLab(N, nil, L, S) .
+  eq addLab(N, L, S) = $addLab(N, N$nil, L, S) .
   op $addLab : N$Elt N$Elt Lab Pset -> N$Elt .
-  eq $addLab(nil, N, L, S) = N .
+  eq $addLab(N$nil, N, L, S) = N .
   eq $addLab(E ; N', N, L, S) = $addLab(N', addLabEl(E, L, S) ; N, L, S) .
   *** simple (default) version
   op addLab : N$Elt Lab -> N$Elt . 
@@ -43,20 +43,20 @@ fmod MO-NET-OP{N :: MO-NET} is
   op places : N$Elt List{String} -> Pset .
   eq places(N, WL) = $places(N, WL, emptyPset) .
   op $places : N$Elt List{String} Pset -> Pset .
-  eq $places(nil, WL, S) = S .
+  eq $places(N$nil, WL, S) = S .
   eq $places(E ; N, WL, S) = $places(N, WL, S U placesEl(E, WL)) .
   *** entire set of places
   op places : N$Elt -> Pset [memo] .
   eq places(N) = $places(N, emptyPset) .
   op $places : N$Elt Pset -> Pset .
-  eq $places(nil, S) = S .
+  eq $places(N$nil, S) = S .
   eq $places(E ; N, S) = $places(N, S U placesEl(E)) .
   *** eq places(N) = places(N, emptyLs) .
   *** places matching a suffix 
   op places : N$Elt NeLab -> Pset  .
   eq places(N, NeL) = $places(N, NeL, emptyPset) .
   op $places : N$Elt NeLab Pset -> Pset .
-  eq $places(nil, NeL, S) = S .
+  eq $places(N$nil, NeL, S) = S .
   eq $places(E ; N, NeL, S) = $places(N, NeL, S U placesEl(E, NeL)) .
  
   *** looks for a place
@@ -79,7 +79,7 @@ fmod MO-NET-OP{N :: MO-NET} is
   
   *** "symmetric" juxtaposition: creates K (disjoint) replica of a node's structure each one with a suitably added label suffix (index 0..K-1) denoting the "nesting" level
   op repl&share : N$Elt NzNat String Pset -> N$Elt .
-  eq repl&share(N, K, W, S) = $repl&share(N, K, W, nil, S) .
+  eq repl&share(N, K, W, S) = $repl&share(N, K, W, N$nil, S) .
   op $repl&share : N$Elt Nat String N$Elt Pset -> N$Elt .
   eq $repl&share(N, 0, W, N', S) = N' .
  ceq $repl&share(N, K, W, N', S) = $repl&share(N, J, W, (N' ; addLab(N, < W ; J >, S)), S) if J := sd(K,1) .

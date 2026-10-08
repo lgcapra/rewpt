@@ -1,0 +1,111 @@
+--- Trying to use the meta-level to represent changes in the net
+--- Transitions in the net are "simple" rewrite rules (on markings)
+--- This  avoids the need of variables in the representation of transitions
+--- Operations on the net are operations on the rewrite theory (using the meta-level
+--- to add, remove or modify rewrite rules). 
+
+--- A state takes a module and a marking : MOD @ MARK
+--- The module should contain the rules representing the transitions 
+in DINING-PHIL
+
+fmod MARKING-S is
+ pr APN-MARKING{String} .
+endfm
+
+mod STATE{X :: TRIV} is
+ pr APN-MARKING{X} .
+ pr META-LEVEL .
+ sort State .
+ op _@_ : Module Marking -> State [ctor] .
+ op error : -> Marking [ctor] .
+
+ --- Boxed marking (needed to avoid renamings) 
+ sort BMarking .
+ op [_] : Marking -> BMarking [ctor] .
+endm
+
+
+view BMarking{X :: TRIV} from TRIV to STATE{X} is
+  sort Elt to BMarking .
+endv
+
+
+mod SEMANTICS{X :: TRIV} is
+ pr SET{BMarking{X}} * (sort Set{BMarking{X}} to SBMarking) .
+
+ --- ------------------------------
+ vars PRE POST  M M' : Marking .
+ var MOD : Module .
+ var TERM : Term .
+ var STATE : State .
+ var RES? : ResultTriple? .
+ var N : Nat .
+ var SBMAR : SBMarking .
+ var RS : RuleSet .
+ var Q : Qid .
+ vars T T' : Term .
+ vars ATTS : AttrSet .
+ var COND : Condition .
+ --- ------------------------------
+
+
+ --- Successor states
+ op next : State -> SBMarking .
+ op next : State Nat -> SBMarking .
+ eq next(STATE) = next(STATE, 0) .
+
+ ceq next(MOD @ M, N) = 
+  if RES? == failure
+  then empty
+  else [downTerm(getTerm(RES?), error)], next(MOD @ M, s(N))
+  fi 
+ if RES? := metaSearch(MOD, upTerm(M), 'M:Marking, nil, '+, 1, N) .
+
+ --- Only one rule needed to move to the next state
+ crl [step] : MOD @ M => MOD @ M'
+  if [M'], SBMAR := next(MOD @ M) .
+
+ --- Possible operations in the net, e.g., adding transitions. 
+ --- Adding a rule to a theory
+  --- Adds to M the rules Rls
+ op addRls : Module RuleSet -> Module .
+ eq addRls(MOD, RS)
+   = (mod 'NEW-MOD is
+   getImports(MOD)
+ sorts getSorts(MOD) .
+ getSubsorts(MOD) getOps(MOD)
+ getMbs(MOD) getEqs(MOD)
+   (getRls(MOD) RS) endm ) .
+
+  --- Checking if a rule with a given label is in the module 
+  op in : Qid Module  -> Bool .
+  op in : Qid RuleSet  -> Bool .
+  eq in(Q, MOD) = in(Q, getRls(MOD)) .
+  eq in(Q, RS (rl T => T' [ ATTS  label(Q) ].)) = true .
+  eq in(Q, RS (crl T => T' if COND  [ ATTS  label(Q) ].)) = true .
+  eq in(Q, RS) = false [owise] .
+
+endm
+
+mod EXAMPLE is
+ ex SEMANTICS{String} .
+ inc DINING-PHIL-M0 .
+
+ op initM : -> Marking .
+ op init  : -> State .
+
+ vars MOD MOD' : Module .
+ var M : Marking .
+
+ eq init = ['EXAMPLE]  @ m0(5) .
+
+endm
+
+
+eof 
+
+
+red init .
+rew [1] init .
+
+search init =>* S:State .

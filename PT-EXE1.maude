@@ -1,0 +1,18 @@
+mod PT-EXE-1 is
+    inc PT-EMU{String, String} .
+    op pt-sys : -> System .
+
+    
+    eq pt-sys = (
+         "t1" |-> [1 . p("p1") + 1 . p("p2"), 1 . p("p3"), 3 . p("p2")] ;
+         "t2" |-> [1 . p("p3"), 1 . p("p1") + 1 . p("p2")] 
+    )   2 . p("p1") + 2 . p("p2") .   
+
+    vars M I O : Pbag . var N : Net . var T : Tran . var K : Nat .
+
+    crl [newt1] : ("t1" |-> [I, O, s(K) . p("p2")] ; N)  M => ("t1" |-> [I, O, K . p("p2")] ; N)  M 
+                 if M[p("p2")] <= K .
+endm
+
+--- search for final states
+search in PT-EXE-1 : pt-sys =>! S:System .

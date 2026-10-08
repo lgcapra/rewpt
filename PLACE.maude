@@ -2,7 +2,7 @@ fmod PLACE{L :: TRIV} is
  pr NAT .
  sorts Bplace Place . 
  subsort Bplace < Place .
- var L : L$Elt . var K : NzNat .
+ var L : L$Elt . vars K K' : NzNat .
  op p : L$Elt -> Place [ctor] .
  op p : L$Elt NzNat -> Bplace [ctor] .
  op lab : Place -> L$Elt .
@@ -10,9 +10,12 @@ fmod PLACE{L :: TRIV} is
  eq lab(p(L,K)) = L .
  op cap : Bplace -> NzNat .
  eq cap(p(L,K)) = K .
+ op capGe : Place NzNat -> Bool . --- the semantics of capGe(P,K) is that place P has capacity at least K
+ eq capGe(p(L,K), K') = K >= K' .
+ eq capGe(p(L), K) = true . --- unbounded places
 endfm
-
-*** default view 
+ 
+ --- default view 
 view Place{X :: TRIV} from TRIV to PLACE{X} is 
  sort Elt to Place . 
 endv

@@ -17,5 +17,5 @@ mod QUEUE-NODE-SYS{PL :: TRIV} is
 
    crl [q-firing] : (N , Q) : M => (N , Q) : M  + 1 . P - 1 . p(S)
       if LS S LS' := ql(Q) /\ mu(S) > 0.0 /\ K := M[p(S)] /\ K > 0 /\ qenabled(Q, M) /\ 
-      P :=  nextPosDef(LS',out(Q) ) /\ P :: Bplace = false or-else M[P] < cap(P) /\ rate := mu(S) * float(K) / float(clients(ql(Q), M)) .    
+      P :=  nextPosDef(LS',pout(Q) ) /\ P :: Bplace = false or-else M[P] < cap(P) /\ rate := mu(S) * float(K) / float(clients(ql(Q), M)) .    
 endm

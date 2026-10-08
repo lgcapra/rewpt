@@ -124,8 +124,8 @@ mod BLOCKCHAIN-EXE is
  ops A B : Place -> ElQueue . *** parametric in the input place
  eq A(P) = newElQueue(P, p("A" 0, N), 2.0) . 
  eq B(P) = newElQueue(P, p("B" 0, N), 4.0) .
- eq A0 = A(out(cpu1))  . 
- eq B0 = B(out(cpu1))  .
+ eq A0 = A(pout(cpu1))  . 
+ eq B0 = B(pout(cpu1))  .
  
   *** JSQ
   op jsq1 : -> Jsq [memo] .
@@ -138,19 +138,19 @@ mod BLOCKCHAIN-EXE is
   *** the network (blockchain) in the state L0
   op netWorkSys0 : -> NetSys .
   ops netWork0 netWork1 : -> Network  [memo] .
-  eq out = newTout(out(A0), 1.0) .
+  eq out = newTout(pout(A0), 1.0) .
   eq netWork0 = in, buffer, cpu1, A0, out .
-  eq netWork1 = newTin(pin(1),2.0), connect&link(newJsq(pin(1)), cpu3), B0, newTout(out(B0), 1.0) .
+  eq netWork1 = newTin(pin(1),2.0), connect&link(newJsq(pin(1)), cpu3), B0, newTout(pout(B0), 1.0) .
   eq netWorkSys0 = netWork0 : nilP . 
   
   
-  var MC : System . var Q : Net . var S : Pbag . var Nw : Network . var B : Pbag .   
+  var MC : System . var Q : Net . var S : Pbag . var Nw : Network . var B : Pbag .
   *** rewrites governed by mmc -- NOTE: istantaneous w.r.t. mc change state
   crl  [S0>S1] : MM: Q S N: (Nw : B) => MM: Q 1 . L(1) N: (netWork1 : B) 
          if S == 1 . L(1) + 1 . s-tran /\ in(Nw, buffer) . 
   
-  crl  [S1>S0] : MM: Q S N: (Nw : B) => MM: Q 1 . L(0) N: (netWork0 : set(B, pin(cpu1), k)) 
-         if S == 1 . L(0) + 1 . s-tran  /\ in(Nw, cpu3) /\ k := allClients(cpu3, B) /\ k <= cap(cpu1) .
+  crl  [S1>S0] : MM: Q S N: (Nw : B) => MM: Q 1 . L(0) N: (netWork0 : set(B, P, k)) 
+         if S == 1 . L(0) + 1 . s-tran  /\ in(Nw, cpu3) /\ P := pin(cpu1) /\ k := allClients(cpu3, B) /\ capGe(P, k) .
 
   *** MM network initial configuration (for searches)
   op MMsys0 : -> MMnetwork .

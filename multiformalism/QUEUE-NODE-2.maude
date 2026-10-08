@@ -10,7 +10,7 @@ fmod QUEUE-NODE{PL :: TRIV} is
    var K : Nat . var rate : Float . var M : Pbag .
    var MS : StatesRates . vars P P' : Place .
    op qnext  : Queue Pbag -> StatesRates . *** non deterministic firing (see the corresponding rule)
-  ceq qnext(Q, M) = $qnext(ql(Q), noStateRate, out(Q), K, M) if K := clients(ql(Q), M) /\ K > 0 /\ qenabled(Q, M) .
+  ceq qnext(Q, M) = $qnext(ql(Q), noStateRate, pout(Q), K, M) if K := clients(ql(Q), M) /\ K > 0 /\ qenabled(Q, M) .
    eq qnext(Q, M) = noStateRate [owise]. 
    op $qnext : ServerList StatesRates Place NzNat Pbag -> StatesRates .
    eq $qnext(nilSeL, MS, P, K, M) = MS .
