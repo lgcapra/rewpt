@@ -8,10 +8,6 @@
 --- The module should contain the rules representing the transitions 
 in DINING-PHIL
 
-fmod MARKING-S is
- pr APN-MARKING{String} .
-endfm
-
 mod STATE{X :: TRIV} is
  pr APN-MARKING{X} .
  pr META-LEVEL .
