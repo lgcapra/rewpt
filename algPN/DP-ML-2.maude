@@ -125,7 +125,6 @@ mod EXAMPLE is
  ex SEMANTICS{String} .
  pr DINING-PHIL-MARK .
 
- op initM : -> Marking .
  op init  : -> State .
 
  vars MOD MOD' : Module .
