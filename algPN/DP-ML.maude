@@ -38,7 +38,7 @@ mod STATE is
  pr MARKING .
  pr META-LEVEL .
  sort State .
- op _@_ : Module Marking -> State [ctor] .
+ op _@_ : Module Marking -> State [ctor frozen] .
  op error : -> Marking [ctor] .
 
  --- Boxed marking (needed to avoid renamings) 
@@ -133,12 +133,12 @@ mod EXAMPLE is
            a |-> (AS      ), b |-> (BS, q(X), q(Y), q(X + Y)) .
 
  --- Adding a rule to the net when a condition is true 
- crl [add] : MOD  @ (M, b |-> BS) =>
-             MOD' @ (M, b |-> BS) 
-  if | BS | >= 8 and
-     not in('NEWRULE, MOD) /\ 
-     MOD' := addRls(MOD,  rl  '_`,_['_|->_['a.Place, 'AS:Tokens], '_|->_['b.Place, '_`,_['BS:Tokens, 'q['Y:Nat]]]] => 
-                              '_`,_['_|->_['a.Place, '_`,_['AS:Tokens, 'q['Y:Nat]]], '_|->_['b.Place, 'BS:Tokens]] [ label('NEWRULE) ]. ) .
+---  crl [add] : MOD  @ (M, b |-> BS) =>
+---              MOD' @ (M, b |-> BS) 
+---   if | BS | >= 8 and
+---      not in('NEWRULE, MOD) /\ 
+---      MOD' := addRls(MOD,  rl  '_`,_['_|->_['a.Place, 'AS:Tokens], '_|->_['b.Place, '_`,_['BS:Tokens, 'q['Y:Nat]]]] => 
+---                               '_`,_['_|->_['a.Place, '_`,_['AS:Tokens, 'q['Y:Nat]]], '_|->_['b.Place, 'BS:Tokens]] [ label('NEWRULE) ]. ) .
 
 endm
 
@@ -147,6 +147,8 @@ eof
 
 red init .
 rew [1] init .
+
+search init =>* S:State .
 
 --- Without add: 79 solutions 
 --- With add, 2121 solutions 
