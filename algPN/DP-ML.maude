@@ -61,13 +61,14 @@ mod SEMANTICS is
  var TERM : Term .
  var STATE : State .
  var RES? : ResultTriple? .
+ var RESP? : ResultPair? .
  var N : Nat .
  var SBMAR : SBMarking .
  var RS : RuleSet .
  var Q : Qid .
  vars T T' : Term .
  vars ATTS : AttrSet .
- var COND : Condition .
+ vars COND COND' : Condition .
  --- ------------------------------
 
 
@@ -99,6 +100,22 @@ mod SEMANTICS is
  getMbs(MOD) getEqs(MOD)
    (getRls(MOD) RS) endm ) .
 
+   --- Removing a rule from the module 
+  op remove : Qid Module  -> Module .
+  eq remove(Q, MOD) = 
+     (mod 'NEW-MOD is
+       getImports(MOD)
+       sorts getSorts(MOD) .
+       getSubsorts(MOD) getOps(MOD)
+       getMbs(MOD) getEqs(MOD)
+       (remove(Q, getRls(MOD))) 
+      endm ) .
+  op remove : Qid RuleSet  -> RuleSet .
+  eq remove(Q, RS (rl T => T' [ ATTS  label(Q) ].)) = none .
+  eq remove(Q, RS (crl T => T' if COND  [ ATTS  label(Q) ].)) = none .
+  eq remove(Q, RS) = RS [owise] .
+
+
   --- Checking if a rule with a given label is in the module 
   op in : Qid Module  -> Bool .
   op in : Qid RuleSet  -> Bool .
@@ -106,6 +123,29 @@ mod SEMANTICS is
   eq in(Q, RS (rl T => T' [ ATTS  label(Q) ].)) = true .
   eq in(Q, RS (crl T => T' if COND  [ ATTS  label(Q) ].)) = true .
   eq in(Q, RS) = false [owise] .
+
+  --- Checking if a rule with a given label is firable 
+  --- This can be also implemented with metaApply (?)
+  op firable? : Qid Module Marking -> Bool .
+  ceq firable?(Q, MOD, M) =
+      RESP? =/= failure 
+   if RESP? := metaSrewrite(MOD, upTerm(M), Q [ none ] {empty}, breadthFirst, 0) .
+
+ --- Updating the guard of a rule
+ op update : Qid Module Condition -> Module .
+ eq update(Q, MOD, COND) = 
+     (mod 'NEW-MOD is
+       getImports(MOD)
+       sorts getSorts(MOD) .
+       getSubsorts(MOD) getOps(MOD)
+       getMbs(MOD) getEqs(MOD)
+       (update(Q, getRls(MOD), COND)) 
+      endm ) .
+ op update : Qid RuleSet Condition  -> RuleSet .
+ eq update(Q, RS (crl T => T' if COND  [ ATTS  label(Q) ].), COND') = 
+              RS (crl T => T' if COND'  [ ATTS  label(Q) ].) .
+ eq update(Q, RS, COND) = RS [owise] .
+
 
 endm
 
@@ -147,6 +187,8 @@ eof
 
 red init .
 rew [1] init .
+
+red firable?('ab, ['EXAMPLE],  initM) .
 
 search init =>* S:State .
 
