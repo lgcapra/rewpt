@@ -113,7 +113,7 @@ mod REW-DINING-PHIL is
   
   crl N, T S => N, T' S 
     if lab(T) = "th" /\ 
-       guard(T) /\ len(S[p("Think")]) > 1 /\
+       guard(T) /\ len(S[p("Think")]) > 0 /\
        M':Mset{Phil}  := pre(T)[p("Think")] /\ 
        M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
        T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].

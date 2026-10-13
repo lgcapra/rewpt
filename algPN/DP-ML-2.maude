@@ -125,13 +125,14 @@ mod EXAMPLE is
  ex SEMANTICS{String} .
  pr DINING-PHIL-MARK .
 
- op init  : -> State .
+ op init : NzNat -> State .
 
  vars MOD MOD' : Module .
  vars M  M' : Marking .
  vars BP BT : Mset{Phil} .
+ var N : NzNat .
 
- eq init = upModule('EXAMPLE, false)  @ m0(5) .
+ eq init(N) = upModule('EXAMPLE, false)  @ m0(N) .
 
  inc MARKING{Phil, String} .
  var Ph : Phil . vars B B' B'' : Mset{Phil} . var X : Nat . var K : NzNat .
@@ -152,33 +153,33 @@ endm
 eof 
 
 
-red init .
-rew [1] init .
+red init(5) .
+rew [1] init(5) .
 
 --- 120 solutions (without adding any rule)
-search init =>* S:State .
+search init(5) =>* S:State .
 --- 1396 solutions if rule change is added
-search init =>* S:State .
+search init(5) =>* S:State .
 
 --- The original rewrite rules
 --- Note the guard of rule th: if 'true.Bool = 'true.Bool [label('th)] .
 red init .
 --- Once change is applied, the guard of this rule changes
 --- if '_>_['s_^5['0.Zero], '0.Zero] = 'true.Bool
-srew init using change .
+srew init(5) using change .
 
 
 --- Using strategies
 --- Do not reconfigure (then 120 solution)
-srew init using step * .
+srew init(5) using step * .
 
 --- Do the reconfiguration anytime (if possible)
-srew init using (step | change) * .
+srew init(5) using (step | change) * .
 
 --- Do the reconfiguration only if a step is not possible
-srew init using (step or-else change) * .
+srew init(5) using (step or-else change) * .
 
 
 --- Reconfigure if possible and then step
-srew init using (try(change) ; step ) * .
+srew init(5) using (try(change) ; step ) * .
 
