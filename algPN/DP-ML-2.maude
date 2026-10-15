@@ -136,17 +136,21 @@ mod EXAMPLE is
 
  inc MARKING{Phil, String} .
  var Ph : Phil . vars B B' B'' : Mset{Phil} . var X : Nat . var K : NzNat .
- crl [th] : p("Think") |-> B Ph  ;  p("Pickup") |-> B' => p("Think") |-> B  ;  p("Pickup") |-> B' Ph 
+ crl [th] : p("Think") |-> BT Ph  ;  p("Pickup") |-> BP => p("Think") |-> BT  ;  p("Pickup") |-> BP Ph 
      if true . --- Dummy condition seems "update" looks for crl only 
  rl [pk] : p("Pickup") |-> B ph(X, K) ; p("Fork") |-> B' ph(X, K) ph(s(X), K) ; p("Eat") |-> B''  =>  
            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X, K) .
  rl [e] : p("Eat") |-> B ph(X, K) ; p("Fork") |-> B'  ; p("Think") |-> B''  =>  
           p("Eat") |-> B ; p("Fork") |-> B' ph(X, K) ph(s(X), K) ; p("Think") |-> B'' ph(X, K) . 
 
+ --- crl [change] : MOD @ M  => MOD' @ M 
+ --- if firable?('th, MOD, M) /\
+ ---    M' ; p("Pickup") |-> BP ; p("Think") |-> BT := M /\ --- Just extracting the needed markings
+ ---    MOD' := update('th, MOD, '_>_[upTerm(len(BT)),  upTerm(len(BP))] = 'true.Bool) .
  crl [change] : MOD @ M  => MOD' @ M 
  if firable?('th, MOD, M) /\
-    M' ; p("Pickup") |-> BP ; p("Think") |-> BT := M /\ --- Just extracting the needed markings
-    MOD' := update('th, MOD, '_>_[upTerm(len(BT)),  upTerm(len(BP))] = 'true.Bool) .
+    --- M' ; p("Pickup") |-> BP ; p("Think") |-> BT := M /\ --- Just extracting the needed markings
+    MOD' := update('th, MOD, '_>_['s_^1['len['BT:Mset`{Phil`}]],  'len['BP:Mset`{Phil`}]] = 'true.Bool) .
 endm
 
 
@@ -158,8 +162,14 @@ rew [1] init(5) .
 
 --- 120 solutions (without adding any rule)
 search init(5) =>* S:State .
---- 1396 solutions if rule change is added
+--- 232 solutions if rule change is added
 search init(5) =>* S:State .
+
+--- With change 29 solutions
+search init(3) =>* S:State .
+--- With change 0 solutions
+search init(3) =>! S:State .
+
 
 --- The original rewrite rules
 --- Note the guard of rule th: if 'true.Bool = 'true.Bool [label('th)] .

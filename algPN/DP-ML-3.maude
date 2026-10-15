@@ -12,7 +12,7 @@ mod STATE{X :: TRIV} is
  pr APN-MARKING{X} .
  pr META-LEVEL .
  sort State .
- op _@_ : Module Marking -> State [ctor] .
+ op _@_ : Module Marking -> State [ctor frozen] .
  op error : -> Marking [ctor] .
 
  --- Boxed marking (needed to avoid renamings) 
@@ -59,8 +59,8 @@ mod SEMANTICS{X :: TRIV} is
  if RES? := metaSearch(MOD, upTerm(M), 'M:Marking, nil, '+, 1, N) .
 
  --- Only one rule needed to move to the next state
- --- crl [step] : MOD @ M => MOD @ M'
- --- if [M'], SBMAR := next(MOD @ M) .
+ crl [step] : MOD @ M => MOD @ M'
+  if [M'], SBMAR := next(MOD @ M) .
 
  --- Possible operations in the net, e.g., adding transitions. 
  --- Adding a rule to a theory
@@ -125,14 +125,14 @@ mod EXAMPLE is
  ex SEMANTICS{String} .
  pr DINING-PHIL-MARK .
 
- op initM : -> Marking .
- op init  : -> State .
+ op init : NzNat -> State .
 
  vars MOD MOD' : Module .
  vars M  M' : Marking .
  vars BP BT : Mset{Phil} .
+ var N : NzNat .
 
- eq init = upModule('EXAMPLE, false)  @ m0(5) .
+ eq init(N) = upModule('EXAMPLE, false)  @ m0(N) .
 
  inc MARKING{Phil, String} .
  var Ph : Phil . vars B B' B'' : Mset{Phil} . var X : Nat . var K : NzNat .
@@ -150,7 +150,7 @@ mod EXAMPLE is
  crl [change] : MOD @ M  => MOD' @ M 
  if firable?('th, MOD, M) /\
     --- M' ; p("Pickup") |-> BP ; p("Think") |-> BT := M /\ --- Just extracting the needed markings
-    MOD' := update('th, MOD, '_>_['len['BP:Mset`{Phil`}],  'len['BT:Mset`{Phil`}]] = 'true.Bool) .
+    MOD' := update('th, MOD, '_>_['s_^1['len['BT:Mset`{Phil`}]],  'len['BP:Mset`{Phil`}]] = 'true.Bool) .
 endm
 
 
