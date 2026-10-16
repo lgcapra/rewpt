@@ -1,18 +1,31 @@
+in PT-EMU
+
+
 mod PT-EXE-1 is
     inc PT-EMU{String, String} .
     op pt-sys : -> System .
 
     
     eq pt-sys = (
-         "t1" |-> [1 . p("p1") + 1 . p("p2"), 1 . p("p3"), 3 . p("p2")] ;
+         "t1" |-> [1 . p("p1") + 2 . p("p2"), 1 . p("p2") + 1 . p("p3"), 3 . p("p2")] ;
          "t2" |-> [1 . p("p3"), 1 . p("p1") + 1 . p("p2")] 
     )   2 . p("p1") + 2 . p("p2") .   
 
-    vars M I O : Pbag . var N : Net . var T : Tran . var K : Nat .
-
-    crl [newt1] : ("t1" |-> [I, O, s(K) . p("p2")] ; N)  M => ("t1" |-> [I, O, K . p("p2")] ; N)  M 
-                 if M[p("p2")] <= K .
+      
 endm
 
 --- search for final states
-search in PT-EXE-1 : pt-sys =>! S:System .
+search in PT-EXE-1 : pt-sys =>* S:System .
+
+eof
+
+--- si dovrebbe aggiungere anche l'arco inibitore, se ci fosse (qui tra px e tx)
+[change] : px:P -2> tx:T, t2 -(k:Nat+)> p1 , tx:T -> px:P 
+          => 
+           px:P -> tx:T .
+
+rl [change] : tx:String |-> [I:Pbag + 2 . px:Place, O:Pbag + 1 . px:Place, H:Pbag] ; 
+                 "t2" |-> [I':Pbag, O':Pbag + k:NzNat . p("p1")] ; N:Net 
+                 => 
+                tx:String  |-> [I:Pbag + 1 . px:Place, O:Pbag + 1 . px:Place, H:Pbag] ; 
+                "t2" |-> [I':Pbag, O':Pbag] ; N:Net . 
