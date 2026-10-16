@@ -10,7 +10,6 @@ mod PT-EXE-1 is
          "t1" |-> [1 . p("p1") + 2 . p("p2"), 1 . p("p2") + 1 . p("p3"), 3 . p("p2")] ;
          "t2" |-> [1 . p("p3"), 1 . p("p1") + 1 . p("p2")] 
     )   2 . p("p1") + 2 . p("p2") .   
-
       
 endm
 
@@ -24,8 +23,34 @@ eof
           => 
            px:P -> tx:T .
 
+[cond_change] : px:P -(x:Nat+)> tx:T, t2 -(k:Nat+)> p1 , tx:T -(y:Nat+)> px:P 
+          => 
+           px:P -(x:Nat+ - y:Nat+)> tx:T
+           if (x:Nat+ > y:Nat+).
+
+[cond_change'] : px:P -(x:Nat+)> tx:T, t2 -(k:Nat+)> p1 , tx:T -(y:Nat+)> px:P 
+          => 
+           px:P -(x:Nat+ - y:Nat+)> tx:T
+           if (x:Nat+ > y:Nat+) and marking(p) > 0 .
+
+--- traduzione in Maude
+
 rl [change] : tx:String |-> [I:Pbag + 2 . px:Place, O:Pbag + 1 . px:Place, H:Pbag] ; 
                  "t2" |-> [I':Pbag, O':Pbag + k:NzNat . p("p1")] ; N:Net 
                  => 
-                tx:String  |-> [I:Pbag + 1 . px:Place, O:Pbag + 1 . px:Place, H:Pbag] ; 
+                tx:String  |-> [I:Pbag + 1 . px:Place, O:Pbag , H:Pbag] ; 
                 "t2" |-> [I':Pbag, O':Pbag] ; N:Net . 
+
+crl [cond_change] : tx:String |-> [I:Pbag + x:NzNat . px:Place, O:Pbag + y:NzNat . px:Place, H:Pbag] ; 
+                 "t2" |-> [I':Pbag, O':Pbag + k:NzNat . p("p1")] ; N:Net 
+                 => 
+                tx:String  |-> [I:Pbag + sd(x:NzNat, y:NzNat) . px:Place, O:Pbag , H:Pbag] ; 
+                "t2" |-> [I':Pbag, O':Pbag] ; N:Net 
+                if x:NzNat > y:NzNat .
+
+crl [cond_change'] : (tx:String |-> [I:Pbag + x:NzNat . px:Place, O:Pbag + y:NzNat . px:Place, H:Pbag] ; 
+                 "t2" |-> [I':Pbag, O':Pbag + k:NzNat . p("p1")] ; N:Net) m:Pbag  
+                 => 
+                (tx:String  |-> [I:Pbag + sd(x:NzNat, y:NzNat) . px:Place, O:Pbag , H:Pbag] ; 
+                "t2" |-> [I':Pbag, O':Pbag] ; N:Net ) m:Pbag 
+                if x:NzNat > y:NzNat /\ m:Pbag[px:Place] > 0 .
