@@ -123,7 +123,7 @@ endm
 
 mod EXAMPLE is
  ex SEMANTICS{String} .
- pr DINING-PHIL-MARK .
+ pr MARKING-PHIL .
 
  op init : NzNat -> State .
 
@@ -134,7 +134,6 @@ mod EXAMPLE is
 
  eq init(N) = upModule('EXAMPLE, false)  @ m0(N) .
 
- inc MARKING{Phil, String} .
  var Ph : Phil . vars B B' B'' : Mset{Phil} . var X : Nat . var K : NzNat .
  crl [th] : p("Think") |-> BT Ph  ;  p("Pickup") |-> BP => p("Think") |-> BT  ;  p("Pickup") |-> BP Ph 
      if true . --- Dummy condition seems "update" looks for crl only 

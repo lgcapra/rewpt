@@ -1,0 +1,175 @@
+--- Trying to use the meta-level to represent changes in the net
+--- Transitions in the net are "simple" rewrite rules (on markings)
+--- This  avoids the need of variables in the representation of transitions
+--- Operations on the net are operations on the rewrite theory (using the meta-level
+--- to add, remove or modify rewrite rules). 
+
+--- A state takes a module and a marking : MOD @ MARK
+--- The module should contain the rules representing the transitions 
+in DINING-PHIL
+
+fmod STATE{X :: TRIV} is
+ pr APN-MARKING{X} .
+ pr META-LEVEL .
+ sort State .
+ op _@_ : Module Marking -> State [ctor frozen] .
+ op error : -> Marking [ctor] .
+endfm
+
+
+view Marking{X :: TRIV} from TRIV to STATE{X} is
+  sort Elt to Marking .
+endv
+
+
+mod SEMANTICS{X :: TRIV} is
+ pr SET{Marking{X}} * (sort Set{Marking{X}} to SetMarking, 
+                       sort NeSet{Marking{X}} to NeSetMarking) .
+
+ --- ------------------------------
+ vars PRE POST  M M' : Marking . var STATE : State .
+ var MOD : Module . var TERM : Term .
+ var RES? : ResultTriple? . var RESP? : ResultPair? .
+ var RS : RuleSet . var Q : Qid . vars T T' : Term .
+ vars ATTS : AttrSet . vars COND COND' : Condition .
+ var N : Nat . var SMAR : SetMarking .
+ 
+ --- ------------------------------
+
+
+ --- Successor states
+ op next : State -> SetMarking .
+ op next : State Nat -> SetMarking .
+ eq next(STATE) = next(STATE, 0) .
+
+ ceq next(MOD @ M, N) = 
+  if RES? == failure
+  then empty
+  else downTerm(getTerm(RES?), error), next(MOD @ M, s(N))
+  fi 
+ if RES? := metaSearch(MOD, upTerm(M), 'M:Marking, nil, '+, 1, N) .
+
+ --- Only one rule needed to move to the next state
+ crl [step] : MOD @ M => MOD @ M' if M', SMAR := next(MOD @ M) .
+
+ --- Possible operations in the net, e.g., adding transitions. 
+ --- Adding a rule to a theory
+  --- Adds to M the rules Rls
+ op addRls : Module RuleSet -> Module .
+ eq addRls(MOD, RS)
+   = (mod qid(string(getName(MOD)) + "'") is
+   getImports(MOD)
+ sorts getSorts(MOD) .
+ getSubsorts(MOD) getOps(MOD)
+ getMbs(MOD) getEqs(MOD)
+   (getRls(MOD) RS) endm ) .
+
+  --- Checking if a rule with a given label is in the module 
+  op in : Qid Module  -> Bool .
+  op in : Qid RuleSet  -> Bool .
+  eq in(Q, MOD) = in(Q, getRls(MOD)) .
+  eq in(Q, RS (rl T => T' [ ATTS  label(Q) ].)) = true .
+  eq in(Q, RS (crl T => T' if COND  [ ATTS  label(Q) ].)) = true .
+  eq in(Q, RS) = false [owise] .
+
+   --- Removing a rule from the module 
+  op remove : Qid Module  -> Module .
+  eq remove(Q, MOD) = 
+     (mod qid(string(getName(MOD)) + "'") is
+       getImports(MOD)
+       sorts getSorts(MOD) .
+       getSubsorts(MOD) getOps(MOD)
+       getMbs(MOD) getEqs(MOD)
+       (remove(Q, getRls(MOD))) 
+      endm ) .
+  op remove : Qid RuleSet  -> RuleSet .
+  eq remove(Q, RS (rl T => T' [ ATTS  label(Q) ].)) = none .
+  eq remove(Q, RS (crl T => T' if COND  [ ATTS  label(Q) ].)) = none .
+  eq remove(Q, RS) = RS [owise] .
+
+  --- Checking if a rule with a given label is firable 
+  --- This can be also implemented with metaApply (?)
+  op firable? : Qid Module Marking -> Bool .
+  ceq firable?(Q, MOD, M) =
+      RESP? =/= failure 
+   if RESP? := metaSrewrite(MOD, upTerm(M), Q [ none ] {empty}, breadthFirst, 0) .
+
+ --- Updating the guard of a rule (both conditional and unconditional rules)
+ op update : Qid Module Condition -> Module .
+ eq update(Q, MOD, COND) = 
+     (mod qid(string(getName(MOD)) + "'") is
+       getImports(MOD)
+       sorts getSorts(MOD) .
+       getSubsorts(MOD) getOps(MOD)
+       getMbs(MOD) getEqs(MOD)
+       (update(Q, getRls(MOD), COND)) 
+      endm ) .
+ op update : Qid RuleSet Condition  -> RuleSet .
+ ceq update(Q, RS (crl T => T' if COND  [ ATTS  label(Q) ].), COND') = 
+              RS (crl T => T' if COND'  [ ATTS  label(Q) ].) if COND =/= COND' .
+ eq update(Q, RS (rl T => T'  [ ATTS  label(Q) ].), COND') = 
+              RS (crl T => T' if COND'  [ ATTS  label(Q) ].) .
+ 
+ eq update(Q, RS, COND) = RS [owise] .
+
+endm
+
+mod DYN-DINING-PHIL is
+ ex SEMANTICS{String} .
+ pr MARKING-PHIL .
+ inc DINING-PHIL .
+
+ op init : NzNat -> State .
+ op dinphil : -> Module [memo] .
+ 
+ vars MOD MOD' : Module . vars M  M' : Marking . vars K  N : NzNat .
+ var Ph : Phil . vars B B' B'' : Mset{Phil} .
+
+ eq dinphil = upModule('DINING-PHIL, false) .
+ eq init(N) = dinphil  @ m0(N) .
+
+ crl [gth] : MOD @ M  => MOD' @ M 
+ if firable?('th, MOD, M) /\
+    MOD' := update('th, dinphil, '_>_['s_^1['len['B:Mset`{Phil`}]],  'len['B':Mset`{Phil`}]] = 'true.Bool) .
+endm
+
+
+eof 
+
+
+red init(5) .
+rew [1] init(5) .
+
+--- 120 solutions (without adding any rule)
+search init(5) =>* S:State .
+--- 232 solutions if rule change is added
+search init(5) =>* S:State .
+
+--- With change 29 solutions
+search init(3) =>* S:State .
+--- With change 0 solutions
+search init(3) =>! S:State .
+
+
+--- The original rewrite rules
+--- Note the guard of rule th: if 'true.Bool = 'true.Bool [label('th)] .
+red init .
+--- Once change is applied, the guard of this rule changes
+--- if '_>_['s_^5['0.Zero], '0.Zero] = 'true.Bool
+srew init(5) using change .
+
+
+--- Using strategies
+--- Do not reconfigure (then 120 solution)
+srew init(5) using step * .
+
+--- Do the reconfiguration anytime (if possible)
+srew init(5) using (step | change) * .
+
+--- Do the reconfiguration only if a step is not possible
+srew init(5) using (step or-else change) * .
+
+
+--- Reconfigure if possible and then step
+srew init(5) using (try(change) ; step ) * .
+

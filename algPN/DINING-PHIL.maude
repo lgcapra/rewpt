@@ -15,7 +15,7 @@ endm
 
 --- this module defines the initial configuration of the dining philosophers' net in a parameterized way (the number of philosophers is a parameter)
 
-fmod DINING-PHIL-MARK is 
+fmod MARKING-PHIL is 
   pr MARKING{Phil, String} .
   op nphil : NzNat -> NeMset{Phil} . *** allows creating a set of philosophers of arbitrary size
   var N : NzNat . var K : Nat . var B : Mset{Phil} .
@@ -28,8 +28,8 @@ fmod DINING-PHIL-MARK is
 endfm
 
 mod DINING-PHIL-M0 is 
+  pr MARKING-PHIL .
   inc DINING-PHIL .
-  pr DINING-PHIL-MARK .
 endm
 
 search in DINING-PHIL-M0 : m0(5) =>! M:Marking . 

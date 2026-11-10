@@ -83,7 +83,7 @@ endm
 in PHIL-N
 
 mod REW-DINING-PHIL is
-  pr DINING-PHIL-MARK .
+  pr MARKING-PHIL .
   inc APN-EMU{String, String} .
 
   --- aliases for the transitions and the entire net
@@ -111,7 +111,8 @@ mod REW-DINING-PHIL is
   --- tricky example of net rewrite where th transition's guard is set to a boolean term that is true if the number of philosophers in the precondition of th is greater than the number of philosophers in the precondition of pk)
   vars T  T' : Transition . var N : Net .  var S : Marking . 
   
-  crl N, T S => N, T' S 
+  --- Rebuild a "th" transition with a guard requiring more Think than Pickup tokens.
+  crl [gth] : N, T S => N, T' S 
     if lab(T) = "th" /\ 
        guard(T) /\ len(S[p("Think")]) > 0 /\
        M':Mset{Phil}  := pre(T)[p("Think")] /\ 
