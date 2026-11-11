@@ -134,7 +134,7 @@ mod DYN-DINING-PHIL is
 endm
 
 
-eof 
+--- eof 
 
 
 red init(5) .
@@ -154,9 +154,9 @@ search init(3) =>! S:State .
 --- The original rewrite rules
 --- Note the guard of rule th: if 'true.Bool = 'true.Bool [label('th)] .
 red init .
---- Once change is applied, the guard of this rule changes
+--- Once gth is applied, the guard of this rule changes
 --- if '_>_['s_^5['0.Zero], '0.Zero] = 'true.Bool
-srew init(5) using change .
+srew init(5) using gth .
 
 
 --- Using strategies
@@ -164,12 +164,12 @@ srew init(5) using change .
 srew init(5) using step * .
 
 --- Do the reconfiguration anytime (if possible)
-srew init(5) using (step | change) * .
+srew init(5) using (step | gth) * .
 
 --- Do the reconfiguration only if a step is not possible
-srew init(5) using (step or-else change) * .
+srew init(5) using (step or-else gth) * .
 
 
 --- Reconfigure if possible and then step
-srew init(5) using (try(change) ; step ) * .
+srew init(5) using (try(gth) ; step ) * .
 

@@ -11,7 +11,7 @@ endfm
 fmod MATCH-FINDER is
   pr SUBST-SET .
   
-  op allMatches : Module Term Term -> Set{Substitution} .
+  op allMatches : Module Term Term -> Set{Substitution} .--- [memo] .
   op $allMatches : Module Term Term Nat -> Set{Substitution} .
 
   var mod : Module . vars T U :  Term . var X : Nat .
