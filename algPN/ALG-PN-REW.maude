@@ -21,8 +21,13 @@ in MATCH-FINDER
 --- NOTE the module REW-APN is parameterized by two trivial theories, for the place and for the transition labels.
 --- The parameter PL is bound to the corresponding parameter of imported module APN-MARKING .
 
+fmod BOOL' is 
+ protecting BOOL . 
+ op equals : Universal Universal -> Bool [poly (1 2) comm  ] . 
+endfm
 
 fmod REW-APN{PL :: TRIV, TL :: TRIV} is
+  pr BOOL' .
   pr APN-MARKING{PL} .
   
   sorts Transition Net System .
@@ -85,10 +90,11 @@ in PHIL-N
 mod REW-DINING-PHIL is
   pr MARKING-PHIL .
   inc APN-EMU{String, String} .
+  inc INITIAL-EQUALITY-PREDICATE . 
 
   --- aliases for the transitions and the entire net
   op th  : Mset{Phil} Mset{Phil} Phil -> Transition [memo] . 
-  op pk  : Mset{Phil} Mset{Phil} Mset{Phil} Nat NzNat ->  Transition [memo] . 
+  op pk  : Mset{Phil} Mset{Phil} Mset{Phil} Phil Nat NzNat ->  Transition [memo] . 
   op  e  : Mset{Phil} Mset{Phil} Mset{Phil} Nat NzNat -> Transition [memo] . 
   op net : Mset{Phil} Mset{Phil} Mset{Phil} Phil Nat NzNat -> Net [memo] . 
   
@@ -100,24 +106,24 @@ mod REW-DINING-PHIL is
 
   eq th(B, B', Ph)  = ["th"] p("Think") |-> B Ph  ;  p("Pickup") |-> B' => p("Think") |-> B  ;  p("Pickup") |-> B' Ph [true] . 
                      
-  eq pk(B, B', B'', X, K) = ["pk"] p("Pickup") |-> B ph(X, K) ; p("Fork") |-> B' ph(X, K) ph(s(X), K) ; p("Eat") |-> B''  =>  
-            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X, K) [true] .
+  eq pk(B, B', B'', Ph, X, K) = ["pk"] p("Pickup") |-> B ph(X, K) ; p("Fork") |-> B' ph(X, K) Ph ; p("Eat") |-> B''  =>  
+            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X, K) [Ph .=. ph(s(X), K)] .
   
   eq e(B, B', B'', X, K) = ["e"]  p("Eat") |-> B ph(X, K) ; p("Fork") |-> B'  ; p("Think") |-> B''  =>  
          p("Eat") |-> B ; p("Fork") |-> B' ph(X, K) ph(s(X), K) ; p("Think") |-> B'' ph(X, K) [true] .
   
-  eq net(B, B', B'', Ph, X, K) = th(B, B', Ph) , pk(B, B', B'', X, K), e(B, B', B'', X, K) .
+  eq net(B, B', B'', Ph, X, K) = th(B, B', Ph) , pk(B, B', B'', Ph, X, K), e(B, B', B'', X, K) .
 
   --- tricky example of net rewrite where th transition's guard is set to a boolean term that is true if the number of philosophers in the precondition of th is greater than the number of philosophers in the precondition of pk)
   vars T  T' : Transition . var N : Net .  var S : Marking . 
   
   --- Rebuild a "th" transition with a guard requiring more Think than Pickup tokens.
   crl [gth] : N, T S => N, T' S 
-    if lab(T) = "th" /\ 
-       guard(T) /\ len(S[p("Think")]) > 0 /\
-       M':Mset{Phil}  := pre(T)[p("Think")] /\ 
-       M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
-       T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].
+     if lab(T) = "th" /\ 
+        guard(T) /\ len(S[p("Think")]) > 0 /\
+        M':Mset{Phil}  := pre(T)[p("Think")] /\ 
+        M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
+        T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].
 endm
 
 --- debugging

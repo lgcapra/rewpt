@@ -11,7 +11,7 @@ endfm
 fmod MATCH-FINDER is
   pr SUBST-SET .
   
-  op allMatches : Module Term Term -> Set{Substitution} .--- [memo] .
+  op allMatches : Module Term Term -> Set{Substitution} . --- [memo] .
   op $allMatches : Module Term Term Nat -> Set{Substitution} .
 
   var mod : Module . vars T U :  Term . var X : Nat .
@@ -22,3 +22,4 @@ fmod MATCH-FINDER is
       if SUBST := metaMatch(mod, T, U, nil, X) /\ SUBST =/= noMatch .
   eq $allMatches(mod, T, U, X) = NoSubst [owise] .
 endfm
+

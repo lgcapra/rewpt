@@ -5,10 +5,13 @@ in ALG-PN
 
 mod DINING-PHIL is
   inc MARKING{Phil, String} .
+  inc INITIAL-EQUALITY-PREDICATE . 
   var Ph : Phil . vars B B' B'' : Mset{Phil} . var X : Nat . var K : NzNat .
   rl [th] : p("Think") |-> B Ph  ;  p("Pickup") |-> B' => p("Think") |-> B  ;  p("Pickup") |-> B' Ph .
-  rl [pk] : p("Pickup") |-> B ph(X, K) ; p("Fork") |-> B' ph(X, K) ph(s(X), K) ; p("Eat") |-> B''  =>  
-            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X, K) .
+  
+  crl [pk] : p("Pickup") |-> B ph(X, K) ; p("Fork") |-> B' ph(X, K) Ph ; p("Eat") |-> B''  =>  
+            p("Pickup") |-> B ; p("Fork") |-> B' ; p("Eat") |-> B'' ph(X, K) if Ph .=. ph(s(X), K) .
+  
   rl [e] : p("Eat") |-> B ph(X, K) ; p("Fork") |-> B'  ; p("Think") |-> B''  =>  
            p("Eat") |-> B ; p("Fork") |-> B' ph(X, K) ph(s(X), K) ; p("Think") |-> B'' ph(X, K) . 
 endm

@@ -129,18 +129,18 @@ mod DYN-DINING-PHIL is
  eq init(N) = dinphil  @ m0(N) .
 
  crl [gth] : MOD @ M  => MOD' @ M 
- if firable?('th, MOD, M) /\
+  if firable?('th, MOD, M) /\
     MOD' := update('th, dinphil, '_>_['s_^1['len['B:Mset`{Phil`}]],  'len['B':Mset`{Phil`}]] = 'true.Bool) .
 endm
 
 
---- eof 
+eof 
 
 
 red init(5) .
 rew [1] init(5) .
 
---- 120 solutions (without adding any rule)
+--- 152 solutions (without adding any rule)
 search init(5) =>* S:State .
 --- 232 solutions if rule change is added
 search init(5) =>* S:State .
