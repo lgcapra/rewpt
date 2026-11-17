@@ -1,0 +1,85 @@
+--- Trying to avoid the use of Maude variables by creating "constants" in the user module. 
+--- Such constants are expected to be declared with the syntax #ID
+
+
+fmod PNET-SYNTAX is
+ pr NAT .
+ pr QID .
+
+ sort Token .
+
+ sort Marking .
+ subsort Token < Marking .
+ op empty : -> Marking [ctor] .
+ op _;_ : Marking Marking -> Marking [ctor assoc comm id: empty] .
+
+ sorts Transition Net .
+ subsort Transition < Net . 
+ op emptyNet : -> Net .
+ op _;_ : Net Net -> Net [ctor assoc comm id: emptyNet] .
+ op [_]_=>_if_ : Qid Marking Marking Bool -> Transition [ctor] .
+
+ sort State .
+ op <net:_,mark:_> : Net Marking -> State [ctor] .
+endfm
+
+mod SEMANTICS is
+ pr PNET-SYNTAX .
+ pr META-LEVEL .
+
+
+ --- ---------------
+ var V : Variable . 
+ var CTE : Constant .
+ var Q : Qid .
+ var TL : TermList .
+ var T : Term .
+ var TYPE : Type .
+ --- ---------------
+
+ --- Replacing constants of the form #ID of type T with variables
+ --- of the form #ID:T
+
+ --- For terms
+ op replace : Term -> Term .
+ eq replace(V)  = V .
+ eq replace(CTE) = $replace(CTE) .
+ eq replace(Q [ TL ]) = Q [ replaceL(TL) ] .
+
+ --- for lists of terms 
+ op replaceL : TermList -> TermList .
+ eq replaceL(empty) = empty .
+ eq replaceL( (T, TL)) = replace(T), replaceL(TL) .
+
+ --- The special case of constans 
+ op $replace : Constant -> Term .
+
+ ceq $replace(CTE) = 
+   if substr(string(Q),0,1) == "#"
+   then qid(string(Q) + ":" + string(TYPE))
+   else CTE
+   fi
+  if
+  Q := getName(CTE) /\
+  TYPE := getType(CTE) .
+endm
+
+mod EXAMPLE is
+ pr SEMANTICS .
+
+ op p : Nat -> Token [ctor] .
+ --- A new "Constant" of type Nat. 
+ op #N : -> Nat .
+
+ --- No need to use "variables" for this definition 
+ op mytr : -> Transition .
+ eq mytr = [ 'TR ] p(#N) => p(s #N) if #N > 4 .
+endm
+
+eof
+--- The #N > 4 is not evaluated since #N is a new constant 
+red mytr .
+--- In the meta-representation, #N is still a constant ('#N.Nat)
+red upTerm(mytr) .
+--- Afeter the call to "replace", #N is now a variable  ('#N:Nat)
+red replace(upTerm(mytr)) .  
