@@ -66,15 +66,25 @@ endm
 
 mod EXAMPLE is
  pr SEMANTICS .
+ pr INITIAL-EQUALITY-PREDICATE .
+
 
  op p : Nat -> Token [ctor] .
  --- A new "Constant" of type Nat. 
- op #N : -> Nat .
 
  --- No need to use "variables" for this definition 
+ op #N : -> Nat .
+ op #K : -> Nat .
+ op #M : -> Marking .
+ op _=_ : Nat Nat ~> Bool .
  op mytr : -> Transition .
- eq mytr = [ 'TR ] p(#N) => p(s #N) if #N > 4 .
+ eq mytr = [ 'TR ] p(#N)  => p(s #K)  if #N = 4 .
+
+
+
 endm
+
+
 
 eof
 --- The #N > 4 is not evaluated since #N is a new constant 

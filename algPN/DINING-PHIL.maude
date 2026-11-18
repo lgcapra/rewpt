@@ -35,4 +35,5 @@ mod DINING-PHIL-M0 is
   inc DINING-PHIL .
 endm
 
+eof
 search in DINING-PHIL-M0 : m0(5) =>! M:Marking . 

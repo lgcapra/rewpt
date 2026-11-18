@@ -1,0 +1,207 @@
+--- Working on the idea in ./DP-NO-VAR.maude, this is a complete implementation of the dinning philosopher problem using "constants" as place holders. 
+--- Some theories are from ./ALG-PN-REW.maude redefined here to avoid the commands in the middle of that file
+
+--- The basic idea is to use constants such as #X of a given type S to represent a place-holder in terms representing transitions
+--- A meta-level function replaces the constant #N.Type to a Maude variable #N:Type thus subject to subsitution, matching, etc. 
+
+--- For equality, == cannot be used. Instead a symbol _=_ is defined 
+
+--- The label of the APN transitions is "forgotten" since we need a QID. 
+
+--- The user module needs to define the operator op usrmod : -> Module with the module being analyzed 
+
+load DINING-PHIL.maude
+
+--- The only modification here is [Bool] in the definition of transition 
+fmod REW-APN{PL :: TRIV, TL :: TRIV} is
+  pr APN-MARKING{PL} .
+  
+  sorts Transition Net System .
+  subsort  Transition < Net .
+  
+  op emptyN : -> Net [ctor] .
+  op [_]_=>_[_] : TL$Elt Marking Marking [Bool] -> Transition [ctor prec 57] .
+  op _,_ : Net Net -> Net [ctor assoc comm id: emptyN prec 121] .
+  op __ : Net Marking -> System [ctor prec 121] .
+  ops pre post : Transition -> Marking .
+  op lab : Transition -> TL$Elt .
+  op guard : Transition -> Bool .
+  
+  vars M M' : Marking . vars T T' : Transition .
+  var N : Net . var L : TL$Elt . var P : Place . var G : Bool . 
+  
+  eq lab([L] M => M' [G])   = L .
+  eq pre([L] M => M' [G])   = M .
+  eq post([L] M => M' [G])  = M' .
+  eq guard([L] M => M' [G]) = G .
+
+  eq [L] M => M' [false] = emptyN .
+  
+endfm
+
+--- This is the semantic definitions
+--- There are many alternatives to define it and a particular one is explored. See more comments below
+--- Since the rules (at least for the dinning philosopher example) consider the "whole" marking as in 
+--- p("Fork") |-> #B' ph(#X, #K), then we can simply translate APN transitions as rewrite rules (on markings)
+
+mod APN-SEMANTICS{PL :: TRIV, TL :: TRIV} is
+  inc REW-APN{PL, TL} .
+  pr META-LEVEL .
+
+
+  --- ---------------
+  var V : Variable . 
+  var CTE : Constant .
+  var Q : Qid .
+  var TL : TermList .
+  var T : Term .
+  var TYPE : Type .
+  var LAB : TL$Elt .
+  vars PRE POST : Marking .
+  var COND : [Bool] .
+  var MOD  : Module . 
+  var RS   : RuleSet .
+  var TR    : [Transition] .
+  var TR'   : [Transition] .
+  var NET  : [Net] .
+  var MAR  : Marking .
+  var MAR' : Marking .
+  var TERM : Term .
+  var STERM : STerm .
+  var N    : Nat .
+  var RES? : ResultTriple? .
+  --- ---------------
+
+  --- To be defined by the user 
+  op usrmod : -> Module . 
+
+  --- Replacing constants of the form #ID of type T with variables
+  --- of the form #ID:T
+  --- Moreover, it replaces the predicate _=_ as _==_
+
+  --- For terms
+  op replace : Term -> Term .
+  eq replace(V)  = V .
+  eq replace(CTE) = $replace(CTE) .
+  eq replace('_=_ [ TL ]) = '_==_ [ replaceL(TL) ] .
+  eq replace(Q [ TL ]) = Q [ replaceL(TL) ] [owise] .
+
+  --- for lists of terms 
+  op replaceL : TermList -> TermList .
+  eq replaceL(empty) = empty .
+  eq replaceL( (T, TL)) = replace(T), replaceL(TL) .
+
+  --- The special case of constans 
+  op $replace : Constant -> Term .
+
+  ceq $replace(CTE) = 
+    if substr(string(Q),0,1) == "#" then qid(string(Q) + ":" + string(TYPE)) else CTE fi
+   if   Q := getName(CTE) /\
+     TYPE := getType(CTE) .
+
+  --- Translating APN transitions into (meta-)Rules 
+  op translate : Transition -> Rule . 
+  --- Notice that the label is lost here since we need a QID 
+  eq translate( [ LAB ] PRE => POST [ COND ]) = 
+    crl replace(upTerm(PRE)) => replace(upTerm(POST)) if replace(upTerm(COND)) = 'true.Bool [ none ]. .
+
+  --- Translating all the transitions
+  op translateNet : Net -> RuleSet .
+  eq translateNet(emptyN) = none .
+  eq translateNet((TR, NET) ) = translate(TR) translateNet(NET) .
+
+
+  --- Adding rules to a module 
+  op addRls : Module RuleSet -> Module .
+  eq addRls(MOD, RS)
+    = (mod qid(string(getName(MOD)) + "'") is
+      getImports(MOD)
+      sorts getSorts(MOD) .
+      getSubsorts(MOD) getOps(MOD)
+      getMbs(MOD) getEqs(MOD)
+      (getRls(MOD) RS) endm ) .
+
+   --- Needed for meta operations
+   op error : -> [Marking] .
+
+  --- Sets of terms 
+  sort STerm .
+  subsort Term < STerm .
+  op mtset : -> STerm .
+  op _;;_ : STerm STerm -> STerm [ctor comm assoc id: mtset] .
+
+  --- All steps
+  op all-steps : Module Term -> STerm .
+  eq all-steps(MOD, TERM) = all-steps(MOD, TERM, 0) .
+  op all-steps : Module Term Nat -> STerm .
+  ceq all-steps(MOD, TERM, N) =
+    if RES? == failure then mtset 
+    else getTerm(RES?) ;; all-steps(MOD, TERM, s N)
+    fi 
+    if RES? := metaSearch(MOD, TERM, 'M:Marking, nil, '+, 1, N) .
+
+
+  --- The only rewrite rule needed is to give one step of rewriting with
+  --- the module containing the rules representing the transitions 
+  crl [move] : (TR, NET) MAR => (TR, NET) downTerm(TERM, error) 
+      if TERM ;; STERM := all-steps(addRls(usrmod, translateNet(NET)), upTerm(MAR)) .
+endm
+
+
+--- The example of the DP
+--- Place holders such as $N are used as "variables" 
+mod REW-DINING-PHIL is
+  inc APN-SEMANTICS{String, String} .
+  inc MARKING-PHIL .
+
+
+  --- These definition do not require variables anymore 
+  --- aliases for the transitions and the entire net
+  op th  : -> Transition [memo] . 
+  op pk  : ->  Transition [memo] . 
+  op  e  : -> Transition [memo] . 
+
+  --- Here we use new constructors instead of variables
+  op #Ph : -> Phil . 
+  ops #B #B' #B'' : -> Mset{Phil} . 
+  op #X : -> Nat . 
+  op #K : -> NzNat .
+
+  --- Equality for Phil
+  op _=_ : Phil Phil ~> Bool .
+  
+  --- Now place holders are used here and no variable is involved 
+  eq th  = ["th"] p("Think") |-> #B #Ph  ;  p("Pickup") |-> #B' => p("Think") |-> #B  ;  p("Pickup") |-> #B' #Ph [true] . 
+                     
+  eq pk = ["pk"] p("Pickup") |-> #B ph(#X, #K) ; p("Fork") |-> #B' ph(#X, #K) #Ph ; p("Eat") |-> #B''  =>  
+            p("Pickup") |-> #B ; p("Fork") |-> #B' ; p("Eat") |-> #B'' ph(#X, #K) [#Ph = ph(s(#X), #K)] .
+
+  
+  eq e = ["e"]  p("Eat") |-> #B ph(#X, #K) ; p("Fork") |-> #B'  ; p("Think") |-> #B''  =>  
+         p("Eat") |-> #B ; p("Fork") |-> #B' ph(#X, #K) ph(s(#X), #K) ; p("Think") |-> #B'' ph(#X, #K) [true] .
+  
+  --- Initial state 
+  op net : -> Net . 
+  op init : -> [System] .
+  eq net = (th, pk, e) .
+  eq init =  net m0(5) .
+
+  --- Module defined by the user
+  eq usrmod = ['REW-DINING-PHIL] .
+
+  --- The reconfiguration rule 
+  vars NET NET' : Net .
+  var MAR : Marking .
+  vars TR TR' : Transition .
+  --- crl [gth] : NET, TR MAR => NET, TR' MAR 
+  ---    if lab(TR) = "th" /\ 
+  ---       downTerm(replace(upTerm(guard(TR))),true) /\ 
+  ---       len(MAR[p("Think")]) > 0 /\
+  ---       TR' := ["th"] p("Think") |-> #B #Ph  ;  p("Pickup") |-> #B' => p("Think") |-> #B  ;  p("Pickup") |-> #B' #Ph [len(#B) > len(#B')] .
+endm
+
+eof
+
+search  init =>* S:System .
+search  init =>! S:System .
+
