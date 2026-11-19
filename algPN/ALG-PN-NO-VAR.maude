@@ -143,7 +143,7 @@ mod APN-SEMANTICS{PL :: TRIV, TL :: TRIV} is
 
   --- The only rewrite rule needed is to give one step of rewriting with
   --- the module containing the rules representing the transitions 
-  crl [move] : (TR, NET) MAR => (TR, NET) downTerm(TERM, error) 
+  crl [move] : NET MAR =>  NET downTerm(TERM, error) 
       if TERM ;; STERM := all-steps(addRls(usrmod, translateNet(NET)), upTerm(MAR)) .
 endm
 
