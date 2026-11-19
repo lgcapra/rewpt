@@ -182,9 +182,9 @@ mod REW-DINING-PHIL is
   
   --- Initial state 
   op net : -> Net . 
-  op init : -> [System] .
+  op init : NzNat -> [System] .
   eq net = (th, pk, e) .
-  eq init =  net m0(5) .
+  eq init(N:NzNat) =  net m0(N:NzNat) .
 
   --- Module defined by the user
   eq usrmod = ['REW-DINING-PHIL] .
@@ -202,6 +202,6 @@ endm
 
 eof
 
-search  init =>* S:System .
-search  init =>! S:System .
+search  init(5) =>* S:System .
+search  init(5) =>! S:System .
 

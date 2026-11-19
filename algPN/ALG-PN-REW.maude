@@ -21,13 +21,7 @@ in MATCH-FINDER
 --- NOTE the module REW-APN is parameterized by two trivial theories, for the place and for the transition labels.
 --- The parameter PL is bound to the corresponding parameter of imported module APN-MARKING .
 
-fmod BOOL' is 
- protecting BOOL . 
- op equals : Universal Universal -> Bool [poly (1 2) comm  ] . 
-endfm
-
 fmod REW-APN{PL :: TRIV, TL :: TRIV} is
-  pr BOOL' .
   pr APN-MARKING{PL} .
   
   sorts Transition Net System .
@@ -118,12 +112,12 @@ mod REW-DINING-PHIL is
   vars T  T' : Transition . var N : Net .  var S : Marking . 
   
   --- Rebuild a "th" transition with a guard requiring more Think than Pickup tokens.
-  crl [gth] : N, T S => N, T' S 
-     if lab(T) = "th" /\ 
-        guard(T) /\ len(S[p("Think")]) > 0 /\
-        M':Mset{Phil}  := pre(T)[p("Think")] /\ 
-        M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
-        T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].
+  --- crl [gth] : N, T S => N, T' S 
+  ---   if lab(T) = "th" /\ 
+  ---      guard(T) /\ len(S[p("Think")]) > 0 /\
+  ---      M':Mset{Phil}  := pre(T)[p("Think")] /\ 
+  ---      M'':Mset{Phil} := pre(T)[p("Pickup")] /\ 
+  ---      T' := ["th"] pre(T) => post(T) [len(M':Mset{Phil}) > len(M'':Mset{Phil})].
 endm
 
 --- debugging

@@ -1,5 +1,5 @@
 fmod EQUAL{X :: TRIV} is
  ex BOOL .
- op equal : X$Elt X$Elt -> [Bool] .
+ op equal : X$Elt X$Elt -> [Bool] [comm] .
  eq equal(X:X$Elt, X:X$Elt) = true .
 endfm

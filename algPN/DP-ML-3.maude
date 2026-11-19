@@ -127,10 +127,11 @@ mod DYN-DINING-PHIL is
 
  eq dinphil = upModule('DINING-PHIL, false) .
  eq init(N) = dinphil  @ m0(N) .
-
- crl [gth] : MOD @ M  => MOD' @ M 
-  if firable?('th, MOD, M) /\
-    MOD' := update('th, dinphil, '_>_['s_^1['len['B:Mset`{Phil`}]],  'len['B':Mset`{Phil`}]] = 'true.Bool) .
+ 
+ --- structural rewrite 
+--- crl [gth] : MOD @ M  => MOD' @ M 
+---  if firable?('th, MOD, M) /\
+---    MOD' := update('th, dinphil, '_>_['s_^1['len['B:Mset`{Phil`}]],  'len['B':Mset`{Phil`}]] = 'true.Bool) .
 endm
 
 
